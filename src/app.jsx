@@ -12,6 +12,8 @@ import Referral from "./components/Referral";
 import Rewards from "./components/Rewards";
 import Support from "./components/Support";
 import AdminPanel from "./AdminPanel";
+import Wallets from "./components/Wallets";
+import Settings from "./components/Settings";
 
 function App() {
   const [page, setPage] = useState("dashboard");
@@ -55,13 +57,14 @@ function App() {
     if (page === "markets") return <Markets />;
     if (page === "trade") return <Trade />;
     if (page === "buy") return <BuyCrypto />;
+    if (page === "wallets") return <Wallets />;
     if (page === "orders") return <Orders />;
     if (page === "referral") return <Referral />;
     if (page === "rewards") return <Rewards />;
     if (page === "support") return <Support />;
     if (page === "listings") return <ListingForm />;
     if (page === "admin") return <AdminPanel />;
-
+    if (page === "settings") return <Settings />;
     return (
       <div className="panel">
         <h2>{page.toUpperCase()}</h2>
@@ -87,6 +90,7 @@ function App() {
           <button onClick={() => setPage("rewards")}>Rewards</button>
           <button onClick={() => setPage("support")}>Support</button>
           <button onClick={() => setPage("admin")}>Admin</button>
+          <button onClick={() => setPage("settings")}>Settings</button>
         </div>
 
         <div className="coin-box">

@@ -4,7 +4,7 @@ function AdminPanel() {
   const [listings, setListings] = useState([]);
 
   const fetchListings = async () => {
-    const res = await fetch("http://localhost:3000/api/listings");
+   const res = await fetch("http://localhost:3000/api/listings");
     const data = await res.json();
     setListings(data.listings || []);
   };
@@ -14,7 +14,7 @@ function AdminPanel() {
   }, []);
 
   const updateStatus = async (id, status) => {
-    const res = await fetch("http://localhost:3000/api/listings/status", {
+   const res = await fetch("http://localhost:3000/api/listings/status", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
