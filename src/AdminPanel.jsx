@@ -14,7 +14,7 @@ function AdminPanel() {
   }, []);
 
   const updateStatus = async (id, status) => {
-   const res = await fetch("http://localhost:3000/api/listings/status", {
+  const res = await fetch("https://exalt-exchange-backend.onrender.com/api/listings/status", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
