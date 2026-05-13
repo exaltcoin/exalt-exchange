@@ -19,22 +19,24 @@ function ListingForm() {
   };
 
   const submitListing = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!form.name || !form.symbol || !form.contract || !form.website) {
-      alert("Coin Name, Symbol, Contract, Website required");
-      return;
-    }
+  try {
+    const response = await fetch(
+      "https://exalt-exchange-backend.onrender.com/api/listings",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      }
+    );
 
-   try {
-  const res = await fetch("https://exalt-exchange-backend.onrender.com/api/listings", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(form),
-  });
-      const data = await res.json();
+    const data = await response.json();
 
-      alert(data.message || "Listing submitted");
+    if (response.ok) {
+      alert("Listing Submitted Successfully ✅");
 
       setForm({
         name: "",
@@ -48,10 +50,14 @@ function ListingForm() {
         chart: "",
         buy: "",
       });
-    } catch {
-      alert("Backend not connected");
+    } else {
+      alert(data.message || "Submission failed");
     }
-  };
+  } catch (error) {
+    console.log(error);
+    alert("Backend not connected");
+  }
+};
 
   return (
     <div className="panel">
