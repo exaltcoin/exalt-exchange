@@ -3,12 +3,20 @@ import { useEffect, useState } from "react";
 function AdminPanel() {
   const [listings, setListings] = useState([]);
 
-  const fetchListings = async () => {
-   const res = await fetch("http://localhost:3000/api/listings");
-    const data = await res.json();
-    setListings(data.listings || []);
-  };
+ const fetchListings = async () => {
+  try {
+    const res = await fetch(
+      "https://exalt-exchange-backend.onrender.com/api/listings"
+    );
 
+    const data = await res.json();
+
+    setListings(Array.isArray(data) ? data : data.listings || []);
+  } catch (error) {
+    console.log(error);
+    alert("Failed to load listings");
+  }
+};
   useEffect(() => {
     fetchListings();
   }, []);
@@ -18,7 +26,7 @@ function AdminPanel() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-password": "Rehan789$$",
+        "x-admin-key": "exaltexchange789$$",
       },
       body: JSON.stringify({ id, status }),
     });
