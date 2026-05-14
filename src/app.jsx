@@ -19,35 +19,42 @@ function App() {
   const [page, setPage] = useState("dashboard");
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
-
+const [menuOpen, setMenuOpen] = useState(false);
   const connectWallet = async () => {
-    try {
-      if (!window.ethereum) {
-        alert("MetaMask یا Trust Wallet browser install/open کریں");
+  try {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const siteUrl = "exaltexchange.io";
+
+    if (!window.ethereum) {
+      if (isMobile) {
+        window.location.href = `https://metamask.app.link/dapp/${siteUrl}`;
         return;
       }
 
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x38" }],
-      });
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
-      const address = accounts[0];
-
-      const balance = await provider.getBalance(address);
-
-      setWallet(address);
-      setBnbBalance(Number(ethers.formatEther(balance)).toFixed(4));
-
-      alert("Wallet Connected Successfully");
-    } catch (error) {
-      console.log(error);
-      alert("Wallet connection failed");
+      alert("Please install MetaMask extension");
+      return;
     }
-  };
 
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x38" }],
+    });
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const accounts = await provider.send("eth_requestAccounts", []);
+    const address = accounts[0];
+
+    const balance = await provider.getBalance(address);
+
+    setWallet(address);
+    setBnbBalance(Number(ethers.formatEther(balance)).toFixed(4));
+
+    alert("Wallet Connected Successfully");
+  } catch (error) {
+    console.log(error);
+    alert("Wallet connection failed");
+  }
+};
   const shortWallet = wallet
     ? wallet.slice(0, 6) + "..." + wallet.slice(-4)
     : "Connect Wallet";
@@ -74,24 +81,130 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <aside className="sidebar">
+  <div className="app">
+
+    <button
+      className="mobile-menu-btn"
+      onClick={() => setMenuOpen(!menuOpen)}
+    >
+      ☰
+    </button>
+
+    <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
+      
         <h1 className="logo">EXALTEXCHANGE</h1>
 
-        <div className="menu">
-          <button onClick={() => setPage("dashboard")}>Dashboard</button>
-          <button onClick={() => setPage("markets")}>Markets</button>
-          <button onClick={() => setPage("trade")}>Trade</button>
-          <button onClick={() => setPage("buy")}>Buy Crypto</button>
-          <button onClick={() => setPage("wallets")}>Wallets</button>
-          <button onClick={() => setPage("orders")}>Orders</button>
-          <button onClick={() => setPage("listings")}>Submit Listing</button>
-          <button onClick={() => setPage("referral")}>Referral</button>
-          <button onClick={() => setPage("rewards")}>Rewards</button>
-          <button onClick={() => setPage("support")}>Support</button>
-          <button onClick={() => setPage("admin")}>Admin</button>
-          <button onClick={() => setPage("settings")}>Settings</button>
-        </div>
+       <div className="menu">
+
+  <button
+    onClick={() => {
+      setPage("dashboard");
+      setMenuOpen(false);
+    }}
+  >
+    Dashboard
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("markets");
+      setMenuOpen(false);
+    }}
+  >
+    Markets
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("trade");
+      setMenuOpen(false);
+    }}
+  >
+    Trade
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("buy");
+      setMenuOpen(false);
+    }}
+  >
+    Buy Crypto
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("wallets");
+      setMenuOpen(false);
+    }}
+  >
+    Wallets
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("orders");
+      setMenuOpen(false);
+    }}
+  >
+    Orders
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("listings");
+      setMenuOpen(false);
+    }}
+  >
+    Submit Listing
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("referral");
+      setMenuOpen(false);
+    }}
+  >
+    Referral
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("rewards");
+      setMenuOpen(false);
+    }}
+  >
+    Rewards
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("support");
+      setMenuOpen(false);
+    }}
+  >
+    Support
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("admin");
+      setMenuOpen(false);
+    }}
+  >
+    Admin
+  </button>
+
+  <button
+    onClick={() => {
+      setPage("settings");
+      setMenuOpen(false);
+    }}
+  >
+    Settings
+  </button>
+
+</div>
 
         <div className="coin-box">
           <h3>EXALT Coin</h3>

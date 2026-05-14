@@ -548,4 +548,123 @@ a{
   border:1px solid #2a3441;
   color:white;
   border-radius:10px;
+}.mobile-menu-btn {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block !important;
+    position: fixed !important;
+    top: 15px !important;
+    left: 15px !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 12px !important;
+    background: #f5b800 !important;
+    color: #000 !important;
+    font-size: 24px !important;
+    font-weight: bold !important;
+    border: none !important;
+    z-index: 99999 !important;
+    padding: 0 !important;
+  }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 82% !important;
+    height: 100vh !important;
+    background: #08111f !important;
+    z-index: 99998 !important;
+    padding: 80px 20px 20px !important;
+    transition: 0.3s ease !important;
+    overflow-y: auto !important;
+  }
+
+  .sidebar.open {
+    left: 0 !important;
+  }
+
+  .main {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+}.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding-top: 20px;
+}
+
+.topbar div {
+  text-align: center;
+}
+
+.topbar h2 {
+  text-align: center;
+  margin: 0;
+}
+
+.topbar p {
+  text-align: center;
+  margin-top: 5px;
+}
+
+.connect-btn {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+}
+
+.mobile-menu-btn {
+  position: absolute;
+  left: 20px;
+  top: 10px;
+}@media (max-width: 768px) {
+
+  .connect-btn {
+    position: fixed !important;
+    top: 18px !important;
+    right: 15px !important;
+    width: 120px !important;
+    height: 45px !important;
+    font-size: 16px !important;
+    border-radius: 12px !important;
+    z-index: 9999 !important;
+  }
+
+  .topbar {
+    padding-top: 90px !important;
+  }
+
+  .topbar h2 {
+    font-size: 34px !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  .topbar p {
+    text-align: center !important;
+    width: 100% !important;
+    font-size: 16px !important;
+  }
+
+}@media (max-width: 768px) {
+  .connect-btn {
+    top: 18px !important;
+    right: 12px !important;
+    width: 105px !important;
+    height: 42px !important;
+    font-size: 14px !important;
+    line-height: 16px !important;
+    padding: 4px !important;
+  }
+
+  .topbar h2 {
+    padding: 0 115px !important;
+    font-size: 30px !important;
+  }
 }

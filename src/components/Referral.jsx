@@ -1,6 +1,6 @@
 function Referral() {
   const referralCode = "EXALT-REF-2026";
-  const referralLink = "https://exalttrader.com/ref/EXALT-REF-2026";
+  const referralLink = "https://exaltexchange.io/ref/EXALT-REF-2026";
 
   const copyLink = () => {
     navigator.clipboard.writeText(referralLink);

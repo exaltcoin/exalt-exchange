@@ -10,9 +10,7 @@ function Dashboard() {
           </p>
         </div>
 
-        <button className="connect-btn">
-          Connect Wallet
-        </button>
+
       </div>
 
       <div className="stats-grid">

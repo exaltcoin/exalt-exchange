@@ -38,12 +38,46 @@ function Wallets() {
 
           <button
             className="buy-btn"
-            onClick={() =>
-              alert("Deposit request submitted. Admin will verify before credit.")
-            }
-          >
-            Submit Deposit Request
-          </button>
+  onClick={async () => {
+    try {
+      const inputs = document.querySelectorAll("input");
+
+      const response = await fetch(
+        "https://exalt-exchange-backend.onrender.com/api/deposit-request",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: inputs[0]?.value || "",
+            wallet: inputs[1]?.value || "",
+            amount: inputs[2]?.value || "",
+            paymentMethod: inputs[3]?.value || "",
+            transactionId: inputs[4]?.value || "",
+            status: "pending",
+            createdAt: new Date().toISOString(),
+          }),
+        }
+      );
+if (!response.ok) {
+  throw new Error("Request failed");
+}
+      const data = await response.json();
+
+      if (data.success) {
+        alert("Deposit request submitted successfully.");
+      } else {
+        alert("Submission failed.");
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Server error.");
+    }
+  }}
+>
+  Submit Deposit Request
+</button>
         </div>
       </div>
 

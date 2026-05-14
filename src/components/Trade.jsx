@@ -59,7 +59,35 @@ function Trade() {
                   <p>{selectedCoin.symbol.toUpperCase()}/USDT</p>
                 </div>
               </div>
+<div style={{ marginTop: "20px", marginBottom: "20px" }}>
+  <a
+    href="https://pancakeswap.finance/swap?outputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
+    target="_blank"
+    rel="noreferrer"
+    className="buy-btn"
+    style={{
+      background: "#f0b90b",
+      color: "#000",
+      padding: "14px 22px",
+      borderRadius: "10px",
+      textDecoration: "none",
+      fontWeight: "bold",
+      display: "inline-block"
+    }}
+  >
+    Buy / Sell EXALT Live
+  </a>
 
+  <p
+    style={{
+      marginTop: "10px",
+      color: "#00ff99",
+      fontSize: "14px"
+    }}
+  >
+    Live trading powered by PancakeSwap & BNB Smart Chain
+  </p>
+</div>
               <div className="trade-stats">
                 <div>
                   <span>Price</span>
