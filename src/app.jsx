@@ -13,6 +13,7 @@ import Rewards from "./components/Rewards";
 import Support from "./components/Support";
 import AdminPanel from "./AdminPanel";
 import Wallets from "./components/Wallets";
+import AuthPanel from "./components/AuthPanel";
 import Settings from "./components/Settings";
 
 function App() {
@@ -72,6 +73,7 @@ const [menuOpen, setMenuOpen] = useState(false);
     if (page === "listings") return <ListingForm />;
     if (page === "admin") return <AdminPanel />;
     if (page === "settings") return <Settings />;
+    if (page === "auth") return <AuthPanel />;
     return (
       <div className="panel">
         <h2>{page.toUpperCase()}</h2>
@@ -194,6 +196,14 @@ const [menuOpen, setMenuOpen] = useState(false);
   >
     Admin
   </button>
+  <button
+  onClick={() => {
+    setPage("auth");
+    setMenuOpen(false);
+  }}
+>
+  Login / Signup
+</button>
 
   <button
     onClick={() => {
