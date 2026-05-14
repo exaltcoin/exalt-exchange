@@ -21,7 +21,7 @@ export default function AuthPanel() {
 
   const signup = async () => {
     try {
-      const res = await fetch(`${API}/api/auth/signup`, {
+     const res = await fetch(`${API}/api/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export default function AuthPanel() {
 
   const login = async () => {
     try {
-      const res = await fetch(`${API}/api/auth/login`, {
+      const res = await fetch(`${API}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
