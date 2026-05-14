@@ -106,7 +106,14 @@ const [menuOpen, setMenuOpen] = useState(false);
   >
     Dashboard
   </button>
-
+<button
+  onClick={() => {
+    setPage("auth");
+    setMenuOpen(false);
+  }}
+>
+  Login / Signup
+</button>
   <button
     onClick={() => {
       setPage("markets");
@@ -187,22 +194,13 @@ const [menuOpen, setMenuOpen] = useState(false);
   >
     Support
   </button>
-
-  <button
-    onClick={() => {
-      setPage("admin");
-      setMenuOpen(false);
-    }}
-  >
-    Admin
-  </button>
-  <button
+<button
   onClick={() => {
-    setPage("auth");
+    setPage("admin");
     setMenuOpen(false);
   }}
 >
-  Login / Signup
+  Admin
 </button>
 
   <button
