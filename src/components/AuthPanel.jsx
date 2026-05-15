@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 const API = "https://exalt-exchange-backend.onrender.com";
+const ADMIN_KEY = "exaltexchange786$$";
 
 export default function AuthPanel({ setPage }) {
   const [mode, setMode] = useState("login");
@@ -14,6 +15,7 @@ export default function AuthPanel({ setPage }) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (token && setPage) {
       setPage("dashboard");
     }
@@ -44,7 +46,10 @@ export default function AuthPanel({ setPage }) {
 
         alert("Signup successful");
 
-        if (setPage) setPage("dashboard");
+        if (setPage) {
+          setPage("dashboard");
+        }
+        window.location.reload();
       } else {
         alert(data.message || "Signup failed");
       }
@@ -75,7 +80,10 @@ export default function AuthPanel({ setPage }) {
 
         alert("Login successful");
 
-        if (setPage) setPage("dashboard");
+        if (setPage) {
+          setPage("dashboard");
+        }
+       window.location.reload(); 
       } else {
         alert(data.message || "Login failed");
       }
@@ -86,54 +94,107 @@ export default function AuthPanel({ setPage }) {
   };
 
   return (
-    <div className="panel">
-      <h2>AUTH</h2>
-      <p>Login or create your Exalt Exchange account</p>
+    <div className="auth-page">
+      <div className="auth-card">
 
-      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
-        <button onClick={() => setMode("login")}>Login</button>
-        <button onClick={() => setMode("signup")}>Signup</button>
+        <div className="auth-left">
+          <h1>EXALT EXCHANGE</h1>
+
+          <p>
+            Secure crypto market board with wallet login,
+            trading dashboard, referral rewards and admin approval system.
+          </p>
+
+          <div className="qr-box">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://exaltexchange.io"
+              alt="QR"
+            />
+
+            <span>Scan QR To Open Exalt Exchange</span>
+          </div>
+        </div>
+
+        <div className="auth-right">
+
+          <h2>
+            {mode === "login"
+              ? "Welcome Back"
+              : "Create Account"}
+          </h2>
+
+          <p className="auth-subtitle">
+            {mode === "login"
+              ? "Login to continue"
+              : "Create your secure account"}
+          </p>
+
+          <div className="auth-tabs">
+
+            <button
+              className={mode === "login" ? "active" : ""}
+              onClick={() => setMode("login")}
+            >
+              Login
+            </button>
+
+            <button
+              className={mode === "signup" ? "active" : ""}
+              onClick={() => setMode("signup")}
+            >
+              Signup
+            </button>
+
+          </div>
+
+          {mode === "signup" && (
+            <>
+              <input
+                name="name"
+                placeholder="Full Name"
+                value={form.name}
+                onChange={handleChange}
+              />
+
+              <input
+                name="wallet"
+                placeholder="Wallet Address"
+                value={form.wallet}
+                onChange={handleChange}
+              />
+            </>
+          )}
+
+          <input
+            name="email"
+            placeholder="Email Address"
+            value={form.email}
+            onChange={handleChange}
+          />
+
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+          />
+
+          <button
+            className="auth-submit"
+            onClick={mode === "signup" ? signup : login}
+          >
+            {mode === "signup"
+              ? "Create Account"
+              : "Login"}
+          </button>
+
+          <p className="security-text">
+            🔐 MongoDB Secure Auth • JWT Login • Wallet Support
+          </p>
+
+        </div>
       </div>
-
-      {mode === "signup" && (
-        <>
-          <input
-            name="name"
-            placeholder="Full Name"
-            value={form.name}
-           onChange={handleChange}
-          />
-
-          <input
-            name="wallet"
-            placeholder="Wallet Address"
-            value={form.wallet}
-         onChange={handleChange}
-          />
-        </>
-      )}
-
-      <input
-        name="email"
-        placeholder="Email Address"
-        value={form.email}
-        onChange={handleChange}     />
-
-      <input
-        name="password"        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={handleChange}
-      />
-
-      {mode === "signup" ? (
-        <button className="submit-btn" onClick={signup}>
-          Create Account
-        </button>
-      ) : (
-        <button className="submit-btn" onClick={login}>
-          Login
-        </button>
-      )}
     </div>
-  );}
+  );
+}

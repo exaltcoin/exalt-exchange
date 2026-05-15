@@ -2,29 +2,43 @@ import { useEffect, useState } from "react";
 
 function AdminPanel() {
   const API = "https://exalt-exchange-backend.onrender.com";
+  const ADMIN_KEY = "exaltexchange786$$";
 
   const [listings, setListings] = useState([]);
   const [deposits, setDeposits] = useState([]);
   const [tickets, setTickets] = useState([]);
 
-  const loadAdminData = async () => {
-    try {
-      const listingsRes = await fetch(`${API}/api/listings`);
-      const listingsData = await listingsRes.json();
-      setListings(listingsData.listings || []);
+ const loadAdminData = async () => {
+  try {
+    const headers = {
+      "x-admin-key": ADMIN_KEY,
+    };
 
-      const depositsRes = await fetch(`${API}/api/deposit-request`);
-      const depositsData = await depositsRes.json();
-      setDeposits(depositsData.requests || []);
+    const listingsRes = await fetch(`${API}/api/listings`, {
+      headers,
+    });
 
-      const ticketsRes = await fetch(`${API}/api/support-ticket`);
-      const ticketsData = await ticketsRes.json();
-      setTickets(ticketsData.tickets || []);
-    } catch (error) {
-      console.log(error);
-      alert("Admin data load failed");
-    }
-  };
+    const listingsData = await listingsRes.json();
+    setListings(listingsData.listings || []);
+
+    const depositsRes = await fetch(`${API}/api/deposit-request`, {
+      headers,
+    });
+
+    const depositsData = await depositsRes.json();
+    setDeposits(depositsData.requests || []);
+
+    const ticketsRes = await fetch(`${API}/api/support-ticket`, {
+      headers,
+    });
+
+    const ticketsData = await ticketsRes.json();
+    setTickets(ticketsData.tickets || []);
+  } catch (error) {
+    console.log(error);
+    alert("Admin data load failed");
+  }
+};
 
   useEffect(() => {
     loadAdminData();
@@ -35,7 +49,7 @@ function AdminPanel() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-key": "exaltexchange789$$",
+        "x-admin-key": ADMIN_KEY,
       },
       body: JSON.stringify({ id, status }),
     });
@@ -48,6 +62,7 @@ function AdminPanel() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-admin-key": ADMIN_KEY,
       },
       body: JSON.stringify({ id, status }),
     });
@@ -60,7 +75,9 @@ function AdminPanel() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-admin-key": ADMIN_KEY,
       },
+      
       body: JSON.stringify({ id, status }),
     });
 

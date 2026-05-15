@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "./style.css";
 
@@ -21,6 +21,36 @@ function App() {
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
 const [menuOpen, setMenuOpen] = useState(false);
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    setPage("auth");
+  } else {
+    setPage("dashboard");
+  }
+}, []);
+const isLoggedIn = !!localStorage.getItem("token");
+
+if (!isLoggedIn) {
+  return (
+    <div className="app">
+      <main className="main auth-only">
+        <AuthPanel setPage={setPage} />
+      </main>
+    </div>
+  );
+}
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  setPage("auth");
+
+  alert("Logout successful");
+
+  window.location.reload();
+};
   const connectWallet = async () => {
   try {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -226,7 +256,11 @@ const [menuOpen, setMenuOpen] = useState(false);
             {shortWallet}
           </button>
         </div>
-
+{localStorage.getItem("token") && (
+  <button className="connect-btn" onClick={logout}>
+    Logout
+  </button>
+)}
         {renderPage()}
       </main>
     </div>

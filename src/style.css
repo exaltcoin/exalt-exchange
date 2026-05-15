@@ -667,4 +667,142 @@ a{
     padding: 0 115px !important;
     font-size: 30px !important;
   }
+}.auth-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: linear-gradient(135deg, #07111f, #111827);
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(255,193,7,0.3);
+  box-shadow: 0 25px 80px rgba(0,0,0,0.45);
+}
+
+.auth-left {
+  padding: 45px;
+  background: radial-gradient(circle at top,
+  rgba(255,193,7,0.15),
+  transparent 45%);
+}
+
+.auth-left h1 {
+  color: #ffc107;
+  font-size: 42px;
+  margin-bottom: 18px;
+}
+
+.auth-left p {
+  color: #d1d5db;
+  line-height: 1.7;
+}
+
+.qr-box {
+  margin-top: 35px;
+  width: 190px;
+  background: white;
+  padding: 15px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.qr-box img {
+  width: 160px;
+  height: 160px;
+}
+
+.qr-box span {
+  color: #111827;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.auth-right {
+  padding: 45px;
+}
+
+.auth-right h2 {
+  color: white;
+  font-size: 34px;
+}
+
+.auth-subtitle {
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.auth-tabs .active {
+  background: #ffc107;
+  color: black;
+  font-weight: bold;
+}
+
+.auth-right input {
+  width: 100%;
+  padding: 15px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg,#22c55e,#16a34a);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.security-text {
+  margin-top: 18px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+}
+
+@media(max-width:768px) {
+  .auth-card {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-left,
+  .auth-right {
+    padding: 25px;
+  }
+
+  .auth-left h1 {
+    font-size: 32px;
+  }
+
+  .qr-box {
+    margin: 25px auto 0;
+  }
 }
