@@ -17,7 +17,7 @@ import AuthPanel from "./components/AuthPanel";
 import Settings from "./components/Settings";
 
 function App() {
-  const [page, setPage] = useState("dashboard");
+ const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
 const [menuOpen, setMenuOpen] = useState(false);
@@ -73,7 +73,7 @@ const [menuOpen, setMenuOpen] = useState(false);
     if (page === "listings") return <ListingForm />;
     if (page === "admin") return <AdminPanel />;
     if (page === "settings") return <Settings />;
-    if (page === "auth") return <AuthPanel />;
+    if (page === "auth") return <AuthPanel setPage={setPage} />;
     return (
       <div className="panel">
         <h2>{page.toUpperCase()}</h2>
@@ -106,14 +106,7 @@ const [menuOpen, setMenuOpen] = useState(false);
   >
     Dashboard
   </button>
-<button
-  onClick={() => {
-    setPage("auth");
-    setMenuOpen(false);
-  }}
->
-  Login / Signup
-</button>
+
   <button
     onClick={() => {
       setPage("markets");

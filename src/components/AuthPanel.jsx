@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const API = "https://exalt-exchange-backend.onrender.com";
 
-export default function AuthPanel() {
+export default function AuthPanel({ setPage }) {
   const [mode, setMode] = useState("login");
 
   const [form, setForm] = useState({
@@ -11,6 +11,13 @@ export default function AuthPanel() {
     password: "",
     wallet: "",
   });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && setPage) {
+      setPage("dashboard");
+    }
+  }, [setPage]);
 
   const handleChange = (e) => {
     setForm({
@@ -21,7 +28,7 @@ export default function AuthPanel() {
 
   const signup = async () => {
     try {
-     const res = await fetch(`${API}/api/signup`, {
+      const res = await fetch(`${API}/api/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,10 +43,13 @@ export default function AuthPanel() {
         localStorage.setItem("user", JSON.stringify(data.user));
 
         alert("Signup successful");
+
+        if (setPage) setPage("dashboard");
       } else {
-        alert(data.message);
+        alert(data.message || "Signup failed");
       }
     } catch (err) {
+      console.log(err);
       alert("Server Error");
     }
   };
@@ -64,55 +74,25 @@ export default function AuthPanel() {
         localStorage.setItem("user", JSON.stringify(data.user));
 
         alert("Login successful");
+
+        if (setPage) setPage("dashboard");
       } else {
-        alert(data.message);
+        alert(data.message || "Login failed");
       }
     } catch (err) {
+      console.log(err);
       alert("Server Error");
     }
   };
 
   return (
-    <div
-      style={{
-        background: "#111827",
-        padding: 20,
-        borderRadius: 14,
-        marginTop: 20,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          marginBottom: 20,
-        }}
-      >
-        <button
-          onClick={() => setMode("login")}
-          style={{
-            background: mode === "login" ? "#22c55e" : "#1f2937",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: 8,
-          }}
-        >
-          Login
-        </button>
+    <div className="panel">
+      <h2>AUTH</h2>
+      <p>Login or create your Exalt Exchange account</p>
 
-        <button
-          onClick={() => setMode("signup")}
-          style={{
-            background: mode === "signup" ? "#22c55e" : "#1f2937",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: 8,
-          }}
-        >
-          Signup
-        </button>
+      <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+        <button onClick={() => setMode("login")}>Login</button>
+        <button onClick={() => setMode("signup")}>Signup</button>
       </div>
 
       {mode === "signup" && (
@@ -120,59 +100,40 @@ export default function AuthPanel() {
           <input
             name="name"
             placeholder="Full Name"
-            onChange={handleChange}
-            style={input}
+            value={form.name}
+           onChange={handleChange}
           />
 
           <input
             name="wallet"
             placeholder="Wallet Address"
-            onChange={handleChange}
-            style={input}
+            value={form.wallet}
+         onChange={handleChange}
           />
         </>
       )}
 
       <input
         name="email"
-        placeholder="Email"
-        onChange={handleChange}
-        style={input}
-      />
+        placeholder="Email Address"
+        value={form.email}
+        onChange={handleChange}     />
 
       <input
-        type="password"
-        name="password"
+        name="password"        type="password"
         placeholder="Password"
+        value={form.password}
         onChange={handleChange}
-        style={input}
       />
 
-      <button
-        onClick={mode === "login" ? login : signup}
-        style={{
-          width: "100%",
-          background: "#22c55e",
-          color: "#fff",
-          border: "none",
-          padding: 14,
-          borderRadius: 10,
-          fontWeight: "bold",
-          marginTop: 10,
-        }}
-      >
-        {mode === "login" ? "Login" : "Create Account"}
-      </button>
+      {mode === "signup" ? (
+        <button className="submit-btn" onClick={signup}>
+          Create Account
+        </button>
+      ) : (
+        <button className="submit-btn" onClick={login}>
+          Login
+        </button>
+      )}
     </div>
-  );
-}
-
-const input = {
-  width: "100%",
-  padding: 12,
-  marginBottom: 12,
-  borderRadius: 8,
-  border: "1px solid #333",
-  background: "#0f172a",
-  color: "#fff",
-};
+  );}
