@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-const API = "https://exalt-exchange-backend.onrender.com";
-const ADMIN_KEY = "exaltexchange786$$";
+const API = import.meta.env.VITE_API_URL;
+const ADMIN_KEY = "exaltexchange7890$$";
 
 export default function AuthPanel({ setPage }) {
   const [mode, setMode] = useState("login");

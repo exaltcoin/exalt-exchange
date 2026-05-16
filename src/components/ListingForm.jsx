@@ -22,16 +22,18 @@ function ListingForm() {
   e.preventDefault();
 
   try {
-    const response = await fetch(
-      "https://exalt-exchange-backend.onrender.com/api/listings",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      }
-    );
+   const API = import.meta.env.VITE_API_URL;
+
+const response = await fetch(
+  `${API}/api/listings`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(form),
+  }
+);
 
     const data = await response.json();
 
