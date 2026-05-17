@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 function AdminPanel() {
   const API = "https://exalt-exchange-backend.onrender.com";
-  const ADMIN_KEY = "exaltexchange7890$$".trim();
+  const ADMIN_KEY = "exaltexchange7890$$";
   const [listings, setListings] = useState([]);
   const [deposits, setDeposits] = useState([]);
   const [tickets, setTickets] = useState([]);
