@@ -30,7 +30,7 @@ export default function AuthPanel({ setPage }) {
 
   const signup = async () => {
     try {
-      const res = await fetch(`${API}/api/signup`, {
+      const res = await fetch(`${API}/api/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +61,7 @@ export default function AuthPanel({ setPage }) {
 
   const login = async () => {
     try {
-      const res = await fetch(`${API}/api/login`, {
+      const res = await fetch(`${API}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,13 +77,13 @@ export default function AuthPanel({ setPage }) {
       if (data.success) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-
+          
         alert("Login successful");
 
         if (setPage) {
           setPage("dashboard");
         }
-       window.location.reload(); 
+      window.location.reload();
       } else {
         alert(data.message || "Login failed");
       }
@@ -188,7 +188,18 @@ export default function AuthPanel({ setPage }) {
               ? "Create Account"
               : "Login"}
           </button>
-
+<p
+  onClick={() => alert("Reset Password Coming Soon")}
+  style={{
+    marginTop: "14px",
+    color: "#f0c419",
+    cursor: "pointer",
+    fontSize: "14px",
+    textAlign: "center",
+  }}
+>
+  Forgot Password?
+</p>
           <p className="security-text">
             🔐 MongoDB Secure Auth • JWT Login • Wallet Support
           </p>

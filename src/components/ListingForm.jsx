@@ -12,6 +12,10 @@ function ListingForm() {
     discord: "",
     chart: "",
     buy: "",
+    price: "",
+marketCap: "",
+liquidity: "",
+logo: "",
   });
 
   const update = (e) => {
@@ -51,6 +55,10 @@ const response = await fetch(
         discord: "",
         chart: "",
         buy: "",
+        price: "",
+marketCap: "",
+liquidity: "",
+logo: "",
       });
     } else {
       alert(data.message || "Submission failed");
@@ -71,11 +79,15 @@ const response = await fetch(
         <input name="chain" placeholder="Chain" value={form.chain} onChange={update} />
         <input name="contract" placeholder="Contract Address" value={form.contract} onChange={update} />
         <input name="website" placeholder="Website URL" value={form.website} onChange={update} />
+        <input name="logo" placeholder="Logo URL" value={form.logo} onChange={update} />
         <input name="telegram" placeholder="Telegram Link" value={form.telegram} onChange={update} />
         <input name="twitter" placeholder="X / Twitter Link" value={form.twitter} onChange={update} />
         <input name="discord" placeholder="Discord Link" value={form.discord} onChange={update} />
         <input name="chart" placeholder="Chart Link / DexScreener" value={form.chart} onChange={update} />
         <input name="buy" placeholder="Buy Link / PancakeSwap" value={form.buy} onChange={update} />
+        <input name="price" placeholder="Live Price" value={form.price} onChange={update} />
+<input name="marketCap" placeholder="Market Cap" value={form.marketCap} onChange={update} />
+<input name="liquidity" placeholder="Liquidity" value={form.liquidity} onChange={update} />
 
         <button type="submit" className="buy-btn">
           Submit Listing

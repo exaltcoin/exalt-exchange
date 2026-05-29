@@ -1,0 +1,23 @@
+.glass-panel{
+  background: rgba(17,17,17,0.85);
+  border: 1px solid rgba(240,196,25,0.25);
+  border-radius: 18px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 0 25px rgba(240,196,25,0.08);
+}
+
+.text-primary{ color:#f0c419; }
+.text-foreground{ color:#ffffff; }
+.text-muted-foreground{ color:#9ca3af; }
+.border-border\/50{ border-color:rgba(255,255,255,0.08); }.gold-btn{
+  width:100%;
+  margin-top:15px;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(90deg,#f0c419,#ffb347);
+  color:#111;
+  font-weight:800;
+  cursor:pointer;
+}

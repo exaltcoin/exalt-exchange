@@ -1,6 +1,37 @@
 import React from "react";
 
 function Settings() {
+  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  const submitKYC = async () => {
+    try {
+      const inputs = document.querySelectorAll(".kyc-input");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      const payload = {
+        userId: user._id || user.id || "",
+        fullName: inputs[0].value,
+        email: inputs[1].value,
+        country: inputs[2].value,
+        walletAddress: inputs[3].value,
+        idType: inputs[4].value,
+        idNumber: inputs[5].value,
+        telegramUsername: inputs[6].value,
+        projectName: inputs[7].value,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      };
+
+      alert("KYC request submitted. Admin will review and approve.");
+      console.log("KYC Payload:", payload);
+
+      inputs.forEach((input) => (input.value = ""));
+    } catch (error) {
+      console.log(error);
+      alert("KYC submission failed");
+    }
+  };
+
   return (
     <div className="panel">
       <h2>SETTINGS & SECURITY</h2>
@@ -22,7 +53,7 @@ function Settings() {
         <div className="stat-card glow-red">
           <h3>Bot Protection</h3>
           <h1>Enabled</h1>
-          <p>Wallet verification and manual approval help reduce fake listings.</p>
+          <p>Wallet verification and manual approval reduce fake listings.</p>
         </div>
       </div>
 
@@ -30,21 +61,16 @@ function Settings() {
         <h2>KYC Verification Form</h2>
 
         <div className="listing-form">
-          <input placeholder="Full Legal Name" />
-          <input placeholder="Email Address" />
-          <input placeholder="Country" />
-          <input placeholder="Wallet Address" />
-          <input placeholder="ID Type: Passport / CNIC / National ID" />
-          <input placeholder="ID Number" />
-          <input placeholder="Telegram Username" />
-          <input placeholder="Project / Coin Name" />
+          <input className="kyc-input" placeholder="Full Legal Name" />
+          <input className="kyc-input" placeholder="Email Address" />
+          <input className="kyc-input" placeholder="Country" />
+          <input className="kyc-input" placeholder="Wallet Address" />
+          <input className="kyc-input" placeholder="ID Type: Passport / CNIC / National ID" />
+          <input className="kyc-input" placeholder="ID Number" />
+          <input className="kyc-input" placeholder="Telegram Username" />
+          <input className="kyc-input" placeholder="Project / Coin Name" />
 
-          <button
-            className="buy-btn"
-            onClick={() =>
-              alert("KYC request submitted. Admin will review and approve.")
-            }
-          >
+          <button className="buy-btn" onClick={submitKYC}>
             Submit KYC
           </button>
         </div>

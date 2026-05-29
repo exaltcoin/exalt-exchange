@@ -1,0 +1,153 @@
+.app {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background: #0f172a;
+  color: white;
+}
+
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background: #111827;
+  padding: 15px;
+  border-right: 1px solid #1f2937;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+.dashboard-grid,
+.market-grid,
+.trade-grid,
+.futures-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.card,
+.panel,
+.market-card,
+.trade-card,
+.stat-card {
+  background: #1a1f2e;
+  border-radius: 16px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quick-actions button {
+  width: 100%;
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: bold;
+}
+
+.live-chart,
+.order-book,
+.trading-panel {
+  width: 100%;
+  overflow-x: auto;
+}
+
+iframe {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .dashboard-grid,
+  .market-grid,
+  .trade-grid,
+  .futures-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+  }
+
+  .main-content {
+    padding: 12px;
+  }
+
+  .dashboard-grid,
+  .market-grid,
+  .trade-grid,
+  .futures-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card,
+  .panel,
+  .market-card,
+  .trade-card,
+  .stat-card {
+    width: 100%;
+  }
+
+  .quick-actions button {
+    font-size: 14px;
+  }
+
+  iframe {
+    height: 350px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 8px;
+  }
+
+  .sidebar {
+    padding: 10px;
+  }
+
+  .quick-actions button,
+  button {
+    min-height: 42px;
+    font-size: 13px;
+  }
+
+  iframe {
+    height: 280px !important;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+}

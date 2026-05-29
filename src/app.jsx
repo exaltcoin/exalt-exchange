@@ -1,3 +1,4 @@
+import exchangeLogo from "./assets/exalt-exchange.png";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "./style.css";
@@ -13,25 +14,65 @@ import Rewards from "./components/Rewards";
 import Support from "./components/Support";
 import AdminPanel from "./AdminPanel";
 import Wallets from "./components/Wallets";
-import AuthPanel from "./components/AuthPanel";
 import Settings from "./components/Settings";
-
+import Transactions from "./components/Transactions";
+import AuthPanel from "./components/AuthPanel";
+import TradingPanel from "./components/TradingPanel";
+import OrderBook from "./components/OrderBook";
+import P2P from "./components/P2P";
+import AdminP2P from "./components/AdminP2P";
+import Futures from "./components/Futures";
+import ReplitRewards from "./replit_ui/Rewards";
+import ReplitTrade from "./replit_ui/Trade";
+import ReplitFutures from "./replit_ui/Futures";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
 const [menuOpen, setMenuOpen] = useState(false);
 useEffect(() => {
-  const token = localStorage.getItem("token");
+  const checkAuth = async () => {
+    const token = localStorage.getItem("token");
 
-  if (!token) {
-    setPage("auth");
-  } else {
-    setPage("dashboard");
-  }
+    if (!token) {
+      setPage("auth");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/auth/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setPage("dashboard");
+      } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setPage("auth");
+      }
+    } catch (error) {
+      console.log(error);
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      setPage("auth");
+    }
+  };
+
+  checkAuth();
 }, []);
 const isLoggedIn = !!localStorage.getItem("token");
-
+/*
 if (!isLoggedIn) {
   return (
     <div className="app">
@@ -41,6 +82,7 @@ if (!isLoggedIn) {
     </div>
   );
 }
+  */
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -89,25 +131,55 @@ const logout = () => {
   const shortWallet = wallet
     ? wallet.slice(0, 6) + "..." + wallet.slice(-4)
     : "Connect Wallet";
-
+const userEmail = JSON.parse(localStorage.getItem("user") || "{}")?.email || "User";
   const renderPage = () => {
-    if (page === "dashboard") return <Dashboard />;
+    if (page === "dashboard")
+  return (
+    <>
+     <Dashboard setPage={setPage} />
+      <TradingPanel />
+      <OrderBook />
+    </>
+  );
     if (page === "markets") return <Markets />;
     if (page === "trade") return <Trade />;
     if (page === "buy") return <BuyCrypto />;
-    if (page === "wallets") return <Wallets />;
+    if (page === "futures") return <Futures />;
+    if (page === "wallets") return <WalletPanel />;
+    if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
+    if (page === "p2p") return <P2P />;
     if (page === "referral") return <Referral />;
-    if (page === "rewards") return <Rewards />;
+    if (page === "rewards") return <ReplitRewards />;
     if (page === "support") return <Support />;
     if (page === "listings") return <ListingForm />;
-    if (page === "admin") return <AdminPanel />;
+    if (page === "admin-p2p") return <AdminP2P />;
+    if (page === "admin") {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  if (user.role !== "admin") {
+    return (
+      <div className="panel">
+        <h2>Access Denied</h2>
+        <p>Only admin can access this panel.</p>
+      </div>
+    );
+  }
+
+  return <AdminPanel />;
+}
     if (page === "settings") return <Settings />;
     if (page === "auth") return <AuthPanel setPage={setPage} />;
     return (
       <div className="panel">
         <h2>{page.toUpperCase()}</h2>
         <p>This section is coming soon.</p>
+        <button
+  className="buy-btn"
+  onClick={() => setPage("transactions")}
+>
+  Open Transaction History
+</button>
       </div>
     );
   };
@@ -124,8 +196,20 @@ const logout = () => {
 
     <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
       
-        <h1 className="logo">EXALTEXCHANGE</h1>
-
+       <img
+  src={exchangeLogo}
+  alt="Exalt Exchange"
+  className="main-logo"
+/>
+      <div className="user-profile sidebar-profile">
+  <div className="user-avatar">
+    {userEmail.charAt(0).toUpperCase()}
+  </div>
+  <div>
+    <strong>{userEmail}</strong>
+    <p>{wallet ? shortWallet : "Wallet not connected"}</p>
+  </div>
+</div>
        <div className="menu">
 
   <button
@@ -154,7 +238,14 @@ const logout = () => {
   >
     Trade
   </button>
-
+<button
+  onClick={() => {
+    setPage("futures");
+    setMenuOpen(false);
+  }}
+>
+  Futures
+</button>
   <button
     onClick={() => {
       setPage("buy");
@@ -165,13 +256,22 @@ const logout = () => {
   </button>
 
   <button
-    onClick={() => {
-      setPage("wallets");
-      setMenuOpen(false);
-    }}
-  >
-    Wallets
-  </button>
+  onClick={() => {
+    setPage("p2p");
+    setMenuOpen(false);
+  }}
+>
+  P2P
+</button>
+
+<button
+  onClick={() => {
+    setPage("wallets");
+    setMenuOpen(false);
+  }}
+>
+  Wallets
+</button>
 
   <button
     onClick={() => {
@@ -181,7 +281,14 @@ const logout = () => {
   >
     Orders
   </button>
-
+<button
+  onClick={() => {
+    setPage("admin-p2p");
+    setMenuOpen(false);
+  }}
+>
+  Admin P2P
+</button>
   <button
     onClick={() => {
       setPage("listings");
@@ -199,7 +306,14 @@ const logout = () => {
   >
     Referral
   </button>
-
+<button
+  onClick={() => {
+    setPage("transactions");
+    setMenuOpen(false);
+  }}
+>
+  Transactions
+</button>
   <button
     onClick={() => {
       setPage("rewards");
@@ -250,8 +364,7 @@ const logout = () => {
             <h2>{page.toUpperCase()}</h2>
             <p>Exalt Exchange Live Market System</p>
             {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
-          </div>
-
+            </div>
           <button className="connect-btn" onClick={connectWallet}>
             {shortWallet}
           </button>

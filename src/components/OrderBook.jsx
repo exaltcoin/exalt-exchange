@@ -1,48 +1,89 @@
+import { socket } from "../api";
+import { useEffect, useState } from "react";
+
 function OrderBook() {
+  const [orders, setOrders] = useState([]);
 
-  const sellOrders = [
-    "0.02466 - 12,450 EXALT",
-    "0.02465 - 11,250 EXALT",
-    "0.02464 - 10,050 EXALT",
-    "0.02463 - 8,850 EXALT",
-    "0.02462 - 7,650 EXALT",
-    "0.02461 - 6,450 EXALT",
-  ];
+ const loadOrders = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/api/orders");
+    const data = await res.json();
 
-  const buyOrders = [
-    "0.02455 - 6,200 EXALT",
-    "0.02454 - 8,000 EXALT",
-    "0.02453 - 9,800 EXALT",
-    "0.02452 - 11,600 EXALT",
-    "0.02451 - 13,400 EXALT",
-    "0.02450 - 15,200 EXALT",
-  ];
+    const list = Array.isArray(data) ? data : data.orders || [];
+
+    setOrders(list);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+  useEffect(() => {
+    loadOrders();
+socket.on("orderCreated", () => {
+  loadOrders();
+});
+
+socket.on("orderMatched", () => {
+  loadOrders();
+});
+    const interval = setInterval(() => {
+      loadOrders();
+    }, 15000);
+
+    return () => {
+  clearInterval(interval);
+
+  socket.off("orderCreated");
+  socket.off("orderMatched");
+};
+  }, []);
 
   return (
-    <div className="panel orderbook">
+    <div className="orderbook">
+      <h2>Live Order Book</h2>
 
-      <h3>Order Book</h3>
+      {orders.length === 0 ? (
+        <p>No orders found.</p>
+      ) : (
+        <table width="100%">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Price</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
 
-      <div className="sell-orders">
-        {sellOrders.map((item, index) => (
-          <p key={index} className="order-red">
-            {item}
-          </p>
-        ))}
-      </div>
+          <tbody>
+            {orders.map((order) => (
+            <tr
+  key={order._id}
+  className={`order-book-row ${
+    order.type === "buy" ? "buy" : "sell"
+  }`}
+>
+                <td
+                  style={{
+                    color:
+                      order.type === "buy"
+                        ? "#00ff99"
+                        : "#ff4d6d",
+                  }}
+                >
+                  {order.type.toUpperCase()}
+                </td>
 
-      <div className="market-price">
-        0.02456 ↑
-      </div>
+                <td>${Number(order.price || 0).toFixed(6)}</td>
 
-      <div className="buy-orders">
-        {buyOrders.map((item, index) => (
-          <p key={index} className="order-green">
-            {item}
-          </p>
-        ))}
-      </div>
+<td>{Number(order.amount || 0).toFixed(2)}</td>
 
+<td>{order.status || "open"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

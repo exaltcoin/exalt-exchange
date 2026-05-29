@@ -9,7 +9,10 @@ function Orders() {
     <div className="panel">
       <h2>Orders</h2>
       {orders.map((order, index) => (
-        <div className="admin-card" key={index}>
+       <div
+  className={`admin-card order-book-row ${order.type === "Buy" ? "buy" : "sell"}`}
+  key={index}
+>
           <h3>{order.pair}</h3>
           <p>Type: {order.type}</p>
           <p>Price: {order.price}</p>

@@ -1,130 +1,144 @@
 import { useEffect, useState } from "react";
 
 function AdminPanel() {
-  const API = "https://exalt-exchange-backend.onrender.com";
-  const ADMIN_KEY = "exaltexchange7890$$";
+  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY;
+  const token = localStorage.getItem("token");
+const user = JSON.parse(localStorage.getItem("user"));
   const [listings, setListings] = useState([]);
   const [deposits, setDeposits] = useState([]);
   const [tickets, setTickets] = useState([]);
-
-  // =========================
-  // LOAD ADMIN DATA
-  // =========================
+  const [transactions, setTransactions] = useState([]);
+const [withdrawals, setWithdrawals] = useState([]);
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+    "x-admin-key": ADMIN_KEY,
+  };
+if (!user || user.role !== "admin") {
+  return (
+    <div className="panel">
+      <h2>ADMIN</h2>
+      <p>Access Denied</p>
+      <p>Only admin can access this panel.</p>
+    </div>
+  );
+}
   const loadAdminData = async () => {
     try {
-      const headers = {
-        "x-admin-key": ADMIN_KEY,
-      };
-
-      // LISTINGS
-      const listingsRes = await fetch(`${API}/api/listings`, {
-        headers,
-      });
-
+      const listingsRes = await fetch(`${API}/api/listings`, { headers });
       const listingsData = await listingsRes.json();
 
       setListings(
-  listingsData.listings ||
-  listingsData.requests ||
-  listingsData ||
+        listingsData.listings ||
+          listingsData.requests ||
+          listingsData ||
+          []
+      );
+
+      const depositsRes = await fetch(`${API}/api/deposit-request`, { headers });
+const depositsData = await depositsRes.json();
+
+setDeposits(
+  depositsData.requests ||
+  depositsData.deposits ||
+  depositsData.data ||
+  depositsData ||
   []
 );
+const withdrawalsRes = await fetch(`${API}/api/withdrawals`, { headers });
+const withdrawalsData = await withdrawalsRes.json();
 
-      // DEPOSITS
-      const depositsRes = await fetch(`${API}/api/deposit-request`, {
-        headers,
-      });
+setWithdrawals(
+  withdrawalsData.withdrawals || []
+);
+const ticketsRes = await fetch(`${API}/api/support-ticket`, { headers });
+const ticketsData = await ticketsRes.json();
 
-      const depositsData = await depositsRes.json();
+setTickets(
+  ticketsData.tickets ||
+  ticketsData.requests ||
+  ticketsData.data ||
+  ticketsData ||
+  []
+);
+const transactionsRes = await fetch(`${API}/api/transactions`, { headers });
+const transactionsData = await transactionsRes.json();
 
-      setDeposits(depositsData.requests || []);
+setTransactions(
+  transactionsData.transactions ||
+  transactionsData.data ||
+  []
+);
+} catch (error) {
+    console.log(error);
+    alert("Admin data load failed");
+  }
+};
+ useEffect(() => {
+  loadAdminData();
 
-      // SUPPORT TICKETS
-      const ticketsRes = await fetch(`${API}/api/support-ticket`, {
-        headers,
-      });
-
-      const ticketsData = await ticketsRes.json();
-
-      setTickets(ticketsData.tickets || []);
-    } catch (error) {
-      console.log(error);
-      alert("Admin data load failed");
-    }
-  };
-
-  useEffect(() => {
+  const interval = setInterval(() => {
     loadAdminData();
-  }, []);
+  }, 5000);
 
-  // =========================
-  // UPDATE LISTING
-  // =========================
+  return () => clearInterval(interval);
+}, []);
+
   const updateListing = async (id, status) => {
     try {
-      await fetch(`${API}/api/listings/status`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
-        },
-
-        body: JSON.stringify({
-          id,
-          status,
-        }),
+      await fetch(`${API}/api/listings/${id}/approve`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ status }),
       });
 
+      alert(`Listing ${status} successfully`);
       loadAdminData();
     } catch (error) {
       console.log(error);
       alert("Listing update failed");
     }
   };
+const updateDeposit = async (id, status) => {
+  try {
+    await fetch(`${API}/api/deposit-request/status`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ id, status }),
+    });
 
-  // =========================
-  // UPDATE DEPOSIT
-  // =========================
-  const updateDeposit = async (id, status) => {
-    try {
-      await fetch(`${API}/api/deposit-request/status`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
-        },
+    alert(`Deposit ${status} successfully`);
+    loadAdminData();
+  } catch (error) {
+    console.log(error);
+    alert("Deposit update failed");
+  }
+};
+const updateWithdrawal = async (id, status) => {
+  try {
+    await fetch(`${API}/api/withdrawals/status`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ id, status }),
+    });
 
-        body: JSON.stringify({
-          id,
-          status,
-        }),
-      });
-
-      loadAdminData();
-    } catch (error) {
-      console.log(error);
-      alert("Deposit update failed");
-    }
-  };
-
-  // =========================
-  // UPDATE SUPPORT TICKET
-  // =========================
+    alert(`Withdrawal ${status} successfully`);
+    loadAdminData();
+  } catch (error) {
+    console.log(error);
+    alert("Withdrawal update failed");
+  }
+};
   const updateTicket = async (id, status) => {
     try {
       await fetch(`${API}/api/support-ticket/status`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-key": ADMIN_KEY,
-        },
-
-        body: JSON.stringify({
-          id,
-          status,
-        }),
+        headers,
+        body: JSON.stringify({ id, status }),
       });
 
+      alert(`Ticket ${status} successfully`);
       loadAdminData();
     } catch (error) {
       console.log(error);
@@ -134,174 +148,131 @@ function AdminPanel() {
 
   return (
     <div className="panel">
-      <h2>Real Admin Panel</h2>
+      <h2>Admin Panel</h2>
+      <p>Manage listings, deposits, support tickets and approvals.</p>
 
-      <p>
-        Manage listings, deposits, support tickets and approvals.
-      </p>
+      <h3>Coin Listing Requests</h3>
 
-      {/* ========================= */}
-      {/* COIN LISTINGS */}
-      {/* ========================= */}
+      {listings.length === 0 ? (
+        <p>No listing requests found.</p>
+      ) : (
+        listings.map((item) => (
+          <div className="admin-card" key={item._id}>
+            <h4>
+              {item.coinName || item.name} ({item.symbol})
+            </h4>
 
-      <div className="admin-card">
-        <h3>Coin Listing Requests</h3>
+            <p>Chain: {item.chain}</p>
+            <p>Contract: {item.contractAddress || item.contract}</p>
+            <p>Website: {item.website}</p>
+            <p>Status: {item.status}</p>
 
-        {listings.length === 0 ? (
-          <p>No listing requests found.</p>
-        ) : (
-          listings.map((coin) => (
-            <div
-              className="admin-card"
-              key={coin.id || coin._id || coin.contract}
-            >
-              <h3>
-                {coin.name} ({coin.symbol})
-              </h3>
+      {item.status !== "approved" && item.status !== "rejected" ? (
+  <>
+    <button onClick={() => updateListing(item._id, "approved")}>
+      Approve
+    </button>
 
-              <p>Chain: {coin.chain}</p>
+    <button onClick={() => updateListing(item._id, "rejected")}>
+      Reject
+    </button>
+  </>
+) : (
+  <p>Action completed</p>
+)}
+          </div>
+        ))
+      )}
 
-              <p>Contract: {coin.contract}</p>
+      <h3>Deposit Requests</h3>
 
-              <p>Website: {coin.website}</p>
+      {deposits.length === 0 ? (
+        <p>No deposit requests found.</p>
+      ) : (
+        deposits.map((item) => (
+          <div className="admin-card" key={item._id}>
+            <p>User: {item.email || item.user}</p>
+            <p>Amount: {item.amount}</p>
+            <p>Status: {item.status}</p>
 
-              <p>Status: {coin.status}</p>
+           {item.status !== "approved" && item.status !== "rejected" ? (
+  <>
+    <button onClick={() => updateDeposit(item._id, "approved")}>
+      Approve
+    </button>
 
-              <button
-  className="buy-btn"
-  onClick={() =>
-    updateListing(
-      coin._id,
-      "approved"
-    )
-  }
->
-  Approve
-</button>
+    <button onClick={() => updateDeposit(item._id, "rejected")}>
+      Reject
+    </button>
+  </>
+) : (
+  <p>Action completed</p>
+)}
+          </div>
+        ))
+      )}
+<h3>Withdrawal Requests</h3>
 
-<button
-  className="sell-btn"
-  onClick={() =>
-    updateListing(
-      coin._id,
-      "rejected"
-    )
-  }
->
-  Reject
-</button>
-            </div>
-          ))
-        )}
-      </div>
+{withdrawals.map((item) => (
+  <div key={item._id} className="admin-card">
+    <p>User: {item.userId}</p>
+    <p>Amount: {item.amount}</p>
+    <p>Status: {item.status}</p>
+    <p>Wallet: {item.walletAddress}</p>
 
-      {/* ========================= */}
-      {/* DEPOSIT REQUESTS */}
-      {/* ========================= */}
+    {item.status === "pending" && (
+      <>
+        <button
+          onClick={() => updateWithdrawal(item._id, "approved")}
+        >
+          Approve
+        </button>
 
-      <div className="admin-card">
-        <h3>Deposit Requests</h3>
+        <button
+          onClick={() => updateWithdrawal(item._id, "rejected")}
+        >
+          Reject
+        </button>
+      </>
+    )}
+  </div>
+))}
+      <h3>Support Tickets</h3>
 
-        {deposits.length === 0 ? (
-          <p>No deposit requests found.</p>
-        ) : (
-          deposits.map((item) => (
-            <div
-              className="admin-card"
-              key={item.id || item._id}
-            >
-              <p>Name: {item.name}</p>
+      {tickets.length === 0 ? (
+        <p>No support tickets found.</p>
+      ) : (
+        tickets.map((item) => (
+          <div className="admin-card" key={item._id}>
+            <p>User: {item.email || item.user}</p>
+            <p>Message: {item.message}</p>
+            <p>Status: {item.status}</p>
 
-              <p>Wallet: {item.wallet}</p>
+            <button onClick={() => updateTicket(item._id, "resolved")}>
+              Resolve
+            </button>
 
-              <p>Amount: {item.amount}</p>
+            <button onClick={() => updateTicket(item._id, "closed")}>
+              Close
+            </button>
+          </div>
+        ))
+      )}
+      <h3>Transaction History</h3>
 
-              <p>
-                Payment Method: {item.paymentMethod}
-              </p>
-
-              <p>
-                Transaction ID: {item.transactionId}
-              </p>
-
-              <p>Status: {item.status}</p>
-
-              <button
-                className="buy-btn"
-                onClick={() =>
-                  updateDeposit(
-                    item.id || item._id,
-                    "approved"
-                  )
-                }
-              >
-                Approve Deposit
-              </button>
-
-              <button
-                className="sell-btn"
-                onClick={() =>
-                  updateDeposit(
-                    item.id || item._id,
-                    "rejected"
-                  )
-                }
-              >
-                Reject Deposit
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* ========================= */}
-      {/* SUPPORT TICKETS */}
-      {/* ========================= */}
-
-      <div className="admin-card">
-        <h3>Support Tickets</h3>
-
-        {tickets.length === 0 ? (
-          <p>No support tickets found.</p>
-        ) : (
-          tickets.map((ticket) => (
-            <div
-              className="admin-card"
-              key={ticket.id || ticket._id}
-            >
-              <p>Wallet: {ticket.wallet}</p>
-
-              <p>Issue: {ticket.issue}</p>
-
-              <p>Status: {ticket.status}</p>
-
-              <button
-                className="buy-btn"
-                onClick={() =>
-                  updateTicket(
-                    ticket.id || ticket._id,
-                    "resolved"
-                  )
-                }
-              >
-                Mark Resolved
-              </button>
-
-              <button
-                className="sell-btn"
-                onClick={() =>
-                  updateTicket(
-                    ticket.id || ticket._id,
-                    "closed"
-                  )
-                }
-              >
-                Close Ticket
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+{transactions.length === 0 ? (
+  <p>No transactions found.</p>
+) : (
+  transactions.map((item) => (
+    <div className="admin-card" key={item._id}>
+      <p>Type: {item.type}</p>
+      <p>Amount: {item.amount}</p>
+      <p>Status: {item.status}</p>
+      <p>Note: {item.note}</p>
+      <p>Date: {new Date(item.createdAt).toLocaleString()}</p>
+    </div>
+  ))
+)}
     </div>
   );
 }

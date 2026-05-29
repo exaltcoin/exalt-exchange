@@ -147,4 +147,18 @@ body{
     min-width:900px;
   }
 
+}.active-coin {
+  border: 2px solid #f0b90b;
+  background: rgba(240, 185, 11, 0.12);
+}
+
+.market-search {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #151922;
+  color: white;
+  outline: none;
 }

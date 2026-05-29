@@ -1,127 +1,334 @@
+import { socket } from "../api";
 import { useEffect, useState } from "react";
 import Tradingchart from "./Tradingchart";
 import OrderBook from "./OrderBook";
-
+import { ethers } from "ethers";
 function Trade() {
+  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
   const [coins, setCoins] = useState([]);
   const [selectedCoin, setSelectedCoin] = useState(null);
 
-  useEffect(() => {
-    fetch(
-      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false"
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        setCoins(data);
-        setSelectedCoin(data[0]);
-      })
-      .catch((err) => console.log(err));
-  }, []);
+  const [type, setType] = useState("buy");
+  const [price, setPrice] = useState("");
+  const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const [wallet, setWallet] = useState("");
+  const connectWallet = async () => {
+  if (!window.ethereum) {
+    alert("Please install MetaMask or Trust Wallet");
+    return;
+  }
 
+  const accounts = await window.ethereum.request({
+    method: "eth_requestAccounts",
+  });
+
+  setWallet(accounts[0]);
+};
+const PANCAKE_ROUTER =
+  "0x10ED43C718714eb63d5aA57B78B54704E256024E";
+
+const buyExalt = async () => {
+  try {
+    if (!window.ethereum) {
+      alert("Install MetaMask");
+      return;
+    }
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+
+    const signer = await provider.getSigner();
+
+    const router = new ethers.Contract(
+      PANCAKE_ROUTER,
+      [
+        "function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable"
+      ],
+      signer
+    );
+
+    const path = [
+      "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+      "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
+    ];
+
+    const tx =
+      await router.swapExactETHForTokensSupportingFeeOnTransferTokens(
+        0,
+        path,
+        await signer.getAddress(),
+        Math.floor(Date.now() / 1000) + 60 * 10,
+        {
+          value: ethers.parseEther("0.001")
+        }
+      );
+
+    await tx.wait();
+
+    alert("EXALT Purchased Successfully");
+
+  } catch (err) {
+    console.log(err);
+    alert("Transaction Failed");
+  }
+};
+const submitOrder = async () =>{
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+      if (!price || !amount) {
+        alert("Price and amount required");
+        return;
+      }
+
+      setLoading(true);
+      socket.emit("newOrder", {
+ pair: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
+  price,
+  amount,
+  type,
+});
+
+      const res = await fetch(`${API}/api/orders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        body: JSON.stringify({
+          userId: user._id || user.id || "demo-user",
+         pair: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
+          type,
+          price: Number(price),
+          amount: Number(amount),
+        }),
+      });
+
+      const data = await res.json();
+socket.emit("orderCreated", data);
+      if (!data.success) {
+        alert(data.message || "Order failed");
+        return;
+      }
+
+      alert(`${type.toUpperCase()} order submitted successfully`);
+      setPrice("");
+      setAmount("");
+    } catch (error) {
+      console.log(error);
+      alert("Server error");
+    } finally {
+      setLoading(false);
+    }
+  };
+useEffect(() => {
+ const loadMarkets = () => {
+  fetch(`${API}/api/market/live`)
+    .then((res) => res.json())
+    .then((response) => {
+      const pairs = response?.data?.pairs || response?.data || [];
+
+      if (Array.isArray(pairs) && pairs.length > 0) {
+        setCoins(pairs);
+
+        setSelectedCoin((prev) => {
+          if (prev) {
+            const stillExists = pairs.find(
+              (p) => p.baseToken?.symbol === prev.baseToken?.symbol
+            );
+            return stillExists || prev;
+          }
+
+          return pairs[0];
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
+  loadMarkets();
+
+  const interval = setInterval(loadMarkets, 30000);
+
+  return () => clearInterval(interval);
+}, []);
   return (
     <div className="trade-layout">
       <div className="trade-sidebar">
         <h2>Live Markets</h2>
+<input
+  type="text"
+  placeholder="Search coin..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="market-search"
+/>
+   {Array.isArray(coins) &&
+  coins
+    .filter((coin) =>
+      (coin.baseToken?.symbol || coin.symbol || "")
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
+    .map((coin, index) => (
+  <div
+    key={coin.pairAddress || index}
+ className={`coin-item ${
+  selectedCoin?.baseToken?.symbol === coin.baseToken?.symbol
+    ? "active-coin"
+    : ""
+}`}
+    onClick={() => setSelectedCoin(coin)}
+  >
+    <div>
+      <strong>{coin.baseToken?.symbol || coin.symbol || "COIN"}</strong>
+      <p>${Number(coin.priceUsd || coin.price || 0).toFixed(6)}</p>
+    </div>
 
-        {coins.map((coin) => (
-          <div
-            key={coin.id}
-            className="coin-item"
-            onClick={() => setSelectedCoin(coin)}
-          >
-            <img src={coin.image} alt="" />
-            <div>
-              <strong>{coin.symbol.toUpperCase()}</strong>
-              <p>${coin.current_price}</p>
-            </div>
-
-            <span
-              className={
-                coin.price_change_percentage_24h >= 0
-                  ? "green-text"
-                  : "red-text"
-              }
-            >
-              {coin.price_change_percentage_24h?.toFixed(2)}%
-            </span>
-          </div>
-        ))}
+    <span className={(Number(coin.priceChange?.h24 || 0) >= 0) ? "green-text" : "red-text"}>
+      {Number(coin.priceChange?.h24 || 0).toFixed(2)}%
+    </span>
+  </div>
+))}
       </div>
 
       <div className="trade-main">
-        {selectedCoin && (
-          <>
-            <div className="trade-header">
-              <div className="trade-title">
-                <img src={selectedCoin.image} />
-                <div>
-                  <h1>{selectedCoin.name}</h1>
-                  <p>{selectedCoin.symbol.toUpperCase()}/USDT</p>
-                </div>
-              </div>
-<div style={{ marginTop: "20px", marginBottom: "20px" }}>
-  <a
-    href="https://pancakeswap.finance/swap?outputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
-    target="_blank"
-    rel="noreferrer"
-    className="buy-btn"
-    style={{
-      background: "#f0b90b",
-      color: "#000",
-      padding: "14px 22px",
-      borderRadius: "10px",
-      textDecoration: "none",
-      fontWeight: "bold",
-      display: "inline-block"
-    }}
-  >
-    Buy / Sell EXALT Live
-  </a>
+        <div className="trade-header">
+       <div className="trade-title">
+  {selectedCoin?.image ? (
+    <img
+      src={selectedCoin.image}
+      alt={selectedCoin?.baseToken?.name || selectedCoin?.name}
+    />
+  ) : (
+    <div className="coin-logo-fallback">
+      {selectedCoin?.baseToken?.symbol?.charAt(0) || "?"}
+    </div>
+  )}
 
-  <p
-    style={{
-      marginTop: "10px",
-      color: "#00ff99",
-      fontSize: "14px"
-    }}
-  >
-    Live trading powered by PancakeSwap & BNB Smart Chain
-  </p>
+  <div>
+    <h1>
+      {selectedCoin?.baseToken?.symbol || "BTC"}/
+      {selectedCoin?.quoteToken?.symbol || "USDT"}
+    </h1>
+
+    <p>Real order engine powered by Exalt Exchange</p>
+  </div>
+
 </div>
-              <div className="trade-stats">
-                <div>
-                  <span>Price</span>
-                  <h3>${selectedCoin.current_price}</h3>
-                </div>
-
-                <div>
-                  <span>24H</span>
-                  <h3
-                    className={
-                      selectedCoin.price_change_percentage_24h >= 0
-                        ? "green-text"
-                        : "red-text"
-                    }
-                  >
-                    {selectedCoin.price_change_percentage_24h?.toFixed(2)}%
-                  </h3>
-                </div>
-
-                <div>
-                  <span>Volume</span>
-                  <h3>
-                    $
-                    {selectedCoin.total_volume?.toLocaleString()}
-                  </h3>
-                </div>
-              </div>
+          <div className="trade-stats">
+            <div>
+              <span>Market</span>
+             <h3>
+  {selectedCoin?.baseToken?.symbol || "BTC"}/
+  {selectedCoin?.quoteToken?.symbol || "USDT"}
+</h3>
             </div>
+            <div>
+              <span>Engine</span>
+              <h3>Live</h3>
+            </div>
+            <div>
+              <span>Status</span>
+              <h3>MongoDB</h3>
+            </div>
+          </div>
+        </div>
 
-            <Tradingchart coin={selectedCoin} />
+   {selectedCoin && (
+  <Tradingchart
+    selectedCoin={{
+      ...selectedCoin,
+      chartSymbol: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
+    }}
+  />
+)}
+<div className="coin-details-box">
+  <h3>Coin Details</h3>
 
-            <OrderBook coin={selectedCoin} />
-          </>
-        )}
+  <p>
+    <strong>Token:</strong>{" "}
+    {selectedCoin?.baseToken?.symbol || "EXALT"}
+  </p>
+
+  <p>
+    <strong>Contract:</strong>{" "}
+    {selectedCoin?.baseToken?.address || "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"}
+  </p>
+
+  <button
+    onClick={() =>
+      navigator.clipboard.writeText(
+        selectedCoin?.baseToken?.address ||
+          "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
+      )
+    }
+  >
+    Copy Address
+  </button>
+
+  <button
+    onClick={() =>
+      window.open(
+        `https://bscscan.com/token/${
+          selectedCoin?.baseToken?.address ||
+          "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
+        }`,
+        "_blank"
+      )
+    }
+  >
+    View on BscScan
+  </button>
+</div>
+{wallet && (
+  <div className="wallet-status">
+    Connected:
+    {wallet.slice(0,6)}...{wallet.slice(-4)}
+  </div>
+)}
+        <div className="panel">
+          <h2>Place Real Order</h2>
+
+          <select value={type} onChange={(e) => setType(e.target.value)}>
+            <option value="buy">BUY Order</option>
+            <option value="sell">SELL Order</option>
+          </select>
+
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+
+          <input
+            type="number"
+            placeholder="Amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+
+        <button
+ onClick={() => {
+if (type === "buy") {
+buyExalt();
+} else {
+window.open(
+"https://pancakeswap.finance/swap?inputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78&outputCurrency=BNB&chain=bsc",
+"_blank"
+);
+}
+}}
+  className={`trade-btn ${type === "buy" ? "buy-btn" : "sell-btn"}`}
+>
+  {type === "buy" ? "Buy EXALT" : "Sell EXALT"}
+</button>
+        </div>
+
+        <OrderBook coin={selectedCoin} />
       </div>
     </div>
   );

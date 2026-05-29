@@ -1,34 +1,43 @@
 import { useEffect, useState } from "react";
+import API_BASE_URL from "../api";
+import { socket } from "../api";
 import "./Markets.css";
 
 function Markets() {
   const [coins, setCoins] = useState([]);
+  const [livePrices, setLivePrices] = useState({});
   const [search, setSearch] = useState("");
 
  useEffect(() => {
-  fetch("https://exalt-exchange-backend.onrender.com/api/market/coins")
+ fetch(`${API_BASE_URL}/api/listings`)
     .then((res) => res.json())
     .then((data) => {
-      const uniqueCoins = Array.from(
-        new Map(
-          (data.coins || []).map((coin) => [
-            coin.contract || coin.symbol,
-            coin
-          ])
-        ).values()
-      );
-
-      setCoins(uniqueCoins);
+      const approvedCoins = (data.listings || []).filter(
+  (coin) => (coin.status || "").toLowerCase() === "approved"
+);
+console.log("APPROVED COINS:", approvedCoins);
+setCoins(approvedCoins);
     })
     .catch((err) => {
       console.log("API Error:", err);
     });
 }, []);
+useEffect(() => {
+  socket.on("marketUpdate", (data) => {
+    setLivePrices((prev) => ({
+      ...prev,
+      [data.symbol]: data.price,
+    }));
+  });
 
-  const filteredCoins = coins.filter((coin) =>
-    (coin.name || "").toLowerCase().includes(search.toLowerCase()) ||
-    (coin.symbol || "").toLowerCase().includes(search.toLowerCase())
-  );
+  return () => {
+    socket.off("marketUpdate");
+  };
+}, []);
+ const filteredCoins = coins.filter((coin) =>
+  (coin.coinName || "").toLowerCase().includes(search.toLowerCase()) ||
+  (coin.symbol || "").toLowerCase().includes(search.toLowerCase())
+);
 
   return (
     <div className="markets-page">
@@ -69,6 +78,10 @@ function Markets() {
             <tr>
               <th>#</th>
               <th>Coin</th>
+              <th>Logo</th>
+              <th>Price</th>
+                <th>Market Cap</th>
+              <th>Liquidity</th>
               <th>Chain</th>
               <th>Contract</th>
               <th>Status</th>
@@ -86,18 +99,37 @@ function Markets() {
               filteredCoins.map((coin, index) => (
                 <tr key={coin._id || index}>
                   <td>{index + 1}</td>
-
+                 <td>
+  <img
+    src={coin.logo}
+    alt="logo"
+    style={{
+      width: "40px",
+      height: "40px",
+      borderRadius: "50%",
+      objectFit: "cover"
+    }}
+  />
+</td>
                   <td>
                     <div className="coin-info">
                       <div>
-                        <span>{coin.name}</span>
+                        <span>{coin.coinName}</span>
                         <small>{coin.symbol}</small>
                       </div>
                     </div>
                   </td>
-
+                    <td>
+  $
+  {(
+    livePrices[`${coin.symbol?.toUpperCase()}USDT`] ||
+    Number(String(coin.price || "0").replace("$", ""))
+  ).toFixed(4)}
+</td>
+                        <td>{coin.marketCap || "$0"}</td>
+                       <td>{coin.liquidity || "$0"}</td>
                   <td>{coin.chain || "BNB Smart Chain"}</td>
-                  <td>{coin.contract}</td>
+                  <td>{coin.contractAddress}</td>
                   <td className="green-text">{coin.status}</td>
 
                   <td>
