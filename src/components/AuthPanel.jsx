@@ -209,9 +209,40 @@ className="forgot-password"
 
     const data = await res.json();
 
-    alert(data.message);
+    if (!data.success) {
+      alert(data.message);
+      return;
+    }
+
+    const token = data.resetToken;
+
+    const newPassword = prompt("Enter new password");
+
+    if (!newPassword) return;
+
+    const resetRes = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/reset-password/${token}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          password: newPassword,
+        }),
+      }
+    );
+
+    const resetData = await resetRes.json();
+
+    if (resetData.success) {
+      alert("Password reset successful");
+    } else {
+      alert(resetData.message);
+    }
   } catch (error) {
-    alert("Failed to send reset email");
+    console.log(error);
+    alert("Reset failed");
   }
 }}
   style={{
