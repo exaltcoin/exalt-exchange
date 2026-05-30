@@ -189,7 +189,31 @@ export default function AuthPanel({ setPage }) {
               : "Login"}
           </button>
 <p
-  onClick={() => alert("Reset Password Coming Soon")}
+className="forgot-password"
+ onClick={async () => {
+  const email = prompt("Enter your email");
+
+  if (!email) return;
+
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/auth/forgot-password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      }
+    );
+
+    const data = await res.json();
+
+    alert(data.message);
+  } catch (error) {
+    alert("Failed to send reset email");
+  }
+}}
   style={{
     marginTop: "14px",
     color: "#f0c419",
