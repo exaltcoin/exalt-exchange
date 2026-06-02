@@ -48,24 +48,54 @@ function Futures() {
 const [chartZoom, setChartZoom] = useState("medium");
 const [volatility, setVolatility] = useState("normal");
 const [marketSearch, setMarketSearch] = useState("");
-const marketPairs = Object.entries(livePrices)
-  .filter(([symbol, price]) => {
-    return (
-      symbol.toLowerCase().includes(marketSearch.toLowerCase()) &&
-      Number(price) > 0
-    );
-  })
-  .sort(([a], [b]) => {
-    if (a === "BTCUSDT") return -1;
-    if (b === "BTCUSDT") return 1;
-    return a.localeCompare(b);
-  })
-  .map(([symbol, price]) => ({
-    pair: symbol,
-    price: Number(price),
-    change: "+0.0%",
-  }));
-
+const marketPairs =
+Object.entries(livePrices).length > 0
+? Object.entries(livePrices)
+.filter(([symbol, price]) => {
+return (
+symbol.toLowerCase().includes(marketSearch.toLowerCase()) &&
+Number(price) > 0
+);
+})
+.sort(([a], [b]) => {
+if (a === "BTCUSDT") return -1;
+if (b === "BTCUSDT") return 1;
+return a.localeCompare(b);
+})
+.map(([symbol, price]) => ({
+pair: symbol,
+price: Number(price),
+change: window.realChanges?.[symbol]
+  ? window.realChanges[symbol] + "%"
+  : "+0.00%",
+}))
+: [
+{ pair: "BTCUSDT", price: 68500, change: "+2.4%" },
+{ pair: "ETHUSDT", price: 3800, change: "+1.8%" },
+{ pair: "BNBUSDT", price: 620, change: "+0.9%" },
+{ pair: "SOLUSDT", price: 170, change: "+3.1%" },
+{ pair: "XRPUSDT", price: 0.62, change: "+1.2%" },
+{ pair: "ADAUSDT", price: 0.45, change: "+0.8%" },
+{ pair: "DOGEUSDT", price: 0.16, change: "+4.2%" },
+{ pair: "TRXUSDT", price: 0.12, change: "+0.6%" },
+{ pair: "TONUSDT", price: 6.5, change: "+1.9%" },
+{ pair: "AVAXUSDT", price: 36, change: "+2.1%" },
+{ pair: "DOTUSDT", price: 7.2, change: "+1.4%" },
+{ pair: "MATICUSDT", price: 0.75, change: "+0.7%" },
+{ pair: "LINKUSDT", price: 18, change: "+2.8%" },
+{ pair: "LTCUSDT", price: 85, change: "+1.1%" },
+{ pair: "BCHUSDT", price: 460, change: "+1.5%" },
+{ pair: "UNIUSDT", price: 10, change: "+0.9%" },
+{ pair: "ATOMUSDT", price: 8.5, change: "+1.3%" },
+{ pair: "NEARUSDT", price: 6.2, change: "+2.6%" },
+{ pair: "APTUSDT", price: 9.4, change: "+1.7%" },
+{ pair: "ARBUSDT", price: 1.1, change: "+1.0%" },
+{ pair: "OPUSDT", price: 2.4, change: "+1.6%" },
+{ pair: "SUIUSDT", price: 1.9, change: "+2.0%" },
+{ pair: "PEPEUSDT", price: 0.000012, change: "+5.4%" },
+{ pair: "SHIBUSDT", price: 0.000025, change: "+3.8%" },
+{ pair: "EXALTUSDT", price: 0.0003, change: "+0.0%" },
+];
     const loadPositions = async () => {
         try {
             const response = await getPositions();
@@ -99,7 +129,41 @@ const marketPairs = Object.entries(livePrices)
 
         return () => clearInterval(interval);
     }, []);
+useEffect(() => {
+  const loadLivePrices = async () => {
+    try {
+      const res = await fetch("https://api.binance.com/api/v3/ticker/price");
+      const data = await res.json();
+const tickerRes = await fetch("https://api.binance.com/api/v3/ticker/24hr");
+const tickerData = await tickerRes.json();
 
+const changes = {};
+
+tickerData.forEach((item) => {
+  if (item.symbol.endsWith("USDT")) {
+    changes[item.symbol] = Number(item.priceChangePercent).toFixed(2);
+  }
+});
+      const prices = {};
+
+      data.forEach((item) => {
+        if (item.symbol.endsWith("USDT")) {
+          prices[item.symbol] = Number(item.price);
+        }
+      });
+
+      setLivePrices(prices);
+      window.realChanges = changes;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  loadLivePrices();
+  const interval = setInterval(loadLivePrices, 5000);
+
+  return () => clearInterval(interval);
+}, []);
     useEffect(() => {
   const handleMarketUpdate = (data) => {
     setLivePrices((prev) => ({
@@ -239,8 +303,14 @@ const openPosition = async (type) => {
             <div className="futures-container">
             <div className="market-panel markets-list">
                     <h2>Markets</h2>
+                    {marketPairs.length === 0 && (
+  <div style={{ color: "#fff", padding: "10px" }}>
+    No markets found
+  </div>
+)}
 
-       {marketPairs
+      {marketPairs &&
+marketPairs
   .filter((coin) => coin.pair && Number(coin.price) > 0)
   .map((coin, index) => {
   const coinPrice = Number(coin.price || 0);
@@ -388,21 +458,22 @@ const openPosition = async (type) => {
         </strong>
 
         <span
-          className={
-            Number(position.pnl) >= 0
-              ? "profit"
-              : "loss"
-          }
-        >
-          {Number(position.pnl) >= 0 ? "+" : ""}
-          ${Number(position.pnl || 0).toFixed(2)}
-
-          (
-          {Number(
-            position.pnlPercent || 0
-          ).toFixed(2)}
-          %)
-        </span>
+  className={
+    (
+      position.side === "long"
+        ? Number(livePrices[position.symbol || position.pair] || position.markPrice || 0) - Number(position.entryPrice || 0)
+        : Number(position.entryPrice || 0) - Number(livePrices[position.symbol || position.pair] || position.markPrice || 0)
+    ) >= 0
+      ? "profit"
+      : "loss"
+  }
+>
+  {(
+    position.side === "long"
+      ? Number(livePrices[position.symbol || position.pair] || position.markPrice || 0) - Number(position.entryPrice || 0)
+      : Number(position.entryPrice || 0) - Number(livePrices[position.symbol || position.pair] || position.markPrice || 0)
+  ).toFixed(2)} USD
+</span>
       </div>
 
       <div className="position-info">
@@ -512,7 +583,7 @@ const openPosition = async (type) => {
 
                     <button
                         className="execute-buy"
-                        onClick={() => openPosition("long")}
+                       onClick={() => openPosition("long")}
                     >
                         Open Long
                     </button>

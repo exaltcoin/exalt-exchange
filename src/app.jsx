@@ -71,7 +71,9 @@ useEffect(() => {
 
   checkAuth();
 }, []);
-const isLoggedIn = !!localStorage.getItem("token");
+const isLoggedIn =
+  typeof window !== "undefined" &&
+  !!localStorage.getItem("token");
 /*
 if (!isLoggedIn) {
   return (
@@ -84,14 +86,23 @@ if (!isLoggedIn) {
 }
   */
 const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+  try {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-  setPage("auth");
+    setWallet("");
+    setBnbBalance("0.0000");
 
-  alert("Logout successful");
+    setPage("auth");
 
-  window.location.reload();
+    alert("Logout successful");
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
+  } catch (error) {
+    console.log(error);
+  }
 };
   const connectWallet = async () => {
   try {
@@ -115,6 +126,10 @@ const logout = () => {
 
     const provider = new ethers.BrowserProvider(window.ethereum);
     const accounts = await provider.send("eth_requestAccounts", []);
+    if (!accounts || !accounts.length) {
+  alert("No wallet account found");
+  return;
+}
     const address = accounts[0];
 
     const balance = await provider.getBalance(address);
@@ -131,7 +146,11 @@ const logout = () => {
   const shortWallet = wallet
     ? wallet.slice(0, 6) + "..." + wallet.slice(-4)
     : "Connect Wallet";
-const userEmail = JSON.parse(localStorage.getItem("user") || "{}")?.email || "User";
+const storedUser = JSON.parse(
+  localStorage.getItem("user") || "{}"
+);
+
+const userEmail = storedUser?.email || "User";
   const renderPage = () => {
     if (page === "dashboard")
   return (
@@ -145,7 +164,7 @@ const userEmail = JSON.parse(localStorage.getItem("user") || "{}")?.email || "Us
     if (page === "trade") return <Trade />;
     if (page === "buy") return <BuyCrypto />;
     if (page === "futures") return <Futures />;
-    if (page === "wallets") return <WalletPanel />;
+    if (page === "wallets") return <Wallets />;
     if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
     if (page === "p2p") return <P2P />;
@@ -155,8 +174,8 @@ const userEmail = JSON.parse(localStorage.getItem("user") || "{}")?.email || "Us
     if (page === "listings") return <ListingForm />;
     if (page === "admin-p2p") return <AdminP2P />;
     if (page === "admin") {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-
+ const user =
+  JSON.parse(localStorage.getItem("user") || "{}") || {};
   if (user.role !== "admin") {
     return (
       <div className="panel">

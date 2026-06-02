@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_API_URL;
-const ADMIN_KEY = "exaltexchange7890$$";
-
 export default function AuthPanel({ setPage }) {
   const [mode, setMode] = useState("login");
 
@@ -42,7 +40,14 @@ export default function AuthPanel({ setPage }) {
 
       if (data.success) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+       const safeUser = {
+  _id: data.user._id,
+  name: data.user.name,
+  email: data.user.email,
+  role: data.user.role || "user",
+};
+
+localStorage.setItem("user", JSON.stringify(safeUser));
 
         alert("Signup successful");
 
@@ -63,6 +68,7 @@ export default function AuthPanel({ setPage }) {
     try {
       const res = await fetch(`${API}/api/auth/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -190,7 +196,7 @@ export default function AuthPanel({ setPage }) {
           </button>
 <p
 className="forgot-password"
- onClick={async () => {
+onClick={async () => {
   const email = prompt("Enter your email");
 
   if (!email) return;
@@ -209,40 +215,14 @@ className="forgot-password"
 
     const data = await res.json();
 
-    if (!data.success) {
-      alert(data.message);
-      return;
-    }
-
-    const token = data.resetToken;
-
-    const newPassword = prompt("Enter new password");
-
-    if (!newPassword) return;
-
-    const resetRes = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/reset-password/${token}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          password: newPassword,
-        }),
-      }
-    );
-
-    const resetData = await resetRes.json();
-
-    if (resetData.success) {
-      alert("Password reset successful");
+    if (data.success) {
+      alert("Password reset email sent. Check your inbox.");
     } else {
-      alert(resetData.message);
+      alert(data.message || "Failed to send reset email");
     }
   } catch (error) {
     console.log(error);
-    alert("Reset failed");
+    alert("Failed to send reset email");
   }
 }}
   style={{

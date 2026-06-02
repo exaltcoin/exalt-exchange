@@ -1,4 +1,4 @@
-const notificationSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+
 import { useEffect, useState, useRef } from "react";
 
 const API = "http://localhost:5000";
@@ -8,6 +8,22 @@ function AdminP2P() {
   const [filter, setFilter] = useState("all");
  const lastCountRef = useRef(0);
 const initializedRef = useRef(false);
+const [newOrderCount, setNewOrderCount] = useState(0);
+const [soundEnabled, setSoundEnabled] = useState(false);
+const playSound = () => {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.frequency.value = 900;
+  gain.gain.value = 0.5;
+
+  osc.start();
+  osc.stop(ctx.currentTime + 0.3);
+};
 const filteredOrders =
   filter === "all"
     ? orders
@@ -32,7 +48,12 @@ const shortWallet = (wallet) => {
 
   if (data.orders.length > lastCountRef.current) {
     console.log("New P2P Order Received");
-    notificationSound.play().catch(() => {});
+  if (Notification.permission === "granted") {
+  new Notification("New P2P Order", {
+    body: "New P2P order received",
+  });
+}
+    setNewOrderCount((prev) => prev + 1);
     alert("🚀 New P2P Order Received");
   }
 
@@ -145,6 +166,20 @@ const totalVolume = orders.reduce((sum, order) => {
     </div>
   ))}
 </div>
+<button
+  className="buy-btn"
+ onClick={() => {
+  Notification.requestPermission().then((permission) => {
+    if (permission === "granted") {
+      alert("Notification enabled");
+    }
+  });
+
+  setSoundEnabled(true);
+}}
+>
+  Enable Sound
+</button>
 <div className="filter-row">
   <button className="active" onClick={() => setFilter("all")}>
   All
@@ -174,7 +209,20 @@ const totalVolume = orders.reduce((sum, order) => {
               <td>{order.asset}</td>
               <td>{order.amount}</td>
               <td>{order.status}</td>
-              <td>{order.paymentProof || "-"}</td>
+            <td>
+  {order.paymentProof ? (
+    <a
+      href={order.paymentProof}
+      target="_blank"
+      rel="noreferrer"
+      className="buy-btn"
+    >
+      View Proof
+    </a>
+  ) : (
+    "-"
+  )}
+</td>
              <td>{shortWallet(order.walletAddress)}</td>
 
               <td>

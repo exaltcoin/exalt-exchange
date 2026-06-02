@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-
+import Web3 from "web3";
+import { QRCodeCanvas } from "qrcode.react";
 function Wallets() {
-  const API =
-    import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API = "http://localhost:5000";
 
   const [balance, setBalance] = useState(0);
   const [wallets, setWallets] = useState({
@@ -10,135 +10,236 @@ function Wallets() {
     EXALT: 0,
     BNB: 0,
   });
+const [walletAddress, setWalletAddress] = useState("");
+const [bnbBalance, setBnbBalance] = useState("0");
+const [selectedCoin, setSelectedCoin] = useState("USDT");
+const [selectedNetwork, setSelectedNetwork] = useState("BEP20");
+const EXALT_CONTRACT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
+const EXALT_ABI = [
+  {
+    constant: true,
+    inputs: [{ name: "_owner", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "balance", type: "uint256" }],
+    type: "function",
+  },
+];
+const connectWallet = async () => {
+  try {
+    if (!window.ethereum) {
+      alert("MetaMask / Trust Wallet not found");
+      return;
+    }
 
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+
+    const address = accounts[0];
+    setWalletAddress(address);
+const web3 = new Web3(window.ethereum);
+
+const contract = new web3.eth.Contract(
+  EXALT_ABI,
+  EXALT_CONTRACT
+);
+
+const exaltBalance = await contract.methods
+  .balanceOf(address)
+  .call();
+
+const formattedBalance = web3.utils.fromWei(
+  exaltBalance,
+  "ether"
+);
+
+setBalance(Number(formattedBalance).toFixed(4));
+
+setWallets((prev) => ({
+  ...prev,
+  EXALT: Number(formattedBalance).toFixed(4),
+}));
+    const chainId = await window.ethereum.request({ method: "eth_chainId" });
+
+    if (chainId !== "0x38") {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x38" }],
+      });
+    }
+
+    const balanceHex = await window.ethereum.request({
+      method: "eth_getBalance",
+      params: [address, "latest"],
+    });
+
+    const balanceBNB = parseInt(balanceHex, 16) / 1e18;
+    setBnbBalance(balanceBNB.toFixed(5));
+
+    alert("Wallet connected successfully");
+  } catch (error) {
+    console.log(error);
+    alert("Wallet connection failed");
+  }
+};
   const [userId, setUserId] = useState("");
 
-  useEffect(() => {
-    const loadBalance = async () => {
-      try {
-        const token = localStorage.getItem("token");
+ useEffect(() => {
+  const loadBalance = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-        if (!token) {
-          setBalance(0);
-          return;
-        }
-
-        const meRes = await fetch(`${API}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const meData = await meRes.json();
-
-        if (meData.success && meData.user?._id) {
-          setBalance(meData.user.balance || 0);
-
-          setWallets({
-            USDT: meData.user.wallets?.USDT || 0,
-            EXALT: meData.user.wallets?.EXALT || 0,
-            BNB: meData.user.wallets?.BNB || 0,
-          });
-
-          setUserId(meData.user._id);
-        } else {
-          setBalance(0);
-        }
-      } catch (error) {
-        console.log(error);
+      if (!token) {
         setBalance(0);
-      }
-    };
-
-    loadBalance();
-
-    const interval = setInterval(() => {
-      loadBalance();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const submitDeposit = async () => {
-    try {
-      const inputs = document.querySelectorAll(".deposit-input");
-
-      const response = await fetch(
-        `${API}/api/deposit-request`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            userId,
-            name: inputs[0].value,
-            wallet: inputs[1].value,
-            amount: inputs[2].value,
-            paymentMethod: inputs[3].value,
-            transactionId: inputs[4].value,
-            status: "pending",
-            createdAt: new Date().toISOString(),
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert("Deposit request submitted successfully");
-
-        inputs.forEach((input) => {
-          input.value = "";
+        setWallets({
+          USDT: 0,
+          EXALT: 0,
+          BNB: 0,
         });
-      } else {
-        alert(data.message || "Deposit failed");
+        return;
       }
-    } catch (err) {
-      console.log(err);
-      alert("Server error");
-    }
-  };
 
-  const submitWithdrawal = async () => {
-    try {
-      const inputs = document.querySelectorAll(".withdraw-input");
+      const res = await fetch(`${API}/api/wallets/me`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const response = await fetch(
-        `${API}/api/withdrawals`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const data = await res.json();
 
-          body: JSON.stringify({
-            userId,
-            amount: inputs[0].value,
-            walletAddress: inputs[1].value,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        alert("Withdrawal request submitted successfully");
-
-        inputs.forEach((input) => {
-          input.value = "";
+      if (!data.success || !data.wallet) {
+        setBalance(0);
+        setWallets({
+          USDT: 0,
+          EXALT: 0,
+          BNB: 0,
         });
-      } else {
-        alert(data.message || "Withdrawal failed");
+        return;
       }
+
+      const balances = data.wallet.balances || {};
+
+      setWallets((prev) => ({
+  USDT: Number(balances.USDT || 0),
+  EXALT: prev.EXALT || Number(balances.EXALT || 0),
+  BNB: Number(balances.BNB || 0),
+}));
+
+     // setBalance(Number(balances.EXALT || 0));
+      setUserId(data.wallet.userId || "");
     } catch (error) {
-      console.log(error);
-      alert("Server error");
+      console.log("Wallet balance load error:", error);
+      setBalance(0);
+      setWallets({
+        USDT: 0,
+        EXALT: 0,
+        BNB: 0,
+      });
     }
   };
 
-  return (
+  loadBalance();
+
+  const interval = setInterval(() => {
+    loadBalance();
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [API]);
+
+ const submitDeposit = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
+    const inputs = document.querySelectorAll(".deposit-input");
+   const senderName = inputs[0].value;
+const senderAccount = inputs[1].value;
+const amount = inputs[2].value;
+const paymentMethod = inputs[3].value;
+const txHash = inputs[4].value;
+
+const coin = selectedCoin;
+const network = selectedNetwork;
+    const response = await fetch(`${API}/api/wallets/deposit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+     body: JSON.stringify({
+coin,
+network,
+senderName,
+senderAccount,
+amount,
+paymentMethod,
+txHash,
+transactionId: txHash,
+}),
+ });
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Deposit request submitted successfully");
+      inputs.forEach((input) => {
+        input.value = "";
+      });
+    } else {
+      alert(data.message || "Deposit failed");
+    }
+  } catch (err) {
+    console.log(err);
+    alert("Server error");
+  }
+};
+const submitWithdrawal = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
+    const inputs = document.querySelectorAll(".withdraw-input");
+    const response = await fetch(`${API}/api/wallets/withdraw`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        amount: inputs[0].value,
+        walletAddress: inputs[1].value,
+        network: "BSC",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Withdrawal request submitted successfully");
+
+      inputs.forEach((input) => {
+        input.value = "";
+      });
+
+      loadBalance();
+    } else {
+      alert(data.message || "Withdrawal failed");
+    }
+  } catch (err) {
+    console.log(err);
+    alert("Server error");
+  }
+};
+ return (
     <>
       <div className="panel">
         <h2>WALLETS</h2>
@@ -151,7 +252,26 @@ function Wallets() {
         <div className="stats-grid">
           <div className="stat-card glow-yellow">
             <h3>Connected Wallets</h3>
+<button
+  className="buy-btn"
+  onClick={connectWallet}
+>
+  Connect MetaMask / Trust Wallet
+</button>
 
+<p>
+  {
+    walletAddress
+      ? walletAddress.slice(0, 6) +
+        "..." +
+        walletAddress.slice(-4)
+      : "Wallet not connected"
+  }
+</p>
+
+<p>
+  BNB Balance: {bnbBalance}
+</p>
             <h1>MetaMask / Trust Wallet</h1>
 
             <p>BNB Smart Chain supported</p>
@@ -176,98 +296,151 @@ function Wallets() {
             </p>
           </div>
         </div>
+<select
+  className="deposit-select-display"
+  value={selectedCoin}
+  onChange={(e) => setSelectedCoin(e.target.value)}
+>
+  <option>USDT</option>
+  <option>BNB</option>
+  <option>BTC</option>
+  <option>ETH</option>
+  <option>TRX</option>
+</select>
+<select
+  className="deposit-select-display"
+  value={selectedNetwork}
+  onChange={(e) => setSelectedNetwork(e.target.value)}
+>
+  <option>BEP20</option>
+  <option>ERC20</option>
+  <option>TRC20</option>
+  <option>BTC</option>
+</select>
+<div className="wallet-box">
+<p>JazzCash / EasyPaisa:</p>
+<p>03001234567</p>
+<button
+  className="copy-btn"
+  onClick={() => {
+    navigator.clipboard.writeText("03001234567");
+    alert("JazzCash / EasyPaisa Number Copied");
+  }}
+>
+  Copy Number
+</button>
 
-        <div
-          className="panel"
-          style={{ marginTop: "25px" }}
-        >
-          <h2>Wallet Balances</h2>
+<p>Bank Transfer:</p>
+<p>Account Title: Exalt Exchange</p>
+<p>IBAN: PK00ABCD1234567890</p>
+<p>Bank: Meezan Bank</p>
+<button
+  className="copy-btn"
+  onClick={() => {
+    navigator.clipboard.writeText("PK00ABCD1234567890");
+    alert("Bank IBAN Copied");
+  }}
+>
+  Copy IBAN
+</button>
+{selectedCoin === "USDT" && selectedNetwork === "BEP20" && (
+  <>
+    <p>USDT BEP20:</p>
+    <p>0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9</p>
+    <QRCodeCanvas value="0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9" size={120} />
+    <button className="copy-btn" onClick={() => {
+      navigator.clipboard.writeText("0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9");
+      alert("USDT Address Copied");
+    }}>Copy Address</button>
+  </>
+)}
 
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h3>USDT</h3>
-              <h1>{wallets.USDT}</h1>
-            </div>
+{selectedCoin === "BNB" && (
+  <>
+    <p>BNB BEP20:</p>
+    <p>0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9</p>
+    <QRCodeCanvas value="0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9" size={120} />
+    <button className="copy-btn" onClick={() => {
+      navigator.clipboard.writeText("0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9");
+      alert("BNB Address Copied");
+    }}>Copy Address</button>
+  </>
+)}
 
-            <div className="stat-card">
-              <h3>EXALT</h3>
-              <h1>{wallets.EXALT}</h1>
-            </div>
+{selectedCoin === "ETH" && (
+  <>
+    <p>ETH ERC20:</p>
+    <p>0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9</p>
+    <QRCodeCanvas value="0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9" size={120} />
+    <button className="copy-btn" onClick={() => {
+      navigator.clipboard.writeText("0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9");
+      alert("ETH Address Copied");
+    }}>Copy Address</button>
+  </>
+)}
 
-            <div className="stat-card">
-              <h3>BNB</h3>
-              <h1>{wallets.BNB}</h1>
-            </div>
-          </div>
-        </div>
+{selectedCoin === "BTC" && (
+  <>
+    <p>BTC:</p>
+    <p>bc1qzpqsd2t0mnwvatetsxpk4gyxnhpuvaru2wpt95</p>
+    <QRCodeCanvas value="bc1qzpqsd2t0mnwvatetsxpk4gyxnhpuvaru2wpt95" size={120} />
+    <button className="copy-btn" onClick={() => {
+      navigator.clipboard.writeText("bc1qzpqsd2t0mnwvatetsxpk4gyxnhpuvaru2wpt95");
+      alert("BTC Address Copied");
+    }}>Copy Address</button>
+  </>
+)}
 
-        <div
-          className="panel"
-          style={{ marginTop: "25px" }}
-        >
-          <h2>Deposit Options</h2>
+{selectedCoin === "TRX" && (
+  <>
+    <p>TRX TRC20:</p>
+    <p>TLRQbNZsLbqRHPDSk3EMfBpnhVz9ZfXnRt</p>
+    <QRCodeCanvas value="TLRQbNZsLbqRHPDSk3EMfBpnhVz9ZfXnRt" size={120} />
+    <button className="copy-btn" onClick={() => {
+      navigator.clipboard.writeText("TLRQbNZsLbqRHPDSk3EMfBpnhVz9ZfXnRt");
+      alert("TRX Address Copied");
+    }}>Copy Address</button>
+  </>
+)}
+</div>
+<div className="panel" style={{ marginTop: "20px" }}>
 
-          <div className="listing-form">
-            <input
-              className="deposit-input"
-              placeholder="Your Name"
-            />
+<h2>Deposit Options</h2>
 
-            <input
-              className="deposit-input"
-              placeholder="Wallet Address"
-            />
+<input
+className="deposit-input"
+placeholder="Your Name"
+/>
 
-            <input
-              className="deposit-input"
-              placeholder="Amount in USD / PKR / KWD"
-            />
+<input
+className="deposit-input"
+placeholder="Your Wallet / Bank Account"
+/>
 
-            <input
-              className="deposit-input"
-              placeholder="Payment Method"
-            />
+<input
+className="deposit-input"
+placeholder="Amount"
+/>
 
-            <input
-              className="deposit-input"
-              placeholder="Transaction ID / Receipt Number"
-            />
+<select className="deposit-input">
+<option>JazzCash</option>
+<option>EasyPaisa</option>
+<option>Bank Transfer</option>
+<option>USDT</option>
+<option>BNB</option>
+<option>BTC</option>
+</select>
 
-            <button
-              className="buy-btn"
-              onClick={submitDeposit}
-            >
-              Submit Deposit Request
-            </button>
-          </div>
-        </div>
+<input
+className="deposit-input"
+placeholder="Transaction Hash / Reference ID"
+/>
 
-        <div
-          className="panel"
-          style={{ marginTop: "25px" }}
-        >
-          <h2>Withdrawal Request</h2>
+<button className="deposit-btn" onClick={submitDeposit}>
+Submit Deposit
+</button>
 
-          <div className="listing-form">
-            <input
-              className="withdraw-input"
-              placeholder="Amount to Withdraw"
-            />
-
-            <input
-              className="withdraw-input"
-              placeholder="Your BEP20 Wallet Address"
-            />
-
-            <button
-              className="buy-btn"
-              onClick={submitWithdrawal}
-            >
-              Submit Withdrawal Request
-            </button>
-          </div>
-        </div>
-
+</div>
         <div
           className="panel"
           style={{ marginTop: "25px" }}

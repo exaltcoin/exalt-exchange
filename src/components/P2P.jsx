@@ -14,6 +14,7 @@ function P2P() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
 const [paymentProof, setPaymentProof] = useState("");
+const [paymentProofFile, setPaymentProofFile] = useState(null);
   const loadOrders = async () => {
     try {
       const response = await fetch(`${API}/api/p2p/orders`);
@@ -131,21 +132,18 @@ window.dispatchEvent(new Event("walletUpdated"));
   };
 const markPaid = async (orderId) => {
   try {
-    if (!paymentProof) {
-      alert("Enter payment proof / transaction ID");
-      return;
-    }
+   if (!paymentProofFile) {
+  alert("Please upload payment proof image");
+  return;
+}
 
-    const response = await fetch(`${API}/api/p2p/${orderId}/paid`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+const formData = new FormData();
+formData.append("proof", paymentProofFile);
 
-      body: JSON.stringify({
-        paymentProof,
-      }),
-    });
+const response = await fetch(`${API}/api/p2p/${orderId}/paid`, {
+  method: "POST",
+  body: formData,
+});
 
     const data = await response.json();
 
@@ -153,6 +151,7 @@ const markPaid = async (orderId) => {
       alert("Payment submitted");
       window.dispatchEvent(new Event("walletUpdated"));
       setPaymentProof("");
+      setPaymentProofFile(null);
       loadOrders();
     } else {
       alert(data.message || "Failed");
@@ -424,10 +423,14 @@ const cancelOrder = async (orderId) => {
 {order.status === "matched" && (
   <>
     <input
-      placeholder="Proof / Tx ID"
-      value={paymentProof}
-      onChange={(e) => setPaymentProof(e.target.value)}
-    />
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    if (e.target.files && e.target.files[0]) {
+      setPaymentProofFile(e.target.files[0]);
+    }
+  }}
+/>
 
     <button
       className="buy-btn"

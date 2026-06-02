@@ -4,33 +4,52 @@ function Settings() {
   const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
   const submitKYC = async () => {
-    try {
-      const inputs = document.querySelectorAll(".kyc-input");
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+  try {
+    const token = localStorage.getItem("token");
 
-      const payload = {
-        userId: user._id || user.id || "",
-        fullName: inputs[0].value,
-        email: inputs[1].value,
-        country: inputs[2].value,
-        walletAddress: inputs[3].value,
-        idType: inputs[4].value,
-        idNumber: inputs[5].value,
-        telegramUsername: inputs[6].value,
-        projectName: inputs[7].value,
-        status: "pending",
-        createdAt: new Date().toISOString(),
-      };
-
-      alert("KYC request submitted. Admin will review and approve.");
-      console.log("KYC Payload:", payload);
-
-      inputs.forEach((input) => (input.value = ""));
-    } catch (error) {
-      console.log(error);
-      alert("KYC submission failed");
+    if (!token) {
+      alert("Please login first");
+      return;
     }
-  };
+
+    const inputs = document.querySelectorAll(".kyc-input");
+
+  const payload = {
+  fullName: inputs[0].value,
+  email: inputs[1].value,
+  country: inputs[2].value,
+  walletAddress: inputs[3].value,
+  idType: inputs[4].value,
+  idNumber: inputs[5].value,
+  telegramUsername: inputs[6].value,
+  projectName: inputs[7].value,
+};
+
+    const response = await fetch(`${API}/api/kyc`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("KYC submitted successfully");
+
+      inputs.forEach((input) => {
+        input.value = "";
+      });
+    } else {
+      alert(data.message || "KYC failed");
+    }
+  } catch (error) {
+    console.log(error);
+    alert("Server error");
+  }
+};
 
   return (
     <div className="panel">

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY;
   const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user"));
   const [listings, setListings] = useState([]);
@@ -10,10 +9,10 @@ const user = JSON.parse(localStorage.getItem("user"));
   const [tickets, setTickets] = useState([]);
   const [transactions, setTransactions] = useState([]);
 const [withdrawals, setWithdrawals] = useState([]);
+const [kycRequests, setKycRequests] = useState([]);
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
-    "x-admin-key": ADMIN_KEY,
   };
 if (!user || user.role !== "admin") {
   return (
@@ -44,6 +43,15 @@ setDeposits(
   depositsData.deposits ||
   depositsData.data ||
   depositsData ||
+  []
+);
+const kycRes = await fetch(`${API}/api/kyc`, { headers });
+const kycData = await kycRes.json();
+
+setKycRequests(
+  kycData.kycList ||
+  kycData.requests ||
+  kycData ||
   []
 );
 const withdrawalsRes = await fetch(`${API}/api/withdrawals`, { headers });
@@ -194,7 +202,11 @@ const updateWithdrawal = async (id, status) => {
             <p>User: {item.email || item.user}</p>
             <p>Amount: {item.amount}</p>
             <p>Status: {item.status}</p>
-
+<p>Payment Method: {item.paymentMethod}</p>
+<p>Sender Name: {item.senderName}</p>
+<p>Sender Account: {item.senderAccount}</p>
+<p>Transaction ID: {item.transactionId || item.txHash}</p>
+<p>Network: {item.network}</p>
            {item.status !== "approved" && item.status !== "rejected" ? (
   <>
     <button onClick={() => updateDeposit(item._id, "approved")}>
