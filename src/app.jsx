@@ -308,15 +308,16 @@ const userEmail = storedUser?.email || "User";
     setMenuOpen(false);
   }}
 >
-  <button
+  Admin P2P
+</button>
+
+<button
   onClick={() => {
     setPage("kyc");
     setMenuOpen(false);
   }}
 >
   KYC Requests
-</button>
-  Admin P2P
 </button>
   <button
     onClick={() => {
