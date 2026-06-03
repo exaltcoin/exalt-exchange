@@ -1,7 +1,7 @@
 import React from "react";
 
 function Settings() {
-  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
 
   const submitKYC = async () => {
   try {

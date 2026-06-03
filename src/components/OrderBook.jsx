@@ -6,7 +6,7 @@ function OrderBook() {
 
  const loadOrders = async () => {
   try {
-    const res = await fetch("http://localhost:5000/api/orders");
+    fetch("https://exalt-exchange-backend.onrender.com/api/orders");
     const data = await res.json();
 
     const list = Array.isArray(data) ? data : data.orders || [];

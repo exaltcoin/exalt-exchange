@@ -4,7 +4,7 @@ import Tradingchart from "./Tradingchart";
 import OrderBook from "./OrderBook";
 import { ethers } from "ethers";
 function Trade() {
-  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
 
   const [coins, setCoins] = useState([]);
   const [selectedCoin, setSelectedCoin] = useState(null);

@@ -1,7 +1,7 @@
 
 import { useEffect, useState, useRef } from "react";
 
-const API = "http://localhost:5000";
+const API = "https://exalt-exchange-backend.onrender.com";
 
 function AdminP2P() {
   const [orders, setOrders] = useState([]);

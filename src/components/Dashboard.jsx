@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 function Dashboard({ setPage }) {
-  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API = import.meta.env.VITE_API_URL ||"https://exalt-exchange-backend.onrender.com";
 
 const [coins, setCoins] = useState([]);
 const [exaltPrice, setExaltPrice] = useState(0.02456);

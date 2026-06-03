@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import Web3 from "web3";
 import { QRCodeCanvas } from "qrcode.react";
 function Wallets() {
-  const API = "http://localhost:5000";
-
+ const API = "https://exalt-exchange-backend.onrender.com";
   const [balance, setBalance] = useState(0);
   const [wallets, setWallets] = useState({
     USDT: 0,

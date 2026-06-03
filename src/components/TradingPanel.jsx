@@ -5,7 +5,7 @@ const [change24h, setChange24h] = useState(0);
 const [volume24h, setVolume24h] = useState(0);
 const [liquidity, setLiquidity] = useState(0);
 useEffect(() => {
-  fetch("http://localhost:5000/api/market/live")
+ fetch("https://exalt-exchange-backend.onrender.com/api/market/live")
     .then((res) => res.json())
     .then((data) => {
       const pairs = data?.data?.pairs || [];

@@ -14,7 +14,7 @@ function Support() {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:5000/api/support-ticket", {
+      const response = await fetch("https://exalt-exchange-backend.onrender.com/api/support-ticket", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
