@@ -18,6 +18,7 @@ function Sidebar({ activePage, setActivePage }) {
   "Support",
   "Admin",
   "KYC Requests",
+  "Submit KYC",
   "Admin-P2P",
   "Settings",
 ];
