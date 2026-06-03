@@ -154,6 +154,7 @@ tickerData.forEach((item) => {
 
       setLivePrices(prices);
       window.realChanges = changes;
+      console.log("prices loaded");
     } catch (error) {
       console.log(error);
     }
