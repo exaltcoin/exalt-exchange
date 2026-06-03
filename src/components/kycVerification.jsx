@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import VerifiedBadge from "./VerifiedBadge";
+import VerifiedBadge from "./verifiedBadge";
 
 const API =
   import.meta.env.VITE_API_URL ||
