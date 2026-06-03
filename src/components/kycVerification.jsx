@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import VerifiedBadge from "./verifiedBadge";
-import "./KycVerification.css";
+import "./kycVerification.css";
 
 const API =
   import.meta.env.VITE_API_URL ||
