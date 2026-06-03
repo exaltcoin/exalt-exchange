@@ -20,6 +20,7 @@ import AuthPanel from "./components/AuthPanel";
 import TradingPanel from "./components/TradingPanel";
 import OrderBook from "./components/OrderBook";
 import P2P from "./components/P2P";
+import AdminKycPanel from "./components/AdminKycPanel";
 import AdminP2P from "./components/AdminP2P";
 import Futures from "./components/Futures";
 import ReplitRewards from "./replit_ui/Rewards";
@@ -168,6 +169,7 @@ const userEmail = storedUser?.email || "User";
     if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
     if (page === "p2p") return <P2P />;
+    {page === "KYC Requests" && <AdminKycPanel />}
     if (page === "referral") return <Referral />;
     if (page === "rewards") return <ReplitRewards />;
     if (page === "support") return <Support />;
@@ -306,6 +308,14 @@ const userEmail = storedUser?.email || "User";
     setMenuOpen(false);
   }}
 >
+  <button
+  onClick={() => {
+    setPage("kyc");
+    setMenuOpen(false);
+  }}
+>
+  KYC Requests
+</button>
   Admin P2P
 </button>
   <button

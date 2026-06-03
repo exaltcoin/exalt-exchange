@@ -17,6 +17,7 @@ function Sidebar({ activePage, setActivePage }) {
   "Rewards",
   "Support",
   "Admin",
+  "KYC Requests",
   "Admin-P2P",
   "Settings",
 ];
