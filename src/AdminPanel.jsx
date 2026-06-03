@@ -249,7 +249,27 @@ const updateWithdrawal = async (id, status) => {
     )}
   </div>
 ))}
-      <h3>Support Tickets</h3>
+    
+<h3>User / Project KYC Requests</h3>
+
+{kycRequests.length === 0 ? (
+  <p>No KYC requests found.</p>
+) : (
+  kycRequests.map((kyc) => (
+    <div key={kyc._id} className="request-card">
+      <p><b>Name:</b> {kyc.fullName}</p>
+      <p><b>Email:</b> {kyc.email}</p>
+      <p><b>Country:</b> {kyc.country}</p>
+      <p><b>Wallet:</b> {kyc.walletAddress}</p>
+      <p><b>ID Type:</b> {kyc.idType}</p>
+      <p><b>ID Number:</b> {kyc.idNumber}</p>
+      <p><b>Telegram:</b> {kyc.telegramUsername}</p>
+      <p><b>Project:</b> {kyc.projectName}</p>
+      <p><b>Status:</b> {kyc.status}</p>
+    </div>
+  ))
+)}
+     <h3>Support Tickets</h3>
 
       {tickets.length === 0 ? (
         <p>No support tickets found.</p>

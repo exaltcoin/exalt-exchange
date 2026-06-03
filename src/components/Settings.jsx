@@ -13,8 +13,9 @@ function Settings() {
     }
 
     const inputs = document.querySelectorAll(".kyc-input");
-
+const user = JSON.parse(localStorage.getItem("user") || "{}");
   const payload = {
+    userId: user._id || user.id || "guest",
   fullName: inputs[0].value,
   email: inputs[1].value,
   country: inputs[2].value,
@@ -33,7 +34,8 @@ function Settings() {
       },
       body: JSON.stringify(payload),
     });
-
+console.log("KYC API URL:", `${API}/api/kyc`);
+console.log("KYC PAYLOAD:", payload);
     const data = await response.json();
 
     if (data.success) {
