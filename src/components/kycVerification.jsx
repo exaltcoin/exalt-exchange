@@ -14,8 +14,6 @@ function KycVerification() {
     country: "",
     idType: "CNIC",
     idNumber: "",
-    walletAddress: "",
-    projectName: "Exalt Coin",
   });
 
   const [emailOtp, setEmailOtp] = useState("");
@@ -161,8 +159,6 @@ function KycVerification() {
           </select>
 
           <input name="idNumber" placeholder="ID Number" value={form.idNumber} onChange={update} />
-          <input name="walletAddress" placeholder="Wallet Address" value={form.walletAddress} onChange={update} />
-          <input name="projectName" placeholder="Project Name" value={form.projectName} onChange={update} />
         </div>
 
         <div className="verify-box">
