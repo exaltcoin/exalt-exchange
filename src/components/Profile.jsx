@@ -75,8 +75,8 @@ const connectedWallet = localStorage.getItem("wallet") || user.wallet || "";
 
         <div className="profile-card">
           <h3>Wallet</h3>
-          <p><b>Status:</b> {connectedWallet ? "Connected" : "Not connected"}</p>
-          <p><b>Address:</b> {shortWallet}</p>
+         <p><b>Status:</b> {connectedWallet ? "Connected" : "Not connected"}</p>
+         <p><b>Address:</b> {connectedWallet ? shortWallet : "Not connected"}</p>
           <p><b>Network:</b> BNB Smart Chain</p>
         </div>
 
