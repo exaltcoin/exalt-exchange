@@ -106,10 +106,11 @@ if (kycStatus === "pending") {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          ...form,
-          emailVerified,
-          faceVerified,
-        }),
+  userId: JSON.parse(localStorage.getItem("user") || "{}")._id,
+  ...form,
+  emailVerified,
+  faceVerified,
+}),
       });
 
       const data = await res.json();
