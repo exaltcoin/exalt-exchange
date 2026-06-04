@@ -30,10 +30,10 @@ console.log("KYC DATA:", data);
 
   loadProfile();
 }, []);
-  const shortWallet = user.wallet
-    ? `${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}`
-    : "Not connected";
-
+const connectedWallet = localStorage.getItem("wallet") || user.wallet || "";
+ const shortWallet = connectedWallet
+  ? `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`
+  : "Not connected";
   return (
     <div className="profile-page">
       <div className="profile-hero">
@@ -75,7 +75,7 @@ console.log("KYC DATA:", data);
 
         <div className="profile-card">
           <h3>Wallet</h3>
-          <p><b>Status:</b> {user.wallet ? "Connected" : "Not connected"}</p>
+          <p><b>Status:</b> {connectedWallet ? "Connected" : "Not connected"}</p>
           <p><b>Address:</b> {shortWallet}</p>
           <p><b>Network:</b> BNB Smart Chain</p>
         </div>
