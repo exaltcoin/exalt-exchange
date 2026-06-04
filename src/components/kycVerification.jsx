@@ -122,8 +122,6 @@ useEffect(() => {
             <h2>KYC Verification</h2>
             <p>Complete your identity verification to unlock verified user status.</p>
           </div>
-
-          <VerifiedBadge status={kycStatus} />
         </div>
 <div id="recaptcha-container"></div>
         <div className="kyc-grid">
