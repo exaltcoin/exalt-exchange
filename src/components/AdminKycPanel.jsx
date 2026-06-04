@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.VITE_API_URL ||"https://exalt-exchange-backend.onrender.com";
 
 function AdminKycPanel() {
   const [kycList, setKycList] = useState([]);
@@ -17,18 +17,21 @@ function AdminKycPanel() {
 
   const updateKyc = async (id, status) => {
     try {
-      const res = await fetch(`${API}/api/kyc/admin/${id}/${status}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+    const res = await fetch(`${API}/api/kyc/admin/${id}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status,
+      }),
+    });
 
-      const data = await res.json();
-      alert(data.message || `KYC ${status}`);
-      loadKyc();
-    } catch (err) {
-      alert("KYC update failed");
-    }
-  };
+    const data = await res.json();
+    alert(data.message || `KYC ${status}`);
+    loadKyc();
+  } catch (err) {
+    alert("KYC update failed");
+  }
+};
 
   useEffect(() => {
     loadKyc();

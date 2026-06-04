@@ -1,16 +1,35 @@
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
-
+const API =
+  import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
 function Profile() {
   const [user, setUser] = useState({});
   const [kycStatus, setKycStatus] = useState("Not Verified");
-
-  useEffect(() => {
+useEffect(() => {
+  const loadProfile = async () => {
     const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
     setUser(savedUser);
-    setKycStatus(savedUser.kycStatus || "Not Verified");
-  }, []);
 
+    if (!savedUser.email) {
+      setKycStatus("not_submitted");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${API}/api/kyc/user/${encodeURIComponent(savedUser.email)}`
+      );
+      const data = await res.json();
+
+      setKycStatus(data.status || "not_submitted");
+    } catch (err) {
+      console.log(err);
+      setKycStatus(savedUser.kycStatus || "not_submitted");
+    }
+  };
+
+  loadProfile();
+}, []);
   const shortWallet = user.wallet
     ? `${user.wallet.slice(0, 6)}...${user.wallet.slice(-4)}`
     : "Not connected";
@@ -26,9 +45,22 @@ function Profile() {
           <h2>{user.name || "User Profile"}</h2>
           <p>{user.email || "No email connected"}</p>
         </div>
-
-        <span className={kycStatus === "approved" ? "profile-badge verified" : "profile-badge pending"}>
-          {kycStatus === "approved" ? "✅ Verified" : "⚠️ Not Verified"}
+<span
+ className={
+    kycStatus === "approved"
+      ? "profile-badge verified"
+      : kycStatus === "rejected"
+      ? "profile-badge rejected"
+      : "profile-badge pending"
+  }
+>
+        {kycStatus === "approved"
+  ? "✅ Verified"
+  : kycStatus === "rejected"
+  ? "❌ Rejected"
+  : kycStatus === "pending"
+  ? "⏳ Pending"
+  : "⚠️ Not Submitted"}
         </span>
       </div>
 
