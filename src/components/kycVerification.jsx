@@ -65,9 +65,13 @@ const [confirmationResult, setConfirmationResult] = useState(null);
   if (!form.phone) return alert("Enter phone first");
 
   try {
-    const phoneNumber = form.phone.startsWith("+")
-      ? form.phone
-      : `+${form.phone}`;
+   const cleanPhone = form.phone.replace(/\s/g, "").trim();
+
+const phoneNumber = cleanPhone.startsWith("+")
+  ? cleanPhone
+  : `+${cleanPhone}`;
+
+console.log("Firebase phone number:", phoneNumber);
 
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
