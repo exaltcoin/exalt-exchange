@@ -9,7 +9,10 @@ function AdminKycPanel() {
     try {
       const res = await fetch(`${API}/api/kyc/admin/all`);
       const data = await res.json();
-     setKycList(data.kycList || data.kyc || data.requests || []);
+    setKycList(
+  (data.kycList || data.kyc || data.requests || [])
+    .filter(item => item.status === "pending")
+);
     } catch (err) {
       console.log(err);
     }
@@ -26,7 +29,11 @@ function AdminKycPanel() {
     });
 
     const data = await res.json();
-    alert(data.message || `KYC ${status}`);
+    if (status === "approved") {
+  alert("✅ KYC request approved successfully.");
+} else {
+  alert("❌ KYC request rejected successfully.");
+}
     loadKyc();
   } catch (err) {
     alert("KYC update failed");
@@ -66,13 +73,29 @@ function AdminKycPanel() {
               </p>
             )}
 
-            <button onClick={() => updateKyc(kyc._id, "approved")}>
-              Approve
-            </button>
+           <div className="kyc-actions">
+  {kyc.status === "pending" ? (
+    <>
+      <button
+        className="kyc-approve-btn"
+        onClick={() => updateKyc(kyc._id, "approved")}
+      >
+        Approve KYC
+      </button>
 
-            <button onClick={() => updateKyc(kyc._id, "rejected")}>
-              Reject
-            </button>
+      <button
+        className="kyc-reject-btn"
+        onClick={() => updateKyc(kyc._id, "rejected")}
+      >
+        Reject KYC
+      </button>
+    </>
+  ) : (
+    <span className={`kyc-status-badge ${kyc.status}`}>
+      {kyc.status === "approved" ? "Approved" : "Rejected"}
+    </span>
+  )}
+</div>
           </div>
         ))
       )}

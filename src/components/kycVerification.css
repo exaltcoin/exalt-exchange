@@ -142,4 +142,33 @@
 .face-btn,
 .submit-kyc-btn {
   transition: all 0.25s ease;
+}.kyc-approve-btn,
+.kyc-reject-btn {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: 0.2s ease;
+}
+
+.kyc-approve-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.kyc-approve-btn:hover {
+  background: #22c55e;
+  transform: translateY(-1px);
+}
+
+.kyc-reject-btn {
+  background: #dc2626;
+  color: white;
+}
+
+.kyc-reject-btn:hover {
+  background: #ef4444;
+  transform: translateY(-1px);
 }
