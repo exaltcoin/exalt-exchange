@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 function AdminPanel() {
-  const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
   const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user"));
   const [listings, setListings] = useState([]);
@@ -43,15 +43,6 @@ setDeposits(
   depositsData.deposits ||
   depositsData.data ||
   depositsData ||
-  []
-);
-const kycRes = await fetch(`${API}/api/kyc`, { headers });
-const kycData = await kycRes.json();
-
-setKycRequests(
-  kycData.kycList ||
-  kycData.requests ||
-  kycData ||
   []
 );
 const withdrawalsRes = await fetch(`${API}/api/withdrawals`, { headers });

@@ -9,7 +9,7 @@ function AdminKycPanel() {
     try {
       const res = await fetch(`${API}/api/kyc/admin/all`);
       const data = await res.json();
-      setKycList(data.kyc || data.requests || []);
+     setKycList(data.kycList || data.kyc || data.requests || []);
     } catch (err) {
       console.log(err);
     }
