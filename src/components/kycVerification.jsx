@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import VerifiedBadge from "./verifiedBadge";
 import "./kycVerification.css";
-
+import { auth } from "../firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 const API =
   import.meta.env.VITE_API_URL ||
   "https://exalt-exchange-backend.onrender.com";
@@ -23,7 +24,7 @@ function KycVerification() {
   const [faceVerified, setFaceVerified] = useState(false);
   const [kycStatus, setKycStatus] = useState("not_submitted");
   const [loading, setLoading] = useState(false);
-
+const [confirmationResult, setConfirmationResult] = useState(null);
   const token = localStorage.getItem("token") || "";
 
   const update = (e) => {
@@ -61,34 +62,48 @@ function KycVerification() {
   };
 
   const sendPhoneOtp = async () => {
-    if (!form.phone) return alert("Enter phone first");
+  if (!form.phone) return alert("Enter phone first");
 
-    const res = await fetch(`${API}/api/otp/send-phone`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: form.phone }),
-    });
+  try {
+    const phoneNumber = form.phone.startsWith("+")
+      ? form.phone
+      : `+${form.phone}`;
 
-    const data = await res.json();
-    alert(data.message || "Phone OTP sent");
-  };
-
-  const verifyPhoneOtp = async () => {
-    const res = await fetch(`${API}/api/otp/verify-phone`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: form.phone, otp: phoneOtp }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      setPhoneVerified(true);
-      alert("Phone verified successfully");
-    } else {
-      alert(data.message || "Invalid phone OTP");
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        { size: "invisible" }
+      );
     }
-  };
+
+    const result = await signInWithPhoneNumber(
+      auth,
+      phoneNumber,
+      window.recaptchaVerifier
+    );
+
+    setConfirmationResult(result);
+    alert("Phone OTP sent successfully");
+  } catch (error) {
+    console.log(error);
+    alert(error.message || "Phone OTP failed");
+  }
+};
+
+const verifyPhoneOtp = async () => {
+  if (!phoneOtp) return alert("Enter phone OTP");
+  if (!confirmationResult) return alert("Send phone OTP first");
+
+  try {
+    await confirmationResult.confirm(phoneOtp);
+    setPhoneVerified(true);
+    alert("Phone verified successfully");
+  } catch (error) {
+    console.log(error);
+    alert("Invalid phone OTP");
+  }
+};
 
   const startFaceVerification = () => {
     alert("Face verification demo approved. Real camera verification can be connected later.");
@@ -144,7 +159,7 @@ function KycVerification() {
 
           <VerifiedBadge status={kycStatus} />
         </div>
-
+<div id="recaptcha-container"></div>
         <div className="kyc-grid">
           <input name="fullName" placeholder="Full Legal Name" value={form.fullName} onChange={update} />
           <input name="email" placeholder="Email Address" value={form.email} onChange={update} />
