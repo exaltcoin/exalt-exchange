@@ -81,11 +81,28 @@ console.log("KYC DATA:", data);
         </div>
 
         <div className="profile-card">
-          <h3>KYC Status</h3>
-          <p><b>Status:</b> {kycStatus}</p>
-          <p><b>Email Verification:</b> Pending</p>
-          <p><b>Phone Verification:</b> Pending</p>
-          <p><b>Face Verification:</b> Pending</p>
+         <h3>KYC Status</h3>
+
+<p>
+  <b>Status:</b>{" "}
+  {kycStatus === "approved"
+    ? "✅ Verified"
+    : kycStatus === "pending"
+    ? "⏳ Under Review"
+    : kycStatus === "rejected"
+    ? "❌ Rejected"
+    : "⚠️ Not Submitted"}
+</p>
+
+<p>
+  <b>Email Verification:</b>{" "}
+  {kycStatus === "approved" ? "✅ Verified" : "⏳ Pending"}
+</p>
+
+<p>
+  <b>Face Verification:</b>{" "}
+  {kycStatus === "approved" ? "✅ Verified" : "⏳ Pending"}
+</p>
         </div>
 
         <div className="profile-card">

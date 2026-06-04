@@ -32,7 +32,12 @@ useEffect(() => {
       );
       const data = await res.json();
 
-      setKycStatus(data.kyc?.status || data.status || "not_submitted");
+    setKycStatus(data.status || data.kyc?.status || "not_submitted");
+
+if (data.status === "approved" || data.kyc?.status === "approved") {
+  setEmailVerified(true);
+  setFaceVerified(true);
+} 
     } catch (err) {
       console.log(err);
     }
@@ -79,6 +84,15 @@ useEffect(() => {
   };
 
   const submitKyc = async () => {
+    if (kycStatus === "approved") {
+  alert("✅ Your KYC has already been approved.");
+  return;
+}
+
+if (kycStatus === "pending") {
+  alert("⏳ Your KYC request is already under review.");
+  return;
+}
     if (!emailVerified || !faceVerified) {
   return alert("Please complete email and face verification first.");
 }
@@ -155,9 +169,23 @@ useEffect(() => {
           </button>
         </div>
 
-        <button className="submit-kyc-btn" onClick={submitKyc} disabled={loading}>
-          {loading ? "Submitting..." : "Submit KYC"}
-        </button>
+    <button
+  className="submit-kyc-btn"
+  onClick={submitKyc}
+  disabled={
+    loading ||
+    kycStatus === "approved" ||
+    kycStatus === "pending"
+  }
+>
+  {loading
+    ? "Submitting..."
+    : kycStatus === "approved"
+    ? "KYC Approved"
+    : kycStatus === "pending"
+    ? "KYC Under Review"
+    : "Submit KYC"}
+</button>
       </div>
     </div>
   );

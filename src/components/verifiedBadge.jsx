@@ -1,45 +1,44 @@
 import React from "react";
 
 function VerifiedBadge({ status }) {
-  if (status === "verified") {
-    return (
-      <div style={badgeStyle("#16a34a")}>
-        ✅ Verified Badge
-      </div>
-    );
-  }
+  const badges = {
+    approved: {
+      color: "#16a34a",
+      text: "✅ KYC Verified",
+    },
+    pending: {
+      color: "#f59e0b",
+      text: "⏳ Under Review",
+    },
+    rejected: {
+      color: "#dc2626",
+      text: "❌ KYC Rejected",
+    },
+  };
 
-  if (status === "pending") {
-    return (
-      <div style={badgeStyle("#f59e0b")}>
-        ⏳ KYC Pending Admin Review
-      </div>
-    );
-  }
-
-  if (status === "rejected") {
-    return (
-      <div style={badgeStyle("#dc2626")}>
-        ❌ KYC Rejected
-      </div>
-    );
-  }
+  const current =
+    badges[status] || {
+      color: "#64748b",
+      text: "⚠️ Not Verified",
+    };
 
   return (
-    <div style={badgeStyle("#64748b")}>
-      ⚠️ Not Verified
+    <div style={badgeStyle(current.color)}>
+      {current.text}
     </div>
   );
 }
-
 const badgeStyle = (bg) => ({
   display: "inline-block",
   background: bg,
   color: "#fff",
-  padding: "8px 14px",
+  padding: "10px 16px",
   borderRadius: "999px",
-  fontWeight: "bold",
+  fontWeight: "700",
+  fontSize: "13px",
   margin: "10px 0",
+  boxShadow: `0 4px 12px ${bg}55`,
 });
+
 
 export default VerifiedBadge;
