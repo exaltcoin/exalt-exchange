@@ -20,8 +20,8 @@ useEffect(() => {
         `${API}/api/kyc/user/${encodeURIComponent(savedUser.email)}`
       );
       const data = await res.json();
-
-      setKycStatus(data.status || "not_submitted");
+console.log("KYC DATA:", data);
+    setKycStatus(data.kyc?.status || data.status || "not_submitted");
     } catch (err) {
       console.log(err);
       setKycStatus(savedUser.kycStatus || "not_submitted");
