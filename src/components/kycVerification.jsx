@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import VerifiedBadge from "./verifiedBadge";
 import "./kycVerification.css";
   const API =
@@ -20,7 +20,26 @@ function KycVerification() {
   const [kycStatus, setKycStatus] = useState("not_submitted");
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token") || "";
+useEffect(() => {
+  const checkKycStatus = async () => {
+    const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
+    if (!savedUser.email) return;
+
+    try {
+      const res = await fetch(
+        `${API}/api/kyc/user/${encodeURIComponent(savedUser.email)}`
+      );
+      const data = await res.json();
+
+      setKycStatus(data.kyc?.status || data.status || "not_submitted");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  checkKycStatus();
+}, []);
   const update = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
