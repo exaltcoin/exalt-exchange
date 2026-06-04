@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import VerifiedBadge from "./verifiedBadge";
 import "./kycVerification.css";
-import { auth } from "../firebase";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-const API =
   import.meta.env.VITE_API_URL ||
   "https://exalt-exchange-backend.onrender.com";
 
@@ -18,13 +15,10 @@ function KycVerification() {
   });
 
   const [emailOtp, setEmailOtp] = useState("");
-  const [phoneOtp, setPhoneOtp] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
   const [faceVerified, setFaceVerified] = useState(false);
   const [kycStatus, setKycStatus] = useState("not_submitted");
   const [loading, setLoading] = useState(false);
-const [confirmationResult, setConfirmationResult] = useState(null);
   const token = localStorage.getItem("token") || "";
 
   const update = (e) => {
@@ -60,65 +54,15 @@ const [confirmationResult, setConfirmationResult] = useState(null);
       alert(data.message || "Invalid email OTP");
     }
   };
-
-  const sendPhoneOtp = async () => {
-  if (!form.phone) return alert("Enter phone first");
-
-  try {
-   const cleanPhone = form.phone.replace(/\s/g, "").trim();
-
-const phoneNumber = cleanPhone.startsWith("+")
-  ? cleanPhone
-  : `+${cleanPhone}`;
-
-console.log("Firebase phone number:", phoneNumber);
-
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        { size: "invisible" }
-      );
-    }
-
-    const result = await signInWithPhoneNumber(
-      auth,
-      phoneNumber,
-      window.recaptchaVerifier
-    );
-
-    setConfirmationResult(result);
-    alert("Phone OTP sent successfully");
-  } catch (error) {
-    console.log(error);
-    alert(error.message || "Phone OTP failed");
-  }
-};
-
-const verifyPhoneOtp = async () => {
-  if (!phoneOtp) return alert("Enter phone OTP");
-  if (!confirmationResult) return alert("Send phone OTP first");
-
-  try {
-    await confirmationResult.confirm(phoneOtp);
-    setPhoneVerified(true);
-    alert("Phone verified successfully");
-  } catch (error) {
-    console.log(error);
-    alert("Invalid phone OTP");
-  }
-};
-
   const startFaceVerification = () => {
     alert("Face verification demo approved. Real camera verification can be connected later.");
     setFaceVerified(true);
   };
 
   const submitKyc = async () => {
-    if (!emailVerified || !phoneVerified || !faceVerified) {
-      return alert("Please complete email, phone, and face verification first.");
-    }
-
+    if (!emailVerified || !faceVerified) {
+  return alert("Please complete email and face verification first.");
+}
     setLoading(true);
 
     try {
@@ -131,7 +75,6 @@ const verifyPhoneOtp = async () => {
         body: JSON.stringify({
           ...form,
           emailVerified,
-          phoneVerified,
           faceVerified,
         }),
       });
@@ -188,16 +131,6 @@ const verifyPhoneOtp = async () => {
             <button onClick={verifyEmailOtp}>Verify Email</button>
           </div>
         </div>
-
-        <div className="verify-box">
-          <h3>Phone Verification {phoneVerified ? "✅" : "❌"}</h3>
-          <div className="verify-row">
-            <button onClick={sendPhoneOtp}>Send Phone OTP</button>
-            <input placeholder="Enter Phone OTP" value={phoneOtp} onChange={(e) => setPhoneOtp(e.target.value)} />
-            <button onClick={verifyPhoneOtp}>Verify Phone</button>
-          </div>
-        </div>
-
         <div className="verify-box">
           <h3>Face Verification {faceVerified ? "✅" : "❌"}</h3>
           <button className="face-btn" onClick={startFaceVerification}>
