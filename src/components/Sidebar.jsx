@@ -3,6 +3,7 @@ import exchangeLogo from "../assets/exalt-exchange.png";
 function Sidebar({ activePage, setActivePage }) {
   const [mobileOpen, setMobileOpen] = useState(false);
  const menuItems = [
+  "Profile",
   "Dashboard",
   "P2P",
   "Markets",

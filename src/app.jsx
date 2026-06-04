@@ -27,6 +27,7 @@ import Futures from "./components/Futures";
 import ReplitRewards from "./replit_ui/Rewards";
 import ReplitTrade from "./replit_ui/Trade";
 import ReplitFutures from "./replit_ui/Futures";
+import Profile from "./components/Profile";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -154,6 +155,8 @@ const storedUser = JSON.parse(
 
 const userEmail = storedUser?.email || "User";
   const renderPage = () => {
+   const currentUser =
+  JSON.parse(localStorage.getItem("user") || "{}") || {}; 
     if (page === "dashboard")
   return (
     <>
@@ -170,13 +173,24 @@ const userEmail = storedUser?.email || "User";
     if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
     if (page === "p2p") return <P2P />;
-   if (page === "kyc") return <AdminKycPanel />;
+  if (page === "kyc") {
+  if (currentUser?.role !== "admin") {
+    return <div className="panel">Access Denied</div>;
+  }
+  return <AdminKycPanel />;
+}
 if (page === "kyc-submit") return <KycVerification />;
     if (page === "referral") return <Referral />;
     if (page === "rewards") return <ReplitRewards />;
     if (page === "support") return <Support />;
     if (page === "listings") return <ListingForm />;
-    if (page === "admin-p2p") return <AdminP2P />;
+    if (page === "profile") return <Profile />;
+    if (page === "admin-p2p") {
+  if (currentUser?.role !== "admin") {
+    return <div className="panel">Access Denied</div>;
+  }
+  return <AdminP2P />;
+}
     if (page === "admin") {
  const user =
   JSON.parse(localStorage.getItem("user") || "{}") || {};
@@ -234,7 +248,14 @@ if (page === "kyc-submit") return <KycVerification />;
   </div>
 </div>
        <div className="menu">
-
+<button
+  onClick={() => {
+    setPage("profile");
+    setMenuOpen(false);
+  }}
+>
+  Profile
+</button>
   <button
     onClick={() => {
       setPage("dashboard");
@@ -304,23 +325,27 @@ if (page === "kyc-submit") return <KycVerification />;
   >
     Orders
   </button>
-<button
-  onClick={() => {
-    setPage("admin-p2p");
-    setMenuOpen(false);
-  }}
->
-  Admin P2P
-</button>
+  {storedUser?.role === "admin" && (
+  <>
+    <button
+      onClick={() => {
+        setPage("admin-p2p");
+        setMenuOpen(false);
+      }}
+    >
+      Admin P2P
+    </button>
 
-<button
-  onClick={() => {
-    setPage("kyc");
-    setMenuOpen(false);
-  }}
->
-  KYC Requests
-</button>
+    <button
+      onClick={() => {
+        setPage("kyc");
+        setMenuOpen(false);
+      }}
+    >
+      KYC Requests
+    </button>
+  </>
+)}
 <button
   onClick={() => {
     setPage("kyc-submit");
@@ -372,14 +397,16 @@ if (page === "kyc-submit") return <KycVerification />;
   >
     Support
   </button>
-<button
-  onClick={() => {
-    setPage("admin");
-    setMenuOpen(false);
-  }}
->
-  Admin
-</button>
+{storedUser?.role === "admin" && (
+  <button
+    onClick={() => {
+      setPage("admin");
+      setMenuOpen(false);
+    }}
+  >
+    Admin
+  </button>
+)}
 
   <button
     onClick={() => {
