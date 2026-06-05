@@ -214,6 +214,13 @@ const submitWithdrawal = async () => {
     }
 
     const inputs = document.querySelectorAll(".withdraw-input");
+
+    const amount = inputs[0].value;
+    const accountName = inputs[1].value;
+    const accountNumber = inputs[2].value;
+    const method = inputs[3].value;
+    const coin = inputs[4].value;
+
     const response = await fetch(`${API}/api/wallets/withdraw`, {
       method: "POST",
       headers: {
@@ -221,9 +228,12 @@ const submitWithdrawal = async () => {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        amount: inputs[0].value,
-        walletAddress: inputs[1].value,
-        network: "BSC",
+        amount,
+        walletAddress: accountNumber,
+        accountName,
+        paymentMethod: method,
+        coin,
+        network: method === "CRYPTO" ? "BEP20" : method,
       }),
     });
 
@@ -231,11 +241,7 @@ const submitWithdrawal = async () => {
 
     if (data.success) {
       alert("Withdrawal request submitted successfully");
-
-      inputs.forEach((input) => {
-        input.value = "";
-      });
-
+      inputs.forEach((input) => (input.value = ""));
       loadBalance();
     } else {
       alert(data.message || "Withdrawal failed");
@@ -458,7 +464,39 @@ placeholder="Transaction Hash / Reference ID"
 <button className="deposit-btn" onClick={submitDeposit}>
 Submit Deposit
 </button>
+<h2 style={{ marginTop: "30px" }}>Withdrawal Options</h2>
 
+<input
+  className="withdraw-input deposit-input"
+  placeholder="Amount"
+/>
+
+<input
+  className="withdraw-input deposit-input"
+  placeholder="Account / Wallet Name"
+/>
+
+<input
+  className="withdraw-input deposit-input"
+  placeholder="Wallet Address / JazzCash / Easypaisa / Bank Account / IBAN"
+/>
+
+<select className="withdraw-input deposit-input">
+  <option value="CRYPTO">Crypto Wallet</option>
+  <option value="JAZZCASH">JazzCash</option>
+  <option value="EASYPAISA">Easypaisa</option>
+  <option value="BANK">Bank Transfer</option>
+</select>
+
+<select className="withdraw-input deposit-input">
+  <option value="USDT">USDT</option>
+  <option value="EXALT">EXALT</option>
+  <option value="BNB">BNB</option>
+</select>
+
+<button className="deposit-btn" onClick={submitWithdrawal}>
+  Submit Withdrawal
+</button>
 </div>
         <div
           className="panel"
