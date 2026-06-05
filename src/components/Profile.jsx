@@ -30,7 +30,11 @@ console.log("KYC DATA:", data);
 
   loadProfile();
 }, []);
-const connectedWallet = localStorage.getItem("wallet") || user.wallet || "";
+const connectedWallet =
+  localStorage.getItem("wallet") ||
+  localStorage.getItem("walletAddress") ||
+  user.wallet ||
+  "";
  const shortWallet = connectedWallet
   ? `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`
   : "Not connected";
