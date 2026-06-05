@@ -286,7 +286,10 @@ const submitWithdrawal = async () => {
           <div className="stat-card glow-green">
             <h3>EXALT Wallet</h3>
 
-            <h1>{balance} EXALT</h1>
+           <h1 className="wallet-balance">
+  {Number(balance || 0).toLocaleString()}
+</h1>
+<p>EXALT</p>
 
             <p>Live Balance</p>
           </div>

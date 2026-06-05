@@ -1878,4 +1878,9 @@ background:linear-gradient(#16a34a,#2563eb);
 .copy-btn:hover {
   transform: scale(1.05);
   opacity: 0.9;
+}.wallet-balance {
+  font-size: 28px;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  line-height: 1.1;
 }
