@@ -14,6 +14,15 @@ const [kycRequests, setKycRequests] = useState([]);
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
+  const safeText = (value) => {
+  if (value === null || value === undefined) return "N/A";
+
+  if (typeof value === "object") {
+    return value.name || value.email || value._id || JSON.stringify(value);
+  }
+
+  return value;
+};
 if (!user || user.role !== "admin") {
   return (
     <div className="panel">
@@ -190,14 +199,14 @@ const updateWithdrawal = async (id, status) => {
       ) : (
         deposits.map((item) => (
           <div className="admin-card" key={item._id}>
-            <p>User: {item.email || item.user}</p>
+           <p>User: {safeText(item.email || item.user)}</p>
             <p>Amount: {item.amount}</p>
             <p>Status: {item.status}</p>
-<p>Payment Method: {item.paymentMethod}</p>
-<p>Sender Name: {item.senderName}</p>
-<p>Sender Account: {item.senderAccount}</p>
-<p>Transaction ID: {item.transactionId || item.txHash}</p>
-<p>Network: {item.network}</p>
+<p>Payment Method: {safeText(item.paymentMethod)}</p>
+<p>Sender Name: {safeText(item.senderName)}</p>
+<p>Sender Account: {safeText(item.senderAccount)}</p>
+<p>Transaction ID: {safeText(item.transactionId || item.txHash)}</p>
+<p>Network: {safeText(item.network)}</p>
            {item.status !== "approved" && item.status !== "rejected" ? (
   <>
     <button onClick={() => updateDeposit(item._id, "approved")}>
@@ -218,11 +227,11 @@ const updateWithdrawal = async (id, status) => {
 
 {withdrawals.map((item) => (
   <div key={item._id} className="admin-card">
-    <p>User: {item.userId}</p>
-    <p>Amount: {item.amount}</p>
-    <p>Status: {item.status}</p>
-    <p>Wallet: {item.walletAddress}</p>
-
+   <p>User: {safeText(item.userId)}</p>
+<p>Amount: {safeText(item.amount)}</p>
+<p>Status: {safeText(item.status)}</p>
+<p>Method: {safeText(item.method || item.withdrawMethod)}</p>
+<p>Wallet: {safeText(item.walletAddress || item.accountDetails || item.destination)}</p>
     {item.status === "pending" && (
       <>
         <button
@@ -270,8 +279,8 @@ const updateWithdrawal = async (id, status) => {
             <p>
   User: {item.email || item.user?.email || item.user?.name || item.user?._id || "N/A"}
 </p>
-            <p>Message: {item.message}</p>
-            <p>Status: {item.status}</p>
+           <p>Message: {safeText(item.message)}</p>
+           <p>Status: {safeText(item.status)}</p>
 
             <button onClick={() => updateTicket(item._id, "resolved")}>
               Resolve
@@ -290,13 +299,11 @@ const updateWithdrawal = async (id, status) => {
 ) : (
   transactions.map((item) => (
     <div className="admin-card" key={item._id}>
-      <p>Type: {item.type}</p>
-      <p>Amount: {item.amount}</p>
-      <p>Status: {item.status}</p>
-   <p>
-  Note: {typeof item.note === "object" ? JSON.stringify(item.note) : item.note}
-</p>
-      <p>Date: {new Date(item.createdAt).toLocaleString()}</p>
+     <p>Type: {safeText(item.type)}</p>
+      <p>Amount: {safeText(item.amount)}</p>
+      <p>Status: {safeText(item.status)}</p>
+  <p>Note: {safeText(item.note)}</p>
+      <p>Date: {item.createdAt ? new Date(item.createdAt).toLocaleString() : "N/A"}</p>
     </div>
   ))
 )}
