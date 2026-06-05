@@ -295,13 +295,13 @@ const submitWithdrawal = async () => {
           </div>
 <div className="stat-card glow-green">
   <h3>USDT Wallet</h3>
-  <h1>{wallets?.balances?.USDT || 0} USDT</h1>
+  <h1>{wallets?.USDT || 0} USDT</h1>
   <p>Approved Balance</p>
 </div>
 
 <div className="stat-card glow-blue">
   <h3>BNB Wallet</h3>
-  <h1>{wallets?.balances?.BNB || 0} BNB</h1>
+  <h1>{wallets?.BNB || 0} BNB</h1>
   <p>Approved Balance</p>
 </div>
           <div className="stat-card glow-blue">
