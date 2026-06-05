@@ -35,6 +35,8 @@ const connectWallet = async () => {
     });
 
     const address = accounts[0];
+    localStorage.setItem("wallet", address);
+localStorage.setItem("walletAddress", address);
     setWalletAddress(address);
 const web3 = new Web3(window.ethereum);
 
