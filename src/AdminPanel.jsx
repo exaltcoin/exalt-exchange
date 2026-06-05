@@ -291,7 +291,9 @@ const updateWithdrawal = async (id, status) => {
       <p>Type: {item.type}</p>
       <p>Amount: {item.amount}</p>
       <p>Status: {item.status}</p>
-      <p>Note: {item.note}</p>
+   <p>
+  Note: {typeof item.note === "object" ? JSON.stringify(item.note) : item.note}
+</p>
       <p>Date: {new Date(item.createdAt).toLocaleString()}</p>
     </div>
   ))
