@@ -92,11 +92,16 @@ setWallets((prev) => ({
 
       if (!token) {
         setBalance(0);
-        setWallets({
-          USDT: 0,
-          EXALT: 0,
-          BNB: 0,
-        });
+      setWallets({
+  USDT: 0,
+  EXALT: 0,
+  BNB: 0,
+  balances: {
+    USDT: 0,
+    EXALT: 0,
+    BNB: 0,
+  },
+});
         return;
       }
 
@@ -285,7 +290,17 @@ const submitWithdrawal = async () => {
 
             <p>Live Balance</p>
           </div>
+<div className="stat-card glow-green">
+  <h3>USDT Wallet</h3>
+  <h1>{wallets?.balances?.USDT || 0} USDT</h1>
+  <p>Approved Balance</p>
+</div>
 
+<div className="stat-card glow-blue">
+  <h3>BNB Wallet</h3>
+  <h1>{wallets?.balances?.BNB || 0} BNB</h1>
+  <p>Approved Balance</p>
+</div>
           <div className="stat-card glow-blue">
             <h3>Bank / Card Deposit</h3>
 
