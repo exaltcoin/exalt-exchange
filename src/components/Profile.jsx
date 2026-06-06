@@ -156,9 +156,8 @@ const connectedWallet =
   setCountry(selected ? selected.label : "");
   setPhoneCountry(
     selected?.value ? selected.value.toLowerCase() : "us"
-  );
-}}
-        isSearchable={true}
+  );  
+      }}      isSearchable={true}
         menuPortalTarget={document.body}
         formatOptionLabel={(option) => (
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
