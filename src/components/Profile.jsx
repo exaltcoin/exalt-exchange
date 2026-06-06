@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import Select from "react-select";
+import countryList from "react-select-country-list";
 import "./Profile.css";
 const API =
   import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
@@ -10,6 +12,7 @@ const [country, setCountry] = useState("");
 const [telegram, setTelegram] = useState("");
 const [bio, setBio] = useState("");
 const [profileImage, setProfileImage] = useState(""); 
+const countryOptions = useMemo(() => countryList().getData(), []);
 useEffect(() => {
   const loadProfile = async () => {
     const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -119,15 +122,20 @@ const connectedWallet =
  <div className="profile-form-grid">
   <input className="profile-input" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
 
-  <select className="profile-input" value={country} onChange={(e) => setCountry(e.target.value)}>
-    <option value="">Select Country</option>
-    <option value="Pakistan">Pakistan</option>
-    <option value="Kuwait">Kuwait</option>
-    <option value="UAE">UAE</option>
-    <option value="Saudi Arabia">Saudi Arabia</option>
-    <option value="Oman">Oman</option>
-    <option value="India">India</option>
-  </select>
+  <Select
+  className="profile-country-select"
+  classNamePrefix="profile-select"
+  options={countryOptions}
+  placeholder="🌍 Select Country"
+  value={countryOptions.find((option) => option.label === country) || null}
+  onChange={(selected) => setCountry(selected ? selected.label : "")}
+  formatOptionLabel={(option) => (
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <span>{String.fromCodePoint(...[...option.value.toUpperCase()].map(c => 127397 + c.charCodeAt()))}</span>
+      <span>{option.label}</span>
+    </div>
+  )}
+/>
 
   <input className="profile-input" placeholder="@telegram_username" value={telegram} onChange={(e) => setTelegram(e.target.value)} />
   <input className="profile-input" placeholder="Profile Image URL" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
