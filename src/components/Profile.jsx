@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
-import { components } from "react-select";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import "./Profile.css";
 const API =
   import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
@@ -56,6 +57,11 @@ const connectedWallet =
   try {
     const token = localStorage.getItem("token");
 
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
     const res = await fetch(`${API}/api/auth/profile`, {
       method: "PUT",
       headers: {
@@ -76,13 +82,14 @@ const connectedWallet =
 
     if (data.success) {
       localStorage.setItem("user", JSON.stringify(data.user));
-      alert("Profile Updated Successfully");
+      setUser(data.user);
+      alert("Profile updated successfully");
     } else {
-      alert(data.message);
+      alert(data.message || "Profile update failed");
     }
   } catch (err) {
     console.log(err);
-    alert("Update Failed");
+    alert("Update failed");
   }
 };
   return (
@@ -114,41 +121,84 @@ const connectedWallet =
   : "⚠️ Not Submitted"}
         </span>
       </div>
-<div className="profile-card edit-profile-card">
+ <div className="profile-card edit-profile-card">
   <div className="edit-profile-header">
     <h3>Edit Profile</h3>
-    <p>Update your personal profile information</p>
+    <p>Update your professional account information</p>
   </div>
 
- <div className="profile-form-grid">
-  <input className="profile-input" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
-
-  <Select
-  className="profile-country-select"
-  classNamePrefix="profile-select"
-  options={countryOptions}
-  placeholder="🌍 Select Country"
-  value={countryOptions.find((option) => option.label === country) || null}
- onChange={(selected) => setCountry(selected ? selected.label : "")}
-isSearchable={true}
-menuPortalTarget={document.body}
-  formatOptionLabel={(option) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <span>{String.fromCodePoint(...[...option.value.toUpperCase()].map(c => 127397 + c.charCodeAt()))}</span>
-      <span>{option.label}</span>
+  <div className="profile-form-grid">
+    <div className="profile-field">
+      <label>Phone Number</label>
+      <PhoneInput
+        country={"kw"}
+        value={phone}
+        onChange={(value) => setPhone(value)}
+        inputClass="profile-phone-input"
+        buttonClass="profile-phone-button"
+        dropdownClass="profile-phone-dropdown"
+        enableSearch={true}
+        placeholder="Enter phone number"
+      />
     </div>
-  )}
-/>
 
-  <input className="profile-input" placeholder="@telegram_username" value={telegram} onChange={(e) => setTelegram(e.target.value)} />
-  <input className="profile-input" placeholder="Profile Image URL" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
-</div>
-  <textarea
-    className="profile-input profile-bio"
-    placeholder="Write a short bio about yourself"
-    value={bio}
-    onChange={(e) => setBio(e.target.value)}
-  />
+    <div className="profile-field">
+      <label>Country</label>
+      <Select
+        className="profile-country-select"
+        classNamePrefix="profile-select"
+        options={countryOptions}
+        placeholder="🌍 Select Country"
+        value={countryOptions.find((option) => option.label === country) || null}
+        onChange={(selected) => setCountry(selected ? selected.label : "")}
+        isSearchable={true}
+        menuPortalTarget={document.body}
+        formatOptionLabel={(option) => (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span>
+              {String.fromCodePoint(
+                ...option.value
+                  .toUpperCase()
+                  .split("")
+                  .map((c) => 127397 + c.charCodeAt())
+              )}
+            </span>
+            <span>{option.label}</span>
+          </div>
+        )}
+      />
+    </div>
+
+    <div className="profile-field">
+      <label>Telegram Username</label>
+      <input
+        className="profile-input"
+        placeholder="@telegram_username"
+        value={telegram}
+        onChange={(e) => setTelegram(e.target.value)}
+      />
+    </div>
+
+    <div className="profile-field">
+      <label>Profile Image URL</label>
+      <input
+        className="profile-input"
+        placeholder="https://example.com/profile.png"
+        value={profileImage}
+        onChange={(e) => setProfileImage(e.target.value)}
+      />
+    </div>
+  </div>
+
+  <div className="profile-field">
+    <label>Professional Bio</label>
+    <textarea
+      className="profile-input profile-bio"
+      placeholder="Write a short professional bio about yourself"
+      value={bio}
+      onChange={(e) => setBio(e.target.value)}
+    />
+  </div>
 
   <button className="save-profile-btn" onClick={updateProfile}>
     Save Profile
