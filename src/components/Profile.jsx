@@ -5,9 +5,19 @@ const API =
 function Profile() {
   const [user, setUser] = useState({});
   const [kycStatus, setKycStatus] = useState("Not Verified");
+ const [phone, setPhone] = useState("");
+const [country, setCountry] = useState("");
+const [telegram, setTelegram] = useState("");
+const [bio, setBio] = useState("");
+const [profileImage, setProfileImage] = useState(""); 
 useEffect(() => {
   const loadProfile = async () => {
     const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    setPhone(savedUser.phone || "");
+setCountry(savedUser.country || "");
+setTelegram(savedUser.telegram || "");
+setBio(savedUser.bio || "");
+setProfileImage(savedUser.profileImage || "");
     setUser(savedUser);
 
     if (!savedUser.email) {
@@ -38,6 +48,39 @@ const connectedWallet =
  const shortWallet = connectedWallet
   ? `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`
   : "Not connected";
+  const updateProfile = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`${API}/api/auth/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: user.name,
+        phone,
+        country,
+        telegram,
+        bio,
+        profileImage,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      localStorage.setItem("user", JSON.stringify(data.user));
+      alert("Profile Updated Successfully");
+    } else {
+      alert(data.message);
+    }
+  } catch (err) {
+    console.log(err);
+    alert("Update Failed");
+  }
+};
   return (
     <div className="profile-page">
       <div className="profile-hero">
@@ -67,7 +110,51 @@ const connectedWallet =
   : "⚠️ Not Submitted"}
         </span>
       </div>
+<div className="profile-card">
+  <h3>Edit Profile</h3>
 
+  <input
+    className="profile-input"
+    placeholder="Phone Number"
+    value={phone}
+    onChange={(e) => setPhone(e.target.value)}
+  />
+
+  <input
+    className="profile-input"
+    placeholder="Country"
+    value={country}
+    onChange={(e) => setCountry(e.target.value)}
+  />
+
+  <input
+    className="profile-input"
+    placeholder="Telegram Username"
+    value={telegram}
+    onChange={(e) => setTelegram(e.target.value)}
+  />
+
+  <input
+    className="profile-input"
+    placeholder="Profile Image URL"
+    value={profileImage}
+    onChange={(e) => setProfileImage(e.target.value)}
+  />
+
+  <textarea
+    className="profile-input"
+    placeholder="Bio"
+    value={bio}
+    onChange={(e) => setBio(e.target.value)}
+  />
+
+  <button
+    className="buy-btn"
+    onClick={updateProfile}
+  >
+    Save Profile
+  </button>
+</div>
       <div className="profile-grid">
         <div className="profile-card">
           <h3>Account Information</h3>
