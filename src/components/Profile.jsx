@@ -16,6 +16,7 @@ const [telegram, setTelegram] = useState("");
 const [bio, setBio] = useState("");
 const [profileImage, setProfileImage] = useState(""); 
 const countryOptions = useMemo(() => countryList().getData(), []);
+const [phoneCountry, setPhoneCountry] = useState("us");
 useEffect(() => {
   const loadProfile = async () => {
     const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -132,7 +133,7 @@ const connectedWallet =
     <div className="profile-field">
       <label>Phone Number</label>
       <SafePhoneInput
-        country={"us"}
+      country={phoneCountry}
         value={phone}
         onChange={(value) => setPhone(value)}
         inputClass="profile-phone-input"
@@ -151,7 +152,12 @@ const connectedWallet =
         options={countryOptions}
         placeholder="🌍 Select Country"
         value={countryOptions.find((option) => option.label === country) || null}
-        onChange={(selected) => setCountry(selected ? selected.label : "")}
+     onChange={(selected) => {
+  setCountry(selected ? selected.label : "");
+  setPhoneCountry(
+    selected?.value ? selected.value.toLowerCase() : "us"
+  );
+}}
         isSearchable={true}
         menuPortalTarget={document.body}
         formatOptionLabel={(option) => (
