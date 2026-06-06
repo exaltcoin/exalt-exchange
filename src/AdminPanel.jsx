@@ -57,8 +57,14 @@ setDeposits(
 const withdrawalsRes = await fetch(`${API}/api/withdrawals`, { headers });
 const withdrawalsData = await withdrawalsRes.json();
 
+console.log("Withdrawals Data:", withdrawalsData);
+
 setWithdrawals(
-  withdrawalsData.withdrawals || []
+  withdrawalsData.withdrawals ||
+  withdrawalsData.requests ||
+  withdrawalsData.data ||
+  withdrawalsData ||
+  []
 );
 const ticketsRes = await fetch(`${API}/api/support-ticket`, { headers });
 const ticketsData = await ticketsRes.json();
