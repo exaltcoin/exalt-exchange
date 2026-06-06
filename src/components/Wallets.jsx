@@ -145,7 +145,7 @@ setWallets((prev) => ({
     }
   };
 
-  loadBalance();
+ loadBalance();
 
   const interval = setInterval(() => {
     loadBalance();
@@ -242,7 +242,7 @@ const submitWithdrawal = async () => {
     if (data.success) {
       alert("Withdrawal request submitted successfully");
       inputs.forEach((input) => (input.value = ""));
-      loadBalance();
+     window.location.reload(); 
     } else {
       alert(data.message || "Withdrawal failed");
     }
