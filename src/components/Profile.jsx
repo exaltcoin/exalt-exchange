@@ -132,7 +132,7 @@ const connectedWallet =
     <div className="profile-field">
       <label>Phone Number</label>
       <SafePhoneInput
-        country={"kw"}
+        country={"us"}
         value={phone}
         onChange={(value) => setPhone(value)}
         inputClass="profile-phone-input"
