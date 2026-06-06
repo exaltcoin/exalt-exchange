@@ -4,6 +4,7 @@ import countryList from "react-select-country-list";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import "./Profile.css";
+const SafePhoneInput = PhoneInput.default || PhoneInput;
 const API =
   import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
 function Profile() {
@@ -130,7 +131,7 @@ const connectedWallet =
   <div className="profile-form-grid">
     <div className="profile-field">
       <label>Phone Number</label>
-      <PhoneInput
+      <SafePhoneInput
         country={"kw"}
         value={phone}
         onChange={(value) => setPhone(value)}
