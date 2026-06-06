@@ -110,48 +110,27 @@ const connectedWallet =
   : "⚠️ Not Submitted"}
         </span>
       </div>
-<div className="profile-card">
-  <h3>Edit Profile</h3>
+<div className="profile-card edit-profile-card">
+  <div className="edit-profile-header">
+    <h3>Edit Profile</h3>
+    <p>Update your personal profile information</p>
+  </div>
 
-  <input
-    className="profile-input"
-    placeholder="Phone Number"
-    value={phone}
-    onChange={(e) => setPhone(e.target.value)}
-  />
-
-  <input
-    className="profile-input"
-    placeholder="Country"
-    value={country}
-    onChange={(e) => setCountry(e.target.value)}
-  />
-
-  <input
-    className="profile-input"
-    placeholder="Telegram Username"
-    value={telegram}
-    onChange={(e) => setTelegram(e.target.value)}
-  />
-
-  <input
-    className="profile-input"
-    placeholder="Profile Image URL"
-    value={profileImage}
-    onChange={(e) => setProfileImage(e.target.value)}
-  />
+  <div className="profile-form-grid">
+    <input className="profile-input" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+    <input className="profile-input" placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} />
+    <input className="profile-input" placeholder="Telegram Username" value={telegram} onChange={(e) => setTelegram(e.target.value)} />
+    <input className="profile-input" placeholder="Profile Image URL" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
+  </div>
 
   <textarea
-    className="profile-input"
-    placeholder="Bio"
+    className="profile-input profile-bio"
+    placeholder="Write a short bio about yourself"
     value={bio}
     onChange={(e) => setBio(e.target.value)}
   />
 
-  <button
-    className="buy-btn"
-    onClick={updateProfile}
-  >
+  <button className="save-profile-btn" onClick={updateProfile}>
     Save Profile
   </button>
 </div>
