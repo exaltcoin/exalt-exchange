@@ -197,7 +197,40 @@ const updateWithdrawal = async (id, status) => {
           </div>
         ))
       )}
+<h3>Withdrawal Requests</h3>
 
+{withdrawals.length === 0 ? (
+  <p>No withdrawal requests found.</p>
+) : (
+  withdrawals.map((item) => (
+    <div className="admin-card" key={item._id}>
+      <p>User: {safeText(item.userId)}</p>
+      <p>Amount: {safeText(item.amount)}</p>
+      <p>Coin: {safeText(item.coin)}</p>
+      <p>Status: {safeText(item.status)}</p>
+      <p>Method: {safeText(item.method || item.withdrawMethod || item.paymentMethod)}</p>
+      <p>Wallet: {safeText(item.walletAddress || item.accountNumber || item.accountDetails)}</p>
+
+      {String(item.status).toLowerCase() === "pending" ? (
+        <>
+          <button
+            onClick={() => updateWithdrawal(item._id, "approved")}
+          >
+            Approve
+          </button>
+
+          <button
+            onClick={() => updateWithdrawal(item._id, "rejected")}
+          >
+            Reject
+          </button>
+        </>
+      ) : (
+        <p>Action completed</p>
+      )}
+    </div>
+  ))
+)}
       <h3>Deposit Requests</h3>
 
       {deposits.length === 0 ? (
@@ -229,37 +262,6 @@ const updateWithdrawal = async (id, status) => {
           </div>
         ))
       )}
-<h3>Withdrawal Requests</h3>
-
-{withdrawals.length === 0 ? (
-  <p>No withdrawal requests found.</p>
-) : (
-  withdrawals.map((item) => (
-    <div key={item._id} className="admin-card">
-      <p>User: {safeText(item.userId)}</p>
-      <p>Amount: {safeText(item.amount)}</p>
-      <p>Coin: {safeText(item.coin)}</p>
-      <p>Status: {safeText(item.status)}</p>
-      <p>Method: {safeText(item.method || item.withdrawMethod || item.paymentMethod)}</p>
-      <p>Wallet: {safeText(item.walletAddress || item.accountNumber || item.accountDetails || item.destination)}</p>
-
-      {String(item.status).toLowerCase() === "pending" ? (
-        <>
-          <button onClick={() => updateWithdrawal(item._id, "approved")}>
-            Approve
-          </button>
-
-          <button onClick={() => updateWithdrawal(item._id, "rejected")}>
-            Reject
-          </button>
-        </>
-      ) : (
-        <p>Action completed</p>
-      )}
-    </div>
-  ))
-)}
-    
 <h3>User / Project KYC Requests</h3>
 
 {kycRequests.length === 0 ? (
