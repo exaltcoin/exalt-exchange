@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
+import { components } from "react-select";
 import "./Profile.css";
 const API =
   import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
@@ -128,7 +129,9 @@ const connectedWallet =
   options={countryOptions}
   placeholder="🌍 Select Country"
   value={countryOptions.find((option) => option.label === country) || null}
-  onChange={(selected) => setCountry(selected ? selected.label : "")}
+ onChange={(selected) => setCountry(selected ? selected.label : "")}
+isSearchable={true}
+menuPortalTarget={document.body}
   formatOptionLabel={(option) => (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       <span>{String.fromCodePoint(...[...option.value.toUpperCase()].map(c => 127397 + c.charCodeAt()))}</span>

@@ -316,4 +316,6 @@
 
 .profile-select__option:hover {
   background: rgba(255, 166, 35, 0.18) !important;
+}.profile-select__menu-portal {
+  z-index: 99999 !important;
 }
