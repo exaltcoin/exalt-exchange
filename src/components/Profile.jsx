@@ -116,13 +116,22 @@ const connectedWallet =
     <p>Update your personal profile information</p>
   </div>
 
-  <div className="profile-form-grid">
-    <input className="profile-input" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
-    <input className="profile-input" placeholder="Country" value={country} onChange={(e) => setCountry(e.target.value)} />
-    <input className="profile-input" placeholder="Telegram Username" value={telegram} onChange={(e) => setTelegram(e.target.value)} />
-    <input className="profile-input" placeholder="Profile Image URL" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
-  </div>
+ <div className="profile-form-grid">
+  <input className="profile-input" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
 
+  <select className="profile-input" value={country} onChange={(e) => setCountry(e.target.value)}>
+    <option value="">Select Country</option>
+    <option value="Pakistan">Pakistan</option>
+    <option value="Kuwait">Kuwait</option>
+    <option value="UAE">UAE</option>
+    <option value="Saudi Arabia">Saudi Arabia</option>
+    <option value="Oman">Oman</option>
+    <option value="India">India</option>
+  </select>
+
+  <input className="profile-input" placeholder="@telegram_username" value={telegram} onChange={(e) => setTelegram(e.target.value)} />
+  <input className="profile-input" placeholder="Profile Image URL" value={profileImage} onChange={(e) => setProfileImage(e.target.value)} />
+</div>
   <textarea
     className="profile-input profile-bio"
     placeholder="Write a short bio about yourself"
