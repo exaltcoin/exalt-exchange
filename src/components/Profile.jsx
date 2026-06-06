@@ -19,34 +19,55 @@ const countryOptions = useMemo(() => countryList().getData(), []);
 const [phoneCountry, setPhoneCountry] = useState("us");
 useEffect(() => {
   const loadProfile = async () => {
-    const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    setPhone(savedUser.phone || "");
-setCountry(savedUser.country || "");
-setTelegram(savedUser.telegram || "");
-setBio(savedUser.bio || "");
-setProfileImage(savedUser.profileImage || "");
-    setUser(savedUser);
-
-    if (!savedUser.email) {
-      setKycStatus("not_submitted");
-      return;
-    }
-
     try {
-      const res = await fetch(
-        `${API}/api/kyc/user/${encodeURIComponent(savedUser.email)}`
-      );
+      const token = localStorage.getItem("token");
+      const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+      if (!token) {
+        setUser(savedUser);
+        setPhone(savedUser.phone || "");
+        setCountry(savedUser.country || "");
+        setTelegram(savedUser.telegram || "");
+        setBio(savedUser.bio || "");
+        setProfileImage(savedUser.profileImage || "");
+        return;
+      }
+
+      const res = await fetch(`${API}/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const data = await res.json();
-console.log("KYC DATA:", data);
-    setKycStatus(data.kyc?.status || data.status || "not_submitted");
+      const profileUser = data.user || savedUser;
+
+      localStorage.setItem("user", JSON.stringify(profileUser));
+
+      setUser(profileUser);
+      setPhone(profileUser.phone || "");
+      setCountry(profileUser.country || "");
+      setTelegram(profileUser.telegram || "");
+      setBio(profileUser.bio || "");
+      setProfileImage(profileUser.profileImage || "");
+
+      if (profileUser.country) {
+        const found = countryOptions.find(
+          (opt) => opt.label === profileUser.country
+        );
+        setPhoneCountry(found?.value?.toLowerCase() || "us");
+      }
+
+      if (profileUser.kycStatus) {
+        setKycStatus(profileUser.kycStatus);
+      }
     } catch (err) {
       console.log(err);
-      setKycStatus(savedUser.kycStatus || "not_submitted");
     }
   };
 
   loadProfile();
-}, []);
+}, [countryOptions]);
 const connectedWallet =
   localStorage.getItem("wallet") ||
   localStorage.getItem("walletAddress") ||
