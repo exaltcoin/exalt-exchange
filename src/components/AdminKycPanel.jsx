@@ -10,10 +10,12 @@ function AdminKycPanel() {
       const res = await fetch(`${API}/api/kyc/admin/all`);
       const data = await res.json();
       console.log("KYC API Response:", data);
-    setKycList(
- (data.kycList || data.kyc || data.requests || [])
-    .filter(item => item.status === "pending")
-);
+   const list = data.kycList || data.kyc || data.requests || [];
+
+console.log("KYC LOAD RESPONSE:", data);
+console.log("KYC LIST:", list);
+
+setKycList(list);
     } catch (err) {
       console.log(err);
     }
@@ -77,18 +79,36 @@ if (!confirmAction) return;
       : "🟡 Pending"}
   </span>
 </p>
-            {kyc.idFront && (
-              <p>
-                <a href={kyc.idFront} target="_blank">View ID Front</a>
-              </p>
-            )}
+       {kyc.cnicFront && (
+  <p>
+    <a href={kyc.cnicFront} target="_blank" rel="noreferrer">
+      View CNIC Front
+    </a>
+  </p>
+)}    
 
-            {kyc.selfie && (
-              <p>
-                <a href={kyc.selfie} target="_blank">View Selfie</a>
-              </p>
-            )}
+  {kyc.selfieImage && (
+  <p>
+    <a href={kyc.selfieImage} target="_blank" rel="noreferrer">
+      View Selfie
+    </a>
+  </p>
+)}
+       {kyc.cnicBack && (
+  <p>
+    <a href={kyc.cnicBack} target="_blank" rel="noreferrer">
+      View CNIC Back
+    </a>
+  </p>
+)}
 
+{kyc.passportImage && (
+  <p>
+    <a href={kyc.passportImage} target="_blank" rel="noreferrer">
+      View Passport / National ID
+    </a>
+  </p>
+)}   
            <div className="kyc-actions">
   {kyc.status === "pending" ? (
     <>
