@@ -4,6 +4,7 @@ const API = import.meta.env.VITE_API_URL ||"https://exalt-exchange-backend.onren
 
 function AdminKycPanel() {
   const [kycList, setKycList] = useState([]);
+  const [filter, setFilter] = useState("all");
 const [stats, setStats] = useState({
   total: 0,
   pending: 0,
@@ -75,20 +76,23 @@ if (!confirmAction) return;
   useEffect(() => {
     loadKyc();
   }, []);
-
+const filteredKyc =
+  filter === "all"
+    ? kycList
+    : kycList.filter(item => item.status === filter);
   return (
     <div className="panel">
       <h2>KYC Requests</h2>
 <div className="kyc-stats">
-  <div>Total: {stats.total}</div>
-  <div>Pending: {stats.pending}</div>
-  <div>Approved: {stats.approved}</div>
-  <div>Rejected: {stats.rejected}</div>
+  <div onClick={() => setFilter("all")}>Total: {stats.total}</div>
+  <div onClick={() => setFilter("pending")}>Pending: {stats.pending}</div>
+  <div onClick={() => setFilter("approved")}>Approved: {stats.approved}</div>
+  <div onClick={() => setFilter("rejected")}>Rejected: {stats.rejected}</div>
 </div>
       {kycList.length === 0 ? (
         <p>No KYC requests found.</p>
       ) : (
-        kycList.map((kyc) => (
+        filteredKyc.map((kyc) => (
           <div className="admin-card" key={kyc._id}>
          <h3>{kyc.fullName || kyc.name || "Unknown User"}</h3>
             <p><b>Email:</b> {kyc.email}</p>
