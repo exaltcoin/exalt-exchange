@@ -215,14 +215,14 @@ const connectedWallet =
     </div>
 
     <div className="profile-field">
-      <label>Profile Image URL</label>
-      <input
-        className="profile-input"
-        placeholder="https://example.com/profile.png"
-        value={profileImage}
-        onChange={(e) => setProfileImage(e.target.value)}
-      />
-    </div>
+  <label>Profile Picture</label>
+  <input
+    type="file"
+    accept="image/*"
+    className="profile-input"
+    onChange={(e) => setProfileImage(e.target.files[0])}
+  />
+</div>
   </div>
 
   <div className="profile-field">
