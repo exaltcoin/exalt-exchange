@@ -4,17 +4,39 @@ const API = import.meta.env.VITE_API_URL ||"https://exalt-exchange-backend.onren
 
 function AdminKycPanel() {
   const [kycList, setKycList] = useState([]);
-
+const [stats, setStats] = useState({
+  total: 0,
+  pending: 0,
+  approved: 0,
+  rejected: 0,
+});
   const loadKyc = async () => {
     try {
       const res = await fetch(`${API}/api/kyc/admin/all`);
       const data = await res.json();
       console.log("KYC API Response:", data);
    const list = data.kycList || data.kyc || data.requests || [];
+const totalKyc = list.length;
 
+const pendingKyc = list.filter(
+  item => item.status === "pending"
+).length;
+
+const approvedKyc = list.filter(
+  item => item.status === "approved"
+).length;
+
+const rejectedKyc = list.filter(
+  item => item.status === "rejected"
+).length;
 console.log("KYC LOAD RESPONSE:", data);
 console.log("KYC LIST:", list);
-
+setStats({
+  total: list.length,
+  pending: pendingKyc,
+  approved: approvedKyc,
+  rejected: rejectedKyc,
+});
 setKycList(list);
     } catch (err) {
       console.log(err);
@@ -57,7 +79,12 @@ if (!confirmAction) return;
   return (
     <div className="panel">
       <h2>KYC Requests</h2>
-
+<div className="kyc-stats">
+  <div>Total: {stats.total}</div>
+  <div>Pending: {stats.pending}</div>
+  <div>Approved: {stats.approved}</div>
+  <div>Rejected: {stats.rejected}</div>
+</div>
       {kycList.length === 0 ? (
         <p>No KYC requests found.</p>
       ) : (
