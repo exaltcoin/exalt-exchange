@@ -19,6 +19,10 @@ function KycVerification() {
   const [faceVerified, setFaceVerified] = useState(false);
   const [kycStatus, setKycStatus] = useState("not_submitted");
   const [loading, setLoading] = useState(false);
+  const [cnicFront, setCnicFront] = useState(null);
+const [cnicBack, setCnicBack] = useState(null);
+const [passportImage, setPassportImage] = useState(null);
+const [selfieImage, setSelfieImage] = useState(null);
   const token = localStorage.getItem("token") || "";
 useEffect(() => {
   const checkKycStatus = async () => {
@@ -99,20 +103,31 @@ if (kycStatus === "pending") {
     setLoading(true);
 
     try {
+      const formData = new FormData();
+
+formData.append(
+  "userId",
+  JSON.parse(localStorage.getItem("user") || "{}")._id
+);
+
+formData.append("fullName", form.fullName);
+formData.append("email", form.email);
+formData.append("phone", form.phone);
+formData.append("country", form.country);
+formData.append("idType", form.idType);
+formData.append("idNumber", form.idNumber);
+
+formData.append("cnicFront", cnicFront);
+formData.append("cnicBack", cnicBack);
+formData.append("passportImage", passportImage);
+formData.append("selfieImage", selfieImage);
       const res = await fetch(`${API}/api/kyc/submit`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-  userId: JSON.parse(localStorage.getItem("user") || "{}")._id,
-  ...form,
-  emailVerified,
-  faceVerified,
-}),
+        body: formData,
       });
-
       const data = await res.json();
 
       if (data.success) {
@@ -154,7 +169,37 @@ if (kycStatus === "pending") {
 
           <input name="idNumber" placeholder="ID Number" value={form.idNumber} onChange={update} />
         </div>
+<div className="kyc-upload-section">
 
+  <label>CNIC Front</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setCnicFront(e.target.files[0])}
+  />
+
+  <label>CNIC Back</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setCnicBack(e.target.files[0])}
+  />
+
+  <label>Passport / National ID Image</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setPassportImage(e.target.files[0])}
+  />
+
+  <label>Selfie Image</label>
+  <input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setSelfieImage(e.target.files[0])}
+  />
+
+</div>
         <div className="verify-box">
           <h3>Email Verification {emailVerified ? "✅" : "❌"}</h3>
           <div className="verify-row">
