@@ -323,4 +323,14 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}.profile-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #f59e0b;
+}.profile-avatar {
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
 }
