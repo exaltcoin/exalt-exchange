@@ -250,4 +250,59 @@
 .kyc-reject-btn:hover{
   transform:translateY(-2px);
   box-shadow:0 6px 20px rgba(239,68,68,.35);
+}.kyc-upload-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.kyc-upload-box {
+  position: relative;
+  border: 1px dashed rgba(255, 170, 60, 0.55);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 16px;
+  min-height: 95px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.kyc-upload-box label {
+  color: #ffb347;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.kyc-upload-box span {
+  color: #cfd3dc;
+  font-size: 13px;
+}
+
+.kyc-upload-box input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kyc-upload-box::after {
+  content: "Upload";
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  background: linear-gradient(135deg, #ff9f1c, #55ef6b);
+  color: #111;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .kyc-upload-section {
+    grid-template-columns: 1fr;
+  }
 }
