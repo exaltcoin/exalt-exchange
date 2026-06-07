@@ -65,6 +65,8 @@ if (!confirmAction) return;
           <div className="admin-card" key={kyc._id}>
          <h3>{kyc.fullName || kyc.name || "Unknown User"}</h3>
             <p><b>Email:</b> {kyc.email}</p>
+            <p><b>User ID:</b> {kyc.userId}</p>
+<p><b>Submitted:</b> {kyc.createdAt ? new Date(kyc.createdAt).toLocaleString() : "N/A"}</p>
             <p><b>Phone:</b> {kyc.phone}</p>
             <p><b>Country:</b> {kyc.country}</p>
             <p><b>ID Type:</b> {kyc.idType}</p>
@@ -79,6 +81,21 @@ if (!confirmAction) return;
       : "🟡 Pending"}
   </span>
 </p>
+{kyc.status === "pending" && (
+  <>
+    <button
+      onClick={() => updateKyc(kyc._id, "approved")}
+    >
+      Approve
+    </button>
+
+    <button
+      onClick={() => updateKyc(kyc._id, "rejected")}
+    >
+      Reject
+    </button>
+  </>
+)}
        {kyc.cnicFront && (
   <p>
     <a href={kyc.cnicFront} target="_blank" rel="noreferrer">
