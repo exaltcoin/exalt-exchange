@@ -122,8 +122,8 @@ const res = await fetch(`${API}/api/auth/profile`, {
   return (
     <div className="profile-page">
       <div className="profile-hero">
-      <div className="profile-avatar">
-  {profileImage ? (
+    <div className="profile-avatar">
+  {profileImage && typeof profileImage === "string" ? (
     <img
       src={profileImage}
       alt="Profile"
@@ -224,7 +224,10 @@ const res = await fetch(`${API}/api/auth/profile`, {
     type="file"
     accept="image/*"
     className="profile-input"
-    onChange={(e) => setProfileImage(e.target.files[0])}
+   onChange={(e) => {
+  const file = e.target.files[0];
+  if (file) setProfileImage(file);
+}}
   />
 </div>
   </div>
