@@ -85,21 +85,25 @@ const connectedWallet =
       return;
     }
 
-    const res = await fetch(`${API}/api/auth/profile`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        name: user.name,
-        phone,
-        country,
-        telegram,
-        bio,
-        profileImage,
-      }),
-    });
+    const formData = new FormData();
+
+formData.append("name", user.name || "");
+formData.append("phone", phone || "");
+formData.append("country", country || "");
+formData.append("telegram", telegram || "");
+formData.append("bio", bio || "");
+
+if (profileImage instanceof File) {
+  formData.append("profileImage", profileImage);
+}
+
+const res = await fetch(`${API}/api/auth/profile`, {
+  method: "PUT",
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+  body: formData,
+});
 
     const data = await res.json();
 
