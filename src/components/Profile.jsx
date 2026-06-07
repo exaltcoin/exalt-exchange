@@ -50,7 +50,18 @@ useEffect(() => {
       setTelegram(profileUser.telegram || "");
       setBio(profileUser.bio || "");
       setProfileImage(profileUser.profileImage || "");
+try {
+  const kycRes = await fetch(
+    `${API}/api/kyc/user/${encodeURIComponent(profileUser.email)}`
+  );
+  const kycData = await kycRes.json();
 
+  if (kycData.success) {
+    setKycStatus(kycData.status || "not_submitted");
+  }
+} catch (err) {
+  console.log("KYC status load failed", err);
+}
       if (profileUser.country) {
         const found = countryOptions.find(
           (opt) => opt.label === profileUser.country
