@@ -171,31 +171,33 @@ formData.append("selfieImage", selfieImage);
         </div>
 <div className="kyc-upload-section">
   <div className="kyc-upload-box">
-  <div className="upload-icon">📄</div>
+  <div className="upload-icon">⬆️</div>
     <label>CNIC Front</label>
     <input type="file" accept="image/*" onChange={(e) => setCnicFront(e.target.files[0])} />
-    <span>{cnicFront ? cnicFront.name : "Upload front side"}</span>
+  <span>
+  {cnicFront ? `✅ ${cnicFront.name}` : "Upload front side"}
+</span>
   </div>
 
   <div className="kyc-upload-box">
-    <div className="upload-icon">📄</div>
+    <div className="upload-icon">⬆️</div>
     <label>CNIC Back</label>
     <input type="file" accept="image/*" onChange={(e) => setCnicBack(e.target.files[0])} />
-    <span>{cnicBack ? cnicBack.name : "Upload back side"}</span>
+    <span>{cnicBack ? `✅ ${cnicBack.name}` : "Upload back side"}</span>
   </div>
 
   <div className="kyc-upload-box">
-    <div className="upload-icon">📄</div>
+    <div className="upload-icon">⬆️</div>
     <label>Passport / National ID</label>
     <input type="file" accept="image/*" onChange={(e) => setPassportImage(e.target.files[0])} />
-    <span>{passportImage ? passportImage.name : "Upload document"}</span>
+    <span>{passportImage ? `✅ ${passportImage.name}` : "Upload document"}</span>
   </div>
 
   <div className="kyc-upload-box">
-    <div className="upload-icon">📄</div>
+    <div className="upload-icon">⬆️</div>
     <label>Selfie Verification</label>
     <input type="file" accept="image/*" onChange={(e) => setSelfieImage(e.target.files[0])} />
-    <span>{selfieImage ? selfieImage.name : "Upload selfie"}</span>
+    <span>{selfieImage ? `✅ ${selfieImage.name}` : "Upload selfie"}</span>
   </div>
 </div>
         <div className="verify-box">
