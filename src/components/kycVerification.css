@@ -297,8 +297,6 @@ cursor:pointer;
   cursor: pointer;
 }
 
-
-
 @media (max-width: 768px) {
   .kyc-upload-section {
     grid-template-columns: 1fr;
