@@ -118,9 +118,17 @@ const connectedWallet =
   return (
     <div className="profile-page">
       <div className="profile-hero">
-        <div className="profile-avatar">
-          {(user.name || user.email || "U").charAt(0).toUpperCase()}
-        </div>
+      <div className="profile-avatar">
+  {profileImage ? (
+    <img
+      src={profileImage}
+      alt="Profile"
+      className="profile-avatar-img"
+    />
+  ) : (
+    (user.name || user.email || "U").charAt(0).toUpperCase()
+  )}
+</div>
 
         <div>
           <h2>{user.name || "User Profile"}</h2>
