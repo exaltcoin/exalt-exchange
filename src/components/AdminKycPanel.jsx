@@ -9,6 +9,7 @@ function AdminKycPanel() {
     try {
       const res = await fetch(`${API}/api/kyc/admin/all`);
       const data = await res.json();
+      console.log("KYC API Response:", data);
     setKycList(
  (data.kycList || data.kyc || data.requests || [])
     .filter(item => item.status === "pending")
