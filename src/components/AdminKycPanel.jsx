@@ -63,7 +63,7 @@ if (!confirmAction) return;
       ) : (
         kycList.map((kyc) => (
           <div className="admin-card" key={kyc._id}>
-            <h3>{kyc.name || "User KYC"}</h3>
+         <h3>{kyc.fullName || kyc.name || "Unknown User"}</h3>
             <p><b>Email:</b> {kyc.email}</p>
             <p><b>Phone:</b> {kyc.phone}</p>
             <p><b>Country:</b> {kyc.country}</p>
