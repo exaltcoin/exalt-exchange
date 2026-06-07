@@ -263,7 +263,7 @@
   background: rgba(255, 255, 255, 0.04);
   border-radius: 14px;
   padding: 16px;
-  min-height: 95px;
+  min-height: 130px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -305,4 +305,17 @@
   .kyc-upload-section {
     grid-template-columns: 1fr;
   }
+}.kyc-upload-box input[type="file"]::-webkit-file-upload-button {
+  display: none;
+}
+
+.kyc-upload-box input[type="file"]::file-selector-button {
+  display: none;
+}.upload-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}.upload-icon{
+  font-size:32px;
+  margin-bottom:10px;
+  opacity:0.8;
 }
