@@ -291,7 +291,7 @@ const updateWithdrawal = async (id, status) => {
         tickets.map((item) => (
           <div className="admin-card" key={item._id}>
             <p>
-  User: {item.email || item.user?.email || item.user?.name || item.user?._id || "N/A"}
+ User: {item.userName || item.userEmail || item.email || item.user?.name || item.user?.email || item.user?._id || "N/A"}
 </p>
            <p>Message: {safeText(item.message)}</p>
            <p>Status: {safeText(item.status)}</p>
