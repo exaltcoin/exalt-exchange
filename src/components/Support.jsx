@@ -89,9 +89,8 @@ function Support() {
           >
             <button className="buy-btn">Telegram Community</button>
           </a>
-
           <a
-            href="t.me/Exaltexchange"
+            href="https://t.me/Exaltexchange"
             target="_blank"
             rel="noreferrer"
           >
