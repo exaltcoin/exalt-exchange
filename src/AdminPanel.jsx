@@ -240,7 +240,7 @@ const updateWithdrawal = async (id, status) => {
       ) : (
         deposits.map((item) => (
           <div className="admin-card" key={item._id}>
-           <p>User: {safeText(item.email || item.user)}</p>
+       <p>User: {safeText(item.userId?.name || item.userId?.email || item.email || "N/A")}</p>
             <p>Amount: {item.amount}</p>
             <p>Status: {item.status}</p>
 <p>Payment Method: {safeText(item.paymentMethod)}</p>
