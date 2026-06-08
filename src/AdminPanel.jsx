@@ -185,11 +185,11 @@ const updateWithdrawal = async (id, status) => {
 
       {item.status !== "approved" && item.status !== "rejected" ? (
   <>
-    <button onClick={() => updateListing(item._id, "approved")}>
-      Approve
-    </button>
+ <button className="action-btn approve-btn" onClick={() => updateListing(item._id, "approved")}>
+  Approve
+</button>
 
-    <button onClick={() => updateListing(item._id, "rejected")}>
+    <button className="action-btn reject-btn" onClick={() => updateListing(item._id, "rejected")}>
       Reject
     </button>
   </>
@@ -215,13 +215,12 @@ const updateWithdrawal = async (id, status) => {
 
       {String(item.status).toLowerCase() === "pending" ? (
         <>
-          <button
-            onClick={() => updateWithdrawal(item._id, "approved")}
-          >
-            Approve
-          </button>
+       <button className="action-btn approve-btn" onClick={() => updateWithdrawal(item._id, "approved")}>
+  Approve
+</button>
 
           <button
+            className="action-btn reject-btn"
             onClick={() => updateWithdrawal(item._id, "rejected")}
           >
             Reject
@@ -250,11 +249,11 @@ const updateWithdrawal = async (id, status) => {
 <p>Network: {safeText(item.network)}</p>
            {item.status !== "approved" && item.status !== "rejected" ? (
   <>
-    <button onClick={() => updateDeposit(item._id, "approved")}>
+    <button className="action-btn approve-btn" onClick={() => updateDeposit(item._id, "approved")}>
       Approve
     </button>
 
-    <button onClick={() => updateDeposit(item._id, "rejected")}>
+    <button className="action-btn reject-btn" onClick={() => updateDeposit(item._id, "rejected")}>
       Reject
     </button>
   </>
@@ -296,11 +295,11 @@ const updateWithdrawal = async (id, status) => {
            <p>Message: {safeText(item.message)}</p>
            <p>Status: {safeText(item.status)}</p>
 
-            <button onClick={() => updateTicket(item._id, "resolved")}>
+            <button className="action-btn resolve-btn" onClick={() => updateTicket(item._id, "resolved")}>
               Resolve
             </button>
 
-            <button onClick={() => updateTicket(item._id, "closed")}>
+            <button className="action-btn close-btn" onClick={() => updateTicket(item._id, "closed")}>
               Close
             </button>
           </div>
