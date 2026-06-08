@@ -62,28 +62,28 @@ function Support() {
         <p>
           Telegram Community:
           <br />
-          https://t.me/exaltcommunity
+         https://t.me/ExaltExchangeOfficial
         </p>
 
         <p>
           Official Support Admin:
           <br />
-          https://t.me/offical_exaltcoin
+         t.me/Exaltexchange
         </p>
 
         <p>
           X Official:
           <br />
-          https://x.com/exalt_coin?s=21
+        https://x.com/ExaltExchange
         </p>
 
         <p style={{ color: "#00ff99", marginTop: "10px" }}>
-          Live support available for EXALT community members.
+          Live support available for EXALT Exchange Admins.
         </p>
 
         <div className="link-row">
           <a
-            href="https://t.me/exaltcommunity"
+            href="https://t.me/ExaltExchangeOfficial"
             target="_blank"
             rel="noreferrer"
           >
@@ -91,7 +91,7 @@ function Support() {
           </a>
 
           <a
-            href="https://t.me/offical_exaltcoin"
+            href="t.me/Exaltexchange"
             target="_blank"
             rel="noreferrer"
           >
@@ -99,7 +99,7 @@ function Support() {
           </a>
 
           <a
-            href="https://x.com/exalt_coin?s=21"
+            href="https://x.com/ExaltExchange"
             target="_blank"
             rel="noreferrer"
           >
