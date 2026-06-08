@@ -62,19 +62,19 @@ function Support() {
         <p>
           Telegram Community:
           <br />
-         https://t.me/ExaltExchangeOfficial
+       href="https://t.me/ExaltExchangeOfficial"
         </p>
 
         <p>
           Official Support Admin:
           <br />
-         t.me/Exaltexchange
+       href="https://t.me/Exaltexchange"
         </p>
 
         <p>
           X Official:
           <br />
-        https://x.com/ExaltExchange
+       href="https://x.com/ExaltExchange"
         </p>
 
         <p style={{ color: "#00ff99", marginTop: "10px" }}>
