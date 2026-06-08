@@ -4,7 +4,8 @@ function Support() {
   const [wallet, setWallet] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
+const [userName, setUserName] = useState("");
+const [userEmail, setUserEmail] = useState("");
   const submitTicket = async () => {
     if (!wallet || !message) {
       alert("Please fill all fields");
@@ -22,6 +23,8 @@ function Support() {
         body: JSON.stringify({
           wallet,
           message,
+          userName,
+          userEmail,
           status: "pending",
         }),
       });
@@ -37,6 +40,8 @@ function Support() {
 
       setWallet("");
       setMessage("");
+      setUserName("");
+      setUserEmail("");
     } catch (error) {
       console.log(error);
       alert("Server error");
