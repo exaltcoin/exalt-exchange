@@ -3,9 +3,9 @@ import { useState } from "react";
 function Support() {
   const [wallet, setWallet] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-const [userName, setUserName] = useState("");
-const [userEmail, setUserEmail] = useState("");
+ const user = JSON.parse(localStorage.getItem("user") || "{}");
+const [userName, setUserName] = useState(user.name || user.fullName || user.email || "");
+const [userEmail, setUserEmail] = useState(user.email || "");
   const submitTicket = async () => {
     if (!wallet || !message) {
       alert("Please fill all fields");
