@@ -14,12 +14,13 @@ const [userEmail, setUserEmail] = useState("");
 
     try {
       setLoading(true);
-
+const token = localStorage.getItem("token");
       const response = await fetch("https://exalt-exchange-backend.onrender.com/api/support-ticket", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+       headers: {
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${token}`,
+},
         body: JSON.stringify({
           wallet,
           message,
