@@ -76,7 +76,7 @@ setTickets(
   ticketsData ||
   []
 );
-const transactionsRes = await fetch(`${API}/api/transactions`, { headers });
+const transactionsRes = await fetch(`${API}/api/transactions/admin`, { headers });
 const transactionsData = await transactionsRes.json();
 
 setTransactions(
