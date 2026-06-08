@@ -81,7 +81,9 @@ const transactionsData = await transactionsRes.json();
 
 setTransactions(
   transactionsData.transactions ||
+  transactionsData.requests ||
   transactionsData.data ||
+  transactionsData ||
   []
 );
 } catch (error) {
