@@ -2022,4 +2022,25 @@ background:linear-gradient(#16a34a,#2563eb);
   margin-bottom: 15px;
   font-size: 24px;
   font-weight: 700;
+}.orderbook-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orderbook-card th {
+  color: #848e9c;
+  font-size: 13px;
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #2a2f3a;
+}
+
+.orderbook-card td {
+  padding: 10px 8px;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.orderbook-card tr:hover {
+  background: rgba(240, 185, 11, 0.08);
 }
