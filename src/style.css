@@ -1949,13 +1949,16 @@ background:linear-gradient(#16a34a,#2563eb);
 
 .coin-details-box strong {
   color: #ffffff;
-}.spot-order-panel {
+}
+ .spot-order-panel {
   background: #161b22;
   border: 1px solid #2a2f3a;
   border-radius: 14px;
   padding: 18px;
   margin: 22px 0;
-  max-width: 620px;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .spot-title {
