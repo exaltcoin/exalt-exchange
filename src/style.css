@@ -2009,4 +2009,17 @@ background:linear-gradient(#16a34a,#2563eb);
   border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
+}.orderbook-card {
+  background: #161b22;
+  border: 1px solid #2a2f3a;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 20px;
+}
+
+.orderbook-title {
+  color: #f0b90b;
+  margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: 700;
 }

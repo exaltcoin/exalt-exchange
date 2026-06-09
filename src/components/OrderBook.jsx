@@ -39,9 +39,8 @@ socket.on("orderMatched", () => {
   }, []);
 
   return (
-    <div className="orderbook">
-      <h2>Live Order Book</h2>
-
+   <div className="orderbook-card">
+ <h2 className="orderbook-title">Live Order Book</h2>
       {orders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
