@@ -196,18 +196,6 @@ useEffect(() => {
 
       <div className="trade-main">
         <div className="trade-header">
-       <div className="trade-title">
-  {selectedCoin?.image ? (
-    <img
-      src={selectedCoin.image}
-      alt={selectedCoin?.baseToken?.name || selectedCoin?.name}
-    />
-  ) : (
-    <div className="coin-logo-fallback">
-      {selectedCoin?.baseToken?.symbol?.charAt(0) || "?"}
-    </div>
-  )}
-</div>
   </div>
    {selectedCoin && (
   <Tradingchart
