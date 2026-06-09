@@ -219,29 +219,31 @@ useEffect(() => {
   </p>
 
   <button
-    onClick={() =>
-      navigator.clipboard.writeText(
-        selectedCoin?.baseToken?.address ||
-          "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
-      )
-    }
-  >
-    Copy Address
-  </button>
+  className="copy-btn"
+  onClick={() =>
+    navigator.clipboard.writeText(
+      selectedCoin?.baseToken?.address ||
+        "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
+    )
+  }
+>
+  Copy Address
+</button>
 
-  <button
-    onClick={() =>
-      window.open(
-        `https://bscscan.com/token/${
-          selectedCoin?.baseToken?.address ||
-          "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
-        }`,
-        "_blank"
-      )
-    }
-  >
-    View on BscScan
-  </button>
+ <button
+  className="scan-btn"
+  onClick={() =>
+    window.open(
+      `https://bscscan.com/token/${
+        selectedCoin?.baseToken?.address ||
+        "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
+      }`,
+      "_blank"
+    )
+  }
+>
+  View on BscScan
+</button>
 </div>
 {wallet && (
   <div className="wallet-status">
