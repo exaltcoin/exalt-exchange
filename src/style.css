@@ -1921,4 +1921,32 @@ background:linear-gradient(#16a34a,#2563eb);
 }.copy-btn:hover {
   transform: scale(1.05);
   opacity: 0.9;
+}.coin-details-box {
+  background: #161b22;
+  border: 1px solid #2a2f3a;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 22px 0;
+  transition: 0.3s;
+}
+
+.coin-details-box:hover {
+  border-color: #f0b90b;
+  box-shadow: 0 0 18px rgba(240, 185, 11, 0.18);
+  transform: translateY(-2px);
+}
+
+.coin-details-box h3 {
+  color: #f0b90b;
+  margin-bottom: 12px;
+}
+
+.coin-details-box p {
+  color: #d1d5db;
+  margin: 8px 0;
+  word-break: break-all;
+}
+
+.coin-details-box strong {
+  color: #ffffff;
 }
