@@ -7,7 +7,7 @@ function Sidebar({ activePage, setActivePage }) {
   "Dashboard",
   "P2P",
   "Markets",
-  "Trade",
+  " Spot Trading",
   "Futures",
   "Buy Crypto",
   "Wallets",

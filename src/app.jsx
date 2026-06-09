@@ -280,7 +280,7 @@ if (page === "kyc-submit") return <KycVerification />;
       setMenuOpen(false);
     }}
   >
-    Trade
+   Spot Trading
   </button>
 <button
   onClick={() => {
