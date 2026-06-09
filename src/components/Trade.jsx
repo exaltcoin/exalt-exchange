@@ -207,12 +207,6 @@ useEffect(() => {
       {selectedCoin?.baseToken?.symbol?.charAt(0) || "?"}
     </div>
   )}
-
-  <div>
-   <h1>SPOT TRADING</h1>
-    <p>Real Spot Trading Engine Powered By Exalt Exchange</p>
-  </div>
-
 </div>
           <div className="trade-stats">
             <div>
