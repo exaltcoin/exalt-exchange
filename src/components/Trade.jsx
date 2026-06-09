@@ -295,7 +295,9 @@ useEffect(() => {
 </div>
         </div>
 
-        <OrderBook coin={selectedCoin} />
+       <div style={{ width: "100%", marginTop: "20px" }}>
+  <OrderBook coin={selectedCoin} />
+</div>
       </div>
     </div>
   );
