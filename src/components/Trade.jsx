@@ -202,16 +202,6 @@ useEffect(() => {
 
       <div className="trade-main">
         <div className="trade-header">
- {selectedCoin && (
-  <div className="mobile-chart-box">
-    <Tradingchart
-      selectedCoin={{
-        ...selectedCoin,
-        chartSymbol: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
-      }}
-    />
-  </div>
-)}
 </div>
 <div className="coin-details-box">
  <h3 className="coin-info-title">Coin Info</h3>
@@ -308,7 +298,16 @@ useEffect(() => {
     <OrderBook coin={selectedCoin} />
   </div>
 </div>
-
+{selectedCoin && (
+  <div className="mobile-chart-box">
+    <Tradingchart
+      selectedCoin={{
+        ...selectedCoin,
+        chartSymbol: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
+      }}
+    />
+  </div>
+)}
 </div>
 </div>
 );
