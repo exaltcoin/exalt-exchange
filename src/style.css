@@ -2226,4 +2226,16 @@ overflow: hidden;
   .chart-container {
     order: 4;
   }
+}@media (max-width: 768px) {
+  .mobile-chart-box {
+    display: none !important;
+  }
+
+  .mobile-trade-grid {
+    display: grid !important;
+    grid-template-columns: 52% 48%;
+    gap: 6px;
+    width: 100%;
+    margin-top: 10px;
+  }
 }
