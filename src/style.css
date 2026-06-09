@@ -1969,7 +1969,17 @@ overflow: hidden;
   width: 100%;
   box-sizing: border-box;
 }
+.orderbook-card,
+.orderbook-card table {
+    width: 100%;
+    max-width: 100%;
+}
 
+.orderbook-card th,
+.orderbook-card td {
+    padding: 12px;
+    text-align: left;
+}
 .spot-title {
   color: #f0b90b;
   margin-bottom: 15px;
