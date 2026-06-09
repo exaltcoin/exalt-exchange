@@ -1928,6 +1928,9 @@ background:linear-gradient(#16a34a,#2563eb);
   padding: 18px;
   margin: 22px 0;
   transition: 0.3s;
+  max-width: 100%;
+box-sizing: border-box;
+overflow: hidden;
 }
 
 .coin-details-box:hover {
@@ -1949,6 +1952,12 @@ background:linear-gradient(#16a34a,#2563eb);
 
 .coin-details-box strong {
   color: #ffffff;
+}
+.coin-value{
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
  .spot-order-panel {
   background: #161b22;
