@@ -156,6 +156,12 @@ useEffect(() => {
 }, []);
   return (
     <div className="trade-layout">
+      <div className="mobile-spot-tabs">
+  <span>Convert</span>
+  <span className="active">Spot</span>
+  <span>P2P</span>
+  <span>Alpha</span>
+</div>
       <div className="trade-sidebar">
         <h2>Live Markets</h2>
 <input

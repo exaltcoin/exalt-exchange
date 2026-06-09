@@ -2167,4 +2167,23 @@ overflow: hidden;
   .spot-form {
     max-width: 100%;
   }
+}.mobile-spot-tabs {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-spot-tabs {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    padding: 12px 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #8b949e;
+    border-bottom: 1px solid #2a2f3a;
+  }
+
+  .mobile-spot-tabs span.active {
+    color: #ffffff;
+  }
 }
