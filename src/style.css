@@ -2186,4 +2186,44 @@ overflow: hidden;
   .mobile-spot-tabs span.active {
     color: #ffffff;
   }
+}@media (max-width: 768px) {
+  .trade-main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .trade-header {
+    order: 1;
+  }
+
+  .mobile-trade-grid {
+    order: 2;
+    display: grid;
+    grid-template-columns: 55% 45%;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .spot-order-panel {
+    margin: 0;
+    padding: 12px;
+  }
+
+  .mobile-orderbook-box {
+    width: 100%;
+  }
+
+  .mobile-orderbook-box .orderbook-card {
+    margin-top: 0;
+    padding: 12px;
+  }
+
+  .coin-details-box {
+    order: 3;
+  }
+
+  .trading-chart,
+  .chart-container {
+    order: 4;
+  }
 }
