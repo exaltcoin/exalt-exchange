@@ -208,25 +208,7 @@ useEffect(() => {
     </div>
   )}
 </div>
-          <div className="trade-stats">
-            <div>
-              <span>Market</span>
-             <h3>
-  {selectedCoin?.baseToken?.symbol || "BTC"}/
-  {selectedCoin?.quoteToken?.symbol || "USDT"}
-</h3>
-            </div>
-            <div>
-              <span>Engine</span>
-              <h3>Live</h3>
-            </div>
-            <div>
-              <span>Status</span>
-              <h3>MongoDB</h3>
-            </div>
-          </div>
-        </div>
-
+  </div>
    {selectedCoin && (
   <Tradingchart
     selectedCoin={{
