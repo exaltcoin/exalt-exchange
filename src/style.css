@@ -1955,6 +1955,7 @@ background:linear-gradient(#16a34a,#2563eb);
   border-radius: 14px;
   padding: 18px;
   margin: 22px 0;
+  max-width: 620px;
 }
 
 .spot-title {
