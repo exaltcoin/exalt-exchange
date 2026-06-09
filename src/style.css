@@ -2136,4 +2136,35 @@ overflow: hidden;
 
 .orderbook-card tbody tr {
     transition: 0.2s;
+}@media (max-width: 768px) {
+  .trade-layout {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .trade-sidebar {
+    width: 100%;
+    order: 1;
+  }
+
+  .market-search {
+    width: 100%;
+  }
+
+  .spot-order-panel {
+    order: 2;
+    width: 100%;
+    margin: 12px 0;
+  }
+
+  .orderbook-card {
+    order: 3;
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .spot-form {
+    max-width: 100%;
+  }
 }
