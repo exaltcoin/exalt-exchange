@@ -2249,4 +2249,34 @@ overflow: hidden;
     width: 100% !important;
     max-width: 100% !important;
   }
+}@media (max-width: 768px) {
+  .trade-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .trade-sidebar {
+    order: 1 !important;
+    width: 100% !important;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .trade-main {
+    order: 2 !important;
+    width: 100% !important;
+  }
+
+  .mobile-trade-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .spot-order-panel,
+  .mobile-orderbook-box,
+  .coin-details-box,
+  .mobile-chart-box {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
