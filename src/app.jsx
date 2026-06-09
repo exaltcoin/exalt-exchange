@@ -429,8 +429,12 @@ if (page === "kyc-submit") return <KycVerification />;
       <main className="main">
         <div className="topbar">
           <div>
-            <h2>{page.toUpperCase()}</h2>
-            <p>Exalt Exchange Live Market System</p>
+          <h2>
+  {page === "trade"
+    ? "SPOT TRADING"
+    : page.toUpperCase()}
+</h2>
+            <p>Professional Spot Trading Engine Powered by Exalt Exchange</p>
             {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
             </div>
           <button className="connect-btn" onClick={connectWallet}>
