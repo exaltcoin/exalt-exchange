@@ -260,53 +260,56 @@ useEffect(() => {
     {wallet.slice(0,6)}...{wallet.slice(-4)}
   </div>
 )}
-       <div className="spot-order-panel"> 
-        <h2 className="spot-title">Place Real Order</h2>
+<div className="mobile-trade-grid">
+  <div className="spot-order-panel">
+    <h2 className="spot-title">Place Real Order</h2>
 
-         <div className="spot-form">
-  <select value={type} onChange={(e) => setType(e.target.value)}>
-    <option value="buy">BUY Order</option>
-    <option value="sell">SELL Order</option>
-  </select>
+    <div className="spot-form">
+      <select value={type} onChange={(e) => setType(e.target.value)}>
+        <option value="buy">BUY Order</option>
+        <option value="sell">SELL Order</option>
+      </select>
 
-  <input
-    type="number"
-    placeholder="Price"
-    value={price}
-    onChange={(e) => setPrice(e.target.value)}
-  />
+      <input
+        type="number"
+        placeholder="Price"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
 
-  <input
-    type="number"
-    placeholder="Amount"
-    value={amount}
-    onChange={(e) => setAmount(e.target.value)}
-  />
+      <input
+        type="number"
+        placeholder="Amount"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
 
-  <button
-    onClick={() => {
-      if (type === "buy") {
-        buyExalt();
-      } else {
-        window.open(
-          "https://pancakeswap.finance/swap?inputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78&outputCurrency=BNB&chain=bsc",
-          "_blank"
-        );
-      }
-    }}
-    className={`trade-btn ${type === "buy" ? "buy-btn" : "sell-btn"}`}
-  >
-    {type === "buy" ? "Buy EXALT" : "Sell EXALT"}
-  </button>
-</div>
-        </div>
-
-       <div style={{ width: "100%", marginTop: "20px" }}>
-  <OrderBook coin={selectedCoin} />
-</div>
-      </div>
+      <button
+        onClick={() => {
+          if (type === "buy") {
+            buyExalt();
+          } else {
+            window.open(
+              "https://pancakeswap.finance/swap?inputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78&outputCurrency=BNB&chain=bsc",
+              "_blank"
+            );
+          }
+        }}
+        className={`trade-btn ${type === "buy" ? "buy-btn" : "sell-btn"}`}
+      >
+        {type === "buy" ? "Buy EXALT" : "Sell EXALT"}
+      </button>
     </div>
-  );
+  </div>
+
+  <div className="mobile-orderbook-box">
+    <OrderBook coin={selectedCoin} />
+  </div>
+</div>
+
+</div>
+</div>
+);
 }
 
 export default Trade;
