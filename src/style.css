@@ -2093,4 +2093,31 @@ overflow: hidden;
   font-size:24px;
   font-weight:700;
   margin-bottom:15px;
+}.orderbook-card {
+    background: #161b22;
+    border: 1px solid #2a2f3a;
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 20px;
+}
+
+.orderbook-card table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orderbook-card th {
+    color: #f0b90b;
+    font-weight: 700;
+    padding: 12px;
+    border-bottom: 1px solid #2a2f3a;
+}
+
+.orderbook-card td {
+    padding: 12px;
+    border-bottom: 1px solid #222;
+}
+
+.orderbook-card tr:hover {
+    background: rgba(240,185,11,0.08);
 }
