@@ -251,8 +251,8 @@ useEffect(() => {
     {wallet.slice(0,6)}...{wallet.slice(-4)}
   </div>
 )}
-        <div className="panel">
-          <h2>Place Real Order</h2>
+       <div className="spot-order-panel"> 
+        <h2 className="spot-title">Place Real Order</h2>
 
           <select value={type} onChange={(e) => setType(e.target.value)}>
             <option value="buy">BUY Order</option>

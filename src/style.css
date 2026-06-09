@@ -1949,4 +1949,35 @@ background:linear-gradient(#16a34a,#2563eb);
 
 .coin-details-box strong {
   color: #ffffff;
+}.spot-order-panel {
+  background: #161b22;
+  border: 1px solid #2a2f3a;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 22px 0;
+}
+
+.spot-title {
+  color: #f0b90b;
+  margin-bottom: 15px;
+}
+
+.spot-order-panel select,
+.spot-order-panel input {
+  background: #0b0e11;
+  border: 1px solid #2a2f3a;
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-right: 8px;
+  outline: none;
+}
+
+.spot-order-panel select:focus,
+.spot-order-panel input:focus {
+  border-color: #f0b90b;
+}
+
+.spot-order-panel:hover {
+  border-color: #f0b90b;
 }
