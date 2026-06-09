@@ -1,5 +1,5 @@
 import { socket } from "../api";
-import { useEffect, useState } from "react";
+import TradingChart from "./Tradingchart";
 import Tradingchart from "./Tradingchart";
 import OrderBook from "./OrderBook";
 import { ethers } from "ethers";
