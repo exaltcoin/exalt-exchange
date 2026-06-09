@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from "react";
 import { socket } from "../api";
-import TradingChart from "./Tradingchart";
 import Tradingchart from "./Tradingchart";
 import OrderBook from "./OrderBook";
 import { ethers } from "ethers";
@@ -204,7 +204,7 @@ useEffect(() => {
         <div className="trade-header">
  {selectedCoin && (
   <div className="mobile-chart-box">
-    <TradingChart
+    <Tradingchart
       selectedCoin={{
         ...selectedCoin,
         chartSymbol: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
