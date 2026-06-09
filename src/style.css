@@ -2238,4 +2238,15 @@ overflow: hidden;
     width: 100%;
     margin-top: 10px;
   }
+}@media (max-width: 768px) {
+  .mobile-chart-box {
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .mobile-chart-box iframe,
+  .mobile-chart-box > div {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }
