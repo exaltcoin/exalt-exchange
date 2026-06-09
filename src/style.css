@@ -2120,4 +2120,20 @@ overflow: hidden;
 
 .orderbook-card tr:hover {
     background: rgba(240,185,11,0.08);
+}.order-book-row.buy td:first-child {
+    color: #0ecb81;
+    font-weight: 700;
+}
+
+.order-book-row.sell td:first-child {
+    color: #f6465d;
+    font-weight: 700;
+}
+
+.order-book-row:hover {
+    background: rgba(240,185,11,0.08);
+}
+
+.orderbook-card tbody tr {
+    transition: 0.2s;
 }
