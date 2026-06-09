@@ -209,12 +209,8 @@ useEffect(() => {
   )}
 
   <div>
-    <h1>
-      {selectedCoin?.baseToken?.symbol || "BTC"}/
-      {selectedCoin?.quoteToken?.symbol || "USDT"}
-    </h1>
-
-    <p>Real order engine powered by Exalt Exchange</p>
+   <h1>SPOT TRADING</h1>
+    <p>Real Spot Trading Engine Powered By Exalt Exchange</p>
   </div>
 
 </div>
