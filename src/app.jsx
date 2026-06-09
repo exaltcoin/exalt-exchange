@@ -434,7 +434,11 @@ if (page === "kyc-submit") return <KycVerification />;
     ? "SPOT TRADING"
     : page.toUpperCase()}
 </h2>
-            <p>Professional Spot Trading Engine Powered by Exalt Exchange</p>
+            <p>
+{page === "trade"
+ ? "Professional Spot Trading Engine Powered by Exalt Exchange"
+ : "Secure • Fast • Global Crypto Exchange"}
+</p>
             {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
             </div>
           <button className="connect-btn" onClick={connectWallet}>
