@@ -1980,4 +1980,33 @@ background:linear-gradient(#16a34a,#2563eb);
 
 .spot-order-panel:hover {
   border-color: #f0b90b;
+}.spot-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.spot-form select,
+.spot-form input {
+  width: 100%;
+  background: #0b0e11;
+  border: 1px solid #2a2f3a;
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 10px;
+  outline: none;
+}
+
+.spot-form select:focus,
+.spot-form input:focus {
+  border-color: #f0b90b;
+}
+
+.spot-form .trade-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
 }

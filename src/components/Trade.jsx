@@ -254,40 +254,42 @@ useEffect(() => {
        <div className="spot-order-panel"> 
         <h2 className="spot-title">Place Real Order</h2>
 
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="buy">BUY Order</option>
-            <option value="sell">SELL Order</option>
-          </select>
+         <div className="spot-form">
+  <select value={type} onChange={(e) => setType(e.target.value)}>
+    <option value="buy">BUY Order</option>
+    <option value="sell">SELL Order</option>
+  </select>
 
-          <input
-            type="number"
-            placeholder="Price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
+  <input
+    type="number"
+    placeholder="Price"
+    value={price}
+    onChange={(e) => setPrice(e.target.value)}
+  />
 
-          <input
-            type="number"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+  <input
+    type="number"
+    placeholder="Amount"
+    value={amount}
+    onChange={(e) => setAmount(e.target.value)}
+  />
 
-        <button
- onClick={() => {
-if (type === "buy") {
-buyExalt();
-} else {
-window.open(
-"https://pancakeswap.finance/swap?inputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78&outputCurrency=BNB&chain=bsc",
-"_blank"
-);
-}
-}}
-  className={`trade-btn ${type === "buy" ? "buy-btn" : "sell-btn"}`}
->
-  {type === "buy" ? "Buy EXALT" : "Sell EXALT"}
-</button>
+  <button
+    onClick={() => {
+      if (type === "buy") {
+        buyExalt();
+      } else {
+        window.open(
+          "https://pancakeswap.finance/swap?inputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78&outputCurrency=BNB&chain=bsc",
+          "_blank"
+        );
+      }
+    }}
+    className={`trade-btn ${type === "buy" ? "buy-btn" : "sell-btn"}`}
+  >
+    {type === "buy" ? "Buy EXALT" : "Sell EXALT"}
+  </button>
+</div>
         </div>
 
         <OrderBook coin={selectedCoin} />
