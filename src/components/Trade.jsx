@@ -154,24 +154,27 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, []);
-  return (
-    <div className="trade-layout">
-      <div className="mobile-spot-tabs">
-  <span>Convert</span>
-  <span className="active">Spot</span>
-  <span>P2P</span>
-  <span>Alpha</span>
-</div>
-      <div className="trade-sidebar">
-        <h2>Live Markets</h2>
-<input
-  type="text"
-  placeholder="Search coin..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  className="market-search"
-/>
-   {Array.isArray(coins) &&
+return (
+  <div className="trade-layout">
+    <div className="mobile-spot-tabs">
+      <span>Convert</span>
+      <span className="active">Spot</span>
+      <span>P2P</span>
+      <span>Alpha</span>
+    </div>
+
+    <div className="trade-sidebar">
+      <h2>Live Markets</h2>
+
+      <input
+        type="text"
+        placeholder="Search coin..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="market-search"
+      />
+
+     {Array.isArray(coins) &&
   coins
     .filter((coin) =>
       (coin.baseToken?.symbol || coin.symbol || "")
@@ -179,137 +182,112 @@ useEffect(() => {
         .includes(search.toLowerCase())
     )
     .map((coin, index) => (
-  <div
-    key={coin.pairAddress || index}
- className={`coin-item ${
-  selectedCoin?.baseToken?.symbol === coin.baseToken?.symbol
-    ? "active-coin"
-    : ""
-}`}
-    onClick={() => setSelectedCoin(coin)}
-  >
-    <div>
-      <strong>{coin.baseToken?.symbol || coin.symbol || "COIN"}</strong>
-      <p>${Number(coin.priceUsd || coin.price || 0).toFixed(6)}</p>
+      <div
+        key={coin.pairAddress || index}
+        className={`coin-item ${
+          selectedCoin?.baseToken?.symbol === coin.baseToken?.symbol
+            ? "active-coin"
+            : ""
+        }`}
+        onClick={() => setSelectedCoin(coin)}
+      >
+        <div>
+          <strong>{coin.baseToken?.symbol || coin.symbol || "COIN"}</strong>
+          <p>${Number(coin.priceUsd || coin.price || 0).toFixed(6)}</p>
+        </div>
+
+        <span
+          className={
+            Number(coin.priceChange?.h24 || 0) >= 0
+              ? "green-text"
+              : "red-text"
+          }
+        >
+          {Number(coin.priceChange?.h24 || 0).toFixed(2)}%
+        </span>
+      </div>
+    ))}
     </div>
 
-    <span className={(Number(coin.priceChange?.h24 || 0) >= 0) ? "green-text" : "red-text"}>
-      {Number(coin.priceChange?.h24 || 0).toFixed(2)}%
-    </span>
-  </div>
-))}
+    <div className="trade-main">
+      <div className="mobile-trade-grid">
+        <div className="spot-order-panel">
+          <h2 className="spot-title">Place Real Order</h2>
+
+          <div className="spot-form">
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="buy">BUY Order</option>
+              <option value="sell">SELL Order</option>
+            </select>
+
+            <input
+              type="number"
+              placeholder="Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+
+            <input
+              type="number"
+              placeholder="Amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+
+            <button
+              onClick={() => {
+                if (type === "buy") {
+                  buyExalt();
+                } else {
+                  window.open(
+                    "https://pancakeswap.finance/swap?inputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78&outputCurrency=BNB&chain=bsc",
+                    "_blank"
+                  );
+                }
+              }}
+              className={`trade-btn ${type === "buy" ? "buy-btn" : "sell-btn"}`}
+            >
+              {type === "buy" ? "Buy EXALT" : "Sell EXALT"}
+            </button>
+          </div>
+        </div>
+
+        <div className="mobile-orderbook-box">
+          <OrderBook coin={selectedCoin} />
+        </div>
       </div>
 
-      <div className="trade-main">
-        <div className="trade-header">
-</div>
-<div className="coin-details-box">
- <h3 className="coin-info-title">Coin Info</h3>
-  <div className="coin-info-row">
-  <span className="coin-label">Token</span>
-  <span className="coin-value">
-    {selectedCoin?.baseToken?.symbol || "EXALT"}
-  </span>
-</div>
+      <div className="coin-details-box">
+        <h3 className="coin-info-title">Coin Info</h3>
 
-<div className="coin-info-row">
-  <span className="coin-label">Contract</span>
-  <span className="coin-value">
-    {selectedCoin?.baseToken?.address || "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"}
-  </span>
-</div>
+        <div className="coin-info-row">
+          <span className="coin-label">Token</span>
+          <span className="coin-value">
+            {selectedCoin?.baseToken?.symbol || "EXALT"}
+          </span>
+        </div>
 
-  <button
-  className="copy-btn"
-  onClick={() =>
-    navigator.clipboard.writeText(
-      selectedCoin?.baseToken?.address ||
-        "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
-    )
-  }
->
-  Copy Address
-</button>
+        <div className="coin-info-row">
+          <span className="coin-label">Contract</span>
+          <span className="coin-value">
+            {selectedCoin?.baseToken?.address ||
+              "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"}
+          </span>
+        </div>
+      </div>
 
- <button
-  className="scan-btn"
-  onClick={() =>
-    window.open(
-      `https://bscscan.com/token/${
-        selectedCoin?.baseToken?.address ||
-        "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
-      }`,
-      "_blank"
-    )
-  }
->
-  View on BscScan
-</button>
-</div>
-{wallet && (
-  <div className="wallet-status">
-    Connected:
-    {wallet.slice(0,6)}...{wallet.slice(-4)}
-  </div>
-)}
-<div className="mobile-trade-grid">
-  <div className="spot-order-panel">
-    <h2 className="spot-title">Place Real Order</h2>
-
-    <div className="spot-form">
-      <select value={type} onChange={(e) => setType(e.target.value)}>
-        <option value="buy">BUY Order</option>
-        <option value="sell">SELL Order</option>
-      </select>
-
-      <input
-        type="number"
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-
-      <input
-        type="number"
-        placeholder="Amount"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
-
-      <button
-        onClick={() => {
-          if (type === "buy") {
-            buyExalt();
-          } else {
-            window.open(
-              "https://pancakeswap.finance/swap?inputCurrency=0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78&outputCurrency=BNB&chain=bsc",
-              "_blank"
-            );
-          }
-        }}
-        className={`trade-btn ${type === "buy" ? "buy-btn" : "sell-btn"}`}
-      >
-        {type === "buy" ? "Buy EXALT" : "Sell EXALT"}
-      </button>
+      {selectedCoin && (
+        <div className="mobile-chart-box">
+          <Tradingchart
+            selectedCoin={{
+              ...selectedCoin,
+              chartSymbol: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
+            }}
+          />
+        </div>
+      )}
     </div>
   </div>
-
-  <div className="mobile-orderbook-box">
-    <OrderBook coin={selectedCoin} />
-  </div>
-</div>
-{selectedCoin && (
-  <div className="mobile-chart-box">
-    <Tradingchart
-      selectedCoin={{
-        ...selectedCoin,
-        chartSymbol: `${selectedCoin?.baseToken?.symbol || "BTC"}USDT`,
-      }}
-    />
-  </div>
-)}
-</div>
-</div>
 );
 }
 
