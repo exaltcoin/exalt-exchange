@@ -206,17 +206,20 @@ useEffect(() => {
   />
 )}
 <div className="coin-details-box">
-  <h3>Coin Details</h3>
-
-  <p>
-    <strong>Token:</strong>{" "}
+ <h3 className="coin-info-title">Coin Info</h3>
+  <div className="coin-info-row">
+  <span className="coin-label">Token</span>
+  <span className="coin-value">
     {selectedCoin?.baseToken?.symbol || "EXALT"}
-  </p>
+  </span>
+</div>
 
-  <p>
-    <strong>Contract:</strong>{" "}
+<div className="coin-info-row">
+  <span className="coin-label">Contract</span>
+  <span className="coin-value">
     {selectedCoin?.baseToken?.address || "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"}
-  </p>
+  </span>
+</div>
 
   <button
   className="copy-btn"

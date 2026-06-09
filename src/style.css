@@ -2044,4 +2044,31 @@ background:linear-gradient(#16a34a,#2563eb);
 
 .orderbook-card tr:hover {
   background: rgba(240, 185, 11, 0.08);
+}.coin-info-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #2a2f3a;
+}
+
+.coin-label{
+  color:#8b949e;
+  font-size:14px;
+}
+
+.coin-value{
+  color:#ffffff;
+  font-size:14px;
+  font-weight:600;
+  max-width:350px;
+  text-align:right;
+  word-break:break-all;
+}
+
+.coin-info-title{
+  color:#f0b90b;
+  font-size:24px;
+  font-weight:700;
+  margin-bottom:15px;
 }
