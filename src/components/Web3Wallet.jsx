@@ -5,7 +5,9 @@ function Web3Wallet() {
   const [bnbBalance, setBnbBalance] = useState("0");
   const [sendTo, setSendTo] = useState("");
   const [amount, setAmount] = useState("");
-
+const [fromCoin, setFromCoin] = useState("BNB");
+const [toCoin, setToCoin] = useState("EXALT");
+const [swapAmount, setSwapAmount] = useState("");
   const connectWeb3 = async () => {
     if (!window.ethereum) {
       alert("Please install MetaMask or Trust Wallet");
@@ -40,6 +42,73 @@ function Web3Wallet() {
 
     alert("Transaction sent: " + tx.hash);
   };
+  const ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
+const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+const EXALT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
+const USDT = "0x55d398326f99059fF775485246999027B3197955";
+
+const ROUTER_ABI = [
+  "function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable",
+  "function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external",
+];
+
+const TOKEN_ABI = [
+  "function approve(address spender,uint256 amount) external returns(bool)",
+  "function decimals() view returns(uint8)",
+];
+
+const getTokenAddress = (symbol) => {
+  if (symbol === "BNB") return WBNB;
+  if (symbol === "USDT") return USDT;
+  if (symbol === "EXALT") return EXALT;
+  return EXALT;
+};
+
+const executeSwap = async () => {
+  if (!wallet) return alert("Connect wallet first");
+  if (!swapAmount) return alert("Enter swap amount");
+
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const router = new ethers.Contract(ROUTER, ROUTER_ABI, signer);
+  const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+
+  if (fromCoin === "BNB") {
+    const path = [WBNB, getTokenAddress(toCoin)];
+    const tx = await router.swapExactETHForTokensSupportingFeeOnTransferTokens(
+      0,
+      path,
+      wallet,
+      deadline,
+      { value: ethers.parseEther(swapAmount) }
+    );
+    alert("Swap sent: " + tx.hash);
+    return;
+  }
+
+  if (toCoin === "BNB") {
+    const tokenAddress = getTokenAddress(fromCoin);
+    const token = new ethers.Contract(tokenAddress, TOKEN_ABI, signer);
+    const decimals = await token.decimals();
+    const amountIn = ethers.parseUnits(swapAmount, decimals);
+
+    const approveTx = await token.approve(ROUTER, amountIn);
+    await approveTx.wait();
+
+    const path = [tokenAddress, WBNB];
+    const tx = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
+      amountIn,
+      0,
+      path,
+      wallet,
+      deadline
+    );
+    alert("Swap sent: " + tx.hash);
+    return;
+  }
+
+  alert("Token to token swap next step: use BNB route");
+};
 const [coins, setCoins] = useState([]);
 
 const loadCoins = async () => {
@@ -153,27 +222,41 @@ useEffect(() => {
   <h3>Swap / Trade</h3>
 
   <label>From Coin</label>
-  <select className="web3-input">
+ <select
+  className="web3-input"
+  value={fromCoin}
+  onChange={(e) => setFromCoin(e.target.value)}
+>
     <option>BNB</option>
     <option>USDT</option>
     <option>EXALT</option>
   </select>
 
   <label>To Coin</label>
-  <select className="web3-input">
+<select
+  className="web3-input"
+  value={toCoin}
+  onChange={(e) => setToCoin(e.target.value)}
+>
     <option>EXALT</option>
     <option>USDT</option>
     <option>BNB</option>
   </select>
 
-  <input
-    className="web3-input"
-    placeholder="Enter Amount"
-  />
+<input
+  className="web3-input"
+  placeholder="Enter Amount"
+  value={swapAmount}
+  onChange={(e) => setSwapAmount(e.target.value)}
+/>
 
-  <button className="action-btn yellow-btn">
-    Preview Swap
-  </button>
+<button
+  className="action-btn yellow-btn"
+  onClick={executeSwap}
+>
+  Swap Now
+</button>
+  
 </div>
     </div>
   );
