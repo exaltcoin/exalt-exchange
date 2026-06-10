@@ -105,7 +105,6 @@ return (
     <div className="mobile-avatar">E</div>
     <div className="mobile-tabs">
       <span className="active">Exchange</span>
-      <span onClick={() => setPage("wallets")}>Wallet</span>
       <span onClick={() => setPage("web3wallet")}>Web3</span>
     </div>
     <button onClick={() => setPage("profile")}>👤</button>
@@ -114,7 +113,7 @@ return (
   <div className="mobile-balance-card">
     <p>Est. Total Value (USDT)</p>
     <h1>${portfolioValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h1>
-    <button onClick={() => setPage("wallets")}>Add Funds</button>
+  <button onClick={() => setPage("wallets")}>Add Funds</button>
   </div>
 
   <div className="mobile-action-grid">

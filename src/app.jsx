@@ -170,7 +170,7 @@ const userEmail = storedUser?.email || "User";
     if (page === "buy") return <BuyCrypto />;
     if (page === "futures") return <Futures />;
     if (page === "wallets") return <Wallets />;
-   if (page === "web3wallet") return <h1>WEB3 PAGE OPENED</h1>;
+   if (page === "web3wallet") return <Web3Wallet />;
     if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
     if (page === "p2p") return <P2P />;
