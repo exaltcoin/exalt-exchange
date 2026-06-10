@@ -233,7 +233,11 @@ useEffect(() => {
 >
   {coin.symbol.charAt(0)}
 </div>
- <div style={{ flex: 1 }}>
+ <div
+  style={{
+    flex: "0 0 35%"
+  }}
+>
   <div style={{ fontWeight: "700", fontSize: "16px" }}>
     {coin.symbol}
   </div>
@@ -249,10 +253,10 @@ useEffect(() => {
   </div>
 </div>
 
-    <div
+  <div
   style={{
-    textAlign: "right",
-    marginRight: "10px"
+    flex: "0 0 30%",
+    textAlign: "right"
   }}
 >
   <div
@@ -263,7 +267,7 @@ useEffect(() => {
     }}
   >
     ${Number(coin.priceUsd || 0).toFixed(6)}
-  </div>
+  </div> 
 
   <div
     style={{
@@ -286,11 +290,12 @@ fontWeight: "600",
     <button
   className="action-btn yellow-btn"
   style={{
-    Width: "100px",
-    height: "42px",
-    borderRadius: "10px",
-    fontWeight: "700"
-  }}
+  width: "80px",
+  height: "38px",
+  borderRadius: "10px",
+  fontWeight: "700",
+  flexShrink: 0
+}}
   onClick={() => {
     setFromCoin("BNB");
     setToCoin(coin.symbol);
