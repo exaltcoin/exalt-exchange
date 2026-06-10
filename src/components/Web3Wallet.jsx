@@ -110,19 +110,52 @@ const executeSwap = async () => {
   alert("Token to token swap next step: use BNB route");
 };
 const [coins, setCoins] = useState([]);
-
+const [search, setSearch] = useState("");
 const loadCoins = async () => {
-  try {
-    const res = await fetch(
-      "https://api.dexscreener.com/latest/dex/search?q=bsc"
-    );
-
-    const data = await res.json();
-
-    setCoins((data?.pairs || []).slice(0, 20));
-  } catch (err) {
-    console.log(err);
-  }
+  setCoins([
+    {
+      symbol: "BNB",
+      name: "BNB",
+      chain: "BSC",
+      priceUsd: 650,
+      address: WBNB,
+    },
+    {
+      symbol: "USDT",
+      name: "Tether USD",
+      chain: "BSC",
+      priceUsd: 1,
+      address: USDT,
+    },
+    {
+      symbol: "EXALT",
+      name: "Exalt Coin",
+      chain: "BSC",
+      priceUsd: 0.001,
+      address: EXALT,
+    },
+    {
+      symbol: "BTCB",
+      name: "Bitcoin",
+      chain: "BSC",
+      priceUsd: 100000,
+      address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
+    },
+    {
+      symbol: "ETH",
+      name: "Ethereum",
+      chain: "BSC",
+      priceUsd: 2500,
+      address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+    },
+    {
+      symbol: "CAKE",
+      name: "PancakeSwap",
+      chain: "BSC",
+      priceUsd: 3,
+      address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+    },
+  ]);
 };
 useEffect(() => {
   loadCoins();
@@ -155,8 +188,21 @@ useEffect(() => {
       </div>
 <div className="stat-card glow-yellow">
   <h3>All Web3 Coins</h3>
-
-  {coins.map((coin, index) => (
+<input
+  type="text"
+  placeholder="Search Coin..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="web3-input"
+  style={{ marginBottom: "10px" }}
+/>
+{coins
+.filter(
+  (coin) =>
+    coin.name.toLowerCase().includes(search.toLowerCase()) ||
+    coin.symbol.toLowerCase().includes(search.toLowerCase())
+)
+.map((coin, index) => (
     <div
       key={index}
       style={{
@@ -168,8 +214,8 @@ useEffect(() => {
       }}
     >
       <div>
-      <strong>{coin.baseToken?.symbol || coin.quoteToken?.symbol || "TOKEN"}</strong>
-<p>{coin.baseToken?.name || "BSC Token"}</p>
+     <strong>{coin.symbol}</strong>
+<p>{coin.name}</p>
       </div>
 
       <div>
@@ -177,14 +223,12 @@ useEffect(() => {
       </div>
 
       <button
-        onClick={() =>
-          window.open(
-            `https://pancakeswap.finance/swap?outputCurrency=${coin.baseToken?.address}`,
-            "_blank"
-          )
-        }
+       onClick={() => {
+  setFromCoin("BNB");
+  setToCoin(coin.symbol);
+}}
       >
-        Swap
+     select
       </button>
     </div>
   ))}
