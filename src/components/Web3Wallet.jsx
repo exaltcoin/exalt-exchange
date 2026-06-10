@@ -99,11 +99,12 @@ useEffect(() => {
       }}
     >
       <div>
-        <strong>{coin.baseToken?.symbol}</strong>
+      <strong>{coin.baseToken?.symbol || coin.quoteToken?.symbol || "TOKEN"}</strong>
+<p>{coin.baseToken?.name || "BSC Token"}</p>
       </div>
 
       <div>
-        ${Number(coin.priceUsd || 0).toFixed(4)}
+        ${Number(coin.priceUsd || 0).toFixed(6)}
       </div>
 
       <button
