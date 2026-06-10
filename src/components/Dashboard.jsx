@@ -98,8 +98,46 @@ const connectWallet = async () => {
 }, []);
 
 return (
-    <div className="dashboard-page">
+  <>
+  <div className="mobile-home-view">
+  <div className="mobile-topbar">
+    <div className="mobile-avatar">E</div>
+    <div className="mobile-tabs">
+      <span className="active">Exchange</span>
+      <span onClick={() => setPage("wallets")}>Wallet</span>
+    </div>
+    <button onClick={() => setPage("profile")}>👤</button>
+  </div>
 
+  <div className="mobile-balance-card">
+    <p>Est. Total Value (USDT)</p>
+    <h1>${portfolioValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h1>
+    <button onClick={() => setPage("wallets")}>Add Funds</button>
+  </div>
+
+  <div className="mobile-action-grid">
+    <button onClick={() => setPage("referral")}>👥<span>Referral</span></button>
+    <button onClick={() => setPage("p2p")}>🔁<span>P2P</span></button>
+    <button onClick={() => setPage("trade")}>📈<span>Trade</span></button>
+    <button onClick={() => setPage("futures")}>⚡<span>Futures</span></button>
+    <button onClick={() => setPage("wallets")}>💰<span>Assets</span></button>
+    <button onClick={() => setPage("kyc-submit")}>✅<span>KYC</span></button>
+  </div>
+
+  <div className="mobile-card-row">
+    <div onClick={() => setPage("p2p")} className="mobile-feature-card">
+      <h3>P2P Orders</h3>
+      <p>Buy/Sell Crypto</p>
+    </div>
+
+    <div onClick={() => setPage("wallets")} className="mobile-feature-card">
+      <h3>Deposit</h3>
+      <p>Bank Transfer / Crypto</p>
+    </div>
+  </div>
+</div>
+    <div className="desktop-dashboard-view">
+<div className="dashboard-page">
       <div className="hero-banner">
         <div>
           <h1>EXALT EXCHANGE</h1>
@@ -208,17 +246,19 @@ return (
 <button onClick={() => setPage("listings")} className="action-btn blue-btn">
   Submit Listing
 </button>
-
 <button onClick={() => setPage("markets")} className="action-btn red-btn">
   View Market Board
 </button>
 
         </div>
-
       </div>
 
     </div>
-  );
+
+  </div>
+
+  </>
+);
 }
 
 export default Dashboard;
