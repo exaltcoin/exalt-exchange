@@ -106,6 +106,7 @@ return (
     <div className="mobile-tabs">
       <span className="active">Exchange</span>
       <span onClick={() => setPage("wallets")}>Wallet</span>
+      <span onClick={() => setPage("web3wallet")}>Web3</span>
     </div>
     <button onClick={() => setPage("profile")}>👤</button>
   </div>
@@ -122,14 +123,7 @@ return (
     <button onClick={() => setPage("trade")}>📈<span>Trade</span></button>
     <button onClick={() => setPage("futures")}>⚡<span>Futures</span></button>
     <button onClick={() => setPage("wallets")}>💰<span>Assets</span></button>
-   <button
-  onClick={() => {
-    alert("WEB3 CLICKED");
-    setPage("web3wallet");
-  }}
->
-  🌐<span>Web3</span>
-</button>
+    <button onClick={() => setPage("web3wallet")}>🌐<span>Web3</span></button>
     <button onClick={() => setPage("kyc-submit")}>✅<span>KYC</span></button>
   </div>
 
