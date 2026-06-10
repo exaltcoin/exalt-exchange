@@ -13,6 +13,7 @@ import Rewards from "./components/Rewards";
 import Support from "./components/Support";
 import AdminPanel from "./AdminPanel";
 import Wallets from "./components/Wallets";
+import Web3Wallet from "./components/Web3Wallet";
 import Settings from "./components/Settings";
 import Transactions from "./components/Transactions";
 import AuthPanel from "./components/AuthPanel";
@@ -169,6 +170,7 @@ const userEmail = storedUser?.email || "User";
     if (page === "buy") return <BuyCrypto />;
     if (page === "futures") return <Futures />;
     if (page === "wallets") return <Wallets />;
+    if (page === "web3wallet") return <Web3Wallet />;
     if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
     if (page === "p2p") return <P2P />;
@@ -315,7 +317,14 @@ if (page === "kyc-submit") return <KycVerification />;
 >
   Wallets
 </button>
-
+<button
+  onClick={() => {
+    setPage("web3wallet");
+    setMenuOpen(false);
+  }}
+>
+  Web3 Wallet
+</button>
   <button
     onClick={() => {
       setPage("orders");
