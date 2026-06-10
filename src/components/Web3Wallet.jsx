@@ -204,32 +204,100 @@ useEffect(() => {
 )
 .map((coin, index) => (
     <div
-      key={index}
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        marginBottom: "10px",
-        padding: "8px",
-        borderBottom: "1px solid #333"
-      }}
-    >
-      <div>
-     <strong>{coin.symbol}</strong>
-<p>{coin.name}</p>
-      </div>
+  key={index}
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "12px",
+    padding: "12px",
+    background: "#1a1f2e",
+    border: "1px solid #2a3142",
+    borderRadius: "12px"
+  }}
+>
+    <div
+  style={{
+    width: "42px",
+    height: "42px",
+    borderRadius: "50%",
+    background: "#f0b90b",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#000",
+    fontWeight: "700",
+    marginRight: "12px"
+  }}
+>
+  {coin.symbol.charAt(0)}
+</div>
+ <div style={{ flex: 1 }}>
+  <div style={{ fontWeight: "700", fontSize: "16px" }}>
+    {coin.symbol}
+  </div>
 
-      <div>
-        ${Number(coin.priceUsd || 0).toFixed(6)}
-      </div>
+  <div
+    style={{
+      fontSize: "12px",
+      color: "#999",
+      marginTop: "2px"
+    }}
+  >
+    {coin.name}
+  </div>
+</div>
 
-      <button
-       onClick={() => {
-  setFromCoin("BNB");
-  setToCoin(coin.symbol);
-}}
-      >
-     select
-      </button>
+    <div
+  style={{
+    textAlign: "right",
+    marginRight: "10px"
+  }}
+>
+  <div
+    style={{
+      color: "#f0b90b",
+      fontSize: "18px",
+      fontWeight: "700"
+    }}
+  >
+    ${Number(coin.priceUsd || 0).toFixed(6)}
+  </div>
+
+  <div
+    style={{
+     fontSize: "12px",
+fontWeight: "600",
+      color: "#888"
+    }}
+  >
+    BSC
+  </div>
+</div>
+<div
+  style={{
+    width: "100%",
+    height: "1px",
+    background: "#2a3142",
+    marginTop: "12px"
+  }}
+/>
+    <button
+  className="action-btn yellow-btn"
+  style={{
+    Width: "100px",
+    height: "42px",
+    borderRadius: "10px",
+    fontWeight: "700"
+  }}
+  onClick={() => {
+    setFromCoin("BNB");
+    setToCoin(coin.symbol);
+  }}
+>
+  🚀 Select
+</button>
+
     </div>
   ))}
 </div>
