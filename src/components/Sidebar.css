@@ -97,4 +97,46 @@
     margin-left:0;
     padding-top:70px;
   }
+}.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 3000;
+    background: #f5a623;
+    color: #111;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 13px;
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 260px;
+    height: 100vh;
+    z-index: 2500;
+    transition: 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+  .app,
+  .main,
+  .content,
+  .dashboard {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
 }

@@ -2,11 +2,6 @@ import exchangeLogo from "./assets/exalt-exchange.png";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "./style.css";
-import MobileHome from "./mobile/MobileHome";
-import MobileTrade from "./mobile/MobileTrade";
-import MobileWallets from "./mobile/MobileWallets";
-import MobileMarkets from "./mobile/MobileMarkets";
-import MobileProfile from "./mobile/MobileProfile";
 import Dashboard from "./components/Dashboard";
 import Markets from "./components/Markets";
 import Trade from "./components/Trade";
@@ -37,7 +32,6 @@ function App() {
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
 const [menuOpen, setMenuOpen] = useState(false);
-const isMobile = window.innerWidth <= 768;
 useEffect(() => {
   const checkAuth = async () => {
     const token = localStorage.getItem("token");
@@ -162,13 +156,6 @@ const userEmail = storedUser?.email || "User";
   const renderPage = () => {
    const currentUser =
   JSON.parse(localStorage.getItem("user") || "{}") || {}; 
-  if (isMobile) {
-  if (page === "dashboard") return <MobileHome />;
-  if (page === "markets") return <MobileMarkets />;
-  if (page === "trade") return <MobileTrade />;
-  if (page === "wallets") return <MobileWallets />;
-  if (page === "profile") return <MobileProfile />;
-}
     if (page === "dashboard")
   return (
     <>
