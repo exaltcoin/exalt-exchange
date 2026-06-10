@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-
 function Web3Wallet() {
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0");
@@ -41,7 +40,24 @@ function Web3Wallet() {
 
     alert("Transaction sent: " + tx.hash);
   };
+const [coins, setCoins] = useState([]);
 
+const loadCoins = async () => {
+  try {
+    const res = await fetch(
+      "https://api.dexscreener.com/latest/dex/search?q=bsc"
+    );
+
+    const data = await res.json();
+
+    setCoins((data?.pairs || []).slice(0, 20));
+  } catch (err) {
+    console.log(err);
+  }
+};
+useEffect(() => {
+  loadCoins();
+}, []);
   return (
     <div className="wallet-page">
       <h1>WEB3 WALLET</h1>
@@ -68,7 +84,41 @@ function Web3Wallet() {
         <h3>BNB Balance</h3>
         <h1>{bnbBalance} BNB</h1>
       </div>
+<div className="stat-card glow-yellow">
+  <h3>All Web3 Coins</h3>
 
+  {coins.map((coin, index) => (
+    <div
+      key={index}
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: "10px",
+        padding: "8px",
+        borderBottom: "1px solid #333"
+      }}
+    >
+      <div>
+        <strong>{coin.baseToken?.symbol}</strong>
+      </div>
+
+      <div>
+        ${Number(coin.priceUsd || 0).toFixed(4)}
+      </div>
+
+      <button
+        onClick={() =>
+          window.open(
+            `https://pancakeswap.finance/swap?outputCurrency=${coin.baseToken?.address}`,
+            "_blank"
+          )
+        }
+      >
+        Swap
+      </button>
+    </div>
+  ))}
+</div>
      <div className="stat-card glow-red">
   <div className="panel-header">
     <h3>Send Crypto</h3>
