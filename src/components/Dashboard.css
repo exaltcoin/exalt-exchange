@@ -222,4 +222,32 @@
 .mobile-bottom-nav button:hover {
   color: #f0b90b;
 }
+}.mobile-feature-card{
+    background: linear-gradient(
+        145deg,
+        #1c2333,
+        #131a26
+    );
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 18px;
+    padding: 18px;
+    transition: all .3s ease;
+    cursor: pointer;
+}
+
+.mobile-feature-card:hover{
+    transform: translateY(-4px);
+    border-color: rgba(240,185,11,0.4);
+    box-shadow: 0 0 25px rgba(240,185,11,0.15);
+}
+
+.mobile-feature-card h3{
+    color:#ffffff;
+    font-size:18px;
+    margin-bottom:8px;
+}
+
+.mobile-feature-card p{
+    color:#9ca3af;
+    font-size:13px;
 }
