@@ -209,6 +209,7 @@ useEffect(() => {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: "10px",
     marginBottom: "12px",
     padding: "12px",
     background: "#1a1f2e",
