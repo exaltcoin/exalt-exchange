@@ -165,8 +165,7 @@
 
   .desktop-dashboard-view {
     display: block;
-  }
-}.mobile-trending-section {
+  }.mobile-trending-section {
   margin-top: 18px;
   padding-bottom: 90px;
 }
@@ -197,12 +196,12 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  max-width: 420px;
   width: 100%;
+  max-width: 420px;
   background: #0b0f1a;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255,255,255,0.08);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5,1fr);
   padding: 10px 8px;
   z-index: 9999;
 }
@@ -222,4 +221,5 @@
 
 .mobile-bottom-nav button:hover {
   color: #f0b90b;
+}
 }
