@@ -270,4 +270,31 @@
     background:rgba(240,185,11,.12);
     color:#f0b90b;
     font-size:24px;
+}.web3-input {
+  width: 100%;
+  background: #111827;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  padding: 12px;
+  border-radius: 12px;
+  margin: 8px 0 12px;
+  outline: none;
+}
+
+.web3-input:focus {
+  border-color: #f5a623;
+}
+
+.send-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.send-amount-row span {
+  background: #f5a623;
+  color: #111;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
 }

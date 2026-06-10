@@ -69,26 +69,35 @@ function Web3Wallet() {
         <h1>{bnbBalance} BNB</h1>
       </div>
 
-      <div className="stat-card glow-red">
-        <h3>Send BNB</h3>
+     <div className="stat-card glow-red">
+  <div className="panel-header">
+    <h3>Send Crypto</h3>
+    <span>BNB Smart Chain</span>
+  </div>
 
-        <input
-          placeholder="Receiver wallet address"
-          value={sendTo}
-          onChange={(e) => setSendTo(e.target.value)}
-        />
+  <label>Receiver Address</label>
+  <input
+    className="web3-input"
+    placeholder="0x..."
+    value={sendTo}
+    onChange={(e) => setSendTo(e.target.value)}
+  />
 
-        <input
-          placeholder="Amount BNB"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
+  <label>Amount</label>
+  <div className="send-amount-row">
+    <input
+      className="web3-input"
+      placeholder="0.00"
+      value={amount}
+      onChange={(e) => setAmount(e.target.value)}
+    />
+    <span>BNB</span>
+  </div>
 
-        <button onClick={sendBNB} className="action-btn red-btn">
-          Send
-        </button>
-      </div>
-
+  <button onClick={sendBNB} className="action-btn red-btn">
+    Send Now
+  </button>
+</div>
       <div className="stat-card glow-yellow">
         <h3>Swap / Trade</h3>
         <button
