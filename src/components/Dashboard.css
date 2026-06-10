@@ -250,4 +250,24 @@
 .mobile-feature-card p{
     color:#9ca3af;
     font-size:13px;
+}.mobile-feature-card{
+    text-align:center;
+}
+
+.mobile-feature-card h3{
+    font-size:16px;
+    margin-top:10px;
+}
+
+.mobile-feature-card .icon{
+    width:48px;
+    height:48px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    background:rgba(240,185,11,.12);
+    color:#f0b90b;
+    font-size:24px;
 }

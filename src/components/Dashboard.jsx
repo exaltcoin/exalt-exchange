@@ -125,17 +125,18 @@ return (
     <button onClick={() => setPage("kyc-submit")}>✅<span>KYC</span></button>
   </div>
 
-  <div className="mobile-card-row">
-    <div onClick={() => setPage("p2p")} className="mobile-feature-card">
-      <h3>P2P Orders</h3>
-      <p>Buy/Sell Crypto</p>
-    </div>
+  <div onClick={() => setPage("p2p")} className="mobile-feature-card">
+  <div className="icon">🔁</div>
+  <h3>P2P</h3>
+  <p>Buy/Sell Crypto</p>
+</div>
 
-    <div onClick={() => setPage("wallets")} className="mobile-feature-card">
-      <h3>Deposit</h3>
-      <p>Bank Transfer / Crypto</p>
-    </div>
-  </div>
+<div onClick={() => setPage("wallets")} className="mobile-feature-card">
+  <div className="icon">💳</div>
+  <h3>Deposit</h3>
+  <p>Bank Transfer / Crypto</p>
+</div>
+  
 </div>
 <div className="mobile-trending-section">
   <h3>Trending Coins</h3>
