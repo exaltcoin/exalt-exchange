@@ -137,6 +137,36 @@ return (
     </div>
   </div>
 </div>
+<div className="mobile-trending-section">
+  <h3>Trending Coins</h3>
+
+  {coins.slice(0, 5).map((coin) => (
+    <div className="mobile-coin-row" key={coin.pairAddress}>
+      <div>
+        <strong>{coin.baseToken?.symbol}</strong>
+        <p>${Number(coin.priceUsd || 0).toFixed(6)}</p>
+      </div>
+
+      <span
+        className={
+          (coin.priceChange?.h24 || 0) >= 0
+            ? "green-text"
+            : "red-text"
+        }
+      >
+        {Number(coin.priceChange?.h24 || 0).toFixed(2)}%
+      </span>
+    </div>
+  ))}
+</div>
+
+<div className="mobile-bottom-nav">
+  <button onClick={() => setPage("dashboard")}>🏠<span>Home</span></button>
+  <button onClick={() => setPage("markets")}>📊<span>Markets</span></button>
+  <button onClick={() => setPage("trade")}>📈<span>Trade</span></button>
+  <button onClick={() => setPage("futures")}>⚡<span>Futures</span></button>
+  <button onClick={() => setPage("wallets")}>💼<span>Assets</span></button>
+</div>
     <div className="desktop-dashboard-view">
 <div className="dashboard-page">
       <div className="hero-banner">
