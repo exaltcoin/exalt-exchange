@@ -148,20 +148,32 @@ useEffect(() => {
     Send Now
   </button>
 </div>
-      <div className="stat-card glow-yellow">
-        <h3>Swap / Trade</h3>
-        <button
-          onClick={() =>
-            window.open(
-              "https://pancakeswap.finance/swap",
-              "_blank"
-            )
-          }
-          className="action-btn yellow-btn"
-        >
-          Open PancakeSwap
-        </button>
-      </div>
+    <div className="stat-card glow-yellow">
+  <h3>Swap / Trade</h3>
+
+  <label>From Coin</label>
+  <select className="web3-input">
+    <option>BNB</option>
+    <option>USDT</option>
+    <option>EXALT</option>
+  </select>
+
+  <label>To Coin</label>
+  <select className="web3-input">
+    <option>EXALT</option>
+    <option>USDT</option>
+    <option>BNB</option>
+  </select>
+
+  <input
+    className="web3-input"
+    placeholder="Enter Amount"
+  />
+
+  <button className="action-btn yellow-btn">
+    Preview Swap
+  </button>
+</div>
     </div>
   );
 }
