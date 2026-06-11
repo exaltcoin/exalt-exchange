@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import exaltLogo from "../assets/exalt-coin.png";
 import { ethers } from "ethers";
 function Web3Wallet() {
   const [wallet, setWallet] = useState("");
@@ -56,11 +57,11 @@ const loadBalances = async (walletAddress) => {
         address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
         logo: "https://cryptologos.cc/logos/generic-token-logo.png"
       },
-      {
+    {
   symbol: "EXALT",
   address: "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78",
-  logo: "/assets/exalt-logo.png"
-},
+  logo: exaltLogo
+}
     ];
 
     const ERC20_ABI = [
@@ -71,6 +72,13 @@ const loadBalances = async (walletAddress) => {
     const newBalances = {};
 
     for (const token of tokenList) {
+      if (token.symbol === "BNB") {
+  const bnbBal = await provider.getBalance(walletAddress);
+  newBalances.BNB = Number(
+    ethers.formatEther(bnbBal)
+  ).toFixed(4);
+  continue;
+}
       const contract = new ethers.Contract(
         token.address,
         ERC20_ABI,
