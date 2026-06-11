@@ -341,6 +341,29 @@ style={{
     {message}
   </div>
 )}
+{activeTab === "send" && (
+  <div className="stat-card glow-yellow">
+    <h3>Send BNB</h3>
+
+    <input
+      className="web3-input"
+      placeholder="Receiver Address"
+      value={sendTo}
+      onChange={(e) => setSendTo(e.target.value)}
+    />
+
+    <input
+      className="web3-input"
+      placeholder="Amount BNB"
+      value={amount}
+      onChange={(e) => setAmount(e.target.value)}
+    />
+
+    <button onClick={sendBNB} className="action-btn yellow-btn">
+      Send Now
+    </button>
+  </div>
+)}
 {activeTab === "history" && (
   <div className="stat-card glow-blue">
     <h3>📜 Transaction History</h3>
