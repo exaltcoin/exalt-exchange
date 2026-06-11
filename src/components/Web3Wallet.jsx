@@ -284,12 +284,13 @@ useEffect(() => {
    </div> 
 </div>
 <div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "12px",
-    marginBottom: "15px",
-  }}
+ style={{
+  display: "grid",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  rowGap: "12px",
+  columnGap: "12px",
+  marginBottom: "15px",
+}}
 >
   {[
     { icon: "📤", label: "Send", tab: "send" },
@@ -305,12 +306,10 @@ useEffect(() => {
       <div
         style={{
           background: "#2a3142",
-          width: "55px",
-          height: "55px",
-          borderRadius: "14px",
-          margin: "auto",
-          lineHeight: "55px",
-          fontSize: "24px",
+         width: "48px",
+height: "48px",
+lineHeight: "48px",
+fontSize: "20px",
         }}
       >
         {item.icon}
