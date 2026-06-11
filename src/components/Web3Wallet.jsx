@@ -176,9 +176,60 @@ useEffect(() => {
 }, []);
   return (
     <div className="wallet-page">
+      <div
+  style={{
+    textAlign: "center",
+    marginBottom: "20px",
+    padding: "15px",
+    background: "#181A20",
+    borderRadius: "12px",
+    border: "1px solid #f0b90b"
+  }}
+>
+  <h2 style={{ color: "#f0b90b", margin: 0 }}>
+    Exalt Exchange Wallet
+  </h2>
+
+  <p style={{ color: "#999", marginTop: "8px" }}>
+    Binance Style Web3 Wallet
+  </p>
+</div>
       <h1>WEB3 WALLET</h1>
       <p>Secure • Fast • Global Crypto Exchange</p>
+<div
+  style={{
+    background: "#181A20",
+    borderRadius: "16px",
+    padding: "20px",
+    marginBottom: "15px",
+    border: "1px solid #2a3142"
+  }}
+>
+  <div style={{ color: "#888", fontSize: "14px" }}>
+    Total Assets
+  </div>
 
+  <div
+    style={{
+      color: "#ffffff",
+      fontSize: "34px",
+      fontWeight: "700",
+      marginTop: "8px"
+    }}
+  >
+    ${bnbBalance ? (Number(bnbBalance) * 650).toFixed(2) : "0.00"}
+  </div>
+
+  <div
+    style={{
+      color: "#00c087",
+      marginTop: "8px",
+      fontSize: "14px"
+    }}
+  >
+    +0.71% Today
+  </div>
+</div>
       <div className="stat-card glow-yellow">
         <h2>Web3 Wallet</h2>
         <p>Connect MetaMask / Trust Wallet</p>
@@ -199,14 +250,67 @@ useEffect(() => {
         <h3>BNB Balance</h3>
         <h1>{bnbBalance} BNB</h1>
       </div>
-      <div className="stat-card glow-yellow">
-  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
-    <button onClick={() => setActiveTab("send")} className="action-btn yellow-btn">⬆ Send</button>
-    <button onClick={() => setActiveTab("receive")} className="action-btn yellow-btn">⬇ Receive</button>
-    <button onClick={() => setActiveTab("history")} className="action-btn blue-btn">📜 History</button>
-    <button onClick={() => setActiveTab("approvals")} className="action-btn blue-btn">✅ Approvals</button>
+      <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4,1fr)",
+    gap: "12px",
+    marginBottom: "15px"
+  }}
+>
+  <div style={{ textAlign: "center" }}>
+    <div style={{
+      background:"#2a3142",
+      width:"55px",
+      height:"55px",
+      borderRadius:"14px",
+      margin:"auto",
+      lineHeight:"55px",
+      fontSize:"24px"
+    }}>📤</div>
+    <div style={{marginTop:"6px"}}>Send</div>
+  </div>
+
+  <div style={{ textAlign: "center" }}>
+    <div style={{
+      background:"#2a3142",
+      width:"55px",
+      height:"55px",
+      borderRadius:"14px",
+      margin:"auto",
+      lineHeight:"55px",
+      fontSize:"24px"
+    }}>📥</div>
+    <div style={{marginTop:"6px"}}>Receive</div>
+  </div>
+
+  <div style={{ textAlign: "center" }}>
+    <div style={{
+      background:"#2a3142",
+      width:"55px",
+      height:"55px",
+      borderRadius:"14px",
+      margin:"auto",
+      lineHeight:"55px",
+      fontSize:"24px"
+    }}>📜</div>
+    <div style={{marginTop:"6px"}}>History</div>
+  </div>
+
+  <div style={{ textAlign: "center" }}>
+    <div style={{
+      background:"#2a3142",
+      width:"55px",
+      height:"55px",
+      borderRadius:"14px",
+      margin:"auto",
+      lineHeight:"55px",
+      fontSize:"24px"
+    }}>✅</div>
+    <div style={{marginTop:"6px"}}>Approvals</div>
   </div>
 </div>
+
 {message && (
   <div
     style={{
