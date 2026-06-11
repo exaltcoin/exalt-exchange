@@ -191,11 +191,10 @@ useEffect(() => {
   </h2>
 
   <p style={{ color: "#999", marginTop: "8px" }}>
-    Binance Style Web3 Wallet
+   Exalt Secure Web3 Wallet
   </p>
 </div>
-      <h1>WEB3 WALLET</h1>
-      <p>Secure • Fast • Global Crypto Exchange</p>
+
 <div
   style={{
     background: "#181A20",
@@ -208,28 +207,40 @@ useEffect(() => {
   <div style={{ color: "#888", fontSize: "14px" }}>
     Total Assets
   </div>
-
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "8px",
+  }}
+>
   <div
     style={{
       color: "#ffffff",
       fontSize: "34px",
       fontWeight: "700",
-      marginTop: "8px"
     }}
   >
     ${bnbBalance ? (Number(bnbBalance) * 650).toFixed(2) : "0.00"}
   </div>
 
-  <div
+  <button
     style={{
-      color: "#00c087",
-      marginTop: "8px",
-      fontSize: "14px"
+      background: "#f0b90b",
+      color: "#000",
+      border: "none",
+      padding: "10px 18px",
+      borderRadius: "10px",
+      fontWeight: "700",
+      cursor: "pointer",
     }}
+    onClick={() => setActiveTab("receive")}
   >
-    +0.71% Today
-  </div>
+    Receive
+  </button>
 </div>
+  
       <div className="stat-card glow-yellow">
         <h2>Web3 Wallet</h2>
         <p>Connect MetaMask / Trust Wallet</p>
@@ -270,7 +281,7 @@ useEffect(() => {
     }}>📤</div>
     <div style={{marginTop:"6px"}}>Send</div>
   </div>
-
+</div>
   <div style={{ textAlign: "center" }}>
     <div style={{
       background:"#2a3142",
