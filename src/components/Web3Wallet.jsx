@@ -11,6 +11,7 @@ const [swapAmount, setSwapAmount] = useState("");
 const [activeTab, setActiveTab] = useState("assets");
 const [txHistory, setTxHistory] = useState([]);
 const [message, setMessage] = useState("");
+const [balances, setBalances] = useState({});
   const connectWeb3 = async () => {
     if (!window.ethereum) {
       alert("Please install MetaMask or Trust Wallet");
@@ -23,8 +24,61 @@ const [message, setMessage] = useState("");
 
     setWallet(accounts[0]);
     setBnbBalance(Number(ethers.formatEther(balance)).toFixed(5));
+    await loadBalances(accounts[0]);
   };
+const loadBalances = async (walletAddress) => {
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
 
+    const tokenList = [
+      {
+        symbol: "USDT",
+        address: "0x55d398326f99059fF775485246999027B3197955"
+      },
+      {
+        symbol: "BTCB",
+        address: "0x7130d2A12B9BCbF4fF2634d864A1Ee1Ce3Ead9c"
+      },
+      {
+        symbol: "ETH",
+        address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8"
+      },
+      {
+        symbol: "CAKE",
+        address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82"
+      },
+      {
+        symbol: "EXALT",
+        address: "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78"
+      }
+    ];
+
+    const ERC20_ABI = [
+      "function balanceOf(address owner) view returns (uint256)",
+      "function decimals() view returns (uint8)"
+    ];
+
+    const newBalances = {};
+
+    for (const token of tokenList) {
+      const contract = new ethers.Contract(
+        token.address,
+        ERC20_ABI,
+        provider
+      );
+
+      const balance = await contract.balanceOf(walletAddress);
+      const decimals = await contract.decimals();
+
+      newBalances[token.symbol] =
+        Number(ethers.formatUnits(balance, decimals)).toFixed(4);
+    }
+
+    setBalances(newBalances);
+  } catch (err) {
+    console.log("Balance loading error:", err);
+  }
+};
   const copyAddress = () => {
     if (!wallet) return alert("Wallet not connected");
     navigator.clipboard.writeText(wallet);
