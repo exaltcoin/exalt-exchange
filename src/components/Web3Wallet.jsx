@@ -273,9 +273,9 @@ useEffect(() => {
  style={{
   display: "grid",
   gridTemplateColumns: "repeat(2, 1fr)",
-  rowGap: "12px",
-  columnGap: "12px",
-  marginBottom: "15px",
+  gap: "16px",
+  padding: "12px",
+  marginBottom: "20px",
 }}
 >
   {[
@@ -290,17 +290,19 @@ useEffect(() => {
       style={{ textAlign: "center", cursor: "pointer" }}
     >
       <div
-        style={{
-          background: "#2a3142",
-         width: "48px",
-height: "48px",
-lineHeight: "48px",
-fontSize: "20px",
-        }}
-      >
-        {item.icon}
-      </div>
-
+  style={{
+    background: item.tab === activeTab ? "#f0b90b" : "#2a3142",
+    width: "58px",
+    height: "58px",
+    borderRadius: "14px",
+    margin: "auto",
+    lineHeight: "58px",
+    fontSize: "26px",
+    transition: "0.3s",
+  }}
+>
+  {item.icon}
+</div>
       <div style={{ marginTop: "6px" }}>
         {item.label}
       </div>
