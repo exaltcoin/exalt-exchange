@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import exaltLogo from "/src/assets/exalt-coin.png";
+import exaltLogo from "../assets/exalt-coin.png";
 import { ethers } from "ethers";
 function Web3Wallet() {
   const [wallet, setWallet] = useState("");
