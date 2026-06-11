@@ -200,14 +200,16 @@ const loadCoins = async () => {
 
           const pair = data?.pairs?.[0];
 
-          return {
-            ...token,
-            priceUsd: pair?.priceUsd ? Number(pair.priceUsd) : 0,
-          };
+         return {
+  ...token,
+  priceUsd: pair?.priceUsd ? Number(pair.priceUsd) : 0,
+  logo: pair?.info?.imageUrl || "",
+};
         } catch {
           return {
             ...token,
             priceUsd: 0,
+            logo: "",
           };
         }
       })
@@ -480,7 +482,19 @@ style={{
     marginRight: "12px"
   }}
 >
-  {coin.symbol.charAt(0)}
+  {coin.logo ? (
+  <img
+    src={coin.logo}
+    alt={coin.symbol}
+    style={{
+      width: "32px",
+      height: "32px",
+      borderRadius: "50%"
+    }}
+  />
+) : (
+  coin.symbol.charAt(0)
+)}
 </div>
  <div
   style={{
