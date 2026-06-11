@@ -269,20 +269,6 @@ useEffect(() => {
     marginBottom: "15px"
   }}
 >
- <div style={{ textAlign: "center" }}>
-  <div
-    style={{
-      background: "#2a3142",
-      width: "55px",
-      height: "55px",
-      borderRadius: "14px",
-      margin: "auto",
-      lineHeight: "55px",
-      fontSize: "24px",
-    }}
-  >
-   </div> 
-</div>
 <div
  style={{
   display: "grid",
