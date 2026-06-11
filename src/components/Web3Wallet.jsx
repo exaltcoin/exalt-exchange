@@ -270,12 +270,14 @@ useEffect(() => {
   }}
 >
 <div
- style={{
+style={{
   display: "grid",
   gridTemplateColumns: "repeat(2, 1fr)",
   gap: "16px",
   padding: "12px",
   marginBottom: "20px",
+  justifyItems: "center",
+  alignItems: "center",
 }}
 >
   {[
@@ -298,6 +300,7 @@ useEffect(() => {
     margin: "auto",
     lineHeight: "58px",
     fontSize: "26px",
+    boxShadow: "0 0 12px rgba(240,185,11,0.25)",
     transition: "0.3s",
   }}
 >
