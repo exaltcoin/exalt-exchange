@@ -126,50 +126,43 @@ const executeSwap = async () => {
 const [coins, setCoins] = useState([]);
 const [search, setSearch] = useState("");
 const loadCoins = async () => {
-  setCoins([
-    {
-      symbol: "BNB",
-      name: "BNB",
-      chain: "BSC",
-      priceUsd: 650,
-      address: WBNB,
-    },
-    {
-      symbol: "USDT",
-      name: "Tether USD",
-      chain: "BSC",
-      priceUsd: 1,
-      address: USDT,
-    },
-    {
-      symbol: "EXALT",
-      name: "Exalt Coin",
-      chain: "BSC",
-      priceUsd: 0.001,
-      address: EXALT,
-    },
-    {
-      symbol: "BTCB",
-      name: "Bitcoin",
-      chain: "BSC",
-      priceUsd: 100000,
-      address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
-    },
-    {
-      symbol: "ETH",
-      name: "Ethereum",
-      chain: "BSC",
-      priceUsd: 2500,
-      address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
-    },
-    {
-      symbol: "CAKE",
-      name: "PancakeSwap",
-      chain: "BSC",
-      priceUsd: 3,
-      address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
-    },
-  ]);
+  const tokens = [
+    { symbol: "BNB", name: "BNB", chain: "BSC", address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c" },
+    { symbol: "USDT", name: "Tether USD", chain: "BSC", address: "0x55d398326f99059fF775485246999027B3197955" },
+    { symbol: "BTCB", name: "Bitcoin", chain: "BSC", address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c" },
+    { symbol: "ETH", name: "Ethereum", chain: "BSC", address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8" },
+    { symbol: "CAKE", name: "PancakeSwap", chain: "BSC", address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82" },
+    { symbol: "EXALT", name: "Exalt Coin", chain: "BSC", address: "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78" },
+  ];
+
+  try {
+    const result = await Promise.all(
+      tokens.map(async (token) => {
+        try {
+          const res = await fetch(
+            `https://api.dexscreener.com/latest/dex/tokens/${token.address}`
+          );
+          const data = await res.json();
+
+          const pair = data?.pairs?.[0];
+
+          return {
+            ...token,
+            priceUsd: pair?.priceUsd ? Number(pair.priceUsd) : 0,
+          };
+        } catch {
+          return {
+            ...token,
+            priceUsd: 0,
+          };
+        }
+      })
+    );
+
+    setCoins(result);
+  } catch (error) {
+    console.log("Coins loading error:", error);
+  }
 };
 useEffect(() => {
   loadCoins();
