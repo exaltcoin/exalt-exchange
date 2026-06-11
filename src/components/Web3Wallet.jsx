@@ -269,32 +269,40 @@ useEffect(() => {
     marginBottom: "15px"
   }}
 >
-  <div style={{ textAlign: "center" }}>
-    <div style={{
-      background:"#2a3142",
-      width:"55px",
-      height:"55px",
-      borderRadius:"14px",
-      margin:"auto",
-      lineHeight:"55px",
-      fontSize:"24px"
-    }}>📤</div>
-    <div style={{marginTop:"6px"}}>Send</div>
+ <div style={{ textAlign: "center" }}>
+  <div
+    style={{
+      background: "#2a3142",
+      width: "55px",
+      height: "55px",
+      borderRadius: "14px",
+      margin: "auto",
+      lineHeight: "55px",
+      fontSize: "24px",
+    }}
+  >
+    📤
   </div>
+  <div style={{ marginTop: "6px" }}>Send</div>
 </div>
-  <div style={{ textAlign: "center" }}>
-    <div style={{
-      background:"#2a3142",
-      width:"55px",
-      height:"55px",
-      borderRadius:"14px",
-      margin:"auto",
-      lineHeight:"55px",
-      fontSize:"24px"
-    }}>📥</div>
-    <div style={{marginTop:"6px"}}>Receive</div>
-  </div>
 
+<div style={{ textAlign: "center" }}>
+  <div
+    style={{
+      background: "#2a3142",
+      width: "55px",
+      height: "55px",
+      borderRadius: "14px",
+      margin: "auto",
+      lineHeight: "55px",
+      fontSize: "24px",
+    }}
+  >
+    📥
+  </div>
+  <div style={{ marginTop: "6px" }}>Receive</div>
+</div>
+</div>
   <div style={{ textAlign: "center" }}>
     <div style={{
       background:"#2a3142",
