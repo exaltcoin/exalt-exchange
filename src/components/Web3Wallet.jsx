@@ -281,53 +281,49 @@ useEffect(() => {
       fontSize: "24px",
     }}
   >
-    📤
-  </div>
-  <div style={{ marginTop: "6px" }}>Send</div>
+   </div> 
+</div>
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "12px",
+    marginBottom: "15px",
+  }}
+>
+  {[
+    { icon: "📤", label: "Send", tab: "send" },
+    { icon: "📥", label: "Receive", tab: "receive" },
+    { icon: "📜", label: "History", tab: "history" },
+    { icon: "✅", label: "Approvals", tab: "approvals" },
+  ].map((item) => (
+    <div
+      key={item.tab}
+      onClick={() => setActiveTab(item.tab)}
+      style={{ textAlign: "center", cursor: "pointer" }}
+    >
+      <div
+        style={{
+          background: "#2a3142",
+          width: "55px",
+          height: "55px",
+          borderRadius: "14px",
+          margin: "auto",
+          lineHeight: "55px",
+          fontSize: "24px",
+        }}
+      >
+        {item.icon}
+      </div>
+
+      <div style={{ marginTop: "6px" }}>
+        {item.label}
+      </div>
+    </div>
+  ))}
 </div>
 
-<div style={{ textAlign: "center" }}>
-  <div
-    style={{
-      background: "#2a3142",
-      width: "55px",
-      height: "55px",
-      borderRadius: "14px",
-      margin: "auto",
-      lineHeight: "55px",
-      fontSize: "24px",
-    }}
-  >
-    📥
-  </div>
-  <div style={{ marginTop: "6px" }}>Receive</div>
 </div>
-</div>
-  <div style={{ textAlign: "center" }}>
-    <div style={{
-      background:"#2a3142",
-      width:"55px",
-      height:"55px",
-      borderRadius:"14px",
-      margin:"auto",
-      lineHeight:"55px",
-      fontSize:"24px"
-    }}>📜</div>
-    <div style={{marginTop:"6px"}}>History</div>
-  </div>
-
-  <div style={{ textAlign: "center" }}>
-    <div style={{
-      background:"#2a3142",
-      width:"55px",
-      height:"55px",
-      borderRadius:"14px",
-      margin:"auto",
-      lineHeight:"55px",
-      fontSize:"24px"
-    }}>✅</div>
-    <div style={{marginTop:"6px"}}>Approvals</div>
-  </div>
 </div>
 
 {message && (
