@@ -293,14 +293,24 @@ style={{
     >
       <div
   style={{
-    background: item.tab === activeTab ? "#f0b90b" : "#2a3142",
+   background:
+  item.tab === activeTab
+    ? "linear-gradient(135deg,#f0b90b,#ffcc33)"
+    : "#2a3142",
+    border:
+  item.tab === activeTab
+    ? "2px solid #f0b90b"
+    : "1px solid #3a4458",
     width: "58px",
     height: "58px",
     borderRadius: "14px",
     margin: "auto",
     lineHeight: "58px",
     fontSize: "26px",
-    boxShadow: "0 0 12px rgba(240,185,11,0.25)",
+    boxShadow:
+  item.tab === activeTab
+    ? "0 0 20px rgba(240,185,11,0.45)"
+    : "0 0 12px rgba(255,255,255,0.05)",
     transition: "0.3s",
   }}
 >
