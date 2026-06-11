@@ -8,6 +8,9 @@ function Web3Wallet() {
 const [fromCoin, setFromCoin] = useState("BNB");
 const [toCoin, setToCoin] = useState("EXALT");
 const [swapAmount, setSwapAmount] = useState("");
+const [activeTab, setActiveTab] = useState("assets");
+const [txHistory, setTxHistory] = useState([]);
+const [message, setMessage] = useState("");
   const connectWeb3 = async () => {
     if (!window.ethereum) {
       alert("Please install MetaMask or Trust Wallet");
@@ -39,6 +42,17 @@ const [swapAmount, setSwapAmount] = useState("");
       to: sendTo,
       value: ethers.parseEther(amount),
     });
+setTxHistory(prev => [
+  {
+    type: "Send",
+    amount: amount + " BNB",
+    status: "Completed",
+    hash: tx.hash
+  },
+  ...prev
+]);
+
+setMessage("✅ Transaction added to history");
 
     alert("Transaction sent: " + tx.hash);
   };
@@ -181,11 +195,57 @@ useEffect(() => {
           Copy Address / Receive
         </button>
       </div>
-
       <div className="stat-card glow-green">
         <h3>BNB Balance</h3>
         <h1>{bnbBalance} BNB</h1>
       </div>
+      <div className="stat-card glow-yellow">
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
+    <button onClick={() => setActiveTab("send")} className="action-btn yellow-btn">⬆ Send</button>
+    <button onClick={() => setActiveTab("receive")} className="action-btn yellow-btn">⬇ Receive</button>
+    <button onClick={() => setActiveTab("history")} className="action-btn blue-btn">📜 History</button>
+    <button onClick={() => setActiveTab("approvals")} className="action-btn blue-btn">✅ Approvals</button>
+  </div>
+</div>
+{message && (
+  <div
+    style={{
+      background: "#0f172a",
+      border: "1px solid #f0b90b",
+      color: "#f0b90b",
+      padding: "12px",
+      borderRadius: "10px",
+      marginBottom: "15px",
+      fontWeight: "600",
+    }}
+  >
+    {message}
+  </div>
+)}
+{activeTab === "history" && (
+  <div className="stat-card glow-blue">
+    <h3>📜 Transaction History</h3>
+
+    {txHistory.length === 0 ? (
+      <p>No transactions yet</p>
+    ) : (
+      txHistory.map((tx, index) => (
+        <div
+          key={index}
+          style={{
+            padding: "10px",
+            borderBottom: "1px solid #2a3142",
+            marginTop: "8px"
+          }}
+        >
+          <div><b>Type:</b> {tx.type}</div>
+          <div><b>Amount:</b> {tx.amount}</div>
+          <div><b>Status:</b> {tx.status}</div>
+        </div>
+      ))
+    )}
+  </div>
+)}
 <div className="stat-card glow-yellow">
   <h3>All Web3 Coins</h3>
 <input
