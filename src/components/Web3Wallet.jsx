@@ -35,27 +35,27 @@ const loadBalances = async (walletAddress) => {
       {
   symbol: "BNB",
   address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
-  logo: "https://cryptologos.cc/logos/bnb-bnb-logo.png"
+ logo: "https://bin.bnbstatic.com/static/assets/logos/BNB.png"
 },
       {
   symbol: "USDT",
   address: "0x55d398326f99059fF775485246999027B3197955",
- logo: "https://cryptologos.cc/logos/tether-usdt-logo.png"
+ logo: "https://bin.bnbstatic.com/static/assets/logos/USDT.png"
 },
       {
         symbol: "BTCB",
         address: "0x7130d2A12B9BCbF4fF2634d864A1Ee1Ce3Ead9c",
-        logo: "https://cryptologos.cc/logos/bitcoin-btc-logo.png"
+        logo: "https://bin.bnbstatic.com/static/assets/logos/BTCB.png"
       },
       {
         symbol: "ETH",
         address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
-        logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png"
+       logo: "https://bin.bnbstatic.com/static/assets/logos/ETH.png"
       },
       {
         symbol: "CAKE",
         address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
-        logo: "https://cryptologos.cc/logos/generic-token-logo.png"
+       logo: "https://bin.bnbstatic.com/static/assets/logos/CAKE.png"
       },
     {
   symbol: "EXALT",
