@@ -71,34 +71,42 @@ const loadBalances = async (walletAddress) => {
       "function decimals() view returns (uint8)"
     ];
 
-    const newBalances = {};
-
-    for (const token of tokenList) {
-      if (token.symbol === "BNB") {
-  const bnbBal = await provider.getBalance(walletAddress);
-  newBalances.BNB = Number(
-    ethers.formatEther(bnbBal)
-  ).toFixed(4);
-  continue;
-}
-      const contract = new ethers.Contract(
-        token.address,
-        ERC20_ABI,
-        provider
-      );
-
-  const balance = await contract.balanceOf(walletAddress);
-
-let decimals = 18;
-try {
-  decimals = await contract.decimals();
-} catch (e) {
-  decimals = 18;
-}
-
-      newBalances[token.symbol] =
-        Number(ethers.formatUnits(balance, decimals)).toFixed(4);
+   for (const token of tokenList) {
+  try {
+    if (token.symbol === "BNB") {
+      const bnbBal = await provider.getBalance(walletAddress);
+      newBalances.BNB = Number(
+        ethers.formatEther(bnbBal)
+      ).toFixed(4);
+      continue;
     }
+
+    const contract = new ethers.Contract(
+      token.address,
+      ERC20_ABI,
+      provider
+    );
+
+    let balance = 0n;
+    let decimals = 18;
+
+    try {
+      balance = await contract.balanceOf(walletAddress);
+      decimals = await contract.decimals();
+    } catch (e) {
+      console.log(`${token.symbol} balance skipped:`, e.message);
+      newBalances[token.symbol] = "0.0000";
+      continue;
+    }
+
+    newBalances[token.symbol] =
+      Number(ethers.formatUnits(balance, decimals)).toFixed(4);
+
+  } catch (e) {
+    console.log(`${token.symbol} error:`, e.message);
+    newBalances[token.symbol] = "0.0000";
+  }
+}
 
     setBalances(newBalances);
   } catch (err) {
