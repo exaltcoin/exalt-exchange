@@ -85,8 +85,14 @@ const loadBalances = async (walletAddress) => {
         provider
       );
 
-      const balance = await contract.balanceOf(walletAddress);
-      const decimals = await contract.decimals();
+  const balance = await contract.balanceOf(walletAddress);
+
+let decimals = 18;
+try {
+  decimals = await contract.decimals();
+} catch (e) {
+  decimals = 18;
+}
 
       newBalances[token.symbol] =
         Number(ethers.formatUnits(balance, decimals)).toFixed(4);
