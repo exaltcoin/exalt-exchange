@@ -500,7 +500,17 @@ style={{
     marginRight: "12px"
   }}
 >
-  {coin.logo ? (
+ {coin.symbol === "EXALT" ? (
+  <img
+    src={exaltLogo}
+    alt="EXALT"
+    style={{
+      width: "32px",
+      height: "32px",
+      borderRadius: "50%"
+    }}
+  />
+) : coin.logo ? (
   <img
     src={coin.logo}
     alt={coin.symbol}
