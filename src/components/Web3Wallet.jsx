@@ -14,6 +14,7 @@ const [txHistory, setTxHistory] = useState([]);
 const [message, setMessage] = useState("");
 const [balances, setBalances] = useState({});
 const [search, setSearch] = useState("");
+const [coins, setCoins] = useState([]);
   const connectWeb3 = async () => {
     if (!window.ethereum) {
       alert("Please install MetaMask or Trust Wallet");
