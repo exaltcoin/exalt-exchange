@@ -201,47 +201,30 @@ const executeSwap = async () => {
 
   alert("Token to token swap next step: use BNB route");
 };
-const [coins, setCoins] = useState([]);
-const [search, setSearch] = useState("");
 const loadCoins = async () => {
-  const tokens = [
-    { symbol: "BNB", name: "BNB", chain: "BSC", address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c" },
-    { symbol: "USDT", name: "Tether USD", chain: "BSC", address: "0x55d398326f99059fF775485246999027B3197955" },
-    { symbol: "BTCB", name: "Bitcoin", chain: "BSC", address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c" },
-    { symbol: "ETH", name: "Ethereum", chain: "BSC", address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8" },
-    { symbol: "CAKE", name: "PancakeSwap", chain: "BSC", address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82" },
-    { symbol: "EXALT", name: "Exalt Coin", chain: "BSC", address: "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78" },
-  ];
-
   try {
-    const result = await Promise.all(
-      tokens.map(async (token) => {
-        try {
-          const res = await fetch(
-            `https://api.dexscreener.com/latest/dex/tokens/${token.address}`
-          );
-          const data = await res.json();
-
-          const pair = data?.pairs?.[0];
-
-         return {
-  ...token,
-  priceUsd: pair?.priceUsd ? Number(pair.priceUsd) : 0,
-  logo: pair?.info?.imageUrl || "",
-};
-        } catch {
-          return {
-            ...token,
-            priceUsd: 0,
-            logo: "",
-          };
-        }
-      })
+    const res = await fetch(
+      "https://exalt-exchange-backend.onrender.com/api/dex/search/bnb"
     );
-console.log(result);
-    setCoins(result);
+
+    const data = await res.json();
+    const pairs = data?.data?.pairs || [];
+
+    const liveCoins = pairs
+      .filter((p) => p.chainId === "bsc")
+      .slice(0, 100)
+      .map((p) => ({
+        symbol: p.baseToken?.symbol || "UNKNOWN",
+        name: p.baseToken?.name || "Unknown Coin",
+        chain: "BSC",
+        address: p.baseToken?.address || "",
+        priceUsd: Number(p.priceUsd || 0),
+        logo: p.info?.imageUrl || "",
+      }));
+
+    setCoins(liveCoins);
   } catch (error) {
-    console.log("Coins loading error:", error);
+    console.log("Live Web3 coins loading error:", error);
   }
 };
 useEffect(() => {
