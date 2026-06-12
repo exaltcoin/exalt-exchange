@@ -517,15 +517,18 @@ style={{
     }}
   />
 ) : coin.logo ? (
-  <img
-    src={coin.logo}
-    alt={coin.symbol}
-    style={{
-      width: "32px",
-      height: "32px",
-      borderRadius: "50%"
-    }}
-  />
+ <img
+  src={coin.logo}
+  alt={coin.symbol}
+  onError={(e) => {
+    console.log("Logo failed:", coin.symbol, coin.logo);
+  }}
+  style={{
+    width: "32px",
+    height: "32px",
+    borderRadius: "50%"
+  }}
+/>
 ) : (
   coin.symbol.charAt(0)
 )}
