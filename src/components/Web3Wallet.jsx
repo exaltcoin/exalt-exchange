@@ -35,27 +35,27 @@ const loadBalances = async (walletAddress) => {
       {
   symbol: "BNB",
   address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
- logo: "https://bin.bnbstatic.com/static/assets/logos/BNB.png"
+ logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png"
 },
       {
   symbol: "USDT",
   address: "0x55d398326f99059fF775485246999027B3197955",
- logo: "https://bin.bnbstatic.com/static/assets/logos/USDT.png"
+  logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png"
 },
       {
         symbol: "BTCB",
         address: "0x7130d2A12B9BCbF4fF2634d864A1Ee1Ce3Ead9c",
-        logo: "https://bin.bnbstatic.com/static/assets/logos/BTCB.png"
+       logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png"
       },
       {
         symbol: "ETH",
         address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
-       logo: "https://bin.bnbstatic.com/static/assets/logos/ETH.png"
+      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png"
       },
       {
         symbol: "CAKE",
         address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
-       logo: "https://bin.bnbstatic.com/static/assets/logos/CAKE.png"
+       logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/7186.png"
       },
     {
   symbol: "EXALT",
