@@ -205,26 +205,35 @@ const executeSwap = async () => {
 };
 const loadCoins = async () => {
   try {
-    const res = await fetch(
-      "https://exalt-exchange-backend.onrender.com/api/dex/search/bnb"
+    const queries = ["bnb", "usdt", "btc", "eth", "cake", "doge", "shib", "pepe"];
+
+    const responses = await Promise.all(
+      queries.map((q) =>
+        fetch(`https://exalt-exchange-backend.onrender.com/api/dex/search/${q}`)
+          .then((res) => res.json())
+      )
     );
 
-    const data = await res.json();
-    const pairs = data?.data?.pairs || [];
+    const allPairs = responses.flatMap((data) => data?.data?.pairs || []);
+    const unique = {};
 
-    const liveCoins = pairs
-      .filter((p) => p.chainId === "bsc")
-      .slice(0, 100)
-      .map((p) => ({
-        symbol: p.baseToken?.symbol || "UNKNOWN",
-        name: p.baseToken?.name || "Unknown Coin",
-        chain: "BSC",
-        address: p.baseToken?.address || "",
-        priceUsd: Number(p.priceUsd || 0),
-        logo: p.info?.imageUrl || "",
-      }));
+    allPairs.forEach((p) => {
+      const address = p.baseToken?.address;
+      if (!address) return;
 
-    setCoins(liveCoins);
+      if (p.chainId === "bsc" && !unique[address]) {
+        unique[address] = {
+          symbol: p.baseToken?.symbol || "UNKNOWN",
+          name: p.baseToken?.name || "Unknown Coin",
+          chain: "BSC",
+          address,
+          priceUsd: Number(p.priceUsd || 0),
+          logo: p.info?.imageUrl || "",
+        };
+      }
+    });
+
+    setCoins(Object.values(unique).slice(0, 300));
   } catch (error) {
     console.log("Live Web3 coins loading error:", error);
   }
