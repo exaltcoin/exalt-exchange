@@ -31,6 +31,7 @@ const [coins, setCoins] = useState([]);
   };
 const loadBalances = async (walletAddress) => {
   try {
+    const newBalances = {};
     const provider = new ethers.BrowserProvider(window.ethereum);
 
     const tokenList = [
