@@ -454,8 +454,8 @@ style={{
   className="web3-input"
   style={{ marginBottom: "10px" }}
 />
-{coins
-.filter(
+{(coins || [])
+  .filter(
   (coin) =>
     coin.name.toLowerCase().includes(search.toLowerCase()) ||
     coin.symbol.toLowerCase().includes(search.toLowerCase())
