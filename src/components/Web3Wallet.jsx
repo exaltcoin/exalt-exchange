@@ -462,16 +462,23 @@ style={{
     <div
   key={index}
   style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "10px",
-    marginBottom: "12px",
-    padding: "12px",
-    background: "#1a1f2e",
-    border: "1px solid #2a3142",
-    borderRadius: "12px"
-  }}
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: "10px",
+  marginBottom: "12px",
+  padding: "12px",
+  background: "#1a1f2e",
+  border: "1px solid #2a3142",
+  borderRadius: "12px",
+  cursor: "pointer",
+  transition: "0.2s",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.25)"
+}}
+onClick={() => {
+  setFromCoin("BNB");
+  setToCoin(coin.symbol);
+}}
 >
     <div
   style={{
@@ -498,16 +505,18 @@ style={{
     }}
   />
 ) : coin.logo ? (
- <img
+<img
   src={coin.logo}
   alt={coin.symbol}
   onError={(e) => {
-    console.log("Logo failed:", coin.symbol, coin.logo);
+    e.target.src = exaltLogo;
   }}
   style={{
-    width: "32px",
-    height: "32px",
-    borderRadius: "50%"
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    objectFit: "cover",
+    border: "1px solid #333"
   }}
 />
 ) : (
@@ -540,16 +549,27 @@ style={{
     textAlign: "right"
   }}
 >
-  <div
-    style={{
-      color: "#f0b90b",
-      fontSize: "18px",
-      fontWeight: "700"
-    }}
-  >
-    ${Number(coin.priceUsd || 0).toFixed(6)}
-  </div> 
-
+ <div
+  style={{
+    color: "#f0b90b",
+    fontSize: "17px",
+    fontWeight: "700"
+  }}
+>
+  ${Number(coin.priceUsd || 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6
+  })}
+</div>
+<div
+  style={{
+    fontSize: "11px",
+    color: "#00c853",
+    marginTop: "2px"
+  }}
+>
+  Vol: ${Number(coin.volume24h || 0).toLocaleString()}
+</div>
   <div
     style={{
      fontSize: "12px",
@@ -557,6 +577,15 @@ fontWeight: "600",
       color: "#888"
     }}
   >
+  <div
+  style={{
+    fontSize: "11px",
+    color: "#999",
+    marginTop: "2px"
+  }}
+>
+  MC: ${Number(coin.marketCap || 0).toLocaleString()}
+</div>
     BSC
   </div>
 </div>
