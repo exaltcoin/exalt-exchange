@@ -220,7 +220,7 @@ const loadCoins = async () => {
 
     const data = await res.json();
 
-    setCoins(data.coins || []);
+   setCoins(data.coins || [])
   } catch (error) {
     console.log("Live Web3 coins loading error:", error);
   }
@@ -442,7 +442,14 @@ style={{
     )}
   </div>
 )}
-<div className="stat-card glow-yellow">
+<div
+  className="stat-card glow-yellow"
+  style={{
+    maxHeight: "520px",
+    overflowY: "auto",
+    paddingRight: "6px"
+  }}
+>
   <h3>All Web3 Coins</h3>
 <input
   type="text"
