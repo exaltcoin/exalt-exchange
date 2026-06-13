@@ -457,8 +457,26 @@ style={{
   value={search}
   onChange={(e) => setSearch(e.target.value)}
   className="web3-input"
-  style={{ marginBottom: "10px" }}
 />
+  <div style={{ display: "flex", gap: "6px", marginBottom: "10px", overflowX: "auto" }}>
+  {["EXALT", "BNB", "BTC", "ETH", "USDT"].map((s) => (
+    <button
+      key={s}
+      onClick={() => setSearch(s)}
+      style={{
+        padding: "6px 10px",
+        borderRadius: "20px",
+        border: "1px solid #f0b90b",
+        background: "#181a20",
+        color: "#f0b90b",
+        fontWeight: "700"
+      }}
+    >
+      {s}
+    </button>
+  ))}
+</div>
+
 {(coins || [])
   .filter(
   (coin) =>
