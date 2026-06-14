@@ -387,39 +387,6 @@ useEffect(() => {
           Copy Address / Receive
         </button>
       </div>
-      {activeTab === "receive" && (
-  <div className="stat-card glow-blue">
-    <h3>Receive Crypto</h3>
-
-    <div
-      style={{
-        background: "#fff",
-        padding: "15px",
-        borderRadius: "12px",
-        display: "inline-block",
-        marginTop: "10px"
-      }}
-    >
-      <QRCode value={wallet || "No Wallet"} size={180} />
-    </div>
-
-    <p
-      style={{
-        marginTop: "15px",
-        wordBreak: "break-all"
-      }}
-    >
-      {wallet}
-    </p>
-
-    <button
-      onClick={copyAddress}
-      className="action-btn blue-btn"
-    >
-      Copy Address
-    </button>
-  </div>
-)}
       <div className="stat-card glow-green">
         <h3>BNB Balance</h3>
         <h1>{bnbBalance} BNB</h1>
@@ -503,7 +470,42 @@ style={{
   >
     {message}
   </div>
-)}
+  )}
+ 
+{activeTab === "receive" && (
+  <div className="stat-card glow-blue">
+    <h3>Receive Crypto</h3>
+
+    <div
+      style={{
+        background: "#fff",
+        padding: "15px",
+        borderRadius: "12px",
+        display: "inline-block",
+        marginTop: "10px"
+      }}
+    >
+      <QRCode value={wallet || "No Wallet"} size={180} />
+    </div>
+
+    <p
+      style={{
+        marginTop: "15px",
+        wordBreak: "break-all"
+      }}
+    >
+      {wallet}
+    </p>
+
+    <button
+      onClick={copyAddress}
+      className="action-btn blue-btn"
+    >
+      Copy Address
+    </button>
+  </div>
+  )}
+ 
 {activeTab === "send" && (
   <div className="stat-card glow-yellow">
     <h3>Send BNB</h3>
