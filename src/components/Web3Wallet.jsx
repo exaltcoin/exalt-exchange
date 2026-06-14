@@ -687,7 +687,7 @@ style={{
           <div><b>Time:</b> {tx.time}</div>
 
 <div style={{fontSize:"11px", color:"#888"}}>
-  {tx.hash}
+ {tx.hash ? String(tx.hash).slice(0,12) + "..." + String(tx.hash).slice(-6) : "No hash"}
 </div>
         </div>
       ))
