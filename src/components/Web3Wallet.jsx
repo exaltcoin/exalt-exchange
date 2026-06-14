@@ -13,7 +13,33 @@ const [swapAmount, setSwapAmount] = useState("");
 const [receiveCoin, setReceiveCoin] = useState("BNB");
 const [activeTab, setActiveTab] = useState("assets");
 const [txHistory, setTxHistory] = useState([]);
+useEffect(() => {
+  const saved = localStorage.getItem("exalt_tx_history");
+
+  if (saved) {
+    setTxHistory(JSON.parse(saved));
+  }
+}, []);
 const [message, setMessage] = useState("");
+const saveTx = (type, hash, amount, coin) => {
+}
+ const updatedHistory = [
+  {
+    type,
+    hash,
+    amount,
+    coin,
+    time: new Date().toLocaleString()
+  },
+  ...txHistory
+];
+
+setTxHistory(updatedHistory);
+
+localStorage.setItem(
+  "exalt_tx_history",
+  JSON.stringify(updatedHistory)
+);
 const [balances, setBalances] = useState({});
 const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
@@ -180,7 +206,8 @@ setTxHistory(prev => [
     type: "Send",
     amount: amount + " BNB",
     status: "Completed",
-    hash: tx.hash
+    hash: tx.hash,
+    time: new Date().toLocaleString()
   },
   ...prev
 ]);
@@ -278,6 +305,7 @@ const executeSwap = async () => {
       deadline,
       { value: ethers.parseEther(swapAmount) }
     );
+    saveTx("SWAP", tx.hash, swapAmount, toCoin);
     alert("Swap sent: " + tx.hash);
     return;
   }
@@ -656,6 +684,11 @@ style={{
           <div><b>Type:</b> {tx.type}</div>
           <div><b>Amount:</b> {tx.amount}</div>
           <div><b>Status:</b> {tx.status}</div>
+          <div><b>Time:</b> {tx.time}</div>
+
+<div style={{fontSize:"11px", color:"#888"}}>
+  {tx.hash}
+</div>
         </div>
       ))
     )}
