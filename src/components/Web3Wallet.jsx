@@ -184,6 +184,8 @@ const ROUTER_ABI = [
 const TOKEN_ABI = [
   "function approve(address spender,uint256 amount) external returns(bool)",
   "function decimals() view returns(uint8)",
+  "function transfer(address to,uint256 amount) external returns(bool)",
+  "function balanceOf(address account) view returns(uint256)",
 ];
 
 const getTokenAddress = (symbol) => {
@@ -192,7 +194,30 @@ const getTokenAddress = (symbol) => {
   if (symbol === "EXALT") return EXALT;
   return EXALT;
 };
+const sendEXALT = async () => {
+  if (!wallet) return alert("Connect wallet first");
+  if (!sendTo || !amount) return alert("Enter receiver address and amount");
 
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+
+  const token = new ethers.Contract(
+    EXALT,
+    TOKEN_ABI,
+    signer
+  );
+
+  const decimals = await token.decimals();
+
+  const tx = await token.transfer(
+    sendTo,
+    ethers.parseUnits(amount, decimals)
+  );
+
+  await tx.wait();
+
+  alert("EXALT sent successfully: " + tx.hash);
+};
 const executeSwap = async () => {
   if (!wallet) return alert("Connect wallet first");
   if (!swapAmount) return alert("Enter swap amount");
