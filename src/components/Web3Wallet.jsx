@@ -218,6 +218,30 @@ const sendEXALT = async () => {
 
   alert("EXALT sent successfully: " + tx.hash);
 };
+const sendUSDT = async () => {
+  if (!wallet) return alert("Connect wallet first");
+  if (!sendTo || !amount) return alert("Enter receiver address and amount");
+
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+
+  const token = new ethers.Contract(
+    USDT,
+    TOKEN_ABI,
+    signer
+  );
+
+  const decimals = await token.decimals();
+
+  const tx = await token.transfer(
+    sendTo,
+    ethers.parseUnits(amount, decimals)
+  );
+
+  await tx.wait();
+
+  alert("USDT sent successfully: " + tx.hash);
+};
 const executeSwap = async () => {
   if (!wallet) return alert("Connect wallet first");
   if (!swapAmount) return alert("Enter swap amount");
@@ -469,6 +493,19 @@ style={{
     </button>
   </div>
 )}
+<button
+  onClick={sendEXALT}
+  className="action-btn"
+>
+  Send EXALT
+</button>
+
+<button
+  onClick={sendUSDT}
+  className="action-btn"
+>
+  Send USDT
+</button>
 {activeTab === "history" && (
   <div className="stat-card glow-blue">
     <h3>📜 Transaction History</h3>
