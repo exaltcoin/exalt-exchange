@@ -602,8 +602,16 @@ style={{
  
 {activeTab === "send" && (
   <div className="stat-card glow-yellow">
-    <h3>Send BNB</h3>
-
+   <h3>Send {sendCoin}</h3>
+<select
+  className="web3-input"
+  value={sendCoin}
+  onChange={(e) => setSendCoin(e.target.value)}
+>
+  <option value="BNB">BNB</option>
+  <option value="EXALT">EXALT</option>
+  <option value="USDT">USDT</option>
+</select>
     <input
       className="web3-input"
       placeholder="Receiver Address"
@@ -613,12 +621,21 @@ style={{
 
     <input
       className="web3-input"
-      placeholder="Amount BNB"
+    placeholder={`Amount ${sendCoin}`}
       value={amount}
       onChange={(e) => setAmount(e.target.value)}
     />
 
-    <button onClick={sendBNB} className="action-btn yellow-btn">
+  <button
+  onClick={
+    sendCoin === "BNB"
+      ? sendBNB
+      : sendCoin === "EXALT"
+      ? sendEXALT
+      : sendUSDT
+  }
+  className="action-btn yellow-btn"
+>
       Send Now
     </button>
   </div>
