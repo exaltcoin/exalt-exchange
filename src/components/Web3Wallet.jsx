@@ -11,6 +11,7 @@ const [fromCoin, setFromCoin] = useState("BNB");
 const [toCoin, setToCoin] = useState("EXALT");
 const [swapAmount, setSwapAmount] = useState("");
 const [receiveCoin, setReceiveCoin] = useState("BNB");
+const [sendCoin, setSendCoin] = useState("BNB");
 const [activeTab, setActiveTab] = useState("assets");
 const [txHistory, setTxHistory] = useState([]);
 useEffect(() => {
