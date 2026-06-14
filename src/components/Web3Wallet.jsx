@@ -125,6 +125,18 @@ const loadBalances = async (walletAddress) => {
     if (!sendTo || !amount) return alert("Enter receiver address and amount");
 
     const provider = new ethers.BrowserProvider(window.ethereum);
+    const network = await provider.getNetwork();
+
+if (Number(network.chainId) !== 56) {
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x38" }],
+    });
+  } catch (switchError) {
+    return alert("Please switch your wallet to BNB Smart Chain.");
+  }
+}
     const signer = await provider.getSigner();
 const balance = await provider.getBalance(wallet);
 
@@ -138,6 +150,13 @@ if (balance < sendAmount + gasReserve) {
       to: sendTo,
      value: sendAmount, 
     });
+    await tx.wait();
+
+const explorerUrl = `https://bscscan.com/tx/${tx.hash}`;
+
+setMessage(
+  `✅ Transaction Confirmed: ${explorerUrl}`
+);
 setTxHistory(prev => [
   {
     type: "Send",
