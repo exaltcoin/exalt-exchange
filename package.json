@@ -18,6 +18,7 @@
     "react": "latest",
     "react-dom": "latest",
     "react-phone-input-2": "^2.15.1",
+    "react-qr-code": "^2.2.0",
     "react-select": "^5.10.2",
     "react-select-country-list": "^2.2.3",
     "socket.io-client": "^4.8.3",
