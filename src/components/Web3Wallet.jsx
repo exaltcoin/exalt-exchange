@@ -10,10 +10,12 @@ function Web3Wallet() {
 const [fromCoin, setFromCoin] = useState("BNB");
 const [toCoin, setToCoin] = useState("EXALT");
 const [swapAmount, setSwapAmount] = useState("");
+const [receiveCoin, setReceiveCoin] = useState("BNB");
 const [activeTab, setActiveTab] = useState("assets");
 const [txHistory, setTxHistory] = useState([]);
 const [message, setMessage] = useState("");
 const [balances, setBalances] = useState({});
+const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
 const [coins, setCoins] = useState([]);
   const connectWeb3 = async () => {
@@ -109,7 +111,13 @@ const loadBalances = async (walletAddress) => {
     newBalances[token.symbol] = "0.0000";
   }
 }
+let total = 0;
 
+Object.values(newBalances).forEach(balance => {
+  total += Number(balance || 0);
+});
+
+setTotalAssets(total.toFixed(4));
     setBalances(newBalances);
   } catch (err) {
     console.log("Balance loading error:", err);
@@ -352,7 +360,7 @@ useEffect(() => {
       fontWeight: "700",
     }}
   >
-    ${bnbBalance ? (Number(bnbBalance) * 650).toFixed(2) : "0.00"}
+    {`$${Number(totalAssets).toFixed(2)}`}
   </div>
 
   <button
@@ -370,7 +378,39 @@ useEffect(() => {
     Receive
   </button>
 </div>
-  
+  <div
+  style={{
+    background: "#181A20",
+    borderRadius: "16px",
+    padding: "15px",
+    marginBottom: "15px",
+    border: "1px solid #2a3142"
+  }}
+>
+  <h3 style={{ color: "#f0b90b", marginBottom: "12px" }}>
+    My Assets
+  </h3>
+
+  <div style={{ color: "#fff", marginBottom: "8px" }}>
+    🟡 BNB: {balances.BNB || "0.0000"}
+  </div>
+
+  <div style={{ color: "#26a17b", marginBottom: "8px" }}>
+    🟢 USDT: {balances.USDT || "0.0000"}
+  </div>
+
+  <div style={{ color: "#f0b90b", marginBottom: "8px" }}>
+    🟠 EXALT: {balances.EXALT || "0.0000"}
+  </div>
+
+  <div style={{ color: "#f7931a", marginBottom: "8px" }}>
+    ₿ BTC: {balances.BTC || "0.0000"}
+  </div>
+
+  <div style={{ color: "#627eea" }}>
+    ♦ ETH: {balances.ETH || "0.0000"}
+  </div>
+</div>
       <div className="stat-card glow-yellow">
         <h2>Web3 Wallet</h2>
         <p>Connect MetaMask / Trust Wallet</p>
@@ -486,16 +526,38 @@ style={{
         border: "2px solid #f0b90b"
       }}
     >
-      <QRCode value={wallet || "No Wallet"} size={180} />
+    <QRCode
+  value={receiveAddresses[receiveCoin] || wallet}
+  size={180}
+/>
     </div>
-
+<div style={{ marginTop: "15px", marginBottom: "15px" }}>
+  <select
+    value={receiveCoin}
+    onChange={(e) => setReceiveCoin(e.target.value)}
+    style={{
+      width: "100%",
+      padding: "10px",
+      borderRadius: "10px",
+      background: "#1e2239",
+      color: "#f0b90b",
+      border: "2px solid #f0b90b",
+      fontWeight: "600"
+    }}
+  >
+    <option value="BNB">BNB</option>
+    <option value="USDT">USDT</option>
+    <option value="EXALT">EXALT</option>
+  </select>
+</div>
     <p
       style={{
         marginTop: "15px",
         wordBreak: "break-all"
       }}
     >
-      {wallet}
+ {(receiveAddresses[receiveCoin] || wallet)?.slice(0, 10)}...
+{(receiveAddresses[receiveCoin] || wallet)?.slice(-8)}
     </p>
 
     <button
