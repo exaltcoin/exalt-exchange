@@ -641,41 +641,6 @@ style={{
     </button>
   </div>
 )}
-<button
-  onClick={sendEXALT}
-  style={{
-  background: "#1e2329",
-  color: "#f0b90b",
-  border: "2px solid #f0b90b",
-  padding: "10px",
-  borderRadius: "10px",
-  fontWeight: "700",
-  width: "100%",
-  marginBottom: "8px",
-  boxShadow: "0 0 8px rgba(240,185,11,0.25)",
-  transition: "0.3s"
-}}
->
-  🟡 Send EXALT
-</button>
-
-<button
-  onClick={sendUSDT}
- style={{
-  background: "#1e2329",
-  color: "#26a17b",
-  border: "2px solid #26a17b",
-  padding: "10px",
-  borderRadius: "10px",
-  fontWeight: "700",
-  width: "100%",
-  marginBottom: "15px",
-  boxShadow: "0 0 8px rgba(38,161,123,0.25)",
-  transition: "0.3s"
-}}
->
-  🟢 Send USDT
-</button>
 {activeTab === "history" && (
   <div className="stat-card glow-blue">
     <h3>📜 Transaction History</h3>
