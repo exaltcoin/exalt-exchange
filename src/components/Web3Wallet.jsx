@@ -679,8 +679,22 @@ style={{
           <div><b>Status:</b> {tx.status}</div>
           <div><b>Time:</b> {tx.time}</div>
 
-<div style={{fontSize:"11px", color:"#888"}}>
- {tx.hash ? String(tx.hash).slice(0,12) + "..." + String(tx.hash).slice(-6) : "No hash"}
+<div style={{ fontSize:"11px" }}>
+  {tx.hash ? (
+    <a
+      href={`https://bscscan.com/tx/${tx.hash}`}
+      target="_blank"
+      rel="noreferrer"
+      style={{
+        color: "#f0b90b",
+        textDecoration: "underline"
+      }}
+    >
+      View on BscScan
+    </a>
+  ) : (
+    "No hash"
+  )}
 </div>
         </div>
       ))
