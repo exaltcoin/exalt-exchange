@@ -471,18 +471,19 @@ style={{
     {message}
   </div>
   )}
- 
-{activeTab === "receive" && (
+ {activeTab === "receive" && (
   <div className="stat-card glow-blue">
     <h3>Receive Crypto</h3>
 
     <div
       style={{
-        background: "#fff",
-        padding: "15px",
-        borderRadius: "12px",
+        background: "linear-gradient(145deg, #ffffff, #e8f2ff)",
+        padding: "16px",
+        borderRadius: "18px",
         display: "inline-block",
-        marginTop: "10px"
+        marginTop: "10px",
+        boxShadow: "0 0 25px rgba(240,185,11,0.35)",
+        border: "2px solid #f0b90b"
       }}
     >
       <QRCode value={wallet || "No Wallet"} size={180} />
@@ -504,7 +505,8 @@ style={{
       Copy Address
     </button>
   </div>
-  )}
+)}
+
  
 {activeTab === "send" && (
   <div className="stat-card glow-yellow">
@@ -531,16 +533,35 @@ style={{
 )}
 <button
   onClick={sendEXALT}
-  className="action-btn"
+  style={{
+    background: "linear-gradient(135deg,#f0b90b,#ffcc33)",
+    color: "#111",
+    border: "none",
+    padding: "12px",
+    borderRadius: "12px",
+    fontWeight: "700",
+    width: "100%",
+    marginBottom: "10px",
+    boxShadow: "0 0 15px rgba(240,185,11,0.4)"
+  }}
 >
-  Send EXALT
+  🟡 Send EXALT
 </button>
 
 <button
   onClick={sendUSDT}
-  className="action-btn"
+  style={{
+    background: "linear-gradient(135deg,#26a17b,#4cd6a8)",
+    color: "#fff",
+    border: "none",
+    padding: "12px",
+    borderRadius: "12px",
+    fontWeight: "700",
+    width: "100%",
+    boxShadow: "0 0 15px rgba(38,161,123,0.4)"
+  }}
 >
-  Send USDT
+  🟢 Send USDT
 </button>
 {activeTab === "history" && (
   <div className="stat-card glow-blue">
