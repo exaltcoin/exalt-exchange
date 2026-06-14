@@ -595,6 +595,15 @@ onClick={() => {
 >
   Vol: ${Number(coin.volume24h || 0).toLocaleString()}
 </div>
+<div
+  style={{
+    fontSize: "11px",
+    color: "#00c853",
+    marginTop: "2px"
+  }}
+>
+  Liq: ${Number(coin.liquidityUsd || 0).toLocaleString()}
+</div>
   <div
     style={{
      fontSize: "12px",
