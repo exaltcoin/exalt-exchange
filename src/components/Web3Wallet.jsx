@@ -201,16 +201,7 @@ const explorerUrl = `https://bscscan.com/tx/${tx.hash}`;
 setMessage(
   `✅ Transaction Confirmed: ${explorerUrl}`
 );
-setTxHistory(prev => [
-  {
-    type: "Send",
-    amount: amount + " BNB",
-    status: "Completed",
-    hash: tx.hash,
-    time: new Date().toLocaleString()
-  },
-  ...prev
-]);
+saveTx("Send BNB", tx.hash, amount, "BNB");
 
 setMessage("✅ Transaction added to history");
 
@@ -260,7 +251,7 @@ const sendEXALT = async () => {
   );
 
   await tx.wait();
-
+saveTx("Send EXALT", tx.hash, amount, "EXALT");
   alert("EXALT sent successfully: " + tx.hash);
 };
 const sendUSDT = async () => {
@@ -284,7 +275,7 @@ const sendUSDT = async () => {
   );
 
   await tx.wait();
-
+  saveTx("Send USDT", tx.hash, amount, "USDT");
   alert("USDT sent successfully: " + tx.hash);
 };
 const executeSwap = async () => {
