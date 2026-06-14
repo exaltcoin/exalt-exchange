@@ -19,6 +19,13 @@ const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
 const [coins, setCoins] = useState([]);
   const connectWeb3 = async () => {
+    const receiveAddresses = {
+  BNB: wallet,
+  USDT: wallet,
+  EXALT: wallet,
+  BTC: wallet,
+  ETH: wallet
+};
     if (!window.ethereum) {
       alert("Please install MetaMask or Trust Wallet");
       return;
@@ -125,7 +132,9 @@ setTotalAssets(total.toFixed(2));
 };
   const copyAddress = () => {
     if (!wallet) return alert("Wallet not connected");
-    navigator.clipboard.writeText(wallet);
+   navigator.clipboard.writeText(
+  receiveAddresses[receiveCoin] || wallet
+);
     alert("Wallet address copied");
   };
 
