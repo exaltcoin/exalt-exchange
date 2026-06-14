@@ -111,13 +111,13 @@ const loadBalances = async (walletAddress) => {
     newBalances[token.symbol] = "0.0000";
   }
 }
-let total = 0;
+const bnbUsd = Number(newBalances.BNB || 0) * 650;
+const usdtUsd = Number(newBalances.USDT || 0) * 1;
+const exaltUsd = Number(newBalances.EXALT || 0) * 0;
 
-Object.values(newBalances).forEach(balance => {
-  total += Number(balance || 0);
-});
+const total = bnbUsd + usdtUsd + exaltUsd;
 
-setTotalAssets(total.toFixed(4));
+setTotalAssets(total.toFixed(2));
     setBalances(newBalances);
   } catch (err) {
     console.log("Balance loading error:", err);
