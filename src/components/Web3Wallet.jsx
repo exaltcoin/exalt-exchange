@@ -327,6 +327,8 @@ const executeSwap = async () => {
       wallet,
       deadline
     );
+    saveTx("SWAP", tx.hash, swapAmount, toCoin);
+   await tx.wait(); 
     alert("Swap sent: " + tx.hash);
     return;
   }
