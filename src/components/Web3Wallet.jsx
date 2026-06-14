@@ -534,32 +534,35 @@ style={{
 <button
   onClick={sendEXALT}
   style={{
-    background: "linear-gradient(135deg,#f0b90b,#ffcc33)",
-    color: "#111",
-    border: "none",
-    padding: "12px",
-    borderRadius: "12px",
-    fontWeight: "700",
-    width: "100%",
-    marginBottom: "10px",
-    boxShadow: "0 0 15px rgba(240,185,11,0.4)"
-  }}
+  background: "#1e2329",
+  color: "#f0b90b",
+  border: "2px solid #f0b90b",
+  padding: "10px",
+  borderRadius: "10px",
+  fontWeight: "700",
+  width: "100%",
+  marginBottom: "8px",
+  boxShadow: "0 0 8px rgba(240,185,11,0.25)",
+  transition: "0.3s"
+}}
 >
   🟡 Send EXALT
 </button>
 
 <button
   onClick={sendUSDT}
-  style={{
-    background: "linear-gradient(135deg,#26a17b,#4cd6a8)",
-    color: "#fff",
-    border: "none",
-    padding: "12px",
-    borderRadius: "12px",
-    fontWeight: "700",
-    width: "100%",
-    boxShadow: "0 0 15px rgba(38,161,123,0.4)"
-  }}
+ style={{
+  background: "#1e2329",
+  color: "#26a17b",
+  border: "2px solid #26a17b",
+  padding: "10px",
+  borderRadius: "10px",
+  fontWeight: "700",
+  width: "100%",
+  marginBottom: "15px",
+  boxShadow: "0 0 8px rgba(38,161,123,0.25)",
+  transition: "0.3s"
+}}
 >
   🟢 Send USDT
 </button>
