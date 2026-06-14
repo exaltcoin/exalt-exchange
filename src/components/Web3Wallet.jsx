@@ -22,24 +22,24 @@ useEffect(() => {
 }, []);
 const [message, setMessage] = useState("");
 const saveTx = (type, hash, amount, coin) => {
-}
- const updatedHistory = [
-  {
-    type,
-    hash,
-    amount,
-    coin,
-    time: new Date().toLocaleString()
-  },
-  ...txHistory
-];
+  const updatedHistory = [
+    {
+      type,
+      hash,
+      amount,
+      coin,
+      time: new Date().toLocaleString()
+    },
+    ...txHistory
+  ];
 
-setTxHistory(updatedHistory);
+  setTxHistory(updatedHistory);
 
-localStorage.setItem(
-  "exalt_tx_history",
-  JSON.stringify(updatedHistory)
-);
+  localStorage.setItem(
+    "exalt_tx_history",
+    JSON.stringify(updatedHistory)
+  );
+};
 const [balances, setBalances] = useState({});
 const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
