@@ -18,14 +18,14 @@ const [balances, setBalances] = useState({});
 const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
 const [coins, setCoins] = useState([]);
-  const connectWeb3 = async () => {
-    const receiveAddresses = {
+const receiveAddresses = {
   BNB: wallet,
   USDT: wallet,
   EXALT: wallet,
   BTC: wallet,
   ETH: wallet
 };
+  const connectWeb3 = async () => {
     if (!window.ethereum) {
       alert("Please install MetaMask or Trust Wallet");
       return;
