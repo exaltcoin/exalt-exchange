@@ -149,7 +149,7 @@ const usdtUsd = Number(newBalances.USDT || 0) * 1;
 const exaltUsd = Number(newBalances.EXALT || 0) * 0;
 
 const total = bnbUsd + usdtUsd + exaltUsd;
-
+console.log("WEB3 BALANCES:", newBalances);
 setTotalAssets(total.toFixed(2));
     setBalances(newBalances);
   } catch (err) {
