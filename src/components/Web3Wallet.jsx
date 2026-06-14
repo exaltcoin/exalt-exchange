@@ -126,10 +126,17 @@ const loadBalances = async (walletAddress) => {
 
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
+const balance = await provider.getBalance(wallet);
 
+const gasReserve = ethers.parseEther("0.01");
+const sendAmount = ethers.parseEther(amount);
+
+if (balance < sendAmount + gasReserve) {
+  return alert("Insufficient BNB. Keep at least 0.01 BNB for gas fees.");
+}
     const tx = await signer.sendTransaction({
       to: sendTo,
-      value: ethers.parseEther(amount),
+     value: sendAmount, 
     });
 setTxHistory(prev => [
   {
