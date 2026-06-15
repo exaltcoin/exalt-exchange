@@ -65,6 +65,30 @@ const saveTx = (type, hash, amount, coin) => {
     "exalt_tx_history",
     JSON.stringify(updatedHistory)
   );
+  try {
+  fetch("https://exalt-exchange-backend.onrender.com/api/web3-transactions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      wallet: wallet?.toLowerCase(),
+      type: type.includes("Receive")
+        ? "Receive"
+        : type.includes("Send")
+        ? "Send"
+        : "Swap",
+      coin,
+      amount: Number(amount),
+      hash,
+      status: "success",
+      chain: "BSC",
+      source: "web3-wallet",
+    }),
+  });
+} catch (err) {
+  console.error("MongoDB Web3 tx save failed:", err);
+}
 };
   const getLatestReceiveTx = async (walletAddress, coin) => {
   try {
