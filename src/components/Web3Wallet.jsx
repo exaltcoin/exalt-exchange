@@ -41,45 +41,27 @@ const saveTx = (type, hash, amount, coin) => {
     JSON.stringify(updatedHistory)
   );
 };
-const getLatestReceiveTx = async (walletAddress, coin) => {
+  const getLatestReceiveTx = async (walletAddress, coin) => {
   try {
-    const address = walletAddress.toLowerCase();
-
-    const tokenContracts = {
-      EXALT: "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78",
-      USDT: "0x55d398326f99059fF775485246999027B3197955"
-    };
-
-    let url = "";
-
-    if (coin === "BNB") {
-      url = `https://api.bscscan.com/api?module=account&action=txlist&address=${walletAddress}&page=1&offset=10&sort=desc&apikey=${BSCSCAN_API_KEY}`;
-    } else {
-      url = `https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${tokenContracts[coin]}&address=${walletAddress}&page=1&offset=10&sort=desc&apikey=${BSCSCAN_API_KEY}`;
-    }
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (!data.result || !Array.isArray(data.result)) return null;
-
-    const tx = data.result.find(
-      (item) =>
-        item.to &&
-        item.to.toLowerCase() === address
+    const res = await fetch(
+      `https://exalt-exchange-backend.onrender.com/api/web3/latest-receive?wallet=${walletAddress}&coin=${coin}`
     );
 
-    if (!tx) return null;
+    const data = await res.json();
+
+    if (!data.success) return null;
 
     return {
-      hash: tx.hash,
-      amount: tx.value
+      hash: data.hash,
+      amount: data.amount
     };
   } catch (err) {
-    console.log("BscScan receive tx error:", err);
+    console.log("Backend receive tx error:", err);
     return null;
   }
 };
+
+    
 const [balances, setBalances] = useState({});
 const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
