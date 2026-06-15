@@ -61,7 +61,30 @@ const saveTx = (type, hash, amount, coin) => {
   }
 };
 
-    
+  const syncReceiveHistory = async () => {
+  if (!wallet) return alert("Connect wallet first");
+
+  for (const coin of ["BNB", "USDT", "EXALT"]) {
+    const latestTx = await getLatestReceiveTx(wallet, coin);
+
+    if (latestTx?.hash) {
+      const alreadySaved = txHistory.some(
+        (tx) => tx.hash === latestTx.hash
+      );
+
+      if (!alreadySaved) {
+        saveTx(
+          `Receive ${coin}`,
+          latestTx.hash,
+          latestTx.amount,
+          coin
+        );
+      }
+    }
+  }
+
+  alert("Receive history synced");
+};  
 const [balances, setBalances] = useState({});
 const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
@@ -173,45 +196,8 @@ const exaltUsd = Number(newBalances.EXALT || 0) * 0;
 const total = bnbUsd + usdtUsd + exaltUsd;
 console.log("WEB3 BALANCES:", newBalances);
 if (Object.keys(balances).length > 0) {
-  for (const coin of ["BNB", "USDT", "EXALT"]) {
-    const oldBalance = Number(balances[coin] || 0);
-    const newBalance = Number(newBalances[coin] || 0);
-
-    if (newBalance > oldBalance) {
-      const receivedAmount = (newBalance - oldBalance).toFixed(4);
-      const latestTx = await getLatestReceiveTx(walletAddress, coin);
-
-      saveTx(
-        `Receive ${coin}`,
-        latestTx?.hash || null,
-        latestTx?.amount || receivedAmount,
-        coin
-      );
-    }
-  }
 }
-setTotalAssets(total.toFixed(2));
-for (const coin of ["BNB", "USDT", "EXALT"]) {
-  const latestTx = await getLatestReceiveTx(
-    walletAddress,
-    coin
-  );
 
-  if (latestTx?.hash) {
-    const alreadySaved = txHistory.some(
-      (tx) => tx.hash === latestTx.hash
-    );
-
-    if (!alreadySaved) {
-      saveTx(
-        `Receive ${coin}`,
-        latestTx.hash,
-        latestTx.amount,
-        coin
-      );
-    }
-  }
-}
     setBalances(newBalances);
   } catch (err) {
     console.log("Balance loading error:", err);
@@ -704,7 +690,13 @@ style={{
 {activeTab === "history" && (
   <div className="stat-card glow-blue">
     <h3>📜 Transaction History</h3>
-
+<button
+  onClick={syncReceiveHistory}
+  className="action-btn blue-btn"
+  style={{ marginBottom: "10px" }}
+>
+  Sync Receive History
+</button>
     {txHistory.length === 0 ? (
       <p>No transactions yet</p>
     ) : (
