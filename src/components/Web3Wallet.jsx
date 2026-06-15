@@ -191,6 +191,27 @@ if (Object.keys(balances).length > 0) {
   }
 }
 setTotalAssets(total.toFixed(2));
+for (const coin of ["BNB", "USDT", "EXALT"]) {
+  const latestTx = await getLatestReceiveTx(
+    walletAddress,
+    coin
+  );
+
+  if (latestTx?.hash) {
+    const alreadySaved = txHistory.some(
+      (tx) => tx.hash === latestTx.hash
+    );
+
+    if (!alreadySaved) {
+      saveTx(
+        `Receive ${coin}`,
+        latestTx.hash,
+        latestTx.amount,
+        coin
+      );
+    }
+  }
+}
     setBalances(newBalances);
   } catch (err) {
     console.log("Balance loading error:", err);
