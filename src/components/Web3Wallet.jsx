@@ -69,17 +69,19 @@ for (const coin of ["USDT", "BNB", "EXALT"]) {
   const latestTx = await getLatestReceiveTx(wallet, coin);
 
   if (latestTx?.hash) {
-    const alreadySaved = txHistory.some(
-      (tx) => tx.hash === latestTx.hash
-    );
+   const alreadySaved = txHistory.some(
+  (tx) =>
+    tx.hash === latestTx.hash &&
+    tx.coin === coin
+);
 
     if (!alreadySaved) {
-      saveTx(
-        `Receive ${coin}`,
-        latestTx.hash,
-        latestTx.amount,
-        coin
-      );
+    saveTx(
+  latestTx.type || `Receive ${coin}`,
+  latestTx.hash,
+  latestTx.amount,
+  latestTx.coin || coin
+); 
       added++;
     }
   }
