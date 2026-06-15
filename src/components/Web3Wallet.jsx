@@ -15,18 +15,27 @@ const [sendCoin, setSendCoin] = useState("BNB");
 const [activeTab, setActiveTab] = useState("assets");
 const [txHistory, setTxHistory] = useState([]);
 const [historyFilter, setHistoryFilter] = useState("ALL");
+const [searchTx, setSearchTx] = useState("");
 useEffect(() => {
   const saved = localStorage.getItem("exalt_tx_history");
   if (saved) {
     setTxHistory(JSON.parse(saved));
   }
 }, []);
-const filteredHistory =
-  historyFilter === "ALL"
-    ? txHistory
-    : txHistory.filter((tx) =>
-        tx.type?.toUpperCase().includes(historyFilter)
-      );
+const filteredHistory = txHistory.filter((tx) => {
+  const matchFilter =
+    historyFilter === "ALL" ||
+    tx.type?.toUpperCase().includes(historyFilter);
+
+  const matchSearch =
+    !searchTx ||
+    tx.type?.toLowerCase().includes(searchTx.toLowerCase()) ||
+    tx.coin?.toLowerCase().includes(searchTx.toLowerCase()) ||
+    tx.amount?.toString().includes(searchTx) ||
+    tx.hash?.toLowerCase().includes(searchTx.toLowerCase());
+
+  return matchFilter && matchSearch;
+});
 const [message, setMessage] = useState("");
 const saveTx = (type, hash, amount, coin) => {
   const updatedHistory = [
@@ -744,6 +753,22 @@ style={{
 >
   Sync Receive History
 </button>
+<input
+  type="text"
+  placeholder="Search transaction..."
+  value={searchTx}
+  onChange={(e) => setSearchTx(e.target.value)}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginTop: "10px",
+    marginBottom: "10px",
+    borderRadius: "8px",
+    border: "1px solid #444",
+    background: "#111827",
+    color: "#fff"
+  }}
+/>
     {filteredHistory.length === 0 ? (
       <p>No transactions yet</p>
     ) : (
