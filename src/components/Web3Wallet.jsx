@@ -65,7 +65,7 @@ const saveTx = (type, hash, amount, coin) => {
   if (!wallet) return alert("Connect wallet first");
 let added = 0;
 
-for (const coin of ["USDT", "BNB", "EXALT"]) {
+for (const coin of [receiveCoin]) {
   const latestTx = await getLatestReceiveTx(wallet, coin);
 
   if (latestTx?.hash) {
