@@ -192,9 +192,14 @@ const loadBalances = async (walletAddress) => {
       continue;
     }
 
-    newBalances[token.symbol] =
-      Number(ethers.formatUnits(balance, decimals)).toFixed(4);
+   const formattedBalance = Number(
+  ethers.formatUnits(balance, decimals)
+);
 
+newBalances[token.symbol] =
+  formattedBalance > 0 && formattedBalance < 0.0001
+    ? formattedBalance.toFixed(8)
+    : formattedBalance.toFixed(4);
   } catch (e) {
     console.log(`${token.symbol} error:`, e.message);
     newBalances[token.symbol] = "0.0000";
