@@ -36,6 +36,10 @@ const filteredHistory = txHistory.filter((tx) => {
 
   return matchFilter && matchSearch;
 });
+const clearHistory = () => {
+  localStorage.removeItem("exalt_tx_history");
+  setTxHistory([]);
+};
 const [message, setMessage] = useState("");
 const saveTx = (type, hash, amount, coin) => {
   const updatedHistory = [
@@ -720,7 +724,21 @@ style={{
 )}
 {activeTab === "history" && (
   <div className="stat-card glow-blue">
-    <h3>📜 Transaction History</h3>
+   <h3>
+  📜 Transaction History
+  <span
+    style={{
+      marginLeft: "10px",
+      background: "#f59e0b",
+      color: "#000",
+      padding: "3px 8px",
+      borderRadius: "8px",
+      fontSize: "12px"
+    }}
+  >
+    {filteredHistory.length}
+  </span>
+</h3>
    <div style={{
   display: "flex",
   gap: "6px",
@@ -752,6 +770,18 @@ style={{
   style={{ marginBottom: "10px" }}
 >
   Sync Receive History
+</button>
+<button
+  onClick={clearHistory}
+  className="action-btn"
+  style={{
+    marginBottom: "10px",
+    marginLeft: "10px",
+    background: "#dc2626",
+    color: "#fff"
+  }}
+>
+  Clear History
 </button>
 <input
   type="text"
