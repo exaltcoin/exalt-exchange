@@ -14,13 +14,19 @@ const [receiveCoin, setReceiveCoin] = useState("BNB");
 const [sendCoin, setSendCoin] = useState("BNB");
 const [activeTab, setActiveTab] = useState("assets");
 const [txHistory, setTxHistory] = useState([]);
+const [historyFilter, setHistoryFilter] = useState("ALL");
 useEffect(() => {
   const saved = localStorage.getItem("exalt_tx_history");
-
   if (saved) {
     setTxHistory(JSON.parse(saved));
   }
 }, []);
+const filteredHistory =
+  historyFilter === "ALL"
+    ? txHistory
+    : txHistory.filter((tx) =>
+        tx.type?.toUpperCase().includes(historyFilter)
+      );
 const [message, setMessage] = useState("");
 const saveTx = (type, hash, amount, coin) => {
   const updatedHistory = [
@@ -706,6 +712,31 @@ style={{
 {activeTab === "history" && (
   <div className="stat-card glow-blue">
     <h3>📜 Transaction History</h3>
+   <div style={{
+  display: "flex",
+  gap: "6px",
+  flexWrap: "wrap",
+  marginTop: "10px",
+  marginBottom: "10px"
+}}>
+  {["ALL", "RECEIVE", "SEND", "SWAP", "BNB", "USDT", "EXALT"].map((filter) => (
+    <button
+      key={filter}
+      onClick={() => setHistoryFilter(filter)}
+      style={{
+        padding: "5px 10px",
+        borderRadius: "6px",
+        border: "none",
+        cursor: "pointer",
+        background: historyFilter === filter ? "#f59e0b" : "#1f2937",
+        color: historyFilter === filter ? "#000" : "#fff",
+        fontWeight: "bold"
+      }}
+    >
+      {filter}
+    </button>
+  ))}
+</div>
 <button
   onClick={syncReceiveHistory}
   className="action-btn blue-btn"
@@ -713,10 +744,10 @@ style={{
 >
   Sync Receive History
 </button>
-    {txHistory.length === 0 ? (
+    {filteredHistory.length === 0 ? (
       <p>No transactions yet</p>
     ) : (
-      txHistory.map((tx, index) => (
+      filteredHistory.map((tx, index) => (
         <div
           key={index}
           style={{
