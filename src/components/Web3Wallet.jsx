@@ -63,25 +63,34 @@ const saveTx = (type, hash, amount, coin) => {
 
   const syncReceiveHistory = async () => {
   if (!wallet) return alert("Connect wallet first");
+let added = 0;
 
-  for (const coin of ["BNB", "USDT", "EXALT"]) {
-    const latestTx = await getLatestReceiveTx(wallet, coin);
+for (const coin of ["USDT", "BNB", "EXALT"]) {
+  const latestTx = await getLatestReceiveTx(wallet, coin);
 
-    if (latestTx?.hash) {
-      const alreadySaved = txHistory.some(
-        (tx) => tx.hash === latestTx.hash
+  if (latestTx?.hash) {
+    const alreadySaved = txHistory.some(
+      (tx) => tx.hash === latestTx.hash
+    );
+
+    if (!alreadySaved) {
+      saveTx(
+        `Receive ${coin}`,
+        latestTx.hash,
+        latestTx.amount,
+        coin
       );
-
-      if (!alreadySaved) {
-        saveTx(
-          `Receive ${coin}`,
-          latestTx.hash,
-          latestTx.amount,
-          coin
-        );
-      }
+      added++;
     }
   }
+}
+
+if (added > 0) {
+  alert(`${added} receive transaction synced`);
+} else {
+  alert("No new receive transaction found");
+}
+  
 
   alert("Receive history synced");
 };  
