@@ -37,6 +37,12 @@ const filteredHistory = txHistory.filter((tx) => {
   return matchFilter && matchSearch;
 });
 const clearHistory = () => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to clear all transaction history?"
+  );
+
+  if (!confirmDelete) return;
+
   localStorage.removeItem("exalt_tx_history");
   setTxHistory([]);
 };
