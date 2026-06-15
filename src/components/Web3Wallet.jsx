@@ -41,6 +41,45 @@ const saveTx = (type, hash, amount, coin) => {
     JSON.stringify(updatedHistory)
   );
 };
+const getLatestReceiveTx = async (walletAddress, coin) => {
+  try {
+    const address = walletAddress.toLowerCase();
+
+    const tokenContracts = {
+      EXALT: "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78",
+      USDT: "0x55d398326f99059fF775485246999027B3197955"
+    };
+
+    let url = "";
+
+    if (coin === "BNB") {
+      url = `https://api.bscscan.com/api?module=account&action=txlist&address=${walletAddress}&page=1&offset=10&sort=desc&apikey=${BSCSCAN_API_KEY}`;
+    } else {
+      url = `https://api.bscscan.com/api?module=account&action=tokentx&contractaddress=${tokenContracts[coin]}&address=${walletAddress}&page=1&offset=10&sort=desc&apikey=${BSCSCAN_API_KEY}`;
+    }
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.result || !Array.isArray(data.result)) return null;
+
+    const tx = data.result.find(
+      (item) =>
+        item.to &&
+        item.to.toLowerCase() === address
+    );
+
+    if (!tx) return null;
+
+    return {
+      hash: tx.hash,
+      amount: tx.value
+    };
+  } catch (err) {
+    console.log("BscScan receive tx error:", err);
+    return null;
+  }
+};
 const [balances, setBalances] = useState({});
 const [totalAssets, setTotalAssets] = useState("0.00");
 const [search, setSearch] = useState("");
@@ -151,6 +190,24 @@ const exaltUsd = Number(newBalances.EXALT || 0) * 0;
 
 const total = bnbUsd + usdtUsd + exaltUsd;
 console.log("WEB3 BALANCES:", newBalances);
+if (Object.keys(balances).length > 0) {
+  for (const coin of ["BNB", "USDT", "EXALT"]) {
+    const oldBalance = Number(balances[coin] || 0);
+    const newBalance = Number(newBalances[coin] || 0);
+
+    if (newBalance > oldBalance) {
+      const receivedAmount = (newBalance - oldBalance).toFixed(4);
+      const latestTx = await getLatestReceiveTx(walletAddress, coin);
+
+      saveTx(
+        `Receive ${coin}`,
+        latestTx?.hash || null,
+        latestTx?.amount || receivedAmount,
+        coin
+      );
+    }
+  }
+}
 setTotalAssets(total.toFixed(2));
     setBalances(newBalances);
   } catch (err) {
