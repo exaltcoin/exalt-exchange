@@ -6,6 +6,7 @@ function Support() {
  const user = JSON.parse(localStorage.getItem("user") || "{}");
 const [userName, setUserName] = useState(user.name || user.fullName || user.email || "");
 const [userEmail, setUserEmail] = useState(user.email || "");
+const [loading, setLoading] = useState(false);
   const submitTicket = async () => {
     if (!wallet || !message) {
       alert("Please fill all fields");
