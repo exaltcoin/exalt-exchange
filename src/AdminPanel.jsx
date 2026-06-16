@@ -53,6 +53,26 @@ const filteredDeposits = deposits.filter((item) => {
   if (depositFilter === "all") return true;
   return item.status?.toLowerCase() === depositFilter;
 });
+const [withdrawalFilter, setWithdrawalFilter] = useState("all");
+
+const totalWithdrawals = withdrawals.length;
+
+const pendingWithdrawals = withdrawals.filter(
+  (w) => w.status?.toLowerCase() === "pending"
+).length;
+
+const approvedWithdrawals = withdrawals.filter(
+  (w) => w.status?.toLowerCase() === "approved"
+).length;
+
+const rejectedWithdrawals = withdrawals.filter(
+  (w) => w.status?.toLowerCase() === "rejected"
+).length;
+
+const filteredWithdrawals = withdrawals.filter((item) => {
+  if (withdrawalFilter === "all") return true;
+  return item.status?.toLowerCase() === withdrawalFilter;
+});
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -390,10 +410,57 @@ const filteredDeposits = deposits.filter((item) => {
       {adminTab === "withdrawals" && (
         <div className="admin-content">
           <h3>Withdrawal Requests</h3>
-          {withdrawals.length === 0 ? (
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "15px",
+    marginBottom: "20px"
+  }}
+>
+  <div className="admin-card stat-total">
+    <h4>Total</h4>
+    <h2>{totalWithdrawals}</h2>
+  </div>
+
+  <div className="admin-card stat-pending">
+    <h4>Pending</h4>
+    <h2>{pendingWithdrawals}</h2>
+  </div>
+
+  <div className="admin-card stat-approved">
+    <h4>Approved</h4>
+    <h2>{approvedWithdrawals}</h2>
+  </div>
+
+  <div className="admin-card stat-rejected">
+    <h4>Rejected</h4>
+    <h2>{rejectedWithdrawals}</h2>
+  </div>
+</div>
+<div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+
+  <button className="tab" onClick={() => setWithdrawalFilter("all")}>
+    All
+  </button>
+
+  <button className="tab" onClick={() => setWithdrawalFilter("pending")}>
+    Pending
+  </button>
+
+  <button className="tab" onClick={() => setWithdrawalFilter("approved")}>
+    Approved
+  </button>
+
+  <button className="tab" onClick={() => setWithdrawalFilter("rejected")}>
+    Rejected
+  </button>
+
+</div>
+          {filteredWithdrawals.length === 0 ? (
             <p>No withdrawal requests found.</p>
           ) : (
-            withdrawals.map((item) => (
+          filteredWithdrawals.map((item) =>(
               <div className="admin-card" key={item._id}>
                 <p>User: {safeText(item.userId)}</p>
                 <p>Amount: {safeText(item.amount)}</p>
