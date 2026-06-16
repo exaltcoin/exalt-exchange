@@ -178,23 +178,23 @@ const filteredListings = listings.filter((item) => {
           <div style={{ marginBottom: "15px" }}>
  <div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
 
-  <button className="action-btn" onClick={() => setListingFilter("all")}>
+  <button className="tab" onClick={() => setListingFilter("all")}>
     All
   </button>
 
-  <button className="action-btn" onClick={() => setListingFilter("pending")}>
+  <button className="tab" onClick={() => setListingFilter("pending")}>
     Pending
   </button>
 
-  <button className="action-btn" onClick={() => setListingFilter("approved")}>
+  <button className="tab" onClick={() => setListingFilter("approved")}>
     Approved
   </button>
 
-  <button className="action-btn" onClick={() => setListingFilter("rejected")}>
+  <button className="tab" onClick={() => setListingFilter("rejected")}>
     Rejected
   </button>
-
 </div>
+
 </div>
          {filteredListings.length === 0 ? (
             <p>No listing requests found.</p>
