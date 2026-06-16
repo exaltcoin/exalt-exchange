@@ -113,6 +113,26 @@ const filteredTickets = tickets.filter((item) => {
   if (supportFilter === "all") return true;
   return String(item.status).toLowerCase() === supportFilter;
 });
+const [transactionFilter, setTransactionFilter] = useState("all");
+
+const totalAdminTransactions = transactions.length;
+
+const depositTransactions = transactions.filter(
+  (t) => String(t.type).toLowerCase() === "deposit"
+).length;
+
+const withdrawalTransactions = transactions.filter(
+  (t) => String(t.type).toLowerCase() === "withdrawal"
+).length;
+
+const tradeTransactions = transactions.filter(
+  (t) => String(t.type).toLowerCase() === "trade"
+).length;
+
+const filteredAdminTransactions = transactions.filter((item) => {
+  if (transactionFilter === "all") return true;
+  return String(item.type).toLowerCase() === transactionFilter;
+});
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -798,10 +818,63 @@ const filteredTickets = tickets.filter((item) => {
       {adminTab === "transactions" && (
         <div className="admin-content">
           <h3>Transaction History</h3>
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "15px",
+    marginBottom: "20px"
+  }}
+>
+  <div className="admin-card stat-total">
+    <h4>Total</h4>
+    <h2>{totalAdminTransactions}</h2>
+  </div>
+
+  <div className="admin-card stat-pending">
+    <h4>Deposits</h4>
+    <h2>{depositTransactions}</h2>
+  </div>
+
+  <div className="admin-card stat-approved">
+    <h4>Trades</h4>
+    <h2>{tradeTransactions}</h2>
+  </div>
+
+  <div className="admin-card stat-rejected">
+    <h4>Withdrawals</h4>
+    <h2>{withdrawalTransactions}</h2>
+  </div>
+</div>
+
+<div
+  style={{
+    marginBottom: "15px",
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap"
+  }}
+>
+  <button className="tab" onClick={() => setTransactionFilter("all")}>
+    All
+  </button>
+
+  <button className="tab" onClick={() => setTransactionFilter("deposit")}>
+    Deposits
+  </button>
+
+  <button className="tab" onClick={() => setTransactionFilter("trade")}>
+    Trades
+  </button>
+
+  <button className="tab" onClick={() => setTransactionFilter("withdrawal")}>
+    Withdrawals
+  </button>
+</div>
           {transactions.length === 0 ? (
             <p>No transactions found.</p>
           ) : (
-            transactions.map((item) => (
+          filteredAdminTransactions.map((item) => (
               <div className="admin-card" key={item._id}>
                 <p>Type: {safeText(item.type)}</p>
                 <p>Amount: {safeText(item.amount)}</p>

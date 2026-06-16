@@ -2602,4 +2602,31 @@ color:white;
 .status-closed {
   color: #ff4d4f;
   font-weight: 700;
+}.transaction-card {
+  text-align: left;
+}
+
+.transaction-card p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.type-deposit {
+  color: #4da3ff;
+  font-weight: 700;
+}
+
+.type-trade {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.type-withdrawal {
+  color: #ff4d4f;
+  font-weight: 700;
+}
+
+.break-text {
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
