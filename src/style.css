@@ -2580,4 +2580,26 @@ color:white;
 .tab:hover{
   background:#f0b90b;
   color:#000;
+}.support-card {
+  text-align: left;
+}
+
+.support-card p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.status-open {
+  color: #ffb347;
+  font-weight: 700;
+}
+
+.status-resolved {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.status-closed {
+  color: #ff4d4f;
+  font-weight: 700;
 }

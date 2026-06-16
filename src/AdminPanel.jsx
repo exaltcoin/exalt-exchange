@@ -93,6 +93,26 @@ const filteredKyc = kycRequests.filter((item) => {
   if (kycFilter === "all") return true;
   return item.status?.toLowerCase() === kycFilter;
 });
+const [supportFilter, setSupportFilter] = useState("all");
+
+const totalTickets = tickets.length;
+
+const openTickets = tickets.filter(
+  (t) => String(t.status).toLowerCase() === "open"
+).length;
+
+const resolvedTickets = tickets.filter(
+  (t) => String(t.status).toLowerCase() === "resolved"
+).length;
+
+const closedTickets = tickets.filter(
+  (t) => String(t.status).toLowerCase() === "closed"
+).length;
+
+const filteredTickets = tickets.filter((item) => {
+  if (supportFilter === "all") return true;
+  return String(item.status).toLowerCase() === supportFilter;
+});
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -708,10 +728,60 @@ const filteredKyc = kycRequests.filter((item) => {
       {adminTab === "support" && (
         <div className="admin-content">
           <h3>Support Tickets</h3>
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "15px",
+    marginBottom: "20px"
+  }}
+>
+  <div className="admin-card stat-total">
+    <h4>Total</h4>
+    <h2>{totalTickets}</h2>
+  </div>
+
+  <div className="admin-card stat-pending">
+    <h4>Open</h4>
+    <h2>{openTickets}</h2>
+  </div>
+
+  <div className="admin-card stat-approved">
+    <h4>Resolved</h4>
+    <h2>{resolvedTickets}</h2>
+  </div>
+
+  <div className="admin-card stat-rejected">
+    <h4>Closed</h4>
+    <h2>{closedTickets}</h2>
+  </div>
+</div>
+<div style={{
+  marginBottom: "15px",
+  display: "flex",
+  gap: "10px",
+  flexWrap: "wrap"
+}}>
+  <button className="tab" onClick={() => setSupportFilter("all")}>
+    All
+  </button>
+
+  <button className="tab" onClick={() => setSupportFilter("open")}>
+    Open
+  </button>
+
+  <button className="tab" onClick={() => setSupportFilter("resolved")}>
+    Resolved
+  </button>
+
+  <button className="tab" onClick={() => setSupportFilter("closed")}>
+    Closed
+  </button>
+</div>
           {tickets.length === 0 ? (
             <p>No support tickets found.</p>
           ) : (
-            tickets.map((item) => (
+            filteredTickets.map((item) => (
               <div className="admin-card" key={item._id}>
                 <p>User: {item.userName || item.userEmail || item.email || item.user?.name || item.user?.email || item.user?._id || "N/A"}</p>
                 <p>Message: {safeText(item.message)}</p>
