@@ -16,6 +16,7 @@ function AdminPanel() {
   const [web3Filter, setWeb3Filter] = useState("ALL");
   const [adminTab, setAdminTab] = useState("overview");
   const [listingFilter, setListingFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
   const totalListings = listings.length;
 
 const pendingListings = listings.filter(
