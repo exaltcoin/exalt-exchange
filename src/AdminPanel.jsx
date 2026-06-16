@@ -177,11 +177,114 @@ function AdminPanel() {
             listings.map((item) => (
               <div className="admin-card" key={item._id}>
                 <h4>{item.coinName || item.name} ({item.symbol})</h4>
-                <p>Chain: {item.chain}</p>
-                <p>Contract: {item.contractAddress || item.contract}</p>
-                <p>Website: {item.website}</p>
-                <p>Status: {item.status}</p>
+                <p>Chain: {item.chain}</p>      
+ <p>
+  Contract:
+  <code>{item.contractAddress || item.contract}</code>
+</p>
+<button
+  className="action-btn"
+  onClick={() =>
+    navigator.clipboard.writeText(
+      item.contractAddress || item.contract
+    )
+  }
+>
+  Copy Contract
+</button>
+ <p>             
+  Logo:
+  {item.logo && (
+    <img
+      src={item.logo}
+      alt="logo"
+      style={{
+        width: "50px",
+        height: "50px",
+        marginLeft: "10px",
+        borderRadius: "50%",
+        objectFit: "cover"
+      }}
+    />
+  )}
+</p>
+         <p>
+  Status:
+  <span
+    style={{
+      color:
+        item.status === "approved"
+          ? "#00ff88"
+          : item.status === "rejected"
+          ? "#ff4444"
+          : "#ffaa00",
+      fontWeight: "bold",
+      marginLeft: "8px",
+    }}
+  >
+    {item.status?.toUpperCase()}
+  </span>
+</p>      
+<p>Owner Name: {safeText(item.ownerName)}</p>
+<p>Owner Email: {safeText(item.ownerEmail)}</p>
+<p>Owner Wallet: {safeText(item.ownerWallet)}</p>
+<p>Project Category: {safeText(item.projectCategory)}</p>
+<p>
+  <div style={{ marginTop: "10px" }}>
+    {(item.contractAddress || item.contract) && (
+  <a
+    href={`https://bscscan.com/token/${item.contractAddress || item.contract}`}
+    target="_blank"
+    rel="noreferrer"
+    className="action-btn"
+  >
+    View Contract
+  </a>
+)}
+{item.twitter && (
+  <a
+    href={item.twitter}
+    target="_blank"
+    rel="noreferrer"
+    className="action-btn"
+  >
+    Twitter
+  </a>
+)}
+  {item.website && (
+    <a
+      href={item.website}
+      target="_blank"
+      rel="noreferrer"
+      className="action-btn"
+    >
+      Website
+    </a>
+  )}
 
+  {item.telegram && (
+    <a
+      href={item.telegram}
+      target="_blank"
+      rel="noreferrer"
+      className="action-btn"
+    >
+      Telegram
+    </a>
+  )}
+
+  {item.whitepaper && (
+    <a
+      href={item.whitepaper}
+      target="_blank"
+      rel="noreferrer"
+      className="action-btn"
+    >
+      Whitepaper
+    </a>
+  )}
+</div>
+ </p>
                 {item.status !== "approved" && item.status !== "rejected" ? (
                   <>
                     <button className="action-btn approve-btn" onClick={() => updateListing(item._id, "approved")}>Approve</button>
