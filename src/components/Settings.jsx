@@ -2,7 +2,9 @@ import React from "react";
 
 function Settings() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
-
+const [qrCode, setQrCode] = useState("");
+const [twoFaToken, setTwoFaToken] = useState("");
+const [twoFaEnabled, setTwoFaEnabled] = useState(false);
   const submitKYC = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -52,7 +54,88 @@ console.log("KYC PAYLOAD:", payload);
     alert("Server error");
   }
 };
+const setup2FA = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
+    const response = await fetch(`${API}/api/auth/2fa/setup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setQrCode(data.qrCode);
+      alert("Scan QR code with Google Authenticator");
+    } else {
+      alert(data.message || "2FA setup failed");
+    }
+  } catch (error) {
+    console.log(error);
+    alert("Server error");
+  }
+};
+
+const verify2FA = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API}/api/auth/2fa/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ token: twoFaToken }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setTwoFaEnabled(true);
+      setQrCode("");
+      setTwoFaToken("");
+      alert("Google Authenticator enabled successfully");
+    } else {
+      alert(data.message || "Invalid code");
+    }
+  } catch (error) {
+    console.log(error);
+    alert("Server error");
+  }
+};
+
+const disable2FA = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API}/api/auth/2fa/disable`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ token: twoFaToken }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setTwoFaEnabled(false);
+      setTwoFaToken("");
+      alert("Google Authenticator disabled");
+    } else {
+      alert(data.message || "Invalid code");
+    }
+  } catch (error) {
+    console.log(error);
+    alert("Server error");
+  }
+};
   return (
     <div className="panel">
       <h2>SETTINGS & SECURITY</h2>
@@ -77,7 +160,65 @@ console.log("KYC PAYLOAD:", payload);
           <p>Wallet verification and manual approval reduce fake listings.</p>
         </div>
       </div>
+<div className="panel" style={{ marginTop: "25px" }}>
+  <h2>Google Authenticator (2FA)</h2>
 
+  {!twoFaEnabled ? (
+    <>
+      <button
+        className="buy-btn"
+        onClick={setup2FA}
+      >
+        Setup Google Authenticator
+      </button>
+
+      {qrCode && (
+        <div style={{ marginTop: "20px" }}>
+          <img src={qrCode} alt="QR Code" />
+
+          <input
+            type="text"
+            placeholder="Enter 6-digit code"
+            value={twoFaToken}
+            onChange={(e) => setTwoFaToken(e.target.value)}
+            className="kyc-input"
+            style={{ marginTop: "10px" }}
+          />
+
+          <button
+            className="buy-btn"
+            onClick={verify2FA}
+            style={{ marginTop: "10px" }}
+          >
+            Verify & Enable
+          </button>
+        </div>
+      )}
+    </>
+  ) : (
+    <>
+      <h3 style={{ color: "#00ff88" }}>
+        Google Authenticator Enabled
+      </h3>
+
+      <input
+        type="text"
+        placeholder="Enter 6-digit code"
+        value={twoFaToken}
+        onChange={(e) => setTwoFaToken(e.target.value)}
+        className="kyc-input"
+      />
+
+      <button
+        className="sell-btn"
+        onClick={disable2FA}
+        style={{ marginTop: "10px" }}
+      >
+        Disable 2FA
+      </button>
+    </>
+  )}
+</div>
       <div className="panel" style={{ marginTop: "25px" }}>
         <h2>KYC Verification Form</h2>
 
