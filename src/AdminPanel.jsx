@@ -15,7 +15,11 @@ function AdminPanel() {
   const [web3Search, setWeb3Search] = useState("");
   const [web3Filter, setWeb3Filter] = useState("ALL");
   const [adminTab, setAdminTab] = useState("overview");
-
+  const [listingFilter, setListingFilter] = useState("all");
+const filteredListings = listings.filter((item) => {
+  if (listingFilter === "all") return true;
+  return item.status === listingFilter;
+});
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -171,10 +175,27 @@ function AdminPanel() {
       {adminTab === "listings" && (
         <div className="admin-content">
           <h3>Coin Listing Requests</h3>
-          {listings.length === 0 ? (
+          <div style={{ marginBottom: "15px" }}>
+  <button onClick={() => setListingFilter("all")}>
+    All
+  </button>
+
+  <button onClick={() => setListingFilter("pending")}>
+    Pending
+  </button>
+
+  <button onClick={() => setListingFilter("approved")}>
+    Approved
+  </button>
+
+  <button onClick={() => setListingFilter("rejected")}>
+    Rejected
+  </button>
+</div>
+         {filteredListings.length === 0 ? (
             <p>No listing requests found.</p>
           ) : (
-            listings.map((item) => (
+         filteredListings.map((item) => (
               <div className="admin-card" key={item._id}>
                 <h4>{item.coinName || item.name} ({item.symbol})</h4>
                 <p>Chain: {item.chain}</p>      
