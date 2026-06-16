@@ -445,7 +445,7 @@ if (page === "kyc-submit") return <KycVerification />;
             <p>
 {page === "trade"
  ? "Professional Spot Trading Engine Powered by Exalt Exchange"
- : "Secure • Fast • Global Crypto Exchange"}
+ : "Secure • Fast • Global Digital Asset Exchange"}
 </p>
             {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
             </div>
