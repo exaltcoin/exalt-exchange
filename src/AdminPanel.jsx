@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
   const token = localStorage.getItem("token");
