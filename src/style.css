@@ -2390,4 +2390,27 @@ color:white;
   background:#f0b90b;
   color:#000;
   border-color:#f0b90b;
+}.admin-card {
+  background: #1e2433;
+  border: 1px solid #2f374a;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.admin-card:hover {
+  transform: translateY(-3px);
+  border-color: #f0b90b;
+}
+
+.admin-card h4 {
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+.admin-card h2 {
+  color: #f0b90b;
+  font-size: 32px;
+  font-weight: 700;
 }
