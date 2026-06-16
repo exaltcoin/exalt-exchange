@@ -10,7 +10,9 @@ export default function AuthPanel({ setPage }) {
     password: "",
     wallet: "",
   });
-
+const [show2FA, setShow2FA] = useState(false);
+const [twoFaCode, setTwoFaCode] = useState("");
+const [tempUserId, setTempUserId] = useState("");
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -82,8 +84,9 @@ localStorage.setItem("user", JSON.stringify(safeUser));
 
       if (data.success) {
         if (data.require2FA) {
-  localStorage.setItem("tempUserId", data.userId);
-  alert("Google Authenticator code required");
+  setTempUserId(data.userId);
+  setShow2FA(true);
+  alert("Enter Google Authenticator code");
   return;
 }
         localStorage.setItem("token", data.token);
@@ -103,7 +106,40 @@ localStorage.setItem("user", JSON.stringify(safeUser));
       alert("Server Error");
     }
   };
+const verifyLogin2FA = async () => {
+  try {
+    const res = await fetch(`${API}/api/auth/2fa/login-verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: tempUserId,
+        token: twoFaCode,
+      }),
+    });
 
+    const data = await res.json();
+
+    if (data.success) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      alert("Login successful");
+
+      if (setPage) {
+        setPage("dashboard");
+      }
+
+      window.location.reload();
+    } else {
+      alert(data.message || "Invalid Google Authenticator code");
+    }
+  } catch (err) {
+    console.log(err);
+    alert("2FA verification failed");
+  }
+};
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -190,7 +226,20 @@ localStorage.setItem("user", JSON.stringify(safeUser));
             value={form.password}
             onChange={handleChange}
           />
+{show2FA && (
+  <>
+    <input
+      type="text"
+      placeholder="Enter Google Authenticator Code"
+      value={twoFaCode}
+      onChange={(e) => setTwoFaCode(e.target.value)}
+    />
 
+    <button onClick={verifyLogin2FA}>
+      Verify 2FA
+    </button>
+  </>
+)}
           <button
             className="auth-submit"
             onClick={mode === "signup" ? signup : login}
