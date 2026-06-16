@@ -73,6 +73,26 @@ const filteredWithdrawals = withdrawals.filter((item) => {
   if (withdrawalFilter === "all") return true;
   return item.status?.toLowerCase() === withdrawalFilter;
 });
+const [kycFilter, setKycFilter] = useState("all");
+
+const totalKyc = kycRequests.length;
+
+const pendingKyc = kycRequests.filter(
+  (k) => k.status?.toLowerCase() === "pending"
+).length;
+
+const approvedKyc = kycRequests.filter(
+  (k) => k.status?.toLowerCase() === "approved"
+).length;
+
+const rejectedKyc = kycRequests.filter(
+  (k) => k.status?.toLowerCase() === "rejected"
+).length;
+
+const filteredKyc = kycRequests.filter((item) => {
+  if (kycFilter === "all") return true;
+  return item.status?.toLowerCase() === kycFilter;
+});
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -620,10 +640,55 @@ const filteredWithdrawals = withdrawals.filter((item) => {
       {adminTab === "kyc" && (
         <div className="admin-content">
           <h3>User / Project KYC Requests</h3>
-          {kycRequests.length === 0 ? (
-            <p>No KYC requests found.</p>
-          ) : (
-            kycRequests.map((kyc) => (
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "15px",
+    marginBottom: "20px"
+  }}
+>
+  <div className="admin-card stat-total">
+    <h4>Total</h4>
+    <h2>{totalKyc}</h2>
+  </div>
+
+  <div className="admin-card stat-pending">
+    <h4>Pending</h4>
+    <h2>{pendingKyc}</h2>
+  </div>
+
+  <div className="admin-card stat-approved">
+    <h4>Approved</h4>
+    <h2>{approvedKyc}</h2>
+  </div>
+
+  <div className="admin-card stat-rejected">
+    <h4>Rejected</h4>
+    <h2>{rejectedKyc}</h2>
+  </div>
+</div>
+<div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+  <button className="tab" onClick={() => setKycFilter("all")}>
+    All
+  </button>
+
+  <button className="tab" onClick={() => setKycFilter("pending")}>
+    Pending
+  </button>
+
+  <button className="tab" onClick={() => setKycFilter("approved")}>
+    Approved
+  </button>
+
+  <button className="tab" onClick={() => setKycFilter("rejected")}>
+    Rejected
+  </button>
+</div>
+        {filteredKyc.length === 0 ? (
+  <p>No KYC requests found.</p>
+) : (
+  filteredKyc.map((kyc) => (
               <div key={kyc._id} className="request-card">
                 <p><b>Name:</b> {kyc.fullName}</p>
                 <p><b>Email:</b> {kyc.email}</p>

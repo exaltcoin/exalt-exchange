@@ -2522,4 +2522,62 @@ color:white;
 .reject-btn {
   background: #ef4444;
   color: #fff;
+}.stat-total h2{
+  color:#4da3ff;
+  font-size:32px;
+  font-weight:700;
+}
+
+.stat-pending h2{
+  color:#ffb347;
+  font-size:32px;
+  font-weight:700;
+}
+
+.stat-approved h2{
+  color:#4caf50;
+  font-size:32px;
+  font-weight:700;
+}
+
+.stat-rejected h2{
+  color:#ff4d4f;
+  font-size:32px;
+  font-weight:700;
+}
+
+.admin-card{
+  background:#1f2437;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:16px;
+  transition:0.3s;
+}
+
+.admin-card:hover{
+  transform:translateY(-3px);
+  border-color:#f0b90b;
+  box-shadow:0 0 15px rgba(240,185,11,0.25);
+}
+
+.request-card{
+  background:#1f2437;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:15px;
+}
+
+.tab{
+  background:#2a3045;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:8px 14px;
+  cursor:pointer;
+}
+
+.tab:hover{
+  background:#f0b90b;
+  color:#000;
 }
