@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { useState } from "react";
 function Settings() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
 const [qrCode, setQrCode] = useState("");
