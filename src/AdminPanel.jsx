@@ -176,21 +176,25 @@ const filteredListings = listings.filter((item) => {
         <div className="admin-content">
           <h3>Coin Listing Requests</h3>
           <div style={{ marginBottom: "15px" }}>
-  <button onClick={() => setListingFilter("all")}>
+ <div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+
+  <button className="action-btn" onClick={() => setListingFilter("all")}>
     All
   </button>
 
-  <button onClick={() => setListingFilter("pending")}>
+  <button className="action-btn" onClick={() => setListingFilter("pending")}>
     Pending
   </button>
 
-  <button onClick={() => setListingFilter("approved")}>
+  <button className="action-btn" onClick={() => setListingFilter("approved")}>
     Approved
   </button>
 
-  <button onClick={() => setListingFilter("rejected")}>
+  <button className="action-btn" onClick={() => setListingFilter("rejected")}>
     Rejected
   </button>
+
+</div>
 </div>
          {filteredListings.length === 0 ? (
             <p>No listing requests found.</p>
