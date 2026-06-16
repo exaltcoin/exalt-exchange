@@ -11,6 +11,8 @@ const user = JSON.parse(localStorage.getItem("user"));
 const [withdrawals, setWithdrawals] = useState([]);
 const [kycRequests, setKycRequests] = useState([]);
 const [web3Transactions, setWeb3Transactions] = useState([]);
+const [web3Search, setWeb3Search] = useState("");
+const [web3Filter, setWeb3Filter] = useState("ALL");
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -274,11 +276,49 @@ const updateWithdrawal = async (id, status) => {
         ))
       )}
      <h3>Web3 Transactions</h3>
+<div style={{ marginBottom: "15px" }}>
+  <input
+    type="text"
+    placeholder="Search wallet or hash..."
+    value={web3Search}
+    onChange={(e) => setWeb3Search(e.target.value)}
+    style={{
+      width: "60%",
+      padding: "8px",
+      marginRight: "10px"
+    }}
+  />
 
+  <select
+    value={web3Filter}
+    onChange={(e) => setWeb3Filter(e.target.value)}
+    style={{ padding: "8px" }}
+  >
+    <option value="ALL">All</option>
+    <option value="Receive">Receive</option>
+    <option value="Send">Send</option>
+    <option value="Swap">Swap</option>
+  </select>
+</div>
 {web3Transactions.length === 0 ? (
   <p>No Web3 transactions found.</p>
 ) : (
-  web3Transactions.map((tx) => (
+ web3Transactions
+  .filter((tx) => {
+    const matchFilter =
+      web3Filter === "ALL" || tx.type === web3Filter;
+
+    const search = web3Search.toLowerCase();
+
+    const matchSearch =
+      !search ||
+      tx.wallet?.toLowerCase().includes(search) ||
+      tx.hash?.toLowerCase().includes(search) ||
+      tx.coin?.toLowerCase().includes(search);
+
+    return matchFilter && matchSearch;
+  })
+  .map((tx) => (
     <div className="admin-card" key={tx._id}>
       <p><b>Wallet:</b> {tx.wallet}</p>
       <p><b>Type:</b> {tx.type}</p>
