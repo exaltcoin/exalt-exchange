@@ -89,6 +89,37 @@ const saveTx = (type, hash, amount, coin) => {
 } catch (err) {
   console.error("MongoDB Web3 tx save failed:", err);
 }
+const loadMongoHistory = async (walletAddress) => {
+  try {
+    if (!walletAddress) return;
+
+    const res = await fetch(
+      `https://exalt-exchange-backend.onrender.com/api/web3-transactions/${walletAddress}`
+    );
+
+    const data = await res.json();
+
+    if (data.success && Array.isArray(data.transactions)) {
+      const formatted = data.transactions.map((tx) => ({
+        type: tx.type,
+        hash: tx.hash,
+        amount: tx.amount,
+        coin: tx.coin,
+        status: tx.status,
+        time: new Date(tx.createdAt).toLocaleString(),
+      }));
+
+      setTxHistory(formatted);
+
+      localStorage.setItem(
+        "exalt_tx_history",
+        JSON.stringify(formatted)
+      );
+    }
+  } catch (err) {
+    console.error("MongoDB history load failed:", err);
+  }
+};
 };
   const getLatestReceiveTx = async (walletAddress, coin) => {
   try {
@@ -169,6 +200,7 @@ const receiveAddresses = {
     setWallet(accounts[0]);
     setBnbBalance(Number(ethers.formatEther(balance)).toFixed(5));
     await loadBalances(accounts[0]);
+    await loadMongoHistory(accounts[0]);
   };
 const loadBalances = async (walletAddress) => {
   try {
