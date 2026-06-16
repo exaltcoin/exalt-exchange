@@ -81,6 +81,11 @@ localStorage.setItem("user", JSON.stringify(safeUser));
       const data = await res.json();
 
       if (data.success) {
+        if (data.require2FA) {
+  localStorage.setItem("tempUserId", data.userId);
+  alert("Google Authenticator code required");
+  return;
+}
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
           
@@ -236,7 +241,7 @@ onClick={async () => {
   Forgot Password?
 </p>
           <p className="security-text">
-            🔐 MongoDB Secure Auth • JWT Login • Wallet Support
+           🛡️ Exalt Exchange • Advanced Security • Google 2FA • Global Trading
           </p>
 
         </div>
