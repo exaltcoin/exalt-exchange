@@ -12,6 +12,7 @@ const [kycRequests, setKycRequests] = useState([]);
 const [web3Transactions, setWeb3Transactions] = useState([]);
 const [web3Search, setWeb3Search] = useState("");
 const [web3Filter, setWeb3Filter] = useState("ALL");
+const [adminTab, setAdminTab] = useState("overview");
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -176,6 +177,51 @@ const updateWithdrawal = async (id, status) => {
   return (
     <div className="panel">
       <h2>Admin Panel</h2>
+      <div className="admin-tabs">
+
+<button
+  className={adminTab === "overview" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("overview")}
+>
+  Overview
+</button>
+
+<button
+  className={adminTab === "deposits" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("deposits")}
+>
+  Deposits
+</button>
+
+<button
+  className={adminTab === "withdrawals" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("withdrawals")}
+>
+  Withdrawals
+</button>
+
+<button
+  className={adminTab === "web3" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("web3")}
+>
+  Web3
+</button>
+
+<button
+  className={adminTab === "kyc" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("kyc")}
+>
+  KYC
+</button>
+
+<button
+  className={adminTab === "support" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("support")}
+>
+  Support
+</button>
+
+</div>
       <div className="admin-stats">
 
   <div className="stat-card">

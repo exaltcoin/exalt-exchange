@@ -2363,4 +2363,31 @@ color:white;
   color:white;
   margin-top:10px;
   font-weight:600;
+}.admin-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:20px 0;
+}
+
+.tab{
+  background:#1e2329;
+  color:#b7bdc6;
+  border:1px solid #2b3139;
+  padding:10px 18px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
+}
+
+.tab:hover{
+  background:#2b3139;
+  color:#fff;
+}
+
+.active-tab{
+  background:#f0b90b;
+  color:#000;
+  border-color:#f0b90b;
 }
