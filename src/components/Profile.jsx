@@ -16,6 +16,7 @@ const [telegram, setTelegram] = useState("");
 const [bio, setBio] = useState("");
 const [profileImage, setProfileImage] = useState(""); 
 const countryOptions = useMemo(() => countryList().getData(), []);
+const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 const [phoneCountry, setPhoneCountry] = useState("us");
 useEffect(() => {
   const loadProfile = async () => {
@@ -41,7 +42,7 @@ useEffect(() => {
 
       const data = await res.json();
       const profileUser = data.user || savedUser;
-
+setTwoFactorEnabled(profileUser.twoFactorEnabled || false);
       localStorage.setItem("user", JSON.stringify(profileUser));
 
       setUser(profileUser);
@@ -149,6 +150,20 @@ const res = await fetch(`${API}/api/auth/profile`, {
           <h2>{user.name || "User Profile"}</h2>
           <p>{user.email || "No email connected"}</p>
         </div>
+      <span
+  style={{
+    background: twoFactorEnabled ? "#00c853" : "#ff1744",
+    color: "#fff",
+    padding: "6px 12px",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    display: "inline-block",
+    marginTop: "10px"
+  }}
+>
+  {twoFactorEnabled ? "🟢 2FA Enabled" : "🔴 2FA Disabled"}
+</span>  
 <span
  className={
     kycStatus === "approved"
