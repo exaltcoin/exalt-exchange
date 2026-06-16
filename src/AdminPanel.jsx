@@ -10,6 +10,7 @@ const user = JSON.parse(localStorage.getItem("user"));
   const [transactions, setTransactions] = useState([]);
 const [withdrawals, setWithdrawals] = useState([]);
 const [kycRequests, setKycRequests] = useState([]);
+const [web3Transactions, setWeb3Transactions] = useState([]);
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -85,6 +86,15 @@ setTransactions(
   transactionsData.data ||
   transactionsData ||
   []
+);
+const web3Res = await fetch(
+  `${API}/api/web3-transactions`
+);
+
+const web3Data = await web3Res.json();
+
+setWeb3Transactions(
+  web3Data.transactions || []
 );
 } catch (error) {
     console.log(error);
@@ -263,6 +273,24 @@ const updateWithdrawal = async (id, status) => {
           </div>
         ))
       )}
+     <h3>Web3 Transactions</h3>
+
+{web3Transactions.length === 0 ? (
+  <p>No Web3 transactions found.</p>
+) : (
+  web3Transactions.map((tx) => (
+    <div className="admin-card" key={tx._id}>
+      <p><b>Wallet:</b> {tx.wallet}</p>
+      <p><b>Type:</b> {tx.type}</p>
+      <p><b>Coin:</b> {tx.coin}</p>
+      <p><b>Amount:</b> {tx.amount}</p>
+      <p><b>Status:</b> {tx.status}</p>
+      <p><b>Chain:</b> {tx.chain}</p>
+      <p><b>Time:</b> {new Date(tx.createdAt).toLocaleString()}</p>
+      <p><b>Hash:</b> {tx.hash}</p>
+    </div>
+  ))
+)} 
 <h3>User / Project KYC Requests</h3>
 
 {kycRequests.length === 0 ? (
