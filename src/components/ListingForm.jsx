@@ -59,6 +59,11 @@ const response = await fetch(
 marketCap: "",
 liquidity: "",
 logo: "",
+ownerName: "",
+ownerEmail: "",
+ownerWallet: "",
+projectCategory: "",
+whitepaper: "",
       });
     } else {
       alert(data.message || "Submission failed");
@@ -88,6 +93,40 @@ logo: "",
         <input name="price" placeholder="Live Price" value={form.price} onChange={update} />
 <input name="marketCap" placeholder="Market Cap" value={form.marketCap} onChange={update} />
 <input name="liquidity" placeholder="Liquidity" value={form.liquidity} onChange={update} />
+<input
+  name="ownerName"
+  placeholder="Owner Name"
+  value={form.ownerName}
+  onChange={update}
+/>
+
+<input
+  name="ownerEmail"
+  placeholder="Owner Email"
+  value={form.ownerEmail}
+  onChange={update}
+/>
+
+<input
+  name="ownerWallet"
+  placeholder="Owner Wallet Address"
+  value={form.ownerWallet}
+  onChange={update}
+/>
+
+<input
+  name="projectCategory"
+  placeholder="Project Category"
+  value={form.projectCategory}
+  onChange={update}
+/>
+
+<input
+  name="whitepaper"
+  placeholder="Whitepaper URL"
+  value={form.whitepaper}
+  onChange={update}
+/>
 
         <button type="submit" className="buy-btn">
           Submit Listing
