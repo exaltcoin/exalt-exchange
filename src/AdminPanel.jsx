@@ -16,6 +16,19 @@ function AdminPanel() {
   const [web3Filter, setWeb3Filter] = useState("ALL");
   const [adminTab, setAdminTab] = useState("overview");
   const [listingFilter, setListingFilter] = useState("all");
+  const totalListings = listings.length;
+
+const pendingListings = listings.filter(
+  (item) => item.status?.toLowerCase() === "pending"
+).length;
+
+const approvedListings = listings.filter(
+  (item) => item.status?.toLowerCase() === "approved"
+).length;
+
+const rejectedListings = listings.filter(
+  (item) => item.status?.toLowerCase() === "rejected"
+).length;
 const filteredListings = listings.filter((item) => {
   if (listingFilter === "all") return true;
   return item.status === listingFilter;
@@ -175,8 +188,38 @@ const filteredListings = listings.filter((item) => {
       {adminTab === "listings" && (
         <div className="admin-content">
           <h3>Coin Listing Requests</h3>
-          <div style={{ marginBottom: "15px" }}>
- <div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "15px",
+    marginBottom: "20px"
+  }}
+>
+ 
+  <div className="admin-card">
+    <h4>Total</h4>
+    <h2>{totalListings}</h2>
+  </div>
+
+  <div className="admin-card">
+    <h4>Pending</h4>
+    <h2>{pendingListings}</h2>
+  </div>
+
+  <div className="admin-card">
+    <h4>Approved</h4>
+    <h2>{approvedListings}</h2>
+  </div>
+
+  <div className="admin-card">
+    <h4>Rejected</h4>
+    <h2>{rejectedListings}</h2>
+  </div>
+</div>
+<div style={{ marginBottom: "15px" }}>
+<div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+
 
   <button className="tab" onClick={() => setListingFilter("all")}>
     All
