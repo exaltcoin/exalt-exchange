@@ -2279,4 +2279,35 @@ overflow: hidden;
     width: 100% !important;
     max-width: 100% !important;
   }
+}.admin-stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  margin:20px 0;
+}
+
+.stat-card{
+  background:#1a1a1a;
+  border:1px solid #333;
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+  transition:0.3s;
+}
+
+.stat-card:hover{
+  border-color:#f0b90b;
+  transform:translateY(-3px);
+}
+
+.stat-card h3{
+  color:#f0b90b;
+  font-size:28px;
+  margin-bottom:8px;
+}
+
+.stat-card p{
+  color:#fff;
+  font-size:14px;
+  margin:0;
 }

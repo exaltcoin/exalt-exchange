@@ -177,6 +177,39 @@ const updateWithdrawal = async (id, status) => {
   return (
     <div className="panel">
       <h2>Admin Panel</h2>
+      <div className="admin-stats">
+
+  <div className="stat-card">
+    <h3>{listings.length}</h3>
+    <p>Listings</p>
+  </div>
+
+  <div className="stat-card">
+    <h3>{deposits.filter(d => d.status === "pending").length}</h3>
+    <p>Pending Deposits</p>
+  </div>
+
+  <div className="stat-card">
+    <h3>{withdrawals.filter(w => w.status === "pending").length}</h3>
+    <p>Pending Withdrawals</p>
+  </div>
+
+  <div className="stat-card">
+    <h3>{kycRequests.filter(k => k.status === "pending").length}</h3>
+    <p>Pending KYC</p>
+  </div>
+
+  <div className="stat-card">
+    <h3>{web3Transactions.length}</h3>
+    <p>Web3 Transactions</p>
+  </div>
+
+  <div className="stat-card">
+    <h3>{tickets.length}</h3>
+    <p>Support Tickets</p>
+  </div>
+
+</div>
       <p>Manage listings, deposits, support tickets and approvals.</p>
 
       <h3>Coin Listing Requests</h3>
