@@ -24,7 +24,7 @@ logo: "",
 
   const submitListing = async (e) => {
   e.preventDefault();
-
+console.log(form);
   try {
    const API = import.meta.env.VITE_API_URL;
 
@@ -35,7 +35,7 @@ const response = await fetch(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(form),
+   body: JSON.stringify(form),
   }
 );
 
