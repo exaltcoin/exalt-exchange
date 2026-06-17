@@ -18,7 +18,15 @@ function AdminPanel() {
   const [listingFilter, setListingFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const totalListings = listings.length;
-
+const searchedListings = filteredListings.filter(
+  (item) =>
+    (item.coinName || item.name || "")
+      .toLowerCase()
+      .includes(webSearch.toLowerCase()) ||
+    (item.symbol || "")
+      .toLowerCase()
+      .includes(webSearch.toLowerCase())
+);
 const pendingListings = listings.filter(
   (item) => item.status?.toLowerCase() === "pending"
 ).length;
@@ -32,7 +40,11 @@ const rejectedListings = listings.filter(
 ).length;
 const filteredListings = listings.filter((item) => {
   if (listingFilter === "all") return true;
-  return item.status === listingFilter;
+
+  return (
+    item.status &&
+    item.status.toLowerCase() === listingFilter.toLowerCase()
+  );
 });
 const [depositFilter, setDepositFilter] = useState("all");
 
@@ -289,6 +301,22 @@ const filteredAdminTransactions = transactions.filter((item) => {
       {adminTab === "listings" && (
         <div className="admin-content">
           <h3>Coin Listing Requests</h3>
+          <div style={{ marginBottom: "15px" }}>
+  <input
+    type="text"
+    placeholder="Search by name or symbol..."
+    value={webSearch}
+    onChange={(e) => setWebSearch(e.target.value)}
+    style={{
+      width: "100%",
+      padding: "10px",
+      borderRadius: "8px",
+      background: "#1e2329",
+      color: "#fff",
+      border: "1px solid #f0b90b"
+    }}
+  />
+</div>
           <div
   style={{
     display: "grid",
@@ -340,10 +368,10 @@ const filteredAdminTransactions = transactions.filter((item) => {
 </div>
 
 </div>
-         {filteredListings.length === 0 ? (
+        {searchedListings.length === 0 ? (
             <p>No listing requests found.</p>
           ) : (
-         filteredListings.map((item) => (
+        searchedListings.map((item) => (
               <div className="admin-card" key={item._id}>
                 <h4>{item.coinName || item.name} ({item.symbol})</h4>
                 <p>Chain: {item.chain}</p> 
@@ -381,46 +409,66 @@ const filteredAdminTransactions = transactions.filter((item) => {
     {item.riskLevel}
   </span>
 </p>                 
- <p>
-  Contract:
-  <code>{item.contractAddress || item.contract}</code>
-</p>
-<button
-  className="action-btn"
-  onClick={() =>
-    navigator.clipboard.writeText(
-      item.contractAddress || item.contract
-    )
-  }
+ <div className="contract-box">
+  <span>Contract</span>
+
+  <code>
+    {item.contractAddress || item.contract}
+  </code>
+
+  <button
+    className="action-btn"
+    onClick={() =>
+      navigator.clipboard.writeText(
+        item.contractAddress || item.contract
+      )
+    }
+  >
+    📋 Copy Contract
+  </button>
+</div>
+<div
+  style={{
+    marginTop: "10px",
+    display: "flex",
+    gap: "8px",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  }}
 >
-  Copy Contract
-</button>
-<div style={{ marginTop: "10px" }}>
-  {item.checks?.kycVerified && <span>✅ KYC </span>}
-  {item.checks?.liquidityLocked && <span>🔒 LP Locked </span>}
-  {item.checks?.auditAvailable && <span>🛡 Audit </span>}
-  {item.checks?.websiteVerified && <span>🌐 Website </span>}
-  {item.checks?.telegramVerified && <span>📢 Telegram </span>}
-  {item.checks?.xVerified && <span>𝕏 X </span>}
-  {item.checks?.teamVerified && <span>👨‍💼 Team </span>}
+ {item.checks?.kycVerified && (
+  <span className="verify-badge">✅ KYC</span>
+)}
+ {item.checks?.liquidityLocked && (
+  <span className="verify-badge">🔒 LP Locked</span>
+)}
+ {item.checks?.auditAvailable && (
+  <span className="verify-badge">🛡 Audit</span>
+)}
+  {item.checks?.websiteVerified && (
+  <span className="verify-badge">🌐 Website</span>
+)}
+ {item.checks?.telegramVerified && (
+  <span className="verify-badge">📢 Telegram</span>
+)}
+  {item.checks?.xVerified && (
+  <span className="verify-badge">❎ X</span>
+)}
+ {item.checks?.teamVerified && (
+  <span className="verify-badge">👥 Team</span>
+)}
 </div>
  <p>             
   Logo:
-  {item.logo && (
-    <img
-      src={item.logo}
-      alt="logo"
-      style={{
-        width: "50px",
-        height: "50px",
-        marginLeft: "10px",
-        borderRadius: "50%",
-        objectFit: "cover"
-      }}
-    />
-  )}
+ {item.logo && (
+  <img
+    src={item.logo}
+    alt="logo"
+    className="admin-coin-logo"
+  />
+)}
 </p>
-         <p>
+<p>
   Status:
   <span
     style={{
@@ -436,11 +484,14 @@ const filteredAdminTransactions = transactions.filter((item) => {
   >
     {item.status?.toUpperCase()}
   </span>
-</p>      
-<p>Owner Name: {safeText(item.ownerName)}</p>
-<p>Owner Email: {safeText(item.ownerEmail)}</p>
-<p>Owner Wallet: {safeText(item.ownerWallet)}</p>
-<p>Project Category: {safeText(item.projectCategory)}</p>
+</p>
+<p><strong>Owner Name:</strong> {safeText(item.ownerName)}</p>
+<p><strong>Owner Email:</strong> {safeText(item.ownerEmail)}</p>
+<p><strong>Owner Wallet:</strong> {safeText(item.ownerWallet)}</p>
+<p><strong>Project Category:</strong> {safeText(item.projectCategory)}</p>
+<p><strong>Price:</strong> {safeText(item.price)}</p>
+<p><strong>Market Cap:</strong> {safeText(item.marketCap)}</p>
+<p><strong>Liquidity:</strong> {safeText(item.liquidity)}</p>
 <p>
   <div style={{ marginTop: "10px" }}>
     {(item.contractAddress || item.contract) && (

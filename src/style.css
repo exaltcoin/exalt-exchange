@@ -2629,4 +2629,65 @@ color:white;
 .break-text {
   word-break: break-all;
   overflow-wrap: break-word;
+}.verify-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:20px;
+  background:#1e2329;
+  border:1px solid #f0b90b;
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  margin:4px;
+  transition:0.3s;
+}
+
+.verify-badge:hover{
+  background:#f0b90b;
+  color:#111;
+  transform:translateY(-2px);
+}.admin-coin-logo{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  object-fit:cover;
+  margin-left:10px;
+  border:2px solid #f0b90b;
+  box-shadow:0 0 15px rgba(240,185,11,0.35);
+}.contract-box{
+  background:#1e2329;
+  border:1px solid #f0b90b;
+  border-radius:12px;
+  padding:15px;
+  margin-top:15px;
+}
+
+.contract-box span{
+  display:block;
+  color:#f0b90b;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.contract-box code{
+  display:block;
+  color:#fff;
+  word-break:break-all;
+  margin-bottom:12px;
+}.contract-box .action-btn{
+  width:100%;
+  margin-top:10px;
+}
+
+.contract-box .action-btn:hover{
+  transform:translateY(-2px);
+}
+
+.contract-box code{
+  background:#111827;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #2c3648;
 }
