@@ -4,7 +4,6 @@ function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
-
   const [listings, setListings] = useState([]);
   const [deposits, setDeposits] = useState([]);
   const [tickets, setTickets] = useState([]);
@@ -18,6 +17,7 @@ function AdminPanel() {
   const [adminTab, setAdminTab] = useState("overview");
   const [listingFilter, setListingFilter] = useState("all");
   const [loading, setLoading] = useState(false);
+const [selectedListing, setSelectedListing] = useState(null);
   const totalListings = listings.length;
 const pendingListings = listings.filter(
   (item) => item.status?.toLowerCase() === "pending"
@@ -366,6 +366,12 @@ const filteredAdminTransactions = transactions.filter((item) => {
        filteredListings.map((item) => (
               <div className="admin-card" key={item._id}>
                 <h4>{item.coinName || item.name} ({item.symbol})</h4>
+                <button
+  className="details-btn"
+  onClick={() => setSelectedListing(item)}
+>
+  👁 View Details
+</button>
                 <p>Chain: {item.chain}</p> 
     <p>
   Safety Score:
@@ -1026,5 +1032,38 @@ const filteredAdminTransactions = transactions.filter((item) => {
     </div>
   );
 }
+{selectedListing && (
+  <div className="modal-overlay">
+    <div className="listing-modal">
+      <button
+        className="modal-close"
+        onClick={() => setSelectedListing(null)}
+      >
+        ✕
+      </button>
 
+      <h2>{selectedListing.coinName || selectedListing.name || "Listing Details"}</h2>
+      <p><strong>Symbol:</strong> {selectedListing.symbol || "N/A"}</p>
+      <p><strong>Chain:</strong> {selectedListing.chain || "N/A"}</p>
+      <p><strong>Contract:</strong> {selectedListing.contractAddress || selectedListing.contract || "N/A"}</p>
+      <p><strong>Status:</strong> {selectedListing.status || "N/A"}</p>
+      <p><strong>Risk Level:</strong> {selectedListing.riskLevel || "N/A"}</p>
+      <p><strong>Safety Score:</strong> {selectedListing.safetyScore || 0}/100</p>
+      <p><strong>Owner:</strong> {selectedListing.ownerName || "N/A"}</p>
+      <p><strong>Email:</strong> {selectedListing.ownerEmail || "N/A"}</p>
+      <p><strong>Wallet:</strong> {selectedListing.ownerWallet || "N/A"}</p>
+      <p><strong>Category:</strong> {selectedListing.projectCategory || "N/A"}</p>
+      <p><strong>Price:</strong> {selectedListing.price || "N/A"}</p>
+      <p><strong>Market Cap:</strong> {selectedListing.marketCap || "N/A"}</p>
+      <p><strong>Liquidity:</strong> {selectedListing.liquidity || "N/A"}</p>
+
+      <div className="modal-links">
+        {selectedListing.website && <a href={selectedListing.website} target="_blank" rel="noreferrer">Website</a>}
+        {selectedListing.telegram && <a href={selectedListing.telegram} target="_blank" rel="noreferrer">Telegram</a>}
+        {selectedListing.twitter && <a href={selectedListing.twitter} target="_blank" rel="noreferrer">Twitter/X</a>}
+        {selectedListing.whitepaper && <a href={selectedListing.whitepaper} target="_blank" rel="noreferrer">Whitepaper</a>}
+      </div>
+    </div>
+  </div>
+)}
 export default AdminPanel;
