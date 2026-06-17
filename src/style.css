@@ -2703,4 +2703,21 @@ color:white;
 .admin-card h4{
   text-align:left;
   color:#f0b90b;
+}.copy-contract-btn{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  background:#f0b90b;
+  color:#111;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.copy-contract-btn:hover{
+  background:#ffd54f;
+  transform:translateY(-2px);
+  box-shadow:0 0 15px rgba(240,185,11,.4);
 }

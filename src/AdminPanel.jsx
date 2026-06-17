@@ -409,15 +409,15 @@ const filteredAdminTransactions = transactions.filter((item) => {
   </code>
 
   <button
-    className="action-btn"
-    onClick={() =>
-      navigator.clipboard.writeText(
-        item.contractAddress || item.contract
-      )
-    }
-  >
-    📋 Copy Contract
-  </button>
+  className="copy-contract-btn"
+  onClick={() =>
+    navigator.clipboard.writeText(
+      item.contractAddress || item.contract
+    )
+  }
+>
+  📋 Copy Contract
+</button>
 </div>
 <div
   style={{
