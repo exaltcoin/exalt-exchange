@@ -1029,10 +1029,7 @@ const filteredAdminTransactions = transactions.filter((item) => {
           )}
         </div>
       )}
-    </div>
-  );
-}
-{selectedListing && (
+      {selectedListing && (
   <div className="modal-overlay">
     <div className="listing-modal">
       <button
@@ -1066,4 +1063,8 @@ const filteredAdminTransactions = transactions.filter((item) => {
     </div>
   </div>
 )}
+    </div>
+  );
+}
+
 export default AdminPanel;
