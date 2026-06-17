@@ -346,7 +346,41 @@ const filteredAdminTransactions = transactions.filter((item) => {
          filteredListings.map((item) => (
               <div className="admin-card" key={item._id}>
                 <h4>{item.coinName || item.name} ({item.symbol})</h4>
-                <p>Chain: {item.chain}</p>      
+                <p>Chain: {item.chain}</p> 
+    <p>
+  Safety Score:
+  <span
+    style={{
+      color:
+        item.safetyScore >= 80
+          ? "#00c853"
+          : item.safetyScore >= 50
+          ? "#ff9800"
+          : "#ff1744",
+      fontWeight: "bold",
+      marginLeft: "8px",
+    }}
+  >
+    {item.safetyScore || 0}/100
+  </span>
+</p>
+<p>
+  Risk Level:
+  <span
+    style={{
+      color:
+        item.riskLevel === "Low Risk"
+          ? "#00c853"
+          : item.riskLevel === "Medium Risk"
+          ? "#ff9800"
+          : "#ff1744",
+      fontWeight: "bold",
+      marginLeft: "8px",
+    }}
+  >
+    {item.riskLevel}
+  </span>
+</p>                 
  <p>
   Contract:
   <code>{item.contractAddress || item.contract}</code>
@@ -361,6 +395,15 @@ const filteredAdminTransactions = transactions.filter((item) => {
 >
   Copy Contract
 </button>
+<div style={{ marginTop: "10px" }}>
+  {item.checks?.kycVerified && <span>✅ KYC </span>}
+  {item.checks?.liquidityLocked && <span>🔒 LP Locked </span>}
+  {item.checks?.auditAvailable && <span>🛡 Audit </span>}
+  {item.checks?.websiteVerified && <span>🌐 Website </span>}
+  {item.checks?.telegramVerified && <span>📢 Telegram </span>}
+  {item.checks?.xVerified && <span>𝕏 X </span>}
+  {item.checks?.teamVerified && <span>👨‍💼 Team </span>}
+</div>
  <p>             
   Logo:
   {item.logo && (
@@ -452,12 +495,62 @@ const filteredAdminTransactions = transactions.filter((item) => {
       Whitepaper
     </a>
   )}
+ <div style={{ marginTop: "15px" }}>
+  <button
+    className="approve-btn"
+    onClick={() => updateListingStatus(item._id, "approved")}
+  >
+    ✅ Approve
+  </button>
+
+  <button
+    className="reject-btn"
+    onClick={() => updateListingStatus(item._id, "rejected")}
+    style={{ marginLeft: "10px" }}
+  >
+    ❌ Reject
+  </button>
+</div> 
+<div style={{ marginTop: "15px" }}>
+  <p>
+    ⭐ Safety Score:
+    <span style={{ color: "#00ff88", fontWeight: "bold", marginLeft: "8px" }}>
+      {item.safetyScore || 0}/100
+    </span>
+  </p>
+
+  <p>
+    Risk Level:
+    <span
+      style={{
+        color:
+          item.riskLevel === "Low Risk"
+            ? "#00c853"
+            : item.riskLevel === "Medium Risk"
+            ? "#ff9800"
+            : "#ff1744",
+        fontWeight: "bold",
+        marginLeft: "8px"
+      }}
+    >
+      {item.riskLevel}
+    </span>
+  </p>
+
+  <div style={{ marginTop: "10px" }}>
+    {item.checks?.kycVerified && <span>✅ KYC </span>}
+    {item.checks?.liquidityLocked && <span>🔒 LP Locked </span>}
+    {item.checks?.auditAvailable && <span>📋 Audit </span>}
+    {item.checks?.websiteVerified && <span>🌐 Website </span>}
+    {item.checks?.telegramVerified && <span>📢 Telegram </span>}
+    {item.checks?.xVerified && <span>❌ X </span>}
+    {item.checks?.teamVerified && <span>👥 Team </span>}
+  </div>
+</div>
 </div>
  </p>
                 {item.status !== "approved" && item.status !== "rejected" ? (
                   <>
-                    <button className="action-btn approve-btn" onClick={() => updateListing(item._id, "approved")}>Approve</button>
-                    <button className="action-btn reject-btn" onClick={() => updateListing(item._id, "rejected")}>Reject</button>
                   </>
                 ) : (
                   <p>Action completed</p>
