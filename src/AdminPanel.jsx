@@ -1040,12 +1040,39 @@ const filteredAdminTransactions = transactions.filter((item) => {
       </button>
 
       <h2>{selectedListing.coinName || selectedListing.name || "Listing Details"}</h2>
+      {selectedListing.logo && (
+  <img
+    src={selectedListing.logo}
+    alt="logo"
+    className="modal-logo"
+  />
+)}
       <p><strong>Symbol:</strong> {selectedListing.symbol || "N/A"}</p>
       <p><strong>Chain:</strong> {selectedListing.chain || "N/A"}</p>
       <p><strong>Contract:</strong> {selectedListing.contractAddress || selectedListing.contract || "N/A"}</p>
-      <p><strong>Status:</strong> {selectedListing.status || "N/A"}</p>
+     <p>
+  <strong>Status:</strong>{" "}
+  <span className="status-badge">
+    {selectedListing.status || "N/A"}
+  </span>
+</p>
       <p><strong>Risk Level:</strong> {selectedListing.riskLevel || "N/A"}</p>
-      <p><strong>Safety Score:</strong> {selectedListing.safetyScore || 0}/100</p>
+     <p>
+  <strong>Safety Score:</strong>{" "}
+  <span
+    style={{
+      color:
+        (selectedListing.safetyScore || 0) >= 80
+          ? "#00ff88"
+          : (selectedListing.safetyScore || 0) >= 50
+          ? "#ffaa00"
+          : "#ff4444",
+      fontWeight: "bold"
+    }}
+  >
+    {selectedListing.safetyScore || 0}/100
+  </span>
+</p>
       <p><strong>Owner:</strong> {selectedListing.ownerName || "N/A"}</p>
       <p><strong>Email:</strong> {selectedListing.ownerEmail || "N/A"}</p>
       <p><strong>Wallet:</strong> {selectedListing.ownerWallet || "N/A"}</p>
