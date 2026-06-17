@@ -2690,4 +2690,17 @@ color:white;
   padding:10px;
   border-radius:8px;
   border:1px solid #2c3648;
+}.admin-card{
+  text-align:left !important;
+  padding:18px !important;
+}
+
+.admin-card p{
+  text-align:left;
+  margin:6px 0;
+}
+
+.admin-card h4{
+  text-align:left;
+  color:#f0b90b;
 }
