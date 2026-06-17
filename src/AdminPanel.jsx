@@ -368,13 +368,16 @@ const filteredAdminTransactions = transactions.filter((item) => {
     <div className="admin-card" key={item._id}>
       <h4>{item.coinName || item.name} ({item.symbol})</h4>
 
-      <button
-        className="details-btn"
-        onClick={() => setSelectedListing(item)}
-      >
-        👁 View Details
-      </button>
-
+    <button
+  className="details-btn"
+  onClick={() => {
+    console.log("LISTING ITEM:", item);
+    console.log("CHECKS:", item.checks);
+    setSelectedListing(item);
+  }}
+>
+  👁 View Details
+</button> 
       <p>Chain: {item.chain || "N/A"}</p>
 
       <p>
@@ -969,6 +972,7 @@ const filteredAdminTransactions = transactions.filter((item) => {
       fontWeight: "bold"
     }}
   >
+
     {selectedListing.safetyScore || 0}/100
   </span>
 </p>
