@@ -378,7 +378,7 @@ const filteredAdminTransactions = transactions.filter((item) => {
 >
   👁 View Details
 </button> 
-      <p>Chain: {item.chain || "N/A"}</p>
+     <p>Chain: {item.chain || item.network || "N/A"}</p>
 
       <p>
         Safety Score:
