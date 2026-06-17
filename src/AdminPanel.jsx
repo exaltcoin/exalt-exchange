@@ -360,10 +360,10 @@ const filteredAdminTransactions = transactions.filter((item) => {
 </div>
 
 </div>
-        {searchedListings.length === 0 ? (
+       {filteredListings.length === 0 ? (
             <p>No listing requests found.</p>
           ) : (
-        searchedListings.map((item) => (
+       filteredListings.map((item) => (
               <div className="admin-card" key={item._id}>
                 <h4>{item.coinName || item.name} ({item.symbol})</h4>
                 <p>Chain: {item.chain}</p> 
