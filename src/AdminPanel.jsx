@@ -1080,7 +1080,15 @@ const filteredAdminTransactions = transactions.filter((item) => {
       <p><strong>Price:</strong> {selectedListing.price || "N/A"}</p>
       <p><strong>Market Cap:</strong> {selectedListing.marketCap || "N/A"}</p>
       <p><strong>Liquidity:</strong> {selectedListing.liquidity || "N/A"}</p>
-
+<div className="modal-badges">
+  {selectedListing?.checks?.kycVerified && <span className="verify-badge">✅ KYC</span>}
+  {selectedListing?.checks?.liquidityLocked && <span className="verify-badge">🔒 LP Locked</span>}
+  {selectedListing?.checks?.auditAvailable && <span className="verify-badge">📄 Audit</span>}
+  {selectedListing?.checks?.websiteVerified && <span className="verify-badge">🌐 Website</span>}
+  {selectedListing?.checks?.telegramVerified && <span className="verify-badge">📢 Telegram</span>}
+  {selectedListing?.checks?.xVerified && <span className="verify-badge">❎ X</span>}
+  {selectedListing?.checks?.teamVerified && <span className="verify-badge">👥 Team</span>}
+</div>
       <div className="modal-links">
         {selectedListing.website && <a href={selectedListing.website} target="_blank" rel="noreferrer">Website</a>}
         {selectedListing.telegram && <a href={selectedListing.telegram} target="_blank" rel="noreferrer">Telegram</a>}

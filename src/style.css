@@ -2778,4 +2778,10 @@ border:2px solid #f7a600;
   padding:4px 10px;
   border-radius:20px;
   font-weight:700;
+}.modal-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+  margin-bottom:12px;
 }
