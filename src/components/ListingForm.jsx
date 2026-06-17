@@ -28,16 +28,31 @@ console.log(form);
   try {
    const API = import.meta.env.VITE_API_URL;
 
-const response = await fetch(
-  `${API}/api/listings`,
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-   body: JSON.stringify(form),
-  }
-);
+const response = await fetch(`${API}/api/listings`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    coinName: form.name,
+    symbol: form.symbol,
+    network: form.chain,
+    contractAddress: form.contract,
+    website: form.website,
+    telegram: form.telegram,
+    twitter: form.twitter,
+    chart: form.chart,
+    buy: form.buy,
+    price: form.price,
+    marketCap: form.marketCap,
+    liquidity: form.liquidity,
+    ownerName: form.ownerName,
+    ownerEmail: form.ownerEmail,
+    ownerWallet: form.ownerWallet,
+    projectCategory: form.projectCategory,
+    whitepaper: form.whitepaper,
+  }),
+});
 
     const data = await response.json();
 
