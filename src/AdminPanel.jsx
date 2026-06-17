@@ -18,15 +18,6 @@ function AdminPanel() {
   const [listingFilter, setListingFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const totalListings = listings.length;
-const searchedListings = filteredListings.filter(
-  (item) =>
-    (item.coinName || item.name || "")
-      .toLowerCase()
-      .includes(webSearch.toLowerCase()) ||
-    (item.symbol || "")
-      .toLowerCase()
-      .includes(webSearch.toLowerCase())
-);
 const pendingListings = listings.filter(
   (item) => item.status?.toLowerCase() === "pending"
 ).length;
@@ -46,6 +37,15 @@ const filteredListings = listings.filter((item) => {
     item.status.toLowerCase() === listingFilter.toLowerCase()
   );
 });
+const searchedListings = filteredListings.filter(
+  (item) =>
+    (item.coinName || item.name || "")
+      .toLowerCase()
+      .includes(webSearch.toLowerCase()) ||
+    (item.symbol || "")
+      .toLowerCase()
+      .includes(webSearch.toLowerCase())
+);
 const [depositFilter, setDepositFilter] = useState("all");
 
 const totalDeposits = deposits.length;
