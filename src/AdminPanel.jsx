@@ -360,256 +360,117 @@ const filteredAdminTransactions = transactions.filter((item) => {
 </div>
 
 </div>
-       {filteredListings.length === 0 ? (
-            <p>No listing requests found.</p>
-          ) : (
-       filteredListings.map((item) => (
-              <div className="admin-card" key={item._id}>
-                <h4>{item.coinName || item.name} ({item.symbol})</h4>
-                <button
-  className="details-btn"
-  onClick={() => setSelectedListing(item)}
->
-  👁 View Details
-</button>
-                <p>Chain: {item.chain}</p> 
-    <p>
-  Safety Score:
-  <span
-    style={{
-      color:
-        item.safetyScore >= 80
-          ? "#00c853"
-          : item.safetyScore >= 50
-          ? "#ff9800"
-          : "#ff1744",
-      fontWeight: "bold",
-      marginLeft: "8px",
-    }}
-  >
-    {item.safetyScore || 0}/100
-  </span>
-</p>
-<p>
-  Risk Level:
-  <span
-    style={{
-      color:
-        item.riskLevel === "Low Risk"
-          ? "#00c853"
-          : item.riskLevel === "Medium Risk"
-          ? "#ff9800"
-          : "#ff1744",
-      fontWeight: "bold",
-      marginLeft: "8px",
-    }}
-  >
-    {item.riskLevel}
-  </span>
-</p>                 
- <div className="contract-box">
-  <span>Contract</span>
+      
+      {filteredListings.length === 0 ? (
+  <p>No listing requests found.</p>
+) : (
+  filteredListings.map((item) => (
+    <div className="admin-card" key={item._id}>
+      <h4>{item.coinName || item.name} ({item.symbol})</h4>
 
-  <code>
-    {item.contractAddress || item.contract}
-  </code>
+      <button
+        className="details-btn"
+        onClick={() => setSelectedListing(item)}
+      >
+        👁 View Details
+      </button>
 
-  <button
-  className="copy-contract-btn"
-  onClick={() =>
-    navigator.clipboard.writeText(
-      item.contractAddress || item.contract
-    )
-  }
->
-  📋 Copy Contract
-</button>
-</div>
-<div
-  style={{
-    marginTop: "10px",
-    display: "flex",
-    gap: "8px",
-    flexWrap: "wrap",
-    justifyContent: "center",
-  }}
->
- {item.checks?.kycVerified && (
-  <span className="verify-badge">✅ KYC</span>
-)}
- {item.checks?.liquidityLocked && (
-  <span className="verify-badge">🔒 LP Locked</span>
-)}
- {item.checks?.auditAvailable && (
-  <span className="verify-badge">🛡 Audit</span>
-)}
-  {item.checks?.websiteVerified && (
-  <span className="verify-badge">🌐 Website</span>
-)}
- {item.checks?.telegramVerified && (
-  <span className="verify-badge">📢 Telegram</span>
-)}
-  {item.checks?.xVerified && (
-  <span className="verify-badge">❎ X</span>
-)}
- {item.checks?.teamVerified && (
-  <span className="verify-badge">👥 Team</span>
-)}
-</div>
- <p>             
-  Logo:
- {item.logo && (
-  <img
-    src={item.logo}
-    alt="logo"
-    className="admin-coin-logo"
-  />
-)}
-</p>
-<p>
-  Status:
-  <span
-    style={{
-      color:
-        item.status === "approved"
-          ? "#00ff88"
-          : item.status === "rejected"
-          ? "#ff4444"
-          : "#ffaa00",
-      fontWeight: "bold",
-      marginLeft: "8px",
-    }}
-  >
-    {item.status?.toUpperCase()}
-  </span>
-</p>
-<p><strong>Owner Name:</strong> {safeText(item.ownerName)}</p>
-<p><strong>Owner Email:</strong> {safeText(item.ownerEmail)}</p>
-<p><strong>Owner Wallet:</strong> {safeText(item.ownerWallet)}</p>
-<p><strong>Project Category:</strong> {safeText(item.projectCategory)}</p>
-<p><strong>Price:</strong> {safeText(item.price)}</p>
-<p><strong>Market Cap:</strong> {safeText(item.marketCap)}</p>
-<p><strong>Liquidity:</strong> {safeText(item.liquidity)}</p>
-<p>
-  <div style={{ marginTop: "10px" }}>
-    {(item.contractAddress || item.contract) && (
-  <a
-    href={`https://bscscan.com/token/${item.contractAddress || item.contract}`}
-    target="_blank"
-    rel="noreferrer"
-    className="action-btn"
-  >
-    View Contract
-  </a>
-)}
-{item.twitter && (
-  <a
-    href={item.twitter}
-    target="_blank"
-    rel="noreferrer"
-    className="action-btn"
-  >
-    Twitter
-  </a>
-)}
-  {item.website && (
-    <a
-      href={item.website}
-      target="_blank"
-      rel="noreferrer"
-      className="action-btn"
-    >
-      Website
-    </a>
-  )}
+      <p>Chain: {item.chain || "N/A"}</p>
 
-  {item.telegram && (
-    <a
-      href={item.telegram}
-      target="_blank"
-      rel="noreferrer"
-      className="action-btn"
-    >
-      Telegram
-    </a>
-  )}
+      <p>
+        Safety Score:
+        <span
+          style={{
+            color:
+              (item.safetyScore || 0) >= 80
+                ? "#00c853"
+                : (item.safetyScore || 0) >= 50
+                ? "#ff9800"
+                : "#ff1744",
+            fontWeight: "bold",
+            marginLeft: "8px",
+          }}
+        >
+          {item.safetyScore || 0}/100
+        </span>
+      </p>
 
-  {item.whitepaper && (
-    <a
-      href={item.whitepaper}
-      target="_blank"
-      rel="noreferrer"
-      className="action-btn"
-    >
-      Whitepaper
-    </a>
-  )}
- <div style={{ marginTop: "15px" }}>
-  <button
-    className="approve-btn"
-    onClick={() => updateListingStatus(item._id, "approved")}
-  >
-    ✅ Approve
-  </button>
+      <p>
+        Risk Level:
+        <span
+          style={{
+            color:
+              item.riskLevel === "Low Risk"
+                ? "#00c853"
+                : item.riskLevel === "Medium Risk"
+                ? "#ff9800"
+                : "#ff1744",
+            fontWeight: "bold",
+            marginLeft: "8px",
+          }}
+        >
+          {item.riskLevel || "N/A"}
+        </span>
+      </p>
 
-  <button
-    className="reject-btn"
-    onClick={() => updateListingStatus(item._id, "rejected")}
-    style={{ marginLeft: "10px" }}
-  >
-    ❌ Reject
-  </button>
-</div> 
-<div style={{ marginTop: "15px" }}>
-  <p>
-    ⭐ Safety Score:
-    <span style={{ color: "#00ff88", fontWeight: "bold", marginLeft: "8px" }}>
-      {item.safetyScore || 0}/100
-    </span>
-  </p>
+      <div className="contract-box">
+        <span>Contract</span>
+        <code>{item.contractAddress || item.contract || "N/A"}</code>
 
-  <p>
-    Risk Level:
-    <span
-      style={{
-        color:
-          item.riskLevel === "Low Risk"
-            ? "#00c853"
-            : item.riskLevel === "Medium Risk"
-            ? "#ff9800"
-            : "#ff1744",
-        fontWeight: "bold",
-        marginLeft: "8px"
-      }}
-    >
-      {item.riskLevel}
-    </span>
-  </p>
+        <button
+          className="copy-contract-btn"
+          onClick={() =>
+            navigator.clipboard.writeText(item.contractAddress || item.contract || "")
+          }
+        >
+          📋 Copy Contract
+        </button>
+      </div>
 
-  <div style={{ marginTop: "10px" }}>
-    {item.checks?.kycVerified && <span>✅ KYC </span>}
-    {item.checks?.liquidityLocked && <span>🔒 LP Locked </span>}
-    {item.checks?.auditAvailable && <span>📋 Audit </span>}
-    {item.checks?.websiteVerified && <span>🌐 Website </span>}
-    {item.checks?.telegramVerified && <span>📢 Telegram </span>}
-    {item.checks?.xVerified && <span>❌ X </span>}
-    {item.checks?.teamVerified && <span>👥 Team </span>}
-  </div>
-</div>
-</div>
- </p>
-                {item.status !== "approved" && item.status !== "rejected" ? (
-                  <>
-                  </>
-                ) : (
-                  <p>Action completed</p>
-                )}
-              </div>
-            ))
-          )}
+      <p>
+        Status:
+        <span
+          style={{
+            color:
+              item.status === "approved"
+                ? "#00ff88"
+                : item.status === "rejected"
+                ? "#ff4444"
+                : "#ffaa00",
+            fontWeight: "bold",
+            marginLeft: "8px",
+          }}
+        >
+          {item.status?.toUpperCase() || "N/A"}
+        </span>
+      </p>
+
+      {item.status !== "approved" && item.status !== "rejected" ? (
+        <div style={{ marginTop: "15px" }}>
+          <button
+            className="approve-btn"
+            onClick={() => updateListing(item._id, "approved")}
+          >
+            ✅ Approve
+          </button>
+
+          <button
+            className="reject-btn"
+            onClick={() => updateListing(item._id, "rejected")}
+            style={{ marginLeft: "10px" }}
+          >
+            ❌ Reject
+          </button>
         </div>
+      ) : (
+        <p>Action completed</p>
+       
       )}
-
+    </div>
+  ))
+)}
+</div>
+      )}
       {adminTab === "withdrawals" && (
         <div className="admin-content">
           <h3>Withdrawal Requests</h3>
