@@ -13,6 +13,7 @@ function AdminPanel() {
   const [kycRequests, setKycRequests] = useState([]);
   const [web3Transactions, setWeb3Transactions] = useState([]);
   const [web3Search, setWeb3Search] = useState("");
+  const [webSearch, setWebSearch] = useState("");
   const [web3Filter, setWeb3Filter] = useState("ALL");
   const [adminTab, setAdminTab] = useState("overview");
   const [listingFilter, setListingFilter] = useState("all");
