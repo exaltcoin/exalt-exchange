@@ -444,7 +444,45 @@ const filteredAdminTransactions = transactions.filter((item) => {
           {item.status?.toUpperCase() || "N/A"}
         </span>
       </p>
+<div className="listing-info-box">
 
+  <div className="info-row">
+    <span className="info-label">👤 Owner</span>
+    <span className="info-value">{safeText(item.ownerName)}</span>
+  </div>
+
+  <div className="info-row">
+    <span className="info-label">📧 Email</span>
+    <span className="info-value">{safeText(item.ownerEmail)}</span>
+  </div>
+
+  <div className="info-row">
+    <span className="info-label">💼 Category</span>
+    <span className="info-value">{safeText(item.projectCategory)}</span>
+  </div>
+
+  <div className="info-row">
+    <span className="info-label">💰 Price</span>
+    <span className="info-value-green">
+      {safeText(item.price)}
+    </span>
+  </div>
+
+  <div className="info-row">
+    <span className="info-label">📊 Market Cap</span>
+    <span className="info-value-green">
+      {safeText(item.marketCap)}
+    </span>
+  </div>
+
+  <div className="info-row">
+    <span className="info-label">💧 Liquidity</span>
+    <span className="info-value-green">
+      {safeText(item.liquidity)}
+    </span>
+  </div>
+
+</div>
       {item.status !== "approved" && item.status !== "rejected" ? (
         <div style={{ marginTop: "15px" }}>
           <button

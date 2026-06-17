@@ -2784,4 +2784,51 @@ border:2px solid #f7a600;
   gap:8px;
   margin-top:12px;
   margin-bottom:12px;
+}.listing-info-box {
+  margin-top: 15px;
+  background: #131722;
+  border: 1px solid #2b3139;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #848e9c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.info-value {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.info-value-green {
+  color: #00ff88;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.verify-badge {
+  background: rgba(0,255,136,0.15);
+  color: #00ff88;
+  border: 1px solid #00ff88;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  margin: 3px;
+  display: inline-block;
 }
