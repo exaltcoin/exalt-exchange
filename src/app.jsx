@@ -43,6 +43,7 @@ import AIArbitrageScanner from "./components/AIArbitrageScanner";
 import AIGridTrading from "./components/AIGridTrading";
 import AISmartAlerts from "./components/AISmartAlerts";
 import AILaunchpad from "./components/AILaunchpad";
+import AIWhaleHeatmap from "./components/AIWhaleHeatmap";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -218,6 +219,7 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai-grid-trading") return <AIGridTrading />;
     if (page === "ai-smart-alerts") return <AISmartAlerts />;
     if (page === "ai-launchpad") return <AILaunchpad />;
+    if (page === "ai-whale-heatmap") return <AIWhaleHeatmap />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -459,6 +461,14 @@ AI Whale Tracker
   }}
 >
   AI Launchpad
+</button>
+<button
+  onClick={() => {
+    setPage("ai-whale-heatmap");
+    setMenuOpen(false);
+  }}
+>
+  AI Whale Heatmap
 </button>
 <button
   onClick={() => {

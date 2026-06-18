@@ -25,6 +25,7 @@ function Sidebar({ activePage, setActivePage }) {
   "AI Grid Trading",
   "AI Smart Alerts",
   "AI Launchpad",
+  "AI Whale Heatmap",
   "Wallets",
   "Orders",
   "Listings",
