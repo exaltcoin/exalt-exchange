@@ -13,6 +13,7 @@ function Sidebar({ activePage, setActivePage }) {
   "Staking",
   "LearnEarn",
   "AI Assistant",
+  "AI Copy Trading",
   "Wallets",
   "Orders",
   "Listings",
