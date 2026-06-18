@@ -19,6 +19,7 @@ function Sidebar({ activePage, setActivePage }) {
   "AI Risk Manager",
   "AI Profit Calculator",
   "AI Market Scanner",
+  "AI News",
   "Wallets",
   "Orders",
   "Listings",

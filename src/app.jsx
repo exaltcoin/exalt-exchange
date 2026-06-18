@@ -37,6 +37,7 @@ import SocialTrading from "./components/SocialTrading";
 import AIRiskManager from "./components/AIRiskManager";
 import AIProfitCalculator from "./components/AIProfitCalculator";
 import AIMarketScanner from "./components/AIMarketScanner";
+import AINews from "./components/AINews";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -205,7 +206,8 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai risk manager")
   return <AIRiskManager />;
     if (page === "ai-profit-calculator") return <AIProfitCalculator />;
-   if (page === "ai-market-scanner") return <AIMarketScanner />; 
+   if (page === "ai-market-scanner") return <AIMarketScanner />;
+    if (page === "ai-news") return <AINews />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -399,6 +401,14 @@ setMenuOpen(false);
 }}
 >
 AI Market Scanner
+</button>
+<button
+onClick={()=>{
+setPage("ai-news");
+setMenuOpen(false);
+}}
+>
+AI News
 </button>
 <button
   onClick={() => {
