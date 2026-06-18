@@ -24,6 +24,7 @@ function Sidebar({ activePage, setActivePage }) {
   "AI Arbitrage Scanner",
   "AI Grid Trading",
   "AI Smart Alerts",
+  "AI Launchpad",
   "Wallets",
   "Orders",
   "Listings",

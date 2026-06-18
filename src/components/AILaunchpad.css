@@ -1,0 +1,114 @@
+.launchpad-page{
+padding:25px;
+color:white;
+}
+
+.launchpad-header,
+.launch-card,
+.launch-table,
+.launch-ai-box{
+background:#111827;
+border:1px solid rgba(255,193,7,.15);
+border-radius:18px;
+}
+
+.launchpad-header{
+padding:25px;
+margin-bottom:25px;
+}
+
+.launchpad-header h1{
+color:#f6c56b;
+}
+
+.launchpad-header p{
+color:#9ca3af;
+}
+
+.launchpad-stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:18px;
+margin-bottom:25px;
+}
+
+.launch-card{
+padding:20px;
+}
+
+.launch-card span{
+color:#9ca3af;
+}
+
+.launch-card h2{
+color:#f6c56b;
+margin-top:8px;
+}
+
+.launch-table{
+padding:20px;
+overflow-x:auto;
+}
+
+.launch-head,
+.launch-row{
+display:grid;
+grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;
+gap:15px;
+align-items:center;
+min-width:850px;
+}
+
+.launch-head{
+padding-bottom:15px;
+border-bottom:1px solid rgba(255,255,255,.08);
+color:#9ca3af;
+}
+
+.launch-row{
+padding:18px 0;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.roi-color{
+color:#22c55e;
+font-weight:bold;
+}
+
+.status-color{
+color:#f6c56b;
+font-weight:bold;
+}
+
+.launch-row button{
+background:#22c55e;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:12px;
+font-weight:700;
+cursor:pointer;
+}
+
+.launch-ai-box{
+padding:25px;
+margin-top:25px;
+}
+
+.launch-ai-box h2{
+color:#f6c56b;
+margin-bottom:10px;
+}
+
+.launch-ai-box p{
+color:#9ca3af;
+line-height:1.8;
+}
+
+@media(max-width:900px){
+
+.launchpad-stats{
+grid-template-columns:1fr;
+}
+
+}
