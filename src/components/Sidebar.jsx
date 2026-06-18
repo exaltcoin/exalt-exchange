@@ -20,6 +20,7 @@ function Sidebar({ activePage, setActivePage }) {
   "AI Profit Calculator",
   "AI Market Scanner",
   "AI News",
+  "AI Whale Tracker",
   "Wallets",
   "Orders",
   "Listings",

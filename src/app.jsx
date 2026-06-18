@@ -38,6 +38,7 @@ import AIRiskManager from "./components/AIRiskManager";
 import AIProfitCalculator from "./components/AIProfitCalculator";
 import AIMarketScanner from "./components/AIMarketScanner";
 import AINews from "./components/AINews";
+import AIWhaleTracker from "./components/AIWhaleTracker";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -208,6 +209,7 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai-profit-calculator") return <AIProfitCalculator />;
    if (page === "ai-market-scanner") return <AIMarketScanner />;
     if (page === "ai-news") return <AINews />;
+    if (page === "ai-whale-tracker") return <AIWhaleTracker />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -409,6 +411,14 @@ setMenuOpen(false);
 }}
 >
 AI News
+</button>
+<button
+onClick={()=>{
+setPage("ai-whale-tracker");
+setMenuOpen(false);
+}}
+>
+AI Whale Tracker
 </button>
 <button
   onClick={() => {
