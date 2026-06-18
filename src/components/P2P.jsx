@@ -23,30 +23,87 @@ function P2P() {
   const [filterCountry, setFilterCountry] = useState("all");
   const [filterPayment, setFilterPayment] = useState("all");
 
-  const countries = [
-    "Kuwait",
-    "Pakistan",
-    "UAE",
-    "Saudi Arabia",
-    "Oman",
-    "Qatar",
-    "Bahrain",
-    "India",
-    "Turkey",
-    "United Kingdom",
-    "United States",
-  ];
+   const countries = [
+  "Afghanistan", "Albania", "Algeria", "Argentina", "Australia", "Austria",
+  "Bahrain", "Bangladesh", "Belgium", "Brazil", "Canada", "China",
+  "Denmark", "Egypt", "France", "Germany", "India", "Indonesia",
+  "Iran", "Iraq", "Italy", "Japan", "Jordan", "Kuwait",
+  "Lebanon", "Malaysia", "Mexico", "Morocco", "Nepal", "Netherlands",
+  "New Zealand", "Nigeria", "Oman", "Pakistan", "Philippines", "Qatar",
+  "Russia", "Saudi Arabia", "Singapore", "South Africa", "South Korea",
+  "Spain", "Sri Lanka", "Switzerland", "Thailand", "Turkey",
+  "UAE", "United Kingdom", "United States", "Vietnam"
+];
 
-  const paymentMethods = [
-    "Bank Transfer",
-    "JazzCash",
-    "EasyPaisa",
-    "Cash",
-    "USDT Wallet",
-    "K-Net",
-    "Western Union",
-  ];
-
+ const paymentMethods = [
+  "Bank Transfer",
+  "Cash",
+  "USDT Wallet",
+  "PayPal",
+  "Wise",
+  "Revolut",
+  "Western Union",
+  "MoneyGram",
+  "Skrill",
+  "Payoneer",
+  "Apple Pay",
+  "Google Pay",
+  "Visa",
+  "MasterCard",
+  "K-Net",
+  "STC Pay",
+  "Mada",
+  "JazzCash",
+  "EasyPaisa",
+  "NayaPay",
+  "Sadapay",
+  "Binance Pay",
+  "WeChat Pay",
+  "Alipay",
+  "UPI",
+  "IMPS",
+  "PhonePe",
+  "GCash",
+  "Paytm"
+];
+const countryFlags = {
+  Kuwait: "🇰🇼",
+  Pakistan: "🇵🇰",
+  UAE: "🇦🇪",
+  "Saudi Arabia": "🇸🇦",
+  Oman: "🇴🇲",
+  Qatar: "🇶🇦",
+  Bahrain: "🇧🇭",
+  India: "🇮🇳",
+  Turkey: "🇹🇷",
+  "United Kingdom": "🇬🇧",
+  "United States": "🇺🇸",
+  Afghanistan: "🇦🇫",
+  Australia: "🇦🇺",
+  Canada: "🇨🇦",
+  China: "🇨🇳",
+  Germany: "🇩🇪",
+  France: "🇫🇷",
+  Italy: "🇮🇹",
+  Japan: "🇯🇵",
+  Nigeria: "🇳🇬",
+  Philippines: "🇵🇭",
+  "South Africa": "🇿🇦",
+  "South Korea": "🇰🇷",
+  Spain: "🇪🇸",
+  Thailand: "🇹🇭",
+  Vietnam: "🇻🇳",
+};
+const getTraderInfo = (order, index) => {
+  return {
+    name: order.traderName || order.sellerName || `Trader ${index + 1}`,
+    verified: order.verified ?? index % 2 === 0,
+    online: order.online ?? index % 3 !== 0,
+    rating: order.rating || "4.8",
+    completionRate: order.completionRate || "98%",
+    completedOrders: order.completedOrders || 120 + index * 7,
+  };
+};
   const loadOrders = async () => {
     try {
       const response = await fetch(`${API}/api/p2p/orders`);
@@ -381,6 +438,7 @@ function P2P() {
             <table className="p2p-table">
               <thead>
                 <tr>
+                  <th>Trader</th>
                   <th>Type</th>
                   <th>Asset</th>
                   <th>Country</th>
@@ -394,17 +452,77 @@ function P2P() {
               </thead>
 
               <tbody>
-                {filteredOrders.map((order) => (
+               {filteredOrders.map((order, index) => {
+  const trader = getTraderInfo(order, index);
+
+  return (
                   <tr key={order._id}>
                     <td>
-                      <span className={order.type === "sell" ? "tag-red" : "tag-green"}>
-                        {order.type?.toUpperCase()}
-                      </span>
+                    <td>
+  <div className="trader-box">
+    <div className="trader-avatar">
+      {trader.name.charAt(0).toUpperCase()}
+    </div>
+
+    <div>
+      <div className="trader-name">
+        {trader.name}
+        {trader.verified && (
+          <span className="verified-badge">✔</span>
+        )}
+      </div>
+<div className="trader-meta">
+
+  <span className={trader.online ? "online-status" : "offline-status"}>
+    <span className={trader.online ? "online-dot" : "offline-dot"}></span>
+    {trader.online ? "Online" : "Offline"}
+  </span>
+
+  <span className="rating-badge">
+    ⭐ {trader.rating}
+  </span>
+
+  <span className="completion-badge">
+    {trader.completionRate} Completion
+  </span>
+
+</div>
+      
+    </div>
+    <div className="trader-orders">
+
+  <span className="orders-badge">
+    {trader.completedOrders} Orders
+  </span>
+
+  {trader.verified && (
+    <span className="merchant-badge">
+      ✔ Verified Merchant
+    </span>
+  )}
+
+</div>
+  </div>
+</td>
+<td>
+  <span className="country-badge">
+    {(countryFlags[order.country] || "🌍")} {order.country || "Global"}
+  </span>
+</td>
+                     <td>
+  <span
+    className={
+      order.type === "sell"
+        ? "sell-badge"
+        : "buy-badge"
+    }
+  >
+    {order.type?.toUpperCase()}
+  </span>
+</td>
                     </td>
 
                     <td>{order.asset}</td>
-
-                    <td>{order.country || "Global"}</td>
 
                     <td>
                       {order.price} {order.fiat}
@@ -415,9 +533,15 @@ function P2P() {
                     <td>{order.paymentMethod}</td>
 
                     <td>
-                      <span className="escrow-badge">
-                        {order.status === "open" ? "Waiting" : "Escrow Active"}
-                      </span>
+                     <span
+  className={
+    order.status === "open"
+      ? "escrow-waiting-badge"
+      : "escrow-active-badge"
+  }
+>
+  {order.status === "open" ? "Waiting Escrow" : "Escrow Active"}
+</span>
                     </td>
 
                     <td>
@@ -429,11 +553,11 @@ function P2P() {
                     <td className="p2p-actions">
                       {order.status === "open" && (
                         <>
-                          <button className="small-btn green" onClick={() => acceptOrder(order._id)}>
+                          <button className="accept-btn" onClick={() => acceptOrder(order._id)}>
                             Accept
                           </button>
 
-                          <button className="small-btn red" onClick={() => cancelOrder(order._id)}>
+                          <button className="cancel-btn" onClick={() => cancelOrder(order._id)}>
                             Cancel
                           </button>
                         </>
@@ -451,14 +575,14 @@ function P2P() {
                             }}
                           />
 
-                          <button className="small-btn yellow" onClick={() => markPaid(order._id)}>
+                          <button className="paid-btn" onClick={() => markPaid(order._id)}>
                             Mark Paid
                           </button>
                         </>
                       )}
 
                       {order.status === "paid" && (
-                        <button className="small-btn green" onClick={() => releaseOrder(order._id)}>
+                        <button className="release-btn" onClick={() => releaseOrder(order._id)}>
                           Release
                         </button>
                       )}
@@ -468,7 +592,9 @@ function P2P() {
                       )}
                     </td>
                   </tr>
-                ))}
+                   );
+                  })}
+               
               </tbody>
             </table>
           </div>

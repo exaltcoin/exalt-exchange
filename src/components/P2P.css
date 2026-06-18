@@ -230,4 +230,165 @@ align-items:flex-start;
 gap:15px;
 }
 
+}.trader-box{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:240px;
+}
+
+.trader-avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#facc15,#ff7b00);
+  color:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+}
+
+.trader-name{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:800;
+}
+
+.verified-badge{
+  background:#2563eb;
+  color:#fff;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+}
+
+.trader-meta,
+.trader-orders{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:5px;
+}
+
+.online-status,
+.offline-status,
+.rating-badge,
+.completion-badge,
+.orders-badge,
+.merchant-badge,
+.country-badge,
+.buy-badge,
+.sell-badge,
+.escrow-waiting-badge,
+.escrow-active-badge{
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.online-status{
+  background:rgba(34,197,94,.15);
+  color:#22c55e;
+}
+
+.offline-status{
+  background:rgba(107,114,128,.2);
+  color:#9ca3af;
+}
+
+.online-dot,
+.offline-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:5px;
+}
+
+.online-dot{
+  background:#22c55e;
+  box-shadow:0 0 8px #22c55e;
+}
+
+.offline-dot{
+  background:#6b7280;
+}
+
+.rating-badge{
+  background:rgba(250,204,21,.15);
+  color:#facc15;
+}
+
+.completion-badge{
+  background:rgba(34,197,94,.15);
+  color:#22c55e;
+}
+
+.orders-badge{
+  background:rgba(59,130,246,.15);
+  color:#60a5fa;
+}
+
+.merchant-badge{
+  background:rgba(168,85,247,.15);
+  color:#c084fc;
+}
+
+.country-badge{
+  background:#111827;
+  border:1px solid #374151;
+  color:#fff;
+}
+
+.buy-badge{
+  background:rgba(34,197,94,.15);
+  color:#22c55e;
+}
+
+.sell-badge{
+  background:rgba(239,68,68,.15);
+  color:#ef4444;
+}
+
+.escrow-waiting-badge{
+  background:rgba(250,204,21,.15);
+  color:#facc15;
+}
+
+.escrow-active-badge{
+  background:rgba(34,197,94,.15);
+  color:#22c55e;
+}
+
+.accept-btn,
+.cancel-btn,
+.paid-btn,
+.release-btn{
+  border:none;
+  padding:9px 13px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  color:#fff;
+}
+
+.accept-btn,
+.release-btn{
+  background:#16a34a;
+}
+
+.cancel-btn{
+  background:#dc2626;
+}
+
+.paid-btn{
+  background:#ca8a04;
 }
