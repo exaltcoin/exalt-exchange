@@ -1,6 +1,24 @@
 import "./AITradingAssistant.css";
+import { useEffect, useState } from "react";
+import { getModuleData } from "../aiService";
 
 export default function AITradingAssistant() {
+
+  const [records, setRecords] = useState([]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const res = await getModuleData("ai_trading_assistant");
+      setRecords(res.records || []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const latest = records[0] || {};
   return (
     <div className="ai-page">
 
@@ -13,27 +31,27 @@ export default function AITradingAssistant() {
 
         <div className="ai-card">
           <h3>Trend</h3>
-          <h2>Bullish 📈</h2>
+        <h2>{latest.signal || "Bullish"}</h2>
         </div>
 
         <div className="ai-card">
           <h3>Entry Price</h3>
-          <h2>105,250 USDT</h2>
+         <h2>{latest.metadata?.entryPrice || "--"}</h2>
         </div>
 
         <div className="ai-card">
           <h3>Take Profit</h3>
-          <h2>108,000 USDT</h2>
+          <h2>{latest.metadata?.takeProfit || "--"}</h2>
         </div>
 
         <div className="ai-card">
           <h3>Stop Loss</h3>
-          <h2>103,800 USDT</h2>
+         <h2>{latest.metadata?.stopLoss || "--"}</h2>
         </div>
 
         <div className="ai-card">
           <h3>Confidence Score</h3>
-          <h2>92%</h2>
+         <h2>{latest.confidence ? `${latest.confidence}%` : "--"}</h2>
         </div>
 
       </div>
