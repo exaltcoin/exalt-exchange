@@ -18,6 +18,7 @@ function Sidebar({ activePage, setActivePage }) {
   "Social Trading",
   "AI Risk Manager",
   "AI Profit Calculator",
+  "AI Market Scanner",
   "Wallets",
   "Orders",
   "Listings",

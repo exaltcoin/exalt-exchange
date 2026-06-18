@@ -36,6 +36,7 @@ import AIPortfolioManager from "./components/AIPortfolioManager";
 import SocialTrading from "./components/SocialTrading";
 import AIRiskManager from "./components/AIRiskManager";
 import AIProfitCalculator from "./components/AIProfitCalculator";
+import AIMarketScanner from "./components/AIMarketScanner";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -204,6 +205,7 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai risk manager")
   return <AIRiskManager />;
     if (page === "ai-profit-calculator") return <AIProfitCalculator />;
+   if (page === "ai-market-scanner") return <AIMarketScanner />; 
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -389,6 +391,14 @@ AI Risk Manager
   }}
 >
   AI Profit Calculator
+</button>
+<button
+onClick={()=>{
+setPage("ai-market-scanner");
+setMenuOpen(false);
+}}
+>
+AI Market Scanner
 </button>
 <button
   onClick={() => {
