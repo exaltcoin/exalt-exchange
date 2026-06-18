@@ -30,6 +30,7 @@ import ReplitFutures from "./replit_ui/Futures";
 import Profile from "./components/Profile";
 import Staking from "./components/Staking";
 import LearnEarn from "./components/LearnEarn";
+import AITradingAssistant from "./components/AITradingAssistant";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -190,6 +191,7 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "profile") return <Profile />;
     if (page === "staking") return <Staking />;
     if (page === "learnearn") return <LearnEarn />;
+    if (page === "ai-assistant") return <AITradingAssistant />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -327,6 +329,14 @@ setMenuOpen(false);
 }}
 >
 Learn & Earn
+</button>
+<button
+  onClick={() => {
+    setPage("ai-assistant");
+    setMenuOpen(false);
+  }}
+>
+  AI Trading Assistant
 </button>
 <button
   onClick={() => {
