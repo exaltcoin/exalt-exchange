@@ -41,6 +41,7 @@ import AINews from "./components/AINews";
 import AIWhaleTracker from "./components/AIWhaleTracker";
 import AIArbitrageScanner from "./components/AIArbitrageScanner";
 import AIGridTrading from "./components/AIGridTrading";
+import AISmartAlerts from "./components/AISmartAlerts";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -214,6 +215,7 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai-whale-tracker") return <AIWhaleTracker />;
     if (page === "ai-arbitrage-scanner") return <AIArbitrageScanner />;
     if (page === "ai-grid-trading") return <AIGridTrading />;
+    if (page === "ai-smart-alerts") return <AISmartAlerts />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -439,6 +441,14 @@ AI Whale Tracker
   }}
 >
   AI Grid Trading
+</button>
+<button
+  onClick={() => {
+    setPage("ai-smart-alerts");
+    setMenuOpen(false);
+  }}
+>
+  AI Smart Alerts
 </button>
 <button
   onClick={() => {

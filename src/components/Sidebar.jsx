@@ -23,6 +23,7 @@ function Sidebar({ activePage, setActivePage }) {
   "AI Whale Tracker",
   "AI Arbitrage Scanner",
   "AI Grid Trading",
+  "AI Smart Alerts",
   "Wallets",
   "Orders",
   "Listings",
