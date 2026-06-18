@@ -34,6 +34,7 @@ import AITradingAssistant from "./components/AITradingAssistant";
 import AICopyTrading from "./components/AICopyTrading";
 import AIPortfolioManager from "./components/AIPortfolioManager";
 import SocialTrading from "./components/SocialTrading";
+import AIRiskManager from "./components/AIRiskManager";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -199,6 +200,8 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai-portfolio") return <AIPortfolioManager />;
     if (page === "social-trading")
     return <SocialTrading />;
+    if (page === "ai risk manager")
+  return <AIRiskManager />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -368,6 +371,14 @@ setMenuOpen(false);
 }}
 >
 Social Trading
+</button>
+<button
+onClick={() => {
+setPage("ai risk manager");
+setMenuOpen(false);
+}}
+>
+AI Risk Manager
 </button>
 <button
   onClick={() => {

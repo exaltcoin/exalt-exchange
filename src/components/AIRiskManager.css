@@ -1,0 +1,55 @@
+.risk-page{
+padding:30px;
+color:white;
+}
+
+.risk-header{
+background:#121826;
+padding:25px;
+border-radius:20px;
+margin-bottom:25px;
+}
+
+.risk-header h1{
+color:#f6c56b;
+}
+
+.risk-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+gap:20px;
+}
+
+.risk-card{
+background:#111827;
+padding:25px;
+border-radius:20px;
+border:1px solid rgba(255,193,7,.15);
+}
+
+.risk-card span{
+color:#aaa;
+}
+
+.risk-card h2{
+margin-top:15px;
+color:#22c55e;
+}
+
+.recommend-box{
+margin-top:30px;
+background:#111827;
+padding:30px;
+border-radius:20px;
+}
+
+.recommend-box button{
+margin-top:20px;
+background:#16a34a;
+border:none;
+padding:14px 25px;
+border-radius:15px;
+color:white;
+font-weight:700;
+cursor:pointer;
+}

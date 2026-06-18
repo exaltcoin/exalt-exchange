@@ -16,6 +16,7 @@ function Sidebar({ activePage, setActivePage }) {
   "AI Copy Trading",
   "AI Portfolio Manager",
   "Social Trading",
+  "AI Risk Manager",
   "Wallets",
   "Orders",
   "Listings",
