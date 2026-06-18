@@ -11,6 +11,7 @@ function Sidebar({ activePage, setActivePage }) {
   "Futures",
   "Buy Crypto",
   "Staking",
+  "LearnEarn",
   "Wallets",
   "Orders",
   "Listings",
