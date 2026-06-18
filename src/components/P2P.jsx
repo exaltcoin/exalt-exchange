@@ -10,9 +10,8 @@ function P2P() {
 
   const [type, setType] = useState("sell");
   const [asset, setAsset] = useState("EXALT");
-  const [fiat, setFiat] = useState("KWD");
-  const [country, setCountry] = useState("Kuwait");
-
+  const [fiat, setFiat] = useState("USD");
+ const [country, setCountry] = useState("United States");
   const [price, setPrice] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -64,8 +63,12 @@ function P2P() {
   "IMPS",
   "PhonePe",
   "GCash",
-  "Paytm"
+  "Paytm",
+ "Crypto Wallet",
+"Local Bank",
+"Mobile Wallet"
 ];
+
 const countryFlags = {
   Kuwait: "🇰🇼",
   Pakistan: "🇵🇰",
@@ -352,16 +355,43 @@ const getTraderInfo = (order, index) => {
 
           <select value={asset} onChange={(e) => setAsset(e.target.value)}>
             <option value="EXALT">EXALT</option>
-            <option value="USDT">USDT</option>
-            <option value="BTC">BTC</option>
+<option value="EXALT">EXALT</option>
+<option value="USDT">USDT</option>
+<option value="BTC">BTC</option>
+<option value="ETH">ETH</option>
+<option value="BNB">BNB</option>
+<option value="TRX">TRX</option>
+<option value="SOL">SOL</option>
+<option value="XRP">XRP</option>
+<option value="DOGE">DOGE</option>
+<option value="LTC">LTC</option>
+<option value="ADA">ADA</option>
+<option value="AVAX">AVAX</option>
+<option value="TON">TON</option>
+<option value="LINK">LINK</option>
           </select>
 
           <select value={fiat} onChange={(e) => setFiat(e.target.value)}>
-            <option value="KWD">KWD</option>
-            <option value="USD">USD</option>
-            <option value="PKR">PKR</option>
-            <option value="AED">AED</option>
-            <option value="SAR">SAR</option>
+           <option value="USD">USD</option>
+<option value="USD">USD</option>
+<option value="PKR">PKR</option>
+<option value="AED">AED</option>
+<option value="SAR">SAR</option>
+<option value="OMR">OMR</option>
+<option value="QAR">QAR</option>
+<option value="BHD">BHD</option>
+<option value="INR">INR</option>
+<option value="EUR">EUR</option>
+<option value="GBP">GBP</option>
+<option value="TRY">TRY</option>
+<option value="NGN">NGN</option>
+<option value="PHP">PHP</option>
+<option value="MYR">MYR</option>
+<option value="IDR">IDR</option>
+<option value="AUD">AUD</option>
+<option value="CAD">CAD</option>
+<option value="CNY">CNY</option>
+<option value="JPY">JPY</option>
           </select>
 
           <select value={country} onChange={(e) => setCountry(e.target.value)}>
