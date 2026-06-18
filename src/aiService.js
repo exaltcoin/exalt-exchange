@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const API = "https://exalt-exchange-backend.onrender.com/api/ai";
-
 export const getAISummary = async () => {
   const response = await axios.get(`${API}/summary/all`);
   return response.data;
