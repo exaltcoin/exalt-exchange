@@ -19,6 +19,7 @@ export default function AITradingAssistant() {
     }
   };
   const latest = records[0] || {};
+  const meta = latest.metadata || latest.metaData || {};
   return (
     <div className="ai-page">
 
@@ -31,27 +32,27 @@ export default function AITradingAssistant() {
 
         <div className="ai-card">
           <h3>Trend</h3>
-        <h2>{latest.signal || "Bullish"}</h2>
+      <h2>{latest.signal || "neutral"}</h2>
         </div>
 
         <div className="ai-card">
           <h3>Entry Price</h3>
-         <h2>{latest.metadata?.entryPrice || "--"}</h2>
+        <h2>{meta.entryPrice || "--"}</h2>
         </div>
 
         <div className="ai-card">
-          <h3>Take Profit</h3>
-          <h2>{latest.metadata?.takeProfit || "--"}</h2>
+        <h3>Take Profit</h3>
+<h2>{meta.takeProfit || "--"}</h2>
         </div>
 
         <div className="ai-card">
           <h3>Stop Loss</h3>
-         <h2>{latest.metadata?.stopLoss || "--"}</h2>
+         <h2>{meta.stopLoss || "--"}</h2>
         </div>
 
         <div className="ai-card">
           <h3>Confidence Score</h3>
-         <h2>{latest.confidence ? `${latest.confidence}%` : "--"}</h2>
+         <h2>{meta.confidence || latest.confidence || "--"}%</h2>
         </div>
 
       </div>
@@ -61,7 +62,7 @@ export default function AITradingAssistant() {
 
         <div className="signal-card">
   <span>{latest.symbol || "BTCUSDT"}</span>
-  <strong>{latest.signal || "BUY"}</strong>
+  <strong>{latest.signal || "neutral"}</strong>
 </div>
 
         <button className="signal-btn">
