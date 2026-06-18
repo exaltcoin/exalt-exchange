@@ -1,0 +1,120 @@
+.portfolio-page{
+  padding:25px;
+  color:#fff;
+}
+
+.portfolio-header{
+  background:#111827;
+  padding:25px;
+  border-radius:18px;
+  border:1px solid rgba(255,193,7,.15);
+  margin-bottom:25px;
+}
+
+.portfolio-header h1{
+  color:#f6c56b;
+}
+
+.portfolio-header p{
+  color:#9ca3af;
+}
+
+.portfolio-stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  margin-bottom:25px;
+}
+
+.portfolio-card{
+  background:#111827;
+  padding:20px;
+  border-radius:18px;
+  border:1px solid rgba(255,193,7,.15);
+}
+
+.portfolio-card span{
+  color:#9ca3af;
+}
+
+.portfolio-card h2{
+  color:#f6c56b;
+  margin-top:10px;
+}
+
+.profit{
+  color:#22c55e !important;
+}
+
+.portfolio-main{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:20px;
+}
+
+.portfolio-box{
+  background:#111827;
+  padding:25px;
+  border-radius:18px;
+  border:1px solid rgba(255,193,7,.15);
+}
+
+.holding-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 0;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.holding-row p{
+  color:#9ca3af;
+  margin-top:5px;
+}
+
+.ai-recommendation{
+  background:#0b1120;
+  padding:20px;
+  border-radius:16px;
+  margin-top:15px;
+}
+
+.ai-recommendation p{
+  color:#9ca3af;
+}
+
+.ai-recommendation button{
+  margin-top:18px;
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.risk-meter{
+  margin-top:25px;
+}
+
+.risk-bar{
+  height:12px;
+  background:#374151;
+  border-radius:999px;
+  margin:10px 0;
+}
+
+.risk-fill{
+  width:38%;
+  height:100%;
+  background:#f6c56b;
+  border-radius:999px;
+}
+
+@media(max-width:900px){
+  .portfolio-stats,
+  .portfolio-main{
+    grid-template-columns:1fr;
+  }
+}

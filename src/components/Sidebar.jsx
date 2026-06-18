@@ -14,6 +14,7 @@ function Sidebar({ activePage, setActivePage }) {
   "LearnEarn",
   "AI Assistant",
   "AI Copy Trading",
+  "AI Portfolio Manager",
   "Wallets",
   "Orders",
   "Listings",
