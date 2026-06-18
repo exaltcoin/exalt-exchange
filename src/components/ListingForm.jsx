@@ -51,12 +51,13 @@ useEffect(() => {
 console.log(form);
   try {
    const API = import.meta.env.VITE_API_URL;
-
+const token = localStorage.getItem("token");
 const response = await fetch(`${API}/api/listings`, {
   method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
+ headers: {
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${token}`,
+},
   body: JSON.stringify({
     coinName: form.name,
     symbol: form.symbol,
