@@ -32,6 +32,68 @@ const shortWallet = (wallet) => {
   if (!wallet) return "-";
   return wallet.slice(0, 6) + "..." + wallet.slice(-4);
 };
+const statusText = (status) => {
+  if (status === "open") return "Open";
+  if (status === "matched") return "In Trade";
+  if (status === "paid") return "Payment Sent";
+  if (status === "released") return "Completed";
+  if (status === "cancelled") return "Cancelled";
+  if (status === "disputed") return "Disputed";
+  return status || "Open";
+};
+
+const countryFlags = {
+  Afghanistan: "🇦🇫",
+  Albania: "🇦🇱",
+  Algeria: "🇩🇿",
+  Argentina: "🇦🇷",
+  Australia: "🇦🇺",
+  Austria: "🇦🇹",
+  Bahrain: "🇧🇭",
+  Bangladesh: "🇧🇩",
+  Belgium: "🇧🇪",
+  Brazil: "🇧🇷",
+  Canada: "🇨🇦",
+  China: "🇨🇳",
+  Denmark: "🇩🇰",
+  Egypt: "🇪🇬",
+  France: "🇫🇷",
+  Germany: "🇩🇪",
+  India: "🇮🇳",
+  Indonesia: "🇮🇩",
+  Iran: "🇮🇷",
+  Iraq: "🇮🇶",
+  Italy: "🇮🇹",
+  Japan: "🇯🇵",
+  Jordan: "🇯🇴",
+  Kuwait: "🇰🇼",
+  Lebanon: "🇱🇧",
+  Malaysia: "🇲🇾",
+  Mexico: "🇲🇽",
+  Morocco: "🇲🇦",
+  Nepal: "🇳🇵",
+  Netherlands: "🇳🇱",
+  "New Zealand": "🇳🇿",
+  Nigeria: "🇳🇬",
+  Oman: "🇴🇲",
+  Pakistan: "🇵🇰",
+  Philippines: "🇵🇭",
+  Qatar: "🇶🇦",
+  Russia: "🇷🇺",
+  "Saudi Arabia": "🇸🇦",
+  Singapore: "🇸🇬",
+  "South Africa": "🇿🇦",
+  "South Korea": "🇰🇷",
+  Spain: "🇪🇸",
+  "Sri Lanka": "🇱🇰",
+  Switzerland: "🇨🇭",
+  Thailand: "🇹🇭",
+  Turkey: "🇹🇷",
+  UAE: "🇦🇪",
+  "United Kingdom": "🇬🇧",
+  "United States": "🇺🇸",
+  Vietnam: "🇻🇳",
+};
   const loadOrders = async () => {
     try {
       const response = await fetch(`${API}/api/p2p/admin/all`);
@@ -191,31 +253,55 @@ const totalVolume = orders.reduce((sum, order) => {
 </div>
       <table className="markets-table">
         <thead>
-          <tr>
-            <th>Type</th>
-            <th>Asset</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Proof</th>
-            <th>Wallet</th>
-            <th>Action</th>
-          </tr>
+         <tr>
+  <th>Type</th>
+  <th>Asset</th>
+  <th>Country</th>
+  <th>Price</th>
+  <th>Amount</th>
+  <th>Payment</th>
+  <th>Status</th>
+  <th>Proof</th>
+  <th>Wallet</th>
+  <th>Action</th>
+</tr>
         </thead>
 
         <tbody>
           {filteredOrders.map((order) => (
             <tr key={order._id}>
-              <td>{order.type}</td>
-              <td>{order.asset}</td>
-              <td>{order.amount}</td>
-              <td>{order.status}</td>
+  <td>
+    <span className={order.type === "buy" ? "buy-signal" : "sell-signal"}>
+      {order.type?.toUpperCase()}
+    </span>
+  </td>
+
+  <td>{order.asset}</td>
+
+  <td>
+    {(countryFlags[order.country] || "🌍")} {order.country || "Global"}
+  </td>
+
+  <td>
+    {order.price || "-"} {order.fiat || "USD"}
+  </td>
+
+  <td>{order.amount}</td>
+
+  <td>{order.paymentMethod || "-"}</td>
+
+  <td>
+    <span className={`status-badge status-${order.status || "open"}`}>
+      {statusText(order.status)}
+    </span>
+  </td>
             <td>
   {order.paymentProof ? (
     <a
       href={order.paymentProof}
       target="_blank"
       rel="noreferrer"
-      className="buy-btn"
+      className="proof-btn"
     >
       View Proof
     </a>
@@ -228,7 +314,7 @@ const totalVolume = orders.reduce((sum, order) => {
               <td>
                 {order.status === "paid" && (
                   <button
-                    className="buy-btn"
+                    className="release-btn"
                     onClick={() => releaseOrder(order._id)}
                   >
                     Release
@@ -237,7 +323,7 @@ const totalVolume = orders.reduce((sum, order) => {
 
                 {order.status === "open" && (
                   <button
-                    className="sell-btn"
+                    className="cancel-btn"
                     onClick={() => cancelOrder(order._id)}
                   >
                     Cancel
@@ -246,7 +332,7 @@ const totalVolume = orders.reduce((sum, order) => {
 
                 {order.status === "matched" && (
                   <button
-                    className="sell-btn"
+                    className="cancel-btn"
                     onClick={() => cancelOrder(order._id)}
                   >
                     Cancel
@@ -254,15 +340,15 @@ const totalVolume = orders.reduce((sum, order) => {
                 )}
 
                 {order.status === "released" && (
-                  <span style={{ color: "#00c5ff", fontWeight: "700" }}>
-                    Completed
-                  </span>
+                 <span className="completed-badge">
+               Completed
+               </span>
                 )}
 
                 {order.status === "cancelled" && (
-                  <span style={{ color: "#ff4d4d", fontWeight: "700" }}>
-                    Cancelled
-                  </span>
+                  <span className="cancelled-badge">
+                     Cancelled
+                   </span>
                 )}
               </td>
             </tr>
