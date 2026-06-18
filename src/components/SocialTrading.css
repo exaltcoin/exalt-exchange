@@ -1,0 +1,149 @@
+.social-page{
+  padding:25px;
+  color:#fff;
+}
+
+.social-header{
+  background:#111827;
+  padding:25px;
+  border-radius:18px;
+  border:1px solid rgba(255,193,7,.15);
+  margin-bottom:25px;
+}
+
+.social-header h1{
+  color:#f6c56b;
+}
+
+.social-header p{
+  color:#9ca3af;
+}
+
+.social-stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  margin-bottom:25px;
+}
+
+.social-stats div{
+  background:#111827;
+  border:1px solid rgba(255,193,7,.15);
+  border-radius:18px;
+  padding:20px;
+}
+
+.social-stats span{
+  color:#9ca3af;
+}
+
+.social-stats h2{
+  color:#f6c56b;
+}
+
+.social-layout{
+  display:grid;
+  grid-template-columns:1.5fr .8fr;
+  gap:20px;
+}
+
+.feed,
+.leaderboard{
+  background:#111827;
+  border:1px solid rgba(255,193,7,.15);
+  border-radius:18px;
+  padding:25px;
+}
+
+.feed-card{
+  background:#0b1120;
+  border-radius:16px;
+  padding:20px;
+  margin-top:18px;
+}
+
+.feed-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.avatar{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:#f6c56b;
+  color:#111827;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:22px;
+}
+
+.feed-head p{
+  color:#9ca3af;
+}
+
+.signal-box-social{
+  margin-top:18px;
+  background:#111827;
+  padding:15px;
+  border-radius:12px;
+}
+
+.signal-box-social span{
+  color:#9ca3af;
+  display:block;
+  margin-bottom:6px;
+}
+
+.signal-box-social strong{
+  color:#f6c56b;
+}
+
+.feed-metrics{
+  display:flex;
+  flex-wrap:wrap;
+  gap:15px;
+  margin-top:16px;
+  color:#9ca3af;
+}
+
+.feed-metrics b{
+  color:#22c55e;
+}
+
+.feed-actions{
+  display:flex;
+  gap:12px;
+  margin-top:18px;
+}
+
+.feed-actions button{
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.leader-row{
+  display:flex;
+  justify-content:space-between;
+  padding:15px 0;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.leader-row b{
+  color:#22c55e;
+}
+
+@media(max-width:900px){
+  .social-stats,
+  .social-layout{
+    grid-template-columns:1fr;
+  }
+}
