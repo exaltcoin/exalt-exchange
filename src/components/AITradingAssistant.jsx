@@ -60,9 +60,9 @@ export default function AITradingAssistant() {
         <h2>AI Signal</h2>
 
         <div className="signal-card">
-          <span>BTCUSDT</span>
-          <strong>BUY</strong>
-        </div>
+  <span>{latest.symbol || "BTCUSDT"}</span>
+  <strong>{latest.signal || "BUY"}</strong>
+</div>
 
         <button className="signal-btn">
           View Details
