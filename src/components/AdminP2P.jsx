@@ -198,6 +198,10 @@ const totalVolume = orders.reduce((sum, order) => {
     <h3>Completed</h3>
     <p>{orders.filter((o) => o.status === "released").length}</p>
   </div>
+  <div className="stat-card">
+  <h3>Disputed</h3>
+  <p>{orders.filter((o) => o.status === "disputed").length}</p>
+</div>
 </div>
 <div className="stat-card">
   <h3>Total Volume</h3>
@@ -250,6 +254,7 @@ const totalVolume = orders.reduce((sum, order) => {
   <button onClick={() => setFilter("matched")}>In Trade</button>
   <button onClick={() => setFilter("paid")}>Paid</button>
   <button onClick={() => setFilter("released")}>Completed</button>
+  <button onClick={() => setFilter("disputed")}>Disputed</button>
 </div>
       <table className="markets-table">
         <thead>
@@ -309,8 +314,21 @@ const totalVolume = orders.reduce((sum, order) => {
     "-"
   )}
 </td>
-             <td>{shortWallet(order.walletAddress)}</td>
+            <td>
+  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <span>{shortWallet(order.walletAddress)}</span>
 
+    <button
+      className="copy-btn"
+      onClick={() => {
+        navigator.clipboard.writeText(order.walletAddress);
+        alert("Wallet copied");
+      }}
+    >
+      Copy
+    </button>
+  </div>
+</td>
               <td>
                 {order.status === "paid" && (
                   <button
@@ -350,6 +368,11 @@ const totalVolume = orders.reduce((sum, order) => {
                      Cancelled
                    </span>
                 )}
+               {order.status === "disputed" && (
+                 <span className="disputed-badge">
+                 Disputed
+                </span>
+                 )} 
               </td>
             </tr>
           ))}

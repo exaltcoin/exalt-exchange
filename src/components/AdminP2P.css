@@ -63,4 +63,20 @@
 .status-cancelled {
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
+}.disputed-badge{
+ color:#ffb347;
+ font-weight:800;
+}.copy-btn {
+  background: #374151;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.copy-btn:hover {
+  background: #4b5563;
 }
