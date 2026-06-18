@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function ListingForm() {
   const [form, setForm] = useState({
@@ -17,7 +17,31 @@ marketCap: "",
 liquidity: "",
 logo: "",
   });
+const [myListings, setMyListings] = useState([]);
+useEffect(() => {
+  const loadMyListings = async () => {
+    try {
+      const API = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem("token");
 
+      const response = await fetch(`${API}/api/listings/my-listings`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMyListings(data.listings);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  loadMyListings();
+}, []);
   const update = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -147,6 +171,89 @@ whitepaper: "",
           Submit Listing
         </button>
       </form>
+      <h2 style={{ marginTop: "40px", color: "#f7a600" }}>
+  My Listings
+</h2>
+
+{myListings.length === 0 ? (
+  <p style={{ color: "#aaa" }}>No listings submitted yet.</p>
+) : (
+  myListings.map((item) => (
+    <div className="admin-card" key={item._id}>
+      <h3>
+        {item.coinName} ({item.symbol})
+      </h3>
+
+      <p><strong>Chain:</strong> {item.network}</p>
+
+      <p>
+        <strong>Status:</strong>
+        <span
+          style={{
+            color:
+              item.status === "approved"
+                ? "#00ff88"
+                : item.status === "rejected"
+                ? "#ff4444"
+                : "#ffb300",
+            fontWeight: "bold",
+            marginLeft: "8px",
+          }}
+        >
+          {item.status?.toUpperCase()}
+        </span>
+      </p>
+
+      <p><strong>Contract:</strong> {item.contractAddress}</p>
+
+      <p><strong>Price:</strong> ${item.price}</p>
+
+      <p><strong>Market Cap:</strong> ${item.marketCap}</p>
+
+      <p><strong>Liquidity:</strong> ${item.liquidity}</p>
+
+      <p>
+        <strong>Risk Level:</strong>
+        <span
+          style={{
+            color:
+              item.riskLevel === "Low Risk"
+                ? "#00ff88"
+                : item.riskLevel === "Medium Risk"
+                ? "#ffb300"
+                : "#ff4444",
+            marginLeft: "8px",
+            fontWeight: "bold",
+          }}
+        >
+          {item.riskLevel}
+        </span>
+      </p>
+
+      {item.website && (
+        <a href={item.website} target="_blank" rel="noreferrer">
+          Website
+        </a>
+      )}
+
+      {" | "}
+
+      {item.telegram && (
+        <a href={item.telegram} target="_blank" rel="noreferrer">
+          Telegram
+        </a>
+      )}
+
+      {" | "}
+
+      {item.twitter && (
+        <a href={item.twitter} target="_blank" rel="noreferrer">
+          X
+        </a>
+      )}
+    </div>
+  ))
+)}
     </div>
   );
 }
