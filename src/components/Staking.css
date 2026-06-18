@@ -1,0 +1,100 @@
+.staking-page {
+  padding: 25px;
+  color: #ffffff;
+}
+
+.staking-header {
+  background: linear-gradient(135deg, #111827, #1f2937);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 18px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.staking-header h1 {
+  color: #f6c56b;
+  margin: 0;
+}
+
+.staking-header p {
+  color: #b8b8b8;
+  margin-top: 8px;
+}
+
+.staking-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.staking-card {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.staking-card h2 {
+  color: #b8b8b8;
+  font-size: 15px;
+}
+
+.staking-card h1 {
+  color: #f6c56b;
+  margin-top: 10px;
+}
+
+.stake-box {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 18px;
+  padding: 25px;
+}
+
+.stake-box input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  background: #0b1120;
+  color: #fff;
+  margin: 15px 0;
+}
+
+.stake-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stake-btn,
+.unstake-btn,
+.claim-btn {
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.stake-btn {
+  background: #16a34a;
+  color: #fff;
+}
+
+.unstake-btn {
+  background: #dc2626;
+  color: #fff;
+}
+
+.claim-btn {
+  background: #f6c56b;
+  color: #111827;
+}
+
+@media (max-width: 768px) {
+  .staking-cards {
+    grid-template-columns: 1fr;
+  }
+}

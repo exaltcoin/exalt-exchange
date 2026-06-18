@@ -28,6 +28,7 @@ import ReplitRewards from "./replit_ui/Rewards";
 import ReplitTrade from "./replit_ui/Trade";
 import ReplitFutures from "./replit_ui/Futures";
 import Profile from "./components/Profile";
+import Staking from "./components/Staking";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -186,6 +187,7 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "support") return <Support />;
     if (page === "listings") return <ListingForm />;
     if (page === "profile") return <Profile />;
+    if (page === "staking") return <Staking />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -308,7 +310,14 @@ if (page === "kyc-submit") return <KycVerification />;
 >
   P2P
 </button>
-
+<button
+  onClick={() => {
+    setPage("staking");
+    setMenuOpen(false);
+  }}
+>
+  Staking
+</button>
 <button
   onClick={() => {
     setPage("wallets");

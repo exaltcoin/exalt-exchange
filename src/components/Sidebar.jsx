@@ -10,6 +10,7 @@ function Sidebar({ activePage, setActivePage }) {
   " Spot Trading",
   "Futures",
   "Buy Crypto",
+  "Staking",
   "Wallets",
   "Orders",
   "Listings",
