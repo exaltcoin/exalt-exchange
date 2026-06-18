@@ -19,6 +19,7 @@ export default function AITradingAssistant() {
     }
   };
   const latest = records[0] || {};
+
   const meta = latest.metadata || latest.metaData || {};
   return (
     <div className="ai-page">
@@ -52,7 +53,7 @@ export default function AITradingAssistant() {
 
         <div className="ai-card">
           <h3>Confidence Score</h3>
-         <h2>{meta.confidence || latest.confidence || "--"}%</h2>
+        <h2>{latest.confidence ?? "--"}%</h2>
         </div>
 
       </div>
