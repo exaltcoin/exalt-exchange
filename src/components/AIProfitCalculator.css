@@ -1,0 +1,98 @@
+.profit-page{
+  padding:25px;
+  color:#fff;
+}
+
+.profit-header{
+  background:#111827;
+  padding:25px;
+  border-radius:18px;
+  border:1px solid rgba(255,193,7,.15);
+  margin-bottom:25px;
+}
+
+.profit-header h1{
+  color:#f6c56b;
+}
+
+.profit-header p{
+  color:#9ca3af;
+}
+
+.profit-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:22px;
+}
+
+.profit-form,
+.profit-result{
+  background:#111827;
+  padding:25px;
+  border-radius:18px;
+  border:1px solid rgba(255,193,7,.15);
+}
+
+.profit-form h2,
+.profit-result h2{
+  color:#f6c56b;
+  margin-bottom:18px;
+}
+
+.profit-form input,
+.profit-form select{
+  width:100%;
+  background:#0b1120;
+  color:white;
+  border:1px solid rgba(255,193,7,.2);
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:14px;
+}
+
+.profit-form button{
+  width:100%;
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:14px;
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.result-card{
+  background:#0b1120;
+  padding:20px;
+  border-radius:16px;
+  margin-bottom:16px;
+}
+
+.result-card span{
+  color:#9ca3af;
+}
+
+.profit-green{
+  color:#22c55e;
+}
+
+.profit-red{
+  color:#ef4444;
+}
+
+.ai-note{
+  background:#0b1120;
+  padding:18px;
+  border-radius:16px;
+  color:#9ca3af;
+}
+
+.ai-note strong{
+  color:#f6c56b;
+}
+
+@media(max-width:900px){
+  .profit-grid{
+    grid-template-columns:1fr;
+  }
+}
