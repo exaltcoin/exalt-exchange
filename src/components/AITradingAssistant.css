@@ -543,4 +543,15 @@ margin-top:10px;
 .alert-card,
 .trend-card{
   min-height:160px;
+}.market-section > div{
+  max-width:320px;
+  min-height:140px;
+}
+
+.confidence-meter-card{
+  max-width:420px;
+}
+
+.confidence-bar{
+  max-width:360px;
 }
