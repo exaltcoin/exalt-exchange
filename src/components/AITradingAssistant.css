@@ -223,4 +223,22 @@
   .coin-select{
     width:100%;
   }
+}.market-section{
+  max-width:980px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.market-section > div{
+  min-height:120px;
+}
+
+.confidence-meter-card{
+  grid-column:span 2;
+}
+
+@media(max-width:900px){
+  .confidence-meter-card{
+    grid-column:span 1;
+  }
 }
