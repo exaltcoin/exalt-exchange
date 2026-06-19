@@ -524,4 +524,23 @@ margin-top:10px;
   display:flex;
   flex-direction:column;
   justify-content:center;
+}.market-section{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:20px;
+  margin-top:30px;
+  width:100%;
+  align-items:start;
+}
+
+.market-section > div{
+  width:100%;
+  min-height:140px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}.coin-logo-card,
+.alert-card,
+.trend-card{
+  min-height:160px;
 }
