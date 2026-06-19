@@ -65,7 +65,21 @@ useEffect(() => {
   const latest = records[0] || {};
 
   const meta = latest.metadata || latest.metaData || {};
+  const topGainers = [
+{ symbol: "BTC", change: "+3.2%" },
+{ symbol: "ETH", change: "+2.8%" },
+{ symbol: "SOL", change: "+7.5%" },
+{ symbol: "BNB", change: "+1.6%" }
+];
+
+const topLosers = [
+{ symbol: "XRP", change: "-2.1%" },
+{ symbol: "DOGE", change: "-3.8%" },
+{ symbol: "ADA", change: "-1.5%" },
+{ symbol: "TRX", change: "-0.9%" }
+];
   return (
+
     <div className="ai-page">
 
       <div className="ai-header">
@@ -153,7 +167,29 @@ latest.signal === "buy"
   </div>
 )}
       </div>
+<div className="market-section">
 
+<div className="gainers-card">
+<h3>🚀 Top Gainers</h3>
+
+{topGainers.map((coin)=>(
+<div key={coin.symbol}>
+{coin.symbol} {coin.change}
+</div>
+))}
+</div>
+
+<div className="losers-card">
+<h3>📉 Top Losers</h3>
+
+{topLosers.map((coin)=>(
+<div key={coin.symbol}>
+{coin.symbol} {coin.change}
+</div>
+))}
+</div>
+
+</div>
     </div>
   );
 }

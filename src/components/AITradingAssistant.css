@@ -138,4 +138,27 @@ border-radius:10px;
 color:white;
 cursor:pointer;
 font-weight:700;
+}.market-section{
+display:flex;
+gap:20px;
+margin-top:30px;
+}
+
+.gainers-card,
+.losers-card{
+background:#121826;
+padding:20px;
+border-radius:15px;
+width:250px;
+border:1px solid rgba(240,185,11,.15);
+}
+
+.gainers-card div{
+color:#00c853;
+margin-top:10px;
+}
+
+.losers-card div{
+color:#ff3d00;
+margin-top:10px;
 }
