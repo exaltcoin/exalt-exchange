@@ -310,12 +310,12 @@ Fear & Greed Index : {fearGreed}
 <div className="confidence-bar">
 <div
 className="confidence-fill"
-style={{width:`${confidence}%`}}
+style={{ width: `${latest.confidence || 0}%` }}
 ></div>
 </div>
 
 <div className="confidence-meter-value">
-{confidence}%
+{latest.confidence || 0}%
 </div>
 
 </div>
