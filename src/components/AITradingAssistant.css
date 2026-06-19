@@ -45,6 +45,7 @@
   border:1px solid rgba(255,255,255,.08);
   border-radius:16px;
   padding:20px;
+  box-sizing:border-box;
 }
 
 .ai-card h3{color:#9ca3af;}
@@ -96,19 +97,20 @@
   outline:none;
 }
 
+/* FINAL MARKET GRID */
 .market-section{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:20px;
-  margin-top:30px;
+  margin:30px auto 0;
   width:100%;
-  align-items:start;
+  max-width:980px;
+  align-items:stretch;
 }
 
 .market-section > div{
   width:100%;
-  min-height:135px;
-  box-sizing:border-box;
+  min-height:130px;
   transition:.25s ease;
 }
 
@@ -209,7 +211,7 @@
 .coin-logo-card h3{margin:0;color:#fff;}
 .coin-logo-card p{margin:4px 0 0;color:#9ca3af;}
 
-@media(max-width:768px){
+@media(max-width:900px){
   .ai-grid,
   .market-section{
     grid-template-columns:1fr;
@@ -222,39 +224,5 @@
   .coin-search,
   .coin-select{
     width:100%;
-  }
-}.market-section{
-  max-width:980px;
-  margin-left:auto;
-  margin-right:auto;
-}
-
-.market-section > div{
-  min-height:120px;
-}
-
-.confidence-meter-card{
-  grid-column:span 2;
-}
-
-@media(max-width:900px){
-  .confidence-meter-card{
-    grid-column:span 1;
-  }
-}.market-section{
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-}
-
-.confidence-meter-card{
-  grid-column: span 2;
-}
-
-@media(max-width:900px){
-  .market-section{
-    grid-template-columns: 1fr !important;
-  }
-
-  .confidence-meter-card{
-    grid-column: span 1;
   }
 }

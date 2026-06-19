@@ -295,27 +295,25 @@ latest.signal === "buy"
   <div className="gauge-value">
     {fearGreedGauge} / 100
   </div>
-
 </div>
+
 <div className="marketcap-card">
   <h3>🌍 Market Cap</h3>
-
   <div className="marketcap-value">
     {marketCap}
   </div>
-
 </div>
+
 <div className="change-card">
   <h3>📈 24H Change</h3>
 
   <div className="change-value">
     {change24h}
   </div>
-
 </div>
+
 <div className="confidence-meter-card">
   <h3>🤖 AI Confidence Meter</h3>
-
   <div className="confidence-bar">
     <div
       className="confidence-fill"
@@ -327,6 +325,7 @@ latest.signal === "buy"
     {latest.confidence || "--"}%
   </div>
 </div>
+
 <div className="signal-strength-card">
   <h3>🔥 Signal Strength</h3>
 
@@ -338,6 +337,7 @@ latest.signal === "buy"
       : "Weak"}
   </div>
 </div>
+
 <div className="updated-card">
   <h3>🕒 Last Updated</h3>
 
