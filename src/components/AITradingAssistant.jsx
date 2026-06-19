@@ -8,20 +8,39 @@ export default function AITradingAssistant() {
 const [showDetails, setShowDetails] = useState(false);
 const [selectedCoin, setSelectedCoin] = useState("BTC-USD");
 const [search, setSearch] = useState("");
-
 const coins = [
-  "BTC-USD",
-  "ETH-USD",
-  "BNB-USD",
-  "SOL-USD",
-  "XRP-USD",
-  "ADA-USD",
-  "DOGE-USD",
-  "TRX-USD",
-  "DOT-USD",
-  "LINK-USD",
-  "MATIC-USD"
+"BTC-USD",
+"ETH-USD",
+"BNB-USD",
+"SOL-USD",
+"XRP-USD",
+"ADA-USD",
+"DOGE-USD",
+"TRX-USD",
+"DOT-USD",
+"LINK-USD",
+"MATIC-USD",
+"AVAX-USD",
+"ATOM-USD",
+"LTC-USD",
+"BCH-USD",
+"UNI-USD",
+"AAVE-USD",
+"NEAR-USD",
+"APT-USD",
+"ARB-USD",
+"OP-USD",
+"FIL-USD",
+"ETC-USD",
+"HBAR-USD",
+"ICP-USD",
+"SUI-USD",
+"TON-USD",
+"SHIB-USD",
+"PEPE-USD",
+"XLM-USD"
 ];
+
 const filteredCoins = coins.filter((coin) =>
   coin.toLowerCase().includes(search.toLowerCase())
 );-
