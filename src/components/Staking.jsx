@@ -1,6 +1,99 @@
 import "./Staking.css";
-
+import { useState, useEffect } from "react";
+import axios from "axios";
 export default function Staking() {
+  const [amount, setAmount] = useState("");
+  const [stakes, setStakes] = useState([]);
+const [stats, setStats] = useState({
+  
+  totalStaked: 0,
+  rewardsEarned: 0,
+  apr: 15
+});
+
+useEffect(() => {
+  loadStats();
+  loadStakes();
+}, []);
+const loadStats = async () => {
+  try {
+    const res = await axios.get(
+      "https://exalt-exchange-backend.onrender.com/api/staking/stats"
+    );
+
+    setStats(res.data);
+  } catch (err) {
+    console.log(err);
+  }
+};
+const loadStakes = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.get(
+      "https://exalt-exchange-backend.onrender.com/api/staking/my-stakes",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setStakes(res.data.stakes || []);
+  } catch (err) {
+    console.log(err);
+  }
+};
+const handleStake = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!amount || Number(amount) <= 0) {
+      alert("Please enter valid EXALT amount");
+      return;
+    }
+
+    const res = await axios.post(
+      "https://exalt-exchange-backend.onrender.com/api/staking/stake",
+      {
+        amount: Number(amount),
+        durationDays: 30,
+        coin: "EXALT",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert(res.data.message || "Staking started successfully");
+    setAmount("");
+    loadStats();
+  } catch (err) {
+    alert(err.response?.data?.message || "Staking failed");
+  }
+};
+const handleClaimRewards = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.post(
+      "https://exalt-exchange-backend.onrender.com/api/staking/claim",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert(res.data.message || "Rewards claimed successfully");
+    loadStats();
+  } catch (err) {
+    alert(err.response?.data?.message || "Claim rewards failed");
+  }
+};
   return (
     <div className="staking-page">
 
@@ -13,17 +106,17 @@ export default function Staking() {
 
         <div className="staking-card">
           <h2>Total Staked</h2>
-          <h1>0 EXALT</h1>
+         <h1>{stats.totalStaked} EXALT</h1>
         </div>
 
         <div className="staking-card">
           <h2>Estimated APR</h2>
-          <h1>15%</h1>
+        <h1>{stats.apr}%</h1>
         </div>
 
         <div className="staking-card">
           <h2>Rewards Earned</h2>
-          <h1>0 EXALT</h1>
+         <h1>{stats.rewardsEarned} EXALT</h1>
         </div>
 
       </div>
@@ -32,29 +125,64 @@ export default function Staking() {
 
         <h2>Stake EXALT</h2>
 
-        <input
-          type="number"
-          placeholder="Enter EXALT amount"
-        />
+       <input
+  type="number"
+  value={amount}
+  onChange={(e) => setAmount(e.target.value)}
+  placeholder="Enter EXALT amount"
+/>
 
         <div className="stake-buttons">
 
-          <button className="stake-btn">
-            Stake
-          </button>
+         <button className="stake-btn" onClick={handleStake}>
+  Stake
+</button>
+        <button className="unstake-btn" onClick={handleUnstake}>
+  Unstake
+</button> 
 
-          <button className="unstake-btn">
-            Unstake
-          </button>
-
-          <button className="claim-btn">
-            Claim Rewards
-          </button>
+         <button className="claim-btn" onClick={handleClaimRewards}>
+  Claim Rewards
+</button>
 
         </div>
 
       </div>
+<div className="stakes-table-box">
+  <h2>Active Stakes</h2>
 
+  <table className="stakes-table">
+    <thead>
+      <tr>
+        <th>Coin</th>
+        <th>Amount</th>
+        <th>APY</th>
+        <th>Duration</th>
+        <th>Pending Reward</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {stakes.length === 0 ? (
+        <tr>
+          <td colSpan="6">No active stakes yet</td>
+        </tr>
+      ) : (
+        stakes.map((stake) => (
+          <tr key={stake._id}>
+            <td>{stake.coin}</td>
+            <td>{stake.amount}</td>
+            <td>{stake.apy}%</td>
+            <td>{stake.durationDays} Days</td>
+            <td>{stake.pendingReward || 0} EXALT</td>
+            <td>{stake.status}</td>
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
     </div>
   );
 }

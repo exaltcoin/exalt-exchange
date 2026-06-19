@@ -1,24 +1,32 @@
 .staking-page {
   padding: 25px;
-  color: #ffffff;
+  color: #fff;
+}
+
+.staking-header,
+.staking-card,
+.stake-box,
+.stakes-table-box {
+  background: linear-gradient(135deg, #111827, #151c2c);
+  border: 1px solid rgba(255, 193, 7, 0.18);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.25);
 }
 
 .staking-header {
-  background: linear-gradient(135deg, #111827, #1f2937);
-  border: 1px solid rgba(255, 193, 7, 0.25);
-  border-radius: 18px;
-  padding: 25px;
   margin-bottom: 25px;
 }
 
-.staking-header h1 {
+.staking-header h1,
+.staking-card h1 {
   color: #f6c56b;
   margin: 0;
 }
 
-.staking-header p {
+.staking-header p,
+.staking-card h2 {
   color: #b8b8b8;
-  margin-top: 8px;
 }
 
 .staking-cards {
@@ -28,28 +36,8 @@
   margin-bottom: 25px;
 }
 
-.staking-card {
-  background: rgba(17, 24, 39, 0.95);
-  border: 1px solid rgba(255, 193, 7, 0.2);
-  border-radius: 18px;
-  padding: 22px;
-}
-
-.staking-card h2 {
-  color: #b8b8b8;
-  font-size: 15px;
-}
-
-.staking-card h1 {
-  color: #f6c56b;
-  margin-top: 10px;
-}
-
 .stake-box {
-  background: rgba(17, 24, 39, 0.95);
-  border: 1px solid rgba(255, 193, 7, 0.2);
-  border-radius: 18px;
-  padding: 25px;
+  margin-bottom: 25px;
 }
 
 .stake-box input {
@@ -60,6 +48,8 @@
   background: #0b1120;
   color: #fff;
   margin: 15px 0;
+  outline: none;
+  box-sizing: border-box;
 }
 
 .stake-buttons {
@@ -72,29 +62,45 @@
 .unstake-btn,
 .claim-btn {
   border: none;
-  padding: 12px 20px;
+  padding: 12px 22px;
   border-radius: 12px;
   font-weight: 800;
   cursor: pointer;
 }
 
-.stake-btn {
-  background: #16a34a;
-  color: #fff;
+.stake-btn { background: #16a34a; color: #fff; }
+.unstake-btn { background: #dc2626; color: #fff; }
+.claim-btn { background: #f6c56b; color: #111827; }
+
+.stakes-table-box {
+  overflow-x: auto;
 }
 
-.unstake-btn {
-  background: #dc2626;
-  color: #fff;
+.stakes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
 
-.claim-btn {
-  background: #f6c56b;
-  color: #111827;
+.stakes-table th,
+.stakes-table td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  color: #e5e7eb;
+}
+
+.stakes-table th {
+  color: #f6c56b;
+  font-size: 14px;
 }
 
 @media (max-width: 768px) {
   .staking-cards {
     grid-template-columns: 1fr;
+  }
+
+  .stake-buttons button {
+    width: 100%;
   }
 }
