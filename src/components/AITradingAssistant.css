@@ -200,4 +200,316 @@ font-size:24px;
 font-weight:700;
 color:#f0b90b;
 margin-top:10px;
+}.whale-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.whale-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.whale-status{
+  color:#00ff99;
+  font-size:20px;
+  font-weight:700;
+}.news-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:260px;
+}
+
+.news-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.news-text{
+  color:#cbd5e1;
+  line-height:1.6;
+  font-size:15px;
+}.strength-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.strength-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.strength-value{
+  color:#00ff99;
+  font-size:26px;
+  font-weight:800;
+}.risk-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.risk-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.risk-value{
+  color:#f59e0b;
+  font-size:22px;
+  font-weight:700;
+}.volume-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.volume-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.volume-value{
+  color:#22c55e;
+  font-size:24px;
+  font-weight:700;
+}.volatility-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.volatility-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.volatility-value{
+  color:#ef4444;
+  font-size:24px;
+  font-weight:700;
+}.gauge-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.gauge-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.gauge-value{
+  color:#f0b90b;
+  font-size:24px;
+  font-weight:700;
+}.marketcap-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.marketcap-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.marketcap-value{
+  color:#60a5fa;
+  font-size:24px;
+  font-weight:700;
+}.change-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.change-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.change-value{
+  color:#22c55e;
+  font-size:24px;
+  font-weight:700;
+}.confidence-meter-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:260px;
+}
+
+.confidence-meter-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.confidence-bar{
+  width:100%;
+  height:12px;
+  background:#1f2937;
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:12px;
+}
+
+.confidence-fill{
+  height:100%;
+  background:#22c55e;
+  border-radius:10px;
+  transition:0.3s;
+}
+
+.confidence-meter-value{
+  color:#22c55e;
+  font-size:22px;
+  font-weight:700;
+}.signal-strength-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.signal-strength-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.signal-strength-value{
+  color:#f0b90b;
+  font-size:24px;
+  font-weight:800;
+}.updated-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:220px;
+}
+
+.updated-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.updated-value{
+  color:#60a5fa;
+  font-size:20px;
+  font-weight:700;
+}.coin-logo-card{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:16px 20px;
+  margin-bottom:20px;
+  width:fit-content;
+}
+
+.coin-logo-circle{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  background:#f0b90b;
+  color:#111827;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+}
+
+.coin-logo-card h3{
+  color:#fff;
+  margin:0;
+}
+
+.coin-logo-card p{
+  color:#9ca3af;
+  margin:4px 0 0;
+}.alert-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:260px;
+}
+
+.alert-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.alert-value{
+  color:#f0b90b;
+  font-size:18px;
+  font-weight:700;
+}.trend-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+  min-width:260px;
+}
+
+.trend-card h3{
+  color:#fff;
+  margin-bottom:15px;
+}
+
+.trend-value{
+  color:#22c55e;
+  font-size:20px;
+  font-weight:700;
+}.market-section{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:20px;
+  margin-top:30px;
+}
+
+.market-section > div{
+  transition:0.25s ease;
+}
+
+.market-section > div:hover{
+  transform:translateY(-4px);
+  border-color:rgba(240,185,11,.45);
+  box-shadow:0 0 18px rgba(240,185,11,.15);
+}
+
+@media(max-width:768px){
+  .coin-search,
+  .coin-select{
+    width:100%;
+  }
+
+  .coin-logo-card{
+    width:100%;
+  }
 }

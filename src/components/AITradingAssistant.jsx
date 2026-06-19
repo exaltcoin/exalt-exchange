@@ -79,6 +79,29 @@ const topLosers = [
 { symbol: "TRX", change: "-0.9%" }
 ];
 const fearGreed = 68;
+const whaleActivity = "Accumulation 🐳";
+const marketNews = "BTC volatility rising, traders watching key support levels.";
+const buyStrength = 72;
+const riskLevel = "Medium Risk";
+const liveVolume = "$2.4B";
+const volatilityIndex = "High";
+const fearGreedGauge = 68;
+const marketCap = "$3.8T";
+const change24h = "+2.45%";
+const signalStrength = latest.confidence || 0;
+const lastUpdated = new Date().toLocaleTimeString();
+const coinLogo = selectedCoin.split("-")[0];
+const aiAlert = latest.signal === "buy"
+  ? "🟢 Strong Buy Opportunity"
+  : latest.signal === "sell"
+  ? "🔴 Market Weakness Detected"
+  : "🟡 Neutral Market Conditions";
+  const trendStrength =
+  latest.confidence >= 80
+    ? "Strong Trend 🚀"
+    : latest.confidence >= 60
+    ? "Moderate Trend 📈"
+    : "Weak Trend ⚠️";
 const btcDominance = "61.8%";
 const marketSentiment =
 fearGreed >= 75
@@ -219,7 +242,135 @@ latest.signal === "buy"
   <div className="dominance-value">
     {btcDominance}
   </div>
+<div className="whale-card">
+  <h3>🐋 Whale Activity</h3>
 
+  <div className="whale-status">
+    {whaleActivity}
+  </div>
+<div className="news-card">
+  <h3>📰 AI Market News</h3>
+
+  <div className="news-text">
+    {marketNews}
+  </div>
+
+</div>
+<div className="strength-card">
+  <h3>📊 Buy Strength</h3>
+
+  <div className="strength-value">
+    {buyStrength}%
+  </div>
+
+</div>
+<div className="risk-card">
+  <h3>⚠️ AI Risk Level</h3>
+
+  <div className="risk-value">
+    {riskLevel}
+  </div>
+
+</div>
+<div className="volume-card">
+  <h3>📈 Live Volume</h3>
+
+  <div className="volume-value">
+    {liveVolume}
+  </div>
+
+</div>
+<div className="volatility-card">
+  <h3>⚡ Volatility Index</h3>
+
+  <div className="volatility-value">
+    {volatilityIndex}
+  </div>
+
+</div>
+<div className="gauge-card">
+  <h3>😨 Fear & Greed Gauge</h3>
+
+  <div className="gauge-value">
+    {fearGreedGauge} / 100
+  </div>
+
+</div>
+<div className="marketcap-card">
+  <h3>🌍 Market Cap</h3>
+
+  <div className="marketcap-value">
+    {marketCap}
+  </div>
+
+</div>
+<div className="change-card">
+  <h3>📈 24H Change</h3>
+
+  <div className="change-value">
+    {change24h}
+  </div>
+
+</div>
+<div className="confidence-meter-card">
+  <h3>🤖 AI Confidence Meter</h3>
+
+  <div className="confidence-bar">
+    <div
+      className="confidence-fill"
+      style={{ width: `${latest.confidence || 0}%` }}
+    ></div>
+  </div>
+
+  <div className="confidence-meter-value">
+    {latest.confidence || "--"}%
+  </div>
+</div>
+<div className="signal-strength-card">
+  <h3>🔥 Signal Strength</h3>
+
+  <div className="signal-strength-value">
+    {signalStrength >= 80
+      ? "Strong"
+      : signalStrength >= 60
+      ? "Medium"
+      : "Weak"}
+  </div>
+</div>
+<div className="updated-card">
+  <h3>🕒 Last Updated</h3>
+
+  <div className="updated-value">
+    {lastUpdated}
+  </div>
+</div>
+<div className="coin-logo-card">
+  <div className="coin-logo-circle">
+    {coinLogo}
+  </div>
+
+  <div>
+    <h3>{selectedCoin}</h3>
+    <p>Live AI Market Signal</p>
+  </div>
+</div>
+<div className="alert-card">
+  <h3>🔔 AI Alert</h3>
+
+  <div className="alert-value">
+    {aiAlert}
+  </div>
+
+</div>
+<div className="trend-card">
+  <h3>📊 Trend Strength</h3>
+
+  <div className="trend-value">
+    {trendStrength}
+  </div>
+
+</div>
+</div>
 </div>
     </div>
   );
