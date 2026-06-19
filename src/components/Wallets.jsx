@@ -169,9 +169,10 @@ setWallets((prev) => ({
 const senderAccount = inputs[1].value;
 const amount = inputs[2].value;
 const paymentMethod = inputs[3].value;
-const txHash = inputs[5].value;
 
-const coin = depositCoin;
+const txHash = inputs[4].value;
+
+const coin = paymentMethod;
 const network = selectedNetwork;
     const response = await fetch(`${API}/api/wallets/deposit`, {
       method: "POST",
@@ -473,22 +474,14 @@ placeholder="Amount"
 />
 
 <select className="deposit-input">
-<option>JazzCash</option>
-<option>EasyPaisa</option>
-<option>Bank Transfer</option>
-<option>USDT</option>
-<option>BNB</option>
-<option>BTC</option>
+  <option>JazzCash</option>
+  <option>EasyPaisa</option>
+  <option>Bank Transfer</option>
+  <option>EXALT</option>
+  <option>USDT</option>
+  <option>BNB</option>
 </select>
-<select
-  className="deposit-input"
-  value={depositCoin}
-  onChange={(e) => setDepositCoin(e.target.value)}
->
-  <option value="EXALT">EXALT</option>
-  <option value="USDT">USDT</option>
-  <option value="BNB">BNB</option>
-</select>
+
 <input
 className="deposit-input"
 placeholder="Transaction Hash / Reference ID"
