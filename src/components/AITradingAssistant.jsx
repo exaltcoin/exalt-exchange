@@ -249,7 +249,7 @@ latest.signal === "buy"
   <div className="whale-status">
     {whaleActivity}
   </div>
-  
+  </div>
 <div className="news-card">
   <h3>📰 AI Market News</h3>
 
@@ -369,8 +369,6 @@ latest.signal === "buy"
     {trendStrength}
   </div>
 </div>
-</div>
-</div>
-    
+</div>  
   );
 }
