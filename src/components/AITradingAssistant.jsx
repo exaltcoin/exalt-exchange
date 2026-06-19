@@ -79,7 +79,7 @@ const topLosers = [
 { symbol: "TRX", change: "-0.9%" }
 ];
 const fearGreed = 68;
-
+const btcDominance = "61.8%";
 const marketSentiment =
 fearGreed >= 75
 ? "Extreme Greed"
@@ -90,6 +90,7 @@ fearGreed >= 75
 : fearGreed >= 25
 ? "Fear"
 : "Extreme Fear";
+
   return (
 
     <div className="ai-page">
@@ -211,6 +212,14 @@ latest.signal === "buy"
     {marketSentiment}
   </div>
 </div>
+</div>
+<div className="dominance-card">
+  <h3>₿ BTC Dominance</h3>
+
+  <div className="dominance-value">
+    {btcDominance}
+  </div>
+
 </div>
     </div>
   );

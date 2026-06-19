@@ -187,4 +187,17 @@ margin-bottom:12px;
 font-size:20px;
 font-weight:700;
 color:#00c087;
+}.dominance-card{
+background:#151c2c;
+border:1px solid rgba(255,255,255,.08);
+border-radius:16px;
+padding:20px;
+width:220px;
+}
+
+.dominance-value{
+font-size:24px;
+font-weight:700;
+color:#f0b90b;
+margin-top:10px;
 }
