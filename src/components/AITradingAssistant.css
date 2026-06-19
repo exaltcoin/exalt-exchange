@@ -241,4 +241,20 @@
   .confidence-meter-card{
     grid-column:span 1;
   }
+}.market-section{
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.confidence-meter-card{
+  grid-column: span 2;
+}
+
+@media(max-width:900px){
+  .market-section{
+    grid-template-columns: 1fr !important;
+  }
+
+  .confidence-meter-card{
+    grid-column: span 1;
+  }
 }
