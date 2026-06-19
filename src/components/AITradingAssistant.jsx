@@ -242,19 +242,20 @@ latest.signal === "buy"
   <div className="dominance-value">
     {btcDominance}
   </div>
+  </div>
 <div className="whale-card">
   <h3>🐋 Whale Activity</h3>
 
   <div className="whale-status">
     {whaleActivity}
   </div>
+  
 <div className="news-card">
   <h3>📰 AI Market News</h3>
 
   <div className="news-text">
     {marketNews}
   </div>
-
 </div>
 <div className="strength-card">
   <h3>📊 Buy Strength</h3>
@@ -348,7 +349,6 @@ latest.signal === "buy"
   <div className="coin-logo-circle">
     {coinLogo}
   </div>
-
   <div>
     <h3>{selectedCoin}</h3>
     <p>Live AI Market Signal</p>
@@ -368,10 +368,9 @@ latest.signal === "buy"
   <div className="trend-value">
     {trendStrength}
   </div>
-
 </div>
 </div>
 </div>
-    </div>
+    
   );
 }
