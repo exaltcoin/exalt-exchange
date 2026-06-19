@@ -7,6 +7,8 @@ export default function AITradingAssistant() {
   const [records, setRecords] = useState([]);
 const [showDetails, setShowDetails] = useState(false);
 const [selectedCoin, setSelectedCoin] = useState("BTC-USD");
+const [search, setSearch] = useState("");
+
 const coins = [
   "BTC-USD",
   "ETH-USD",
@@ -17,12 +19,22 @@ const coins = [
   "DOGE-USD",
   "TRX-USD",
   "DOT-USD",
-  "AVAX-USD"
+  "LINK-USD",
+  "MATIC-USD"
 ];
+const filteredCoins = coins.filter((coin) =>
+  coin.toLowerCase().includes(search.toLowerCase())
+);-
   useEffect(() => {
     loadData();
  }, [selectedCoin]);
+useEffect(() => {
+  const interval = setInterval(() => {
+    loadData();
+  }, 10000);
 
+  return () => clearInterval(interval);
+}, [selectedCoin]);
   const loadData = async () => {
     try {
       const res = await getModuleData(`ai_trading_assistant?symbol=${selectedCoin}`);
@@ -41,12 +53,19 @@ const coins = [
         <h1>AI Trading Assistant</h1>
         <p>Smart AI signals and market insights</p>
       </div>
+      <input
+  type="text"
+  placeholder="Search Coin..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className="coin-search"
+/>
 <select
   className="coin-select"
   value={selectedCoin}
   onChange={(e) => setSelectedCoin(e.target.value)}
 >
-  {coins.map((coin) => (
+ {filteredCoins.map((coin) => (
     <option key={coin} value={coin}>
       {coin}
     </option>

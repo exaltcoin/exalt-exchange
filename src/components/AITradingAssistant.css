@@ -82,4 +82,23 @@ grid-template-columns:1fr;
 
 .signal-details strong{
   color:#ffb347;
+}.coin-search{
+  width:220px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #f0b90b;
+  background:#121826;
+  color:white;
+  margin-bottom:12px;
+  outline:none;
+}
+
+.coin-select{
+  width:220px;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #f0b90b;
+  background:#121826;
+  color:white;
+  margin-bottom:20px;
 }
