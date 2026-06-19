@@ -358,7 +358,13 @@ style={{ width: `${latest.confidence || 0}%` }}
 {trendStrength}
 </div>
 </div>
+<div className="decision-card">
+  <h3>🟢 AI Final Decision</h3>
 
+  <div className="decision-value">
+    Strong Buy 🚀
+  </div>
+</div>
 </div>
 </div>
 
