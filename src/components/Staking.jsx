@@ -44,6 +44,27 @@ const loadStakes = async () => {
     console.log(err);
   }
 };
+const handleUnstake = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await axios.post(
+      "https://exalt-exchange-backend.onrender.com/api/staking/unstake",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert(res.data.message || "Unstaked successfully");
+    loadStats();
+    loadStakes();
+  } catch (err) {
+    alert(err.response?.data?.message || "Unstake failed");
+  }
+};
 const handleStake = async () => {
   try {
     const token = localStorage.getItem("token");
