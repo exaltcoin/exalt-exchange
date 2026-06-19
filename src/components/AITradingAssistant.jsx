@@ -86,6 +86,23 @@ const riskLevel = "Medium Risk";
 const liveVolume = "$2.4B";
 const volatilityIndex = "High";
 const fearGreedGauge = 68;
+const confidence =
+  latest.signal === "Strong Buy"
+    ? 90
+    : latest.signal === "buy"
+    ? 75
+    : latest.signal === "sell"
+    ? 35
+    : 60;
+    const finalDecision =
+  confidence >= 80
+    ? "Strong Buy 🚀"
+    : confidence >= 60
+    ? "Buy ✅"
+    : confidence >= 40
+    ? "Neutral ⚪"
+    : "Sell 🔴";
+
 const marketCap = "$3.8T";
 const change24h = "+2.45%";
 const signalStrength = latest.confidence || 0;
@@ -95,13 +112,31 @@ const aiAlert = latest.signal === "buy"
   ? "🟢 Strong Buy Opportunity"
   : latest.signal === "sell"
   ? "🔴 Market Weakness Detected"
-  : "🟡 Neutral Market Conditions";
+  : "🟡 Neutral Market Conditions"; 
   const trendStrength =
   latest.confidence >= 80
     ? "Strong Trend 🚀"
     : latest.confidence >= 60
     ? "Moderate Trend 📈"
     : "Weak Trend ⚠️";
+ const entryPrice = latest.price || "--";
+
+const takeProfit =
+  latest.price
+    ? (latest.price * 1.05).toFixed(2)
+    : "--";
+
+const stopLoss =
+  latest.price
+    ? (latest.price * 0.97).toFixed(2)
+    : "--";
+   const riskReward =
+  latest.price
+    ? (
+        (takeProfit - entryPrice) /
+        (entryPrice - stopLoss)
+      ).toFixed(2)
+    : "--"; 
 const btcDominance = "61.8%";
 const marketSentiment =
 fearGreed >= 75
@@ -309,13 +344,13 @@ Fear & Greed Index : {fearGreed}
 
 <div className="confidence-bar">
 <div
-className="confidence-fill"
-style={{ width: `${latest.confidence || 0}%` }}
+  className="confidence-fill"
+  style={{ width: `${confidence}%` }}
 ></div>
 </div>
 
 <div className="confidence-meter-value">
-{latest.confidence || 0}%
+{confidence || 0}%
 </div>
 
 </div>
@@ -348,7 +383,7 @@ style={{ width: `${latest.confidence || 0}%` }}
 <div className="alert-card">
 <h3>🔔 AI Alert</h3>
 <div className="alert-value">
-{aiAlert}
+  {aiAlert}
 </div>
 </div>
 
@@ -362,7 +397,14 @@ style={{ width: `${latest.confidence || 0}%` }}
   <h3>🟢 AI Final Decision</h3>
 
   <div className="decision-value">
-    Strong Buy 🚀
+    {finalDecision}
+  </div>
+</div>
+<div className="riskreward-card">
+  <h3>⚖️ Risk / Reward Ratio</h3>
+
+  <div className="riskreward-value">
+    {riskReward} : 1
   </div>
 </div>
 </div>

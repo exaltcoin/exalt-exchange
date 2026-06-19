@@ -40,7 +40,8 @@
 .updated-card,
 .coin-logo-card,
 .alert-card,
-.trend-card{
+.trend-card
+.riskreward-card{
   background:#111827;
   border:1px solid rgba(255,255,255,.08);
   border-radius:16px;
@@ -254,6 +255,17 @@
 }
 
 .decision-value{
+  color:#22c55e;
+  font-size:22px;
+  font-weight:700;
+}.riskreward-card{
+  background:#111827;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:20px;
+}
+
+.riskreward-value{
   color:#22c55e;
   font-size:22px;
   font-weight:700;
