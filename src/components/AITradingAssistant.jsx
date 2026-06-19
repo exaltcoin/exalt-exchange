@@ -78,6 +78,18 @@ const topLosers = [
 { symbol: "ADA", change: "-1.5%" },
 { symbol: "TRX", change: "-0.9%" }
 ];
+const fearGreed = 68;
+
+const marketSentiment =
+fearGreed >= 75
+? "Extreme Greed"
+: fearGreed >= 55
+? "Greed"
+: fearGreed >= 45
+? "Neutral"
+: fearGreed >= 25
+? "Fear"
+: "Extreme Fear";
   return (
 
     <div className="ai-page">
@@ -188,7 +200,17 @@ latest.signal === "buy"
 </div>
 ))}
 </div>
+<div className="sentiment-card">
+  <h3>📊 Market Sentiment</h3>
 
+  <div className="fear-score">
+    Fear & Greed Index : {fearGreed}
+  </div>
+
+  <div className="sentiment-status">
+    {marketSentiment}
+  </div>
+</div>
 </div>
     </div>
   );

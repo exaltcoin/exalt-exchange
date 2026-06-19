@@ -161,4 +161,30 @@ margin-top:10px;
 .losers-card div{
 color:#ff3d00;
 margin-top:10px;
+}.sentiment-card{
+background:#151c2c;
+border:1px solid rgba(255,255,255,.08);
+border-radius:16px;
+padding:20px;
+margin-top:20px;
+width:260px;
+box-shadow:0 0 20px rgba(0,0,0,.3);
+}
+
+.sentiment-card h3{
+color:#fff;
+margin-bottom:15px;
+}
+
+.fear-score{
+font-size:18px;
+font-weight:700;
+color:#f0b90b;
+margin-bottom:12px;
+}
+
+.sentiment-status{
+font-size:20px;
+font-weight:700;
+color:#00c087;
 }
