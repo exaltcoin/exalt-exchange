@@ -6,13 +6,26 @@ export default function AITradingAssistant() {
 
   const [records, setRecords] = useState([]);
 const [showDetails, setShowDetails] = useState(false);
+const [selectedCoin, setSelectedCoin] = useState("BTC-USD");
+const coins = [
+  "BTC-USD",
+  "ETH-USD",
+  "BNB-USD",
+  "SOL-USD",
+  "XRP-USD",
+  "ADA-USD",
+  "DOGE-USD",
+  "TRX-USD",
+  "DOT-USD",
+  "AVAX-USD"
+];
   useEffect(() => {
     loadData();
-  }, []);
+ }, [selectedCoin]);
 
   const loadData = async () => {
     try {
-      const res = await getModuleData("ai_trading_assistant");
+      const res = await getModuleData(`ai_trading_assistant?symbol=${selectedCoin}`);
       setRecords(res.records || []);
     } catch (err) {
       console.log(err);
@@ -28,7 +41,17 @@ const [showDetails, setShowDetails] = useState(false);
         <h1>AI Trading Assistant</h1>
         <p>Smart AI signals and market insights</p>
       </div>
-
+<select
+  className="coin-select"
+  value={selectedCoin}
+  onChange={(e) => setSelectedCoin(e.target.value)}
+>
+  {coins.map((coin) => (
+    <option key={coin} value={coin}>
+      {coin}
+    </option>
+  ))}
+</select>
       <div className="ai-grid">
 
         <div className="ai-card">
