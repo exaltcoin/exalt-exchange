@@ -2831,4 +2831,39 @@ border:2px solid #f7a600;
   font-size: 12px;
   margin: 3px;
   display: inline-block;
+}.exalt-deposit-box {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(246, 197, 107, 0.35);
+  border-radius: 18px;
+  padding: 20px;
+  margin-top: 18px;
+  text-align: center;
+}
+
+.exalt-deposit-box p {
+  color: #f6c56b;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.exalt-deposit-box canvas {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+
+.exalt-deposit-btn {
+  background: linear-gradient(135deg, #f6c56b, #f59e0b);
+  color: #111827;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.exalt-deposit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(246, 197, 107, 0.35);
 }

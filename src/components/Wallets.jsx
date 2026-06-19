@@ -12,6 +12,7 @@ function Wallets() {
 const [walletAddress, setWalletAddress] = useState("");
 const [bnbBalance, setBnbBalance] = useState("0");
 const [selectedCoin, setSelectedCoin] = useState("USDT");
+const [depositCoin, setDepositCoin] = useState("EXALT");
 const [selectedNetwork, setSelectedNetwork] = useState("BEP20");
 const EXALT_CONTRACT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
 const EXALT_ABI = [
@@ -168,9 +169,9 @@ setWallets((prev) => ({
 const senderAccount = inputs[1].value;
 const amount = inputs[2].value;
 const paymentMethod = inputs[3].value;
-const txHash = inputs[4].value;
+const txHash = inputs[5].value;
 
-const coin = selectedCoin;
+const coin = depositCoin;
 const network = selectedNetwork;
     const response = await fetch(`${API}/api/wallets/deposit`, {
       method: "POST",
@@ -326,11 +327,12 @@ const submitWithdrawal = async () => {
   value={selectedCoin}
   onChange={(e) => setSelectedCoin(e.target.value)}
 >
-  <option>USDT</option>
-  <option>BNB</option>
-  <option>BTC</option>
-  <option>ETH</option>
-  <option>TRX</option>
+  <option>EXALT</option>
+<option>USDT</option>
+<option>BNB</option>
+<option>BTC</option>
+<option>ETH</option>
+<option>TRX</option>
 </select>
 <select
   className="deposit-select-display"
@@ -427,6 +429,29 @@ const submitWithdrawal = async () => {
     }}>Copy Address</button>
   </>
 )}
+{selectedCoin === "EXALT" && (
+  <>
+    <p>EXALT BEP20:</p>
+    <p>0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9</p>
+
+    <QRCodeCanvas
+      value="0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9"
+      size={120}
+    />
+
+    <button
+      className="copy-btn"
+      onClick={() => {
+        navigator.clipboard.writeText(
+          "0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9"
+        );
+        alert("EXALT Address Copied");
+      }}
+    >
+      Copy Address
+    </button>
+  </>
+)}
 </div>
 <div className="panel" style={{ marginTop: "20px" }}>
 
@@ -455,7 +480,15 @@ placeholder="Amount"
 <option>BNB</option>
 <option>BTC</option>
 </select>
-
+<select
+  className="deposit-input"
+  value={depositCoin}
+  onChange={(e) => setDepositCoin(e.target.value)}
+>
+  <option value="EXALT">EXALT</option>
+  <option value="USDT">USDT</option>
+  <option value="BNB">BNB</option>
+</select>
 <input
 className="deposit-input"
 placeholder="Transaction Hash / Reference ID"
