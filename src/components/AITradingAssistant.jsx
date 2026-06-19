@@ -50,7 +50,7 @@ const filteredCoins = coins.filter((coin) =>
 useEffect(() => {
   const interval = setInterval(() => {
     loadData();
-  }, 10000);
+  }, 5000);
 
   return () => clearInterval(interval);
 }, [selectedCoin]);
@@ -94,7 +94,17 @@ useEffect(() => {
 
         <div className="ai-card">
           <h3>Trend</h3>
-      <h2>{latest.signal || "neutral"}</h2>
+      <h2
+className={
+latest.signal === "buy"
+? "buy-signal"
+: latest.signal === "sell"
+? "sell-signal"
+: "neutral-signal"
+}
+>
+{latest.signal || "neutral"}
+</h2>
         </div>
 
         <div className="ai-card">

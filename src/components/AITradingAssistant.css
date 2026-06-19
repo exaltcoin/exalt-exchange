@@ -101,4 +101,41 @@ grid-template-columns:1fr;
   background:#121826;
   color:white;
   margin-bottom:20px;
+}.buy-signal{
+color:#00c853;
+font-weight:700;
+}
+
+.sell-signal{
+color:#ff3d00;
+font-weight:700;
+}
+
+.neutral-signal{
+color:#f0b90b;
+font-weight:700;
+}
+
+.signal-card{
+background:#121826;
+border:1px solid rgba(240,185,11,.2);
+border-radius:15px;
+padding:20px;
+margin-top:20px;
+box-shadow:0 0 15px rgba(240,185,11,.1);
+}
+
+.signal-details{
+margin-top:15px;
+line-height:1.8;
+}
+
+.signal-btn{
+background:#00c853;
+border:none;
+padding:10px 20px;
+border-radius:10px;
+color:white;
+cursor:pointer;
+font-weight:700;
 }
