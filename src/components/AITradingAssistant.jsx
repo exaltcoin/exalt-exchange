@@ -5,7 +5,7 @@ import { getModuleData } from "../aiService";
 export default function AITradingAssistant() {
 
   const [records, setRecords] = useState([]);
-
+const [showDetails, setShowDetails] = useState(false);
   useEffect(() => {
     loadData();
   }, []);
@@ -65,10 +65,22 @@ export default function AITradingAssistant() {
   <span>{latest.symbol || "BTCUSDT"}</span>
   <strong>{latest.signal || "neutral"}</strong>
 </div>
-
-        <button className="signal-btn">
-          View Details
-        </button>
+<button
+  className="signal-btn"
+  onClick={() => setShowDetails(!showDetails)}
+>
+  View Details
+</button>
+{showDetails && (
+  <div className="signal-details">
+    <p><strong>Symbol:</strong> {latest.symbol}</p>
+    <p><strong>Signal:</strong> {latest.signal}</p>
+    <p><strong>Entry Price:</strong> {meta.entryPrice}</p>
+    <p><strong>Take Profit:</strong> {meta.takeProfit}</p>
+    <p><strong>Stop Loss:</strong> {meta.stopLoss}</p>
+    <p><strong>Confidence:</strong> {latest.confidence}%</p>
+  </div>
+)}
       </div>
 
     </div>
