@@ -169,7 +169,7 @@ return matchesSearch && matchesStatus;
           <span>Active Stakes</span>
           <h2>{stats.activeStakes}</h2>
         </div>
-      </div>
+       
 <div className="admin-staking-card">
   <span>Total Users</span>
   <h2>{stats.totalUsers}</h2>
@@ -290,5 +290,6 @@ return matchesSearch && matchesStatus;
   </div>
 )}
     </div>
+     </div>
   );
 }
