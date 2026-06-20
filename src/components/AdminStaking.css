@@ -80,7 +80,20 @@
 .admin-staking-table tr:hover {
   background: rgba(255, 193, 7, 0.06);
 }
+.cancel-btn {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+}
 
+.cancel-btn:hover {
+  background: #b91c1c;
+}
 @media (max-width: 768px) {
   .admin-staking-cards {
     grid-template-columns: 1fr;

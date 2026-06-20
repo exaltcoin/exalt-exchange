@@ -33,9 +33,56 @@ export default function AdminStaking() {
       alert(err.response?.data?.message || "Failed to load admin staking");
     }
   };
+const loadSummary = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
+    const res = await axios.get(
+      `${API}/api/admin/staking/summary`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setStats({
+      totalStaked: res.data.summary?.totals?.[0]?.totalAmount || 0,
+      totalRewards: res.data.summary?.totals?.[0]?.totalRewards || 0,
+      activeStakes: res.data.summary?.totalActive || 0,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+const cancelStake = async (id) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.post(
+      `${API}/api/admin/staking/${id}/cancel`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    alert("Stake cancelled successfully");
+
+    loadAdminStakes();
+    loadSummary();
+
+  } catch (err) {
+    alert(
+      err.response?.data?.message || "Failed to cancel stake"
+    );
+  }
+};
   useEffect(() => {
     loadAdminStakes();
+    loadSummary();
   }, []);
 
   return (
@@ -76,6 +123,7 @@ export default function AdminStaking() {
               <th>Reward</th>
               <th>Status</th>
               <th>Date</th>
+              <th>Action</th>
             </tr>
           </thead>
 
@@ -94,6 +142,14 @@ export default function AdminStaking() {
                   <td>{stake.durationDays} Days</td>
                   <td>{stake.pendingReward || 0} EXALT</td>
                   <td>{stake.status}</td>
+                  <td>
+  <button
+    className="cancel-btn"
+    onClick={() => cancelStake(stake._id)}
+  >
+    Cancel
+  </button>
+</td>
                   <td>{new Date(stake.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))
