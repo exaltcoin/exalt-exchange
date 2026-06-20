@@ -867,7 +867,9 @@ Staking
           )}
         </div>
       )}
-
+{adminTab === "staking" && (
+  <AdminStaking />
+)}
       {adminTab === "transactions" && (
         <div className="admin-content">
           <h3>Transaction History</h3>
@@ -1012,7 +1014,5 @@ Staking
     </div>
   );
 }
-{adminTab === "staking" && (
-  <AdminStaking />
-)}
+
 export default AdminPanel;
