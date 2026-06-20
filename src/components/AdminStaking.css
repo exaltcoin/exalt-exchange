@@ -98,4 +98,44 @@
   .admin-staking-cards {
     grid-template-columns: 1fr;
   }
+}.admin-staking-search{
+  width:100%;
+  padding:14px 16px;
+  margin-bottom:20px;
+  background:#111827;
+  border:1px solid rgba(255,193,7,.25);
+  border-radius:14px;
+  color:#fff;
+  font-size:15px;
+  outline:none;
+  transition:.3s;
+}
+
+.admin-staking-search:focus{
+  border-color:#f6c56b;
+  box-shadow:0 0 15px rgba(246,197,107,.2);
+}
+
+.admin-staking-search::placeholder{
+  color:#9ca3af;
+}.staking-filter-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.staking-filter-buttons button {
+  background: #1f2937;
+  color: #f6c56b;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.staking-filter-buttons button:hover {
+  background: #f6c56b;
+  color: #111827;
 }

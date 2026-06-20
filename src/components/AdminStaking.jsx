@@ -6,6 +6,8 @@ const API = "https://exalt-exchange-backend.onrender.com";
 
 export default function AdminStaking() {
   const [stakes, setStakes] = useState([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [stats, setStats] = useState({
     totalStaked: 0,
     totalRewards: 0,
@@ -84,7 +86,20 @@ const cancelStake = async (id) => {
     loadAdminStakes();
     loadSummary();
   }, []);
+const filteredStakes = stakes.filter((stake) => {
+  const text = `
+    ${stake.user?.email || ""}
+    ${stake.user?.name || ""}
+    ${stake.coin || ""}
+    ${stake.status || ""}
+  `.toLowerCase();
 
+ const matchesSearch = text.includes(search.toLowerCase());
+const matchesStatus =
+  statusFilter === "all" || stake.status === statusFilter;
+
+return matchesSearch && matchesStatus;
+});
   return (
     <div className="admin-staking-page">
       <div className="admin-staking-header">
@@ -110,6 +125,18 @@ const cancelStake = async (id) => {
       </div>
 
       <div className="admin-staking-table-box">
+        <input
+  className="admin-staking-search"
+  placeholder="Search user, email, coin, status..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
+<div className="staking-filter-buttons">
+  <button onClick={() => setStatusFilter("all")}>All</button>
+  <button onClick={() => setStatusFilter("active")}>Active</button>
+  <button onClick={() => setStatusFilter("completed")}>Completed</button>
+  <button onClick={() => setStatusFilter("cancelled")}>Cancelled</button>
+</div>
         <h2>All User Stakes</h2>
 
         <table className="admin-staking-table">
@@ -133,7 +160,7 @@ const cancelStake = async (id) => {
                 <td colSpan="8">No staking records found</td>
               </tr>
             ) : (
-              stakes.map((stake) => (
+             filteredStakes.map((stake) => (
                 <tr key={stake._id}>
                   <td>{stake.user?.email || stake.userId || "User"}</td>
                   <td>{stake.coin}</td>
