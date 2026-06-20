@@ -184,6 +184,8 @@ return matchesSearch && matchesStatus;
   <span>Cancelled</span>
   <h2>{stats.cancelledStakes}</h2>
 </div>
+</div>
+
       <div className="admin-staking-table-box">
         <input
   className="admin-staking-search"
@@ -290,6 +292,6 @@ return matchesSearch && matchesStatus;
   </div>
 )}
     </div>
-     </div>
+     
   );
 }
