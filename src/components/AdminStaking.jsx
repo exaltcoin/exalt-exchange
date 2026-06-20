@@ -82,10 +82,17 @@ const cancelStake = async (id) => {
     );
   }
 };
-  useEffect(() => {
+ useEffect(() => {
+  loadAdminStakes();
+  loadSummary();
+
+  const interval = setInterval(() => {
     loadAdminStakes();
     loadSummary();
-  }, []);
+  }, 30000);
+
+  return () => clearInterval(interval);
+}, []);
 const filteredStakes = stakes.filter((stake) => {
   const text = `
     ${stake.user?.email || ""}
@@ -169,14 +176,19 @@ return matchesSearch && matchesStatus;
                   <td>{stake.durationDays} Days</td>
                   <td>{stake.pendingReward || 0} EXALT</td>
                   <td>{stake.status}</td>
-                  <td>
-  <button
-    className="cancel-btn"
-    onClick={() => cancelStake(stake._id)}
-  >
-    Cancel
-  </button>
-</td>
+                  
+ <td>
+  {stake.status === "active" ? (
+    <button
+      className="cancel-btn"
+      onClick={() => cancelStake(stake._id)}
+    >
+      Cancel
+    </button>
+  ) : (
+    <span className="no-action">No Action</span>
+  )}
+</td> 
                   <td>{new Date(stake.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))

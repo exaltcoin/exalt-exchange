@@ -138,4 +138,8 @@
 .staking-filter-buttons button:hover {
   background: #f6c56b;
   color: #111827;
+}.no-action {
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 600;
 }
