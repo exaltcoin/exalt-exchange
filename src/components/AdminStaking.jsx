@@ -13,6 +13,9 @@ export default function AdminStaking() {
     totalStaked: 0,
     totalRewards: 0,
     activeStakes: 0,
+    totalUsers: 0,
+completedStakes: 0,
+cancelledStakes: 0,
   });
 
   const loadAdminStakes = async () => {
@@ -53,6 +56,10 @@ const loadSummary = async () => {
       totalStaked: res.data.summary?.totals?.[0]?.totalAmount || 0,
       totalRewards: res.data.summary?.totals?.[0]?.totalRewards || 0,
       activeStakes: res.data.summary?.totalActive || 0,
+      activeStakes: res.data.summary?.totalActive || 0,
+      totalUsers: new Set(stakes.map(s => s.user?._id || s.userId)).size,
+completedStakes: stakes.filter(s => s.status === "completed").length,
+cancelledStakes: stakes.filter(s => s.status === "cancelled").length,
     });
   } catch (err) {
     console.log(err);
@@ -163,7 +170,20 @@ return matchesSearch && matchesStatus;
           <h2>{stats.activeStakes}</h2>
         </div>
       </div>
+<div className="admin-staking-card">
+  <span>Total Users</span>
+  <h2>{stats.totalUsers}</h2>
+</div>
 
+<div className="admin-staking-card">
+  <span>Completed</span>
+  <h2>{stats.completedStakes}</h2>
+</div>
+
+<div className="admin-staking-card">
+  <span>Cancelled</span>
+  <h2>{stats.cancelledStakes}</h2>
+</div>
       <div className="admin-staking-table-box">
         <input
   className="admin-staking-search"
