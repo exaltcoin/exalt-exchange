@@ -148,7 +148,19 @@ useEffect(() => {
           <h2>{completed.length >= 2 ? "Intermediate" : "Beginner"}</h2>
         </div>
       </div>
+<div className="learn-progress-box">
+  <div className="learn-progress-info">
+    <span>Learning Progress</span>
+    <strong>{completed.length} / {lessons.length}</strong>
+  </div>
 
+  <div className="learn-progress-bar">
+    <div
+      className="learn-progress-fill"
+      style={{ width: `${(completed.length / lessons.length) * 100}%` }}
+    ></div>
+  </div>
+</div>
       <div className="lesson-grid">
         {lessons.map((lesson) => {
           const isCompleted = completed.includes(lesson.id);
