@@ -1,7 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./LearnEarn.css";
-
 export default function LearnEarn() {
+ const API = "https://exalt-exchange-backend.onrender.com";
+
+const [loading, setLoading] = useState(false);
+ const loadProgress = async () => {
+  try {
+    setLoading(true);
+
+    const token = localStorage.getItem("token");
+
+    const res = await axios.get(`${API}/api/learnearn`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.data.success) {
+      setCompleted(
+        (res.data.completed || []).map((item) => item.lessonId)
+      );
+
+      setTotalRewards(res.data.totalRewards || 0);
+    }
+  } catch (err) {
+    console.log(err);
+  } finally {
+    setLoading(false);
+  }
+};
+useEffect(() => {
+  loadProgress();
+}, []);
   const lessons = [
     {
       id: 1,
@@ -49,7 +80,8 @@ export default function LearnEarn() {
     setSelectedAnswer("");
   };
 
-  const submitQuiz = () => {
+  const submitQuiz = async () => {
+  try {
     if (!activeLesson) return;
 
     if (selectedAnswer !== activeLesson.answer) {
@@ -57,17 +89,41 @@ export default function LearnEarn() {
       return;
     }
 
-    if (!completed.includes(activeLesson.id)) {
-      setCompleted([...completed, activeLesson.id]);
-      setTotalRewards(totalRewards + activeLesson.reward);
-      alert(`${activeLesson.reward} EXALT reward completed`);
-    } else {
-      alert("You already completed this lesson");
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first");
+      return;
     }
 
-    setActiveLesson(null);
-    setSelectedAnswer("");
-  };
+    const res = await axios.post(
+      `${API}/api/learnearn/complete`,
+      {
+        lessonId: activeLesson.id,
+        title: activeLesson.title,
+        reward: activeLesson.reward,
+        answer: selectedAnswer,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (res.data.success) {
+      alert(`${activeLesson.reward} EXALT reward completed`);
+      await loadProgress();
+      setActiveLesson(null);
+      setSelectedAnswer("");
+    } else {
+      alert(res.data.message || "Reward failed");
+    }
+  } catch (err) {
+    console.log(err);
+    alert(err.response?.data?.message || "Server error");
+  }
+};
 
   return (
     <div className="learn-page">
@@ -96,7 +152,8 @@ export default function LearnEarn() {
       <div className="lesson-grid">
         {lessons.map((lesson) => {
           const isCompleted = completed.includes(lesson.id);
-
+const isLocked =
+  lesson.status === "Locked" && completed.length < 2;
           return (
             <div className="lesson-card" key={lesson.id}>
               <div className="video-box">▶️</div>
@@ -106,18 +163,18 @@ export default function LearnEarn() {
               <p>Level: {lesson.level}</p>
 
               {isCompleted && <span className="completed-badge">Completed</span>}
-
-              <button
-                className={lesson.status === "Locked" ? "locked-btn" : "start-btn"}
-                disabled={lesson.status === "Locked"}
-                onClick={() => startLesson(lesson)}
-              >
-                {lesson.status === "Locked"
-                  ? "Locked"
-                  : isCompleted
-                  ? "View Again"
-                  : "Start Lesson"}
-              </button>
+<button
+  className={isLocked ? "locked-btn" : "start-btn"}
+  disabled={isLocked}
+  onClick={() => startLesson(lesson)}
+>
+  {isLocked
+    ? "Locked"
+    : isCompleted
+    ? "View Again"
+    : "Start Lesson"}
+</button>
+             
             </div>
           );
         })}
@@ -153,9 +210,13 @@ export default function LearnEarn() {
                 </label>
               ))}
 
-              <button className="claim-learn-btn" onClick={submitQuiz}>
-                Submit Quiz & Claim Reward
-              </button>
+              <button
+  className="claim-learn-btn"
+  onClick={submitQuiz}
+  disabled={loading}
+>
+  {loading ? "Submitting..." : "Submit Quiz & Claim Reward"}
+</button>
             </div>
           </div>
         </div>
