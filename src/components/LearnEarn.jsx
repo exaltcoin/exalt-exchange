@@ -1,11 +1,73 @@
+import { useState } from "react";
 import "./LearnEarn.css";
 
 export default function LearnEarn() {
   const lessons = [
-    { title: "Crypto Basics", reward: "25 EXALT", status: "Available" },
-    { title: "P2P Safety", reward: "40 EXALT", status: "Available" },
-    { title: "Staking Guide", reward: "50 EXALT", status: "Locked" },
+    {
+      id: 1,
+      title: "Crypto Basics",
+      reward: 25,
+      level: "Beginner",
+      status: "Available",
+      videoTitle: "What is crypto and how exchanges work?",
+      question: "What is the safest rule in crypto?",
+      options: ["Share private key", "Use unknown links", "Protect wallet keys"],
+      answer: "Protect wallet keys",
+    },
+    {
+      id: 2,
+      title: "P2P Safety",
+      reward: 40,
+      level: "Beginner",
+      status: "Available",
+      videoTitle: "How to trade safely with P2P users",
+      question: "When should you release crypto in P2P?",
+      options: ["Before payment", "After confirmed payment", "Any time"],
+      answer: "After confirmed payment",
+    },
+    {
+      id: 3,
+      title: "Staking Guide",
+      reward: 50,
+      level: "Intermediate",
+      status: "Locked",
+      videoTitle: "How staking rewards work",
+      question: "What does staking mean?",
+      options: ["Lock tokens for rewards", "Delete tokens", "Send tokens away"],
+      answer: "Lock tokens for rewards",
+    },
   ];
+
+  const [activeLesson, setActiveLesson] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [completed, setCompleted] = useState([]);
+  const [totalRewards, setTotalRewards] = useState(0);
+
+  const startLesson = (lesson) => {
+    if (lesson.status === "Locked") return;
+    setActiveLesson(lesson);
+    setSelectedAnswer("");
+  };
+
+  const submitQuiz = () => {
+    if (!activeLesson) return;
+
+    if (selectedAnswer !== activeLesson.answer) {
+      alert("Wrong answer. Please try again.");
+      return;
+    }
+
+    if (!completed.includes(activeLesson.id)) {
+      setCompleted([...completed, activeLesson.id]);
+      setTotalRewards(totalRewards + activeLesson.reward);
+      alert(`${activeLesson.reward} EXALT reward completed`);
+    } else {
+      alert("You already completed this lesson");
+    }
+
+    setActiveLesson(null);
+    setSelectedAnswer("");
+  };
 
   return (
     <div className="learn-page">
@@ -17,37 +79,87 @@ export default function LearnEarn() {
       <div className="learn-stats">
         <div className="learn-card">
           <span>Total Rewards</span>
-          <h2>0 EXALT</h2>
+          <h2>{totalRewards} EXALT</h2>
         </div>
 
         <div className="learn-card">
           <span>Completed Tasks</span>
-          <h2>0 / 3</h2>
+          <h2>{completed.length} / {lessons.length}</h2>
         </div>
 
         <div className="learn-card">
           <span>Learning Level</span>
-          <h2>Beginner</h2>
+          <h2>{completed.length >= 2 ? "Intermediate" : "Beginner"}</h2>
         </div>
       </div>
 
       <div className="lesson-grid">
-        {lessons.map((lesson, index) => (
-          <div className="lesson-card" key={index}>
-            <div className="video-box">▶</div>
+        {lessons.map((lesson) => {
+          const isCompleted = completed.includes(lesson.id);
 
-            <h3>{lesson.title}</h3>
-            <p>Reward: {lesson.reward}</p>
+          return (
+            <div className="lesson-card" key={lesson.id}>
+              <div className="video-box">▶️</div>
 
-            <button
-              className={lesson.status === "Locked" ? "locked-btn" : "start-btn"}
-              disabled={lesson.status === "Locked"}
-            >
-              {lesson.status === "Locked" ? "Locked" : "Start Lesson"}
-            </button>
-          </div>
-        ))}
+              <h3>{lesson.title}</h3>
+              <p>Reward: {lesson.reward} EXALT</p>
+              <p>Level: {lesson.level}</p>
+
+              {isCompleted && <span className="completed-badge">Completed</span>}
+
+              <button
+                className={lesson.status === "Locked" ? "locked-btn" : "start-btn"}
+                disabled={lesson.status === "Locked"}
+                onClick={() => startLesson(lesson)}
+              >
+                {lesson.status === "Locked"
+                  ? "Locked"
+                  : isCompleted
+                  ? "View Again"
+                  : "Start Lesson"}
+              </button>
+            </div>
+          );
+        })}
       </div>
+
+      {activeLesson && (
+        <div className="lesson-modal">
+          <div className="lesson-modal-content">
+            <button className="close-btn" onClick={() => setActiveLesson(null)}>
+              ×
+            </button>
+
+            <h2>{activeLesson.title}</h2>
+            <div className="video-player">
+              <span>▶️</span>
+              <p>{activeLesson.videoTitle}</p>
+            </div>
+
+            <div className="quiz-box">
+              <h3>Quiz</h3>
+              <p>{activeLesson.question}</p>
+
+              {activeLesson.options.map((option) => (
+                <label className="quiz-option" key={option}>
+                  <input
+                    type="radio"
+                    name="quiz"
+                    value={option}
+                    checked={selectedAnswer === option}
+                    onChange={(e) => setSelectedAnswer(e.target.value)}
+                  />
+                  {option}
+                </label>
+              ))}
+
+              <button className="claim-learn-btn" onClick={submitQuiz}>
+                Submit Quiz & Claim Reward
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
