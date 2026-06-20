@@ -82,6 +82,37 @@ const cancelStake = async (id) => {
     );
   }
 };
+const exportCSV = () => {
+  if (!filteredStakes.length) {
+    alert("No staking records to export");
+    return;
+  }
+
+  const rows = filteredStakes.map((stake) => ({
+    user: stake.user?.email || stake.userId || "User",
+    coin: stake.coin,
+    amount: stake.amount,
+    apy: stake.apy,
+    duration: stake.durationDays,
+    reward: stake.pendingReward || 0,
+    status: stake.status,
+    date: new Date(stake.createdAt).toLocaleDateString(),
+  }));
+
+  const csv =
+    "User,Coin,Amount,APY,Duration,Reward,Status,Date\n" +
+    rows.map((r) => Object.values(r).join(",")).join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "admin-staking-report.csv";
+  a.click();
+
+  window.URL.revokeObjectURL(url);
+};
  useEffect(() => {
   loadAdminStakes();
   loadSummary();
@@ -144,6 +175,12 @@ return matchesSearch && matchesStatus;
   <button onClick={() => setStatusFilter("completed")}>Completed</button>
   <button onClick={() => setStatusFilter("cancelled")}>Cancelled</button>
 </div>
+<button
+  className="export-csv-btn"
+  onClick={exportCSV}
+>
+  Export CSV
+</button>
         <h2>All User Stakes</h2>
 
         <table className="admin-staking-table">
