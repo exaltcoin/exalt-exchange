@@ -197,4 +197,17 @@ border:none;
 border-radius:10px;
 font-weight:700;
 cursor:pointer;
+}.status-active{
+color:#00ff88;
+font-weight:600;
+}
+
+.status-completed{
+color:#3b82f6;
+font-weight:600;
+}
+
+.status-cancelled{
+color:#ff4d4f;
+font-weight:600;
 }

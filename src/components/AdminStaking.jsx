@@ -59,6 +59,7 @@ const loadSummary = async () => {
   }
 };
 const cancelStake = async (id) => {
+    if (!window.confirm("Cancel this stake?")) return;
   try {
     const token = localStorage.getItem("token");
 
@@ -206,18 +207,22 @@ return matchesSearch && matchesStatus;
               </tr>
             ) : (
              filteredStakes.map((stake) => (
-                <tr
+            <tr
   key={stake._id}
   onClick={() => setSelectedStake(stake)}
   style={{ cursor: "pointer" }}
->
+>    
                   <td>{stake.user?.email || stake.userId || "User"}</td>
                   <td>{stake.coin}</td>
                   <td>{stake.amount}</td>
                   <td>{stake.apy}%</td>
                   <td>{stake.durationDays} Days</td>
                   <td>{stake.pendingReward || 0} EXALT</td>
-                  <td>{stake.status}</td>
+                 <td>
+  <span className={`status-${stake.status}`}>
+    {stake.status}
+  </span>
+</td>
                   
  <td>
   {stake.status === "active" ? (
