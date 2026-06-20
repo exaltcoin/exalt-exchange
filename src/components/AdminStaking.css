@@ -1,0 +1,88 @@
+.admin-staking-page {
+  padding: 25px;
+  color: #ffffff;
+}
+
+.admin-staking-header {
+  background: linear-gradient(135deg, #111827, #1f2937);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 18px;
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.admin-staking-header h1 {
+  color: #f6c56b;
+  margin: 0;
+}
+
+.admin-staking-header p {
+  color: #b8b8b8;
+  margin-top: 8px;
+}
+
+.admin-staking-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.admin-staking-card {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.admin-staking-card span {
+  color: #b8b8b8;
+}
+
+.admin-staking-card h2 {
+  color: #f6c56b;
+  margin-top: 10px;
+}
+
+.admin-staking-table-box {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 18px;
+  padding: 22px;
+  overflow-x: auto;
+}
+
+.admin-staking-table-box h2 {
+  color: #f6c56b;
+  margin-bottom: 18px;
+}
+
+.admin-staking-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.admin-staking-table th,
+.admin-staking-table td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(255, 193, 7, 0.12);
+  text-align: left;
+  color: #ffffff;
+}
+
+.admin-staking-table th {
+  color: #f6c56b;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.admin-staking-table tr:hover {
+  background: rgba(255, 193, 7, 0.06);
+}
+
+@media (max-width: 768px) {
+  .admin-staking-cards {
+    grid-template-columns: 1fr;
+  }
+}

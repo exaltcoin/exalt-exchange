@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import AdminStaking from "./components/AdminStaking";
 function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
   const token = localStorage.getItem("token");
@@ -17,6 +17,7 @@ function AdminPanel() {
   const [adminTab, setAdminTab] = useState("overview");
   const [listingFilter, setListingFilter] = useState("all");
   const [loading, setLoading] = useState(false);
+  const [stakingSearch, setStakingSearch] = useState("");
 const [selectedListing, setSelectedListing] = useState(null);
   const totalListings = listings.length;
 const pendingListings = listings.filter(
@@ -270,6 +271,13 @@ const filteredAdminTransactions = transactions.filter((item) => {
         <button className={adminTab === "web3" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("web3")}>Web3</button>
         <button className={adminTab === "kyc" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("kyc")}>KYC</button>
         <button className={adminTab === "support" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("support")}>Support</button>
+        <button
+className={adminTab === "staking" ? "tab active-tab" : "tab"}
+onClick={() => setAdminTab("staking")}
+>
+Staking
+</button>
+
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>
       </div>
 
@@ -1004,5 +1012,7 @@ const filteredAdminTransactions = transactions.filter((item) => {
     </div>
   );
 }
-
+{adminTab === "staking" && (
+  <AdminStaking />
+)}
 export default AdminPanel;
