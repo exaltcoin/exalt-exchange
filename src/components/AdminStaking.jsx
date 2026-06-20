@@ -8,6 +8,7 @@ export default function AdminStaking() {
   const [stakes, setStakes] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedStake, setSelectedStake] = useState(null);
   const [stats, setStats] = useState({
     totalStaked: 0,
     totalRewards: 0,
@@ -205,7 +206,11 @@ return matchesSearch && matchesStatus;
               </tr>
             ) : (
              filteredStakes.map((stake) => (
-                <tr key={stake._id}>
+                <tr
+  key={stake._id}
+  onClick={() => setSelectedStake(stake)}
+  style={{ cursor: "pointer" }}
+>
                   <td>{stake.user?.email || stake.userId || "User"}</td>
                   <td>{stake.coin}</td>
                   <td>{stake.amount}</td>
@@ -233,6 +238,32 @@ return matchesSearch && matchesStatus;
           </tbody>
         </table>
       </div>
+      {selectedStake && (
+  <div className="stake-popup-overlay">
+    <div className="stake-popup">
+      <h2>Stake Details</h2>
+
+      <p><strong>User:</strong> {selectedStake.user?.email || selectedStake.userId}</p>
+      <p><strong>Coin:</strong> {selectedStake.coin}</p>
+      <p><strong>Amount:</strong> {selectedStake.amount}</p>
+      <p><strong>APY:</strong> {selectedStake.apy}%</p>
+      <p><strong>Duration:</strong> {selectedStake.durationDays} Days</p>
+      <p><strong>Reward:</strong> {selectedStake.pendingReward || 0}</p>
+      <p><strong>Status:</strong> {selectedStake.status}</p>
+      <p>
+        <strong>Date:</strong>{" "}
+        {new Date(selectedStake.createdAt).toLocaleDateString()}
+      </p>
+
+      <button
+        className="close-popup-btn"
+        onClick={() => setSelectedStake(null)}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
