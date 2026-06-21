@@ -19,6 +19,15 @@ export default function AdminLearnEarn() {
     return Number.isNaN(parsed.getTime()) ? "-" : parsed.toLocaleDateString();
   };
 
+  const getName = (item) =>
+    item?.userId?.name || item?.user?.name || item?.name || "User";
+
+  const getEmail = (item) =>
+    item?.userId?.email || item?.user?.email || item?.email || "-";
+
+  const getLesson = (item) =>
+    item?.lessonTitle || item?.title || item?.lesson || "-";
+
   const loadLearnEarn = async () => {
     try {
       setLoading(true);
@@ -49,9 +58,9 @@ export default function AdminLearnEarn() {
   const filteredRecords = useMemo(() => {
     return records.filter((item) => {
       const text = `
-        ${item?.user?.email || ""}
-        ${item?.user?.name || ""}
-        ${item?.title || ""}
+        ${getEmail(item)}
+        ${getName(item)}
+        ${getLesson(item)}
         ${item?.status || ""}
       `.toLowerCase();
 
@@ -61,7 +70,7 @@ export default function AdminLearnEarn() {
 
   const totalUsers =
     backendStats?.totalUsers ??
-    new Set(records.map((r) => r?.user?._id || r?.userId || r?.user).filter(Boolean)).size;
+    new Set(records.map((r) => r?.userId?._id || r?.user?._id || r?.userId || r?.user).filter(Boolean)).size;
 
   const totalCompleted = backendStats?.totalCompleted ?? records.length;
 
@@ -75,9 +84,9 @@ export default function AdminLearnEarn() {
     const rows = [
       ["User", "Email", "Lesson", "Reward", "Status", "Date"],
       ...filteredRecords.map((r) => [
-        r?.user?.name || "User",
-        r?.user?.email || "-",
-        r?.title || "-",
+        getName(r),
+        getEmail(r),
+        getLesson(r),
         r?.reward || 0,
         r?.status || "completed",
         safeDate(r?.createdAt),
@@ -107,25 +116,10 @@ export default function AdminLearnEarn() {
       </div>
 
       <div className="admin-learn-stats">
-        <div>
-          <span>Total Users</span>
-          <h2>{totalUsers}</h2>
-        </div>
-
-        <div>
-          <span>Lessons Completed</span>
-          <h2>{totalCompleted}</h2>
-        </div>
-
-        <div>
-          <span>Total Rewards</span>
-          <h2>{totalRewards} EXALT</h2>
-        </div>
-
-        <div>
-          <span>Certificates</span>
-          <h2>{totalCertificates}</h2>
-        </div>
+        <div><span>Total Users</span><h2>{totalUsers}</h2></div>
+        <div><span>Lessons Completed</span><h2>{totalCompleted}</h2></div>
+        <div><span>Total Rewards</span><h2>{totalRewards} EXALT</h2></div>
+        <div><span>Certificates</span><h2>{totalCertificates}</h2></div>
       </div>
 
       <div className="admin-learn-tools">
@@ -160,12 +154,11 @@ export default function AdminLearnEarn() {
                 <th>XP</th>
               </tr>
             </thead>
-
             <tbody>
               {topLearners.map((item, index) => (
-                <tr key={item?.user?._id || index}>
-                  <td>{item?.user?.name || "User"}</td>
-                  <td>{item?.user?.email || "-"}</td>
+                <tr key={item?.userId?._id || item?.user?._id || index}>
+                  <td>{getName(item)}</td>
+                  <td>{getEmail(item)}</td>
                   <td>{item?.completed || 0}</td>
                   <td>{item?.rewards || 0} EXALT</td>
                   <td>{item?.xp || 0} XP</td>
@@ -199,12 +192,12 @@ export default function AdminLearnEarn() {
             ) : (
               filteredRecords.map((item, index) => (
                 <tr key={item?._id || index}>
-                  <td>{item?.user?.name || "User"}</td>
-                  <td>{item?.user?.email || "-"}</td>
-                  <td>{item?.title || "-"}</td>
+                  <td>{getName(item)}</td>
+                  <td>{getEmail(item)}</td>
+                  <td>{getLesson(item)}</td>
                   <td>{item?.reward || 0} EXALT</td>
                   <td>
-                    <span className="learn-status">
+                    <span className={`learn-status ${item?.status || "completed"}`}>
                       {item?.status || "completed"}
                     </span>
                   </td>
