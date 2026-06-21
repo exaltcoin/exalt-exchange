@@ -73,7 +73,22 @@ useEffect(() => {
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [completed, setCompleted] = useState([]);
   const [totalRewards, setTotalRewards] = useState(0);
+const progressPercent = Math.round(
+  (completed.length / lessons.length) * 100
+);
 
+const xp = completed.length * 100;
+const streak = completed.length > 0 ? completed.length : 0;
+const achievements = [];
+
+if (completed.length >= 1)
+  achievements.push("🏆 First Lesson");
+
+if (completed.length >= 2)
+  achievements.push("🎯 Learner");
+
+if (completed.length >= lessons.length)
+  achievements.push("👑 Master");
   const startLesson = (lesson) => {
     if (lesson.status === "Locked") return;
     setActiveLesson(lesson);
@@ -149,18 +164,45 @@ useEffect(() => {
         </div>
       </div>
 <div className="learn-progress-box">
+
   <div className="learn-progress-info">
     <span>Learning Progress</span>
-    <strong>{completed.length} / {lessons.length}</strong>
+    <strong>{progressPercent}%</strong>
   </div>
 
   <div className="learn-progress-bar">
     <div
       className="learn-progress-fill"
-      style={{ width: `${(completed.length / lessons.length) * 100}%` }}
+      style={{ width: `${progressPercent}%` }}
     ></div>
   </div>
+
+  <div className="xp-info">
+    <span>XP Points</span>
+    <strong>{xp} XP</strong>
+  </div>
+
+  <div className="streak-info">
+    <span>Daily Streak</span>
+    <strong>🔥 {streak} Days</strong>
+  </div>
+
+  <div className="achievement-box">
+    <span>Achievements</span>
+
+    <div className="achievement-list">
+      {achievements.length === 0 ? (
+        <small>No achievements yet</small>
+      ) : (
+        achievements.map((item, index) => (
+          <strong key={index}>{item}</strong>
+        ))
+      )}
+    </div>
+  </div>
+
 </div>
+
       <div className="lesson-grid">
         {lessons.map((lesson) => {
           const isCompleted = completed.includes(lesson.id);
