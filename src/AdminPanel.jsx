@@ -153,10 +153,7 @@ const filteredAdminTransactions = transactions.filter((item) => {
     }
     return value;
   };
- if (adminTab === "learn-earn") {
-  return <AdminLearnEarn />;
-} 
-
+ 
   if (!user || user.role !== "admin") {
     return (
       <div className="panel">
