@@ -328,4 +328,120 @@
   .video-player iframe {
     height: 220px;
   }
+}.learn-tools {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(255, 193, 7, 0.18);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 25px;
+}
+
+.lesson-search {
+  width: 100%;
+  padding: 14px 16px;
+  background: #0b1120;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: 14px;
+  color: #fff;
+  outline: none;
+  margin-bottom: 14px;
+}
+
+.lesson-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lesson-tabs button {
+  background: #1f2937;
+  color: #f6c56b;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.lesson-tabs button:hover,
+.lesson-tabs .active-tab {
+  background: #f6c56b;
+  color: #111827;
+}
+
+.daily-reward-box,
+.leaderboard-box,
+.activity-box {
+  background: rgba(17, 24, 39, 0.95);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.daily-reward-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+.daily-reward-box h3,
+.leaderboard-box h3,
+.activity-box h3 {
+  color: #f6c56b;
+  margin: 0 0 10px;
+}
+
+.daily-reward-box p,
+.activity-box p {
+  color: #b8b8b8;
+  margin: 8px 0;
+}
+
+.daily-reward-box button {
+  background: linear-gradient(90deg, #f0b90b, #f6c56b);
+  color: #111827;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.daily-reward-box button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.learn-extra-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.leader-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 193, 7, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.leader-row strong {
+  color: #f6c56b;
+}
+
+@media (max-width: 768px) {
+  .daily-reward-box,
+  .learn-extra-grid {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
