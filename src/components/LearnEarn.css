@@ -29,7 +29,9 @@
 .lesson-card p,
 .learn-progress-info span,
 .xp-info span,
-.streak-info span {
+.streak-info span,
+.achievement-box > span,
+.video-player p {
   color: #b8b8b8;
 }
 
@@ -94,7 +96,6 @@
 }
 
 .achievement-box > span {
-  color: #b8b8b8;
   font-size: 14px;
   display: block;
   margin-bottom: 10px;
@@ -119,8 +120,7 @@
   color: #9ca3af;
 }
 
-.video-box,
-.video-player {
+.video-box {
   height: 130px;
   background: #0b1120;
   border-radius: 15px;
@@ -131,6 +131,32 @@
   font-size: 42px;
   margin-bottom: 15px;
   transition: 0.3s ease;
+}
+
+.video-player {
+  height: auto;
+  display: block;
+  padding: 0;
+  background: transparent;
+  margin-bottom: 15px;
+}
+
+.video-player iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+  border-radius: 15px;
+}
+
+.video-player p {
+  margin-top: 10px;
+}
+
+.video-duration {
+  display: block;
+  margin-top: 10px;
+  color: #f6c56b;
+  font-size: 14px;
 }
 
 .lesson-card {
@@ -256,8 +282,50 @@
   margin-right: 10px;
 }
 
+.quiz-result {
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  margin: 12px 0;
+}
+
+.quiz-result.success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.quiz-result.error {
+  background: rgba(220, 38, 38, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+}
+
+.certificate-btn {
+  width: 100%;
+  margin: 0 0 25px;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #f0b90b, #f6c56b);
+  color: #111827;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.certificate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(240, 185, 11, 0.35);
+}
+
 @media (max-width: 768px) {
   .learn-page {
     padding: 15px;
+  }
+
+  .video-player iframe {
+    height: 220px;
   }
 }

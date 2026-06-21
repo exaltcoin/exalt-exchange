@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import jsPDF from "jspdf";
+import QRCode from "qrcode";
 import "./LearnEarn.css";
 
 const API = "https://exalt-exchange-backend.onrender.com";
@@ -13,6 +15,8 @@ export default function LearnEarn() {
       level: "Beginner",
       status: "Available",
       videoTitle: "What is crypto and how exchanges work?",
+      videoUrl: "https://www.youtube.com/embed/SSo_EIwHSd4",
+      duration: "5 min",
       question: "What is the safest rule in crypto?",
       options: ["Share private key", "Use unknown links", "Protect wallet keys"],
       answer: "Protect wallet keys",
@@ -24,6 +28,8 @@ export default function LearnEarn() {
       level: "Beginner",
       status: "Available",
       videoTitle: "How to trade safely with P2P users",
+      videoUrl: "https://www.youtube.com/embed/9g8N0yJmY4U",
+      duration: "7 min",
       question: "When should you release crypto in P2P?",
       options: ["Before payment", "After confirmed payment", "Any time"],
       answer: "After confirmed payment",
@@ -35,6 +41,8 @@ export default function LearnEarn() {
       level: "Intermediate",
       status: "Locked",
       videoTitle: "How staking rewards work",
+      videoUrl: "https://www.youtube.com/embed/UjA8W3M5l6Q",
+      duration: "10 min",
       question: "What does staking mean?",
       options: ["Lock tokens for rewards", "Delete tokens", "Send tokens away"],
       answer: "Lock tokens for rewards",
@@ -44,6 +52,7 @@ export default function LearnEarn() {
   const [loading, setLoading] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [quizResult, setQuizResult] = useState("");
   const [completed, setCompleted] = useState([]);
   const [totalRewards, setTotalRewards] = useState(0);
 
@@ -80,12 +89,73 @@ export default function LearnEarn() {
     loadProgress();
   }, []);
 
+  const downloadCertificate = async () => {
+    const userName =
+      localStorage.getItem("name") ||
+      localStorage.getItem("email") ||
+      "Exalt Exchange User";
+
+    const today = new Date().toLocaleDateString();
+    const certificateId = `EXALT-${Date.now()}`;
+    const verifyText = `Exalt Exchange Learn & Earn Certificate | ${certificateId} | ${userName}`;
+
+    const qrImage = await QRCode.toDataURL(verifyText);
+
+    const doc = new jsPDF("landscape", "mm", "a4");
+
+    doc.setFillColor(10, 15, 28);
+    doc.rect(0, 0, 297, 210, "F");
+
+    doc.setDrawColor(240, 185, 11);
+    doc.setLineWidth(2);
+    doc.rect(10, 10, 277, 190);
+
+    doc.setDrawColor(246, 197, 107);
+    doc.setLineWidth(0.6);
+    doc.rect(16, 16, 265, 178);
+
+    doc.setFontSize(28);
+    doc.setTextColor(246, 197, 107);
+    doc.text("EXALT EXCHANGE", 105, 38);
+
+    doc.setFontSize(22);
+    doc.text("Certificate of Completion", 95, 58);
+
+    doc.setFontSize(13);
+    doc.setTextColor(220, 220, 220);
+    doc.text("This certificate is proudly presented to", 105, 78);
+
+    doc.setFontSize(26);
+    doc.setTextColor(255, 255, 255);
+    doc.text(userName, 105, 98);
+
+    doc.setFontSize(14);
+    doc.setTextColor(220, 220, 220);
+    doc.text("For successfully completing the Exalt Learn & Earn Program", 75, 118);
+
+    doc.setFontSize(13);
+    doc.setTextColor(246, 197, 107);
+    doc.text(`Total Rewards: ${totalRewards} EXALT`, 30, 145);
+    doc.text(`XP Points: ${xp} XP`, 30, 155);
+    doc.text(`Completion Date: ${today}`, 30, 165);
+    doc.text(`Certificate ID: ${certificateId}`, 30, 175);
+
+    doc.addImage(qrImage, "PNG", 235, 140, 35, 35);
+
+    doc.setFontSize(16);
+    doc.setTextColor(246, 197, 107);
+    doc.text("Secure • Fast • Global", 118, 190);
+
+    doc.save(`EXALT-Certificate-${certificateId}.pdf`);
+  };
+
   const startLesson = (lesson) => {
     const isLocked = lesson.status === "Locked" && completed.length < 2;
     if (isLocked) return;
 
     setActiveLesson(lesson);
     setSelectedAnswer("");
+    setQuizResult("");
   };
 
   const submitQuiz = async () => {
@@ -93,6 +163,7 @@ export default function LearnEarn() {
       if (!activeLesson) return;
 
       if (selectedAnswer !== activeLesson.answer) {
+        setQuizResult("wrong");
         alert("Wrong answer. Please try again.");
         return;
       }
@@ -118,6 +189,7 @@ export default function LearnEarn() {
       );
 
       if (res.data.success) {
+        setQuizResult("correct");
         alert(`${activeLesson.reward} EXALT reward completed`);
         await loadProgress();
         setActiveLesson(null);
@@ -146,9 +218,7 @@ export default function LearnEarn() {
 
         <div className="learn-card">
           <span>Completed Tasks</span>
-          <h2>
-            {completed.length} / {lessons.length}
-          </h2>
+          <h2>{completed.length} / {lessons.length}</h2>
         </div>
 
         <div className="learn-card">
@@ -195,6 +265,12 @@ export default function LearnEarn() {
         </div>
       </div>
 
+      {completed.length === lessons.length && (
+        <button className="certificate-btn" onClick={downloadCertificate}>
+          🏆 Download Certificate
+        </button>
+      )}
+
       <div className="lesson-grid">
         {lessons.map((lesson) => {
           const isCompleted = completed.includes(lesson.id);
@@ -207,6 +283,7 @@ export default function LearnEarn() {
               <h3>{lesson.title}</h3>
               <p>Reward: {lesson.reward} EXALT</p>
               <p>Level: {lesson.level}</p>
+              <p>Duration: {lesson.duration}</p>
 
               {isCompleted && (
                 <span className="completed-badge">Completed</span>
@@ -234,13 +311,38 @@ export default function LearnEarn() {
             <h2>{activeLesson.title}</h2>
 
             <div className="video-player">
-              <span>▶️</span>
+              <iframe
+                width="100%"
+                height="300"
+                src={activeLesson.videoUrl}
+                title={activeLesson.videoTitle}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+
               <p>{activeLesson.videoTitle}</p>
+
+              <small className="video-duration">
+                ⏱ {activeLesson.duration}
+              </small>
             </div>
 
             <div className="quiz-box">
               <h3>Quiz</h3>
               <p>{activeLesson.question}</p>
+
+              {quizResult === "correct" && (
+                <div className="quiz-result success">
+                  ✅ Correct Answer! Reward added.
+                </div>
+              )}
+
+              {quizResult === "wrong" && (
+                <div className="quiz-result error">
+                  ❌ Wrong Answer. Try again.
+                </div>
+              )}
 
               {activeLesson.options.map((option) => (
                 <label className="quiz-option" key={option}>
