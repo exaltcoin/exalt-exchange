@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLearnEarn from "./components/AdminLearnEarn";
 import AdminStaking from "./components/AdminStaking";
 import AdminCopyTrading from "./components/AdminCopyTrading";
+import AdminAIPortfolio from "./components/AdminAIPortfolio";
 function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
   const token = localStorage.getItem("token");
@@ -291,6 +292,12 @@ Staking
   onClick={() => setAdminTab("copy-trading")}
 >
   Copy Trading
+</button>
+<button
+  className={adminTab === "ai-portfolio" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-portfolio")}
+>
+  AI Portfolio
 </button>
 
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>
@@ -890,6 +897,9 @@ Staking
 )}
 {adminTab === "copy-trading" && (
   <AdminCopyTrading />
+)}
+{adminTab === "ai-portfolio" && (
+  <AdminAIPortfolio />
 )}
       {adminTab === "transactions" && (
         <div className="admin-content">
