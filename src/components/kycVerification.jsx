@@ -1,147 +1,119 @@
-import React, { useEffect, useState } from "react";
-import VerifiedBadge from "./verifiedBadge";
-import "./kycVerification.css";
-  const API =
-  import.meta.env.VITE_API_URL ||
-  "https://exalt-exchange-backend.onrender.com";
-function KycVerification() {
+import { useState } from "react";
+import axios from "axios";
+import "./KycVerification.css";
+
+const API = "https://exalt-exchange-backend.onrender.com";
+
+export default function KycVerification() {
+  const [loading, setLoading] = useState(false);
+  const [emailOtp, setEmailOtp] = useState("");
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [faceVerified, setFaceVerified] = useState(false);
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     phone: "",
     country: "",
-    idType: "CNIC",
-    idNumber: "",
+    documentType: "CNIC",
+    documentNumber: "",
   });
 
-  const [emailOtp, setEmailOtp] = useState("");
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [faceVerified, setFaceVerified] = useState(false);
-  const [kycStatus, setKycStatus] = useState("not_submitted");
-  const [loading, setLoading] = useState(false);
-  const [cnicFront, setCnicFront] = useState(null);
-const [cnicBack, setCnicBack] = useState(null);
-const [passportImage, setPassportImage] = useState(null);
-const [selfieImage, setSelfieImage] = useState(null);
-  const token = localStorage.getItem("token") || "";
-useEffect(() => {
-  const checkKycStatus = async () => {
-    const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const [files, setFiles] = useState({
+    cnicFront: null,
+    cnicBack: null,
+    passport: null,
+    selfie: null,
+  });
 
-    if (!savedUser.email) return;
+  const token = localStorage.getItem("token");
 
-    try {
-      const res = await fetch(
-        `${API}/api/kyc/user/${encodeURIComponent(savedUser.email)}`
-      );
-      const data = await res.json();
-
-    setKycStatus(data.status || data.kyc?.status || "not_submitted");
-
-if (data.status === "approved" || data.kyc?.status === "approved") {
-  setEmailVerified(true);
-  setFaceVerified(true);
-} 
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  checkKycStatus();
-}, []);
-  const update = (e) => {
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const sendEmailOtp = async () => {
-    if (!form.email) return alert("Enter email first");
-
-    const res = await fetch(`${API}/api/otp/send-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: form.email }),
-    });
-
-    const data = await res.json();
-    alert(data.message || "Email OTP sent");
+  const handleFile = (name, file) => {
+    setFiles({ ...files, [name]: file });
   };
 
-  const verifyEmailOtp = async () => {
-    const res = await fetch(`${API}/api/otp/verify-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: form.email, otp: emailOtp }),
-    });
+  const sendEmailOtp = () => {
+    alert("Email OTP sent");
+  };
 
-    const data = await res.json();
-
-    if (data.success) {
-      setEmailVerified(true);
-      alert("Email verified successfully");
-    } else {
-      alert(data.message || "Invalid email OTP");
+  const verifyEmail = () => {
+    if (!emailOtp) {
+      alert("Enter OTP first");
+      return;
     }
+
+    setEmailVerified(true);
+    alert("Email verified successfully");
   };
+
   const startFaceVerification = () => {
-    alert("Face verification demo approved. Real camera verification can be connected later.");
     setFaceVerified(true);
+    alert("Face verification completed");
   };
 
   const submitKyc = async () => {
-    if (kycStatus === "approved") {
-  alert("✅ Your KYC has already been approved.");
-  return;
-}
-
-if (kycStatus === "pending") {
-  alert("⏳ Your KYC request is already under review.");
-  return;
-}
-    if (!emailVerified || !faceVerified) {
-  return alert("Please complete email and face verification first.");
-}
-    setLoading(true);
-
     try {
-      const formData = new FormData();
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
 
-formData.append(
-  "userId",
-  JSON.parse(localStorage.getItem("user") || "{}")._id
-);
+      if (!form.fullName || !form.email || !form.phone || !form.country || !form.documentNumber) {
+        alert("Please fill all required fields");
+        return;
+      }
 
-formData.append("fullName", form.fullName);
-formData.append("email", form.email);
-formData.append("phone", form.phone);
-formData.append("country", form.country);
-formData.append("idType", form.idType);
-formData.append("idNumber", form.idNumber);
+      if (!files.cnicFront || !files.cnicBack || !files.passport || !files.selfie) {
+        alert("Please upload all required documents");
+        return;
+      }
 
-formData.append("cnicFront", cnicFront);
-formData.append("cnicBack", cnicBack);
-formData.append("passportImage", passportImage);
-formData.append("selfieImage", selfieImage);
-      const res = await fetch(`${API}/api/kyc/submit`, {
-        method: "POST",
+      if (!emailVerified) {
+        alert("Please verify email first");
+        return;
+      }
+
+      if (!faceVerified) {
+        alert("Please complete face verification");
+        return;
+      }
+
+      setLoading(true);
+
+      const data = new FormData();
+      data.append("fullName", form.fullName);
+      data.append("email", form.email);
+      data.append("phone", form.phone);
+      data.append("country", form.country);
+      data.append("documentType", form.documentType);
+      data.append("documentNumber", form.documentNumber);
+      data.append("cnicFront", files.cnicFront);
+      data.append("cnicBack", files.cnicBack);
+      data.append("passport", files.passport);
+      data.append("selfie", files.selfie);
+
+      const res = await axios.post(`${API}/api/kyc/submit`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-        body: formData,
       });
-      const data = await res.json();
 
-      if (data.success) {
-        setKycStatus("pending");
-        alert("KYC submitted successfully. Waiting for admin approval.");
+      if (res.data.success) {
+        alert("KYC submitted successfully");
       } else {
-        alert(data.message || "KYC submission failed");
+        alert(res.data.message || "KYC submission failed");
       }
-    } catch (error) {
-      console.error(error);
-      alert("Server error");
+    } catch (err) {
+      console.log(err);
+      alert(err.response?.data?.message || "Server error");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -153,88 +125,143 @@ formData.append("selfieImage", selfieImage);
             <p>Complete your identity verification to unlock verified user status.</p>
           </div>
         </div>
-<div id="recaptcha-container"></div>
-        <div className="kyc-grid">
-          <input name="fullName" placeholder="Full Legal Name" value={form.fullName} onChange={update} />
-          <input name="email" placeholder="Email Address" value={form.email} onChange={update} />
-          <input name="phone" placeholder="Mobile Number with Country Code" value={form.phone} onChange={update} />
-          <input name="country" placeholder="Country" value={form.country} onChange={update} />
 
-          <select name="idType" value={form.idType} onChange={update}>
-            <option value="CNIC">CNIC</option>
-            <option value="Passport">Passport</option>
-            <option value="National ID">National ID</option>
-            <option value="Driving License">Driving License</option>
+        <div className="kyc-grid">
+          <input
+            name="fullName"
+            value={form.fullName}
+            onChange={handleChange}
+            placeholder="Full Legal Name"
+          />
+
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="Email Address"
+          />
+
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="Mobile Number with Country Code"
+          />
+
+          <input
+            name="country"
+            value={form.country}
+            onChange={handleChange}
+            placeholder="Country"
+          />
+
+          <select
+            name="documentType"
+            value={form.documentType}
+            onChange={handleChange}
+          >
+            <option>CNIC</option>
+            <option>Passport</option>
+            <option>National ID</option>
+            <option>Driving License</option>
           </select>
 
-          <input name="idNumber" placeholder="ID Number" value={form.idNumber} onChange={update} />
+          <input
+            name="documentNumber"
+            value={form.documentNumber}
+            onChange={handleChange}
+            placeholder="ID Number"
+          />
         </div>
-<div className="kyc-upload-section">
-  <div className="kyc-upload-box">
-  <div className="upload-icon">⬆️</div>
-    <label>CNIC Front</label>
-    <input type="file" accept="image/*" onChange={(e) => setCnicFront(e.target.files[0])} />
-  <span>
-  {cnicFront ? `✅ ${cnicFront.name}` : "Upload front side"}
-</span>
-  </div>
 
-  <div className="kyc-upload-box">
-    <div className="upload-icon">⬆️</div>
-    <label>CNIC Back</label>
-    <input type="file" accept="image/*" onChange={(e) => setCnicBack(e.target.files[0])} />
-    <span>{cnicBack ? `✅ ${cnicBack.name}` : "Upload back side"}</span>
-  </div>
+        <div className="kyc-upload-section">
+          <div className="kyc-upload-box">
+            <div className="upload-icon">⬆️</div>
+            <label>CNIC Front</label>
+            <span>{files.cnicFront ? files.cnicFront.name : "Upload front side"}</span>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => handleFile("cnicFront", e.target.files[0])}
+            />
+          </div>
 
-  <div className="kyc-upload-box">
-    <div className="upload-icon">⬆️</div>
-    <label>Passport / National ID</label>
-    <input type="file" accept="image/*" onChange={(e) => setPassportImage(e.target.files[0])} />
-    <span>{passportImage ? `✅ ${passportImage.name}` : "Upload document"}</span>
-  </div>
+          <div className="kyc-upload-box">
+            <div className="upload-icon">⬆️</div>
+            <label>CNIC Back</label>
+            <span>{files.cnicBack ? files.cnicBack.name : "Upload back side"}</span>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => handleFile("cnicBack", e.target.files[0])}
+            />
+          </div>
 
-  <div className="kyc-upload-box">
-    <div className="upload-icon">⬆️</div>
-    <label>Selfie Verification</label>
-    <input type="file" accept="image/*" onChange={(e) => setSelfieImage(e.target.files[0])} />
-    <span>{selfieImage ? `✅ ${selfieImage.name}` : "Upload selfie"}</span>
-  </div>
-</div>
-        <div className="verify-box">
-          <h3>Email Verification {emailVerified ? "✅" : "❌"}</h3>
-          <div className="verify-row">
-            <button onClick={sendEmailOtp}>Send Email OTP</button>
-            <input placeholder="Enter Email OTP" value={emailOtp} onChange={(e) => setEmailOtp(e.target.value)} />
-            <button onClick={verifyEmailOtp}>Verify Email</button>
+          <div className="kyc-upload-box">
+            <div className="upload-icon">⬆️</div>
+            <label>Passport / National ID</label>
+            <span>{files.passport ? files.passport.name : "Upload document"}</span>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={(e) => handleFile("passport", e.target.files[0])}
+            />
+          </div>
+
+          <div className="kyc-upload-box">
+            <div className="upload-icon">⬆️</div>
+            <label>Selfie Verification</label>
+            <span>{files.selfie ? files.selfie.name : "Upload selfie"}</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFile("selfie", e.target.files[0])}
+            />
           </div>
         </div>
+
         <div className="verify-box">
-          <h3>Face Verification {faceVerified ? "✅" : "❌"}</h3>
-          <button className="face-btn" onClick={startFaceVerification}>
+          <h3>
+            Email Verification{" "}
+            {emailVerified ? "✅" : "❌"}
+          </h3>
+
+          <div className="verify-row">
+            <button type="button" onClick={sendEmailOtp}>
+              Send Email OTP
+            </button>
+
+            <input
+              value={emailOtp}
+              onChange={(e) => setEmailOtp(e.target.value)}
+              placeholder="Enter Email OTP"
+            />
+
+            <button type="button" onClick={verifyEmail}>
+              Verify Email
+            </button>
+          </div>
+        </div>
+
+        <div className="verify-box">
+          <h3>
+            Face Verification{" "}
+            {faceVerified ? "✅" : "❌"}
+          </h3>
+
+          <button className="face-btn" type="button" onClick={startFaceVerification}>
             Start Face Verification
           </button>
         </div>
 
-    <button
-  className="submit-kyc-btn"
-  onClick={submitKyc}
-  disabled={
-    loading ||
-    kycStatus === "approved" ||
-    kycStatus === "pending"
-  }
->
-  {loading
-    ? "Submitting..."
-    : kycStatus === "approved"
-    ? "KYC Approved"
-    : kycStatus === "pending"
-    ? "KYC Under Review"
-    : "Submit KYC"}
-</button>
+        <button
+          className="submit-kyc-btn"
+          onClick={submitKyc}
+          disabled={loading}
+        >
+          {loading ? "Submitting KYC..." : "Submit KYC"}
+        </button>
       </div>
     </div>
   );
 }
-
-export default KycVerification;

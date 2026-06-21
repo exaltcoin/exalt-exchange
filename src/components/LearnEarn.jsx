@@ -55,6 +55,11 @@ export default function LearnEarn() {
   const [quizResult, setQuizResult] = useState("");
   const [completed, setCompleted] = useState([]);
   const [totalRewards, setTotalRewards] = useState(0);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [dailyClaimed, setDailyClaimed] = useState(
+    localStorage.getItem("learnDailyClaimed") === new Date().toDateString()
+  );
 
   const progressPercent = Math.round((completed.length / lessons.length) * 100);
   const xp = completed.length * 100;
@@ -64,6 +69,26 @@ export default function LearnEarn() {
   if (completed.length >= 1) achievements.push("🏆 First Lesson");
   if (completed.length >= 2) achievements.push("🎯 Learner");
   if (completed.length >= lessons.length) achievements.push("👑 Master");
+
+  const filteredLessons = lessons.filter((lesson) => {
+    const matchSearch = lesson.title.toLowerCase().includes(search.toLowerCase());
+    const matchCategory = category === "All" || lesson.level === category;
+    return matchSearch && matchCategory;
+  });
+
+  const leaderboard = [
+    { name: "You", xp },
+    { name: "Rehan", xp: 900 },
+    { name: "Ali", xp: 700 },
+    { name: "Ahmed", xp: 500 },
+  ].sort((a, b) => b.xp - a.xp);
+
+  const recentActivity = completed
+    .map((id) => {
+      const lesson = lessons.find((l) => l.id === id);
+      return lesson ? `✅ ${lesson.title} Completed +${lesson.reward} EXALT` : null;
+    })
+    .filter(Boolean);
 
   const loadProgress = async () => {
     try {
@@ -89,6 +114,13 @@ export default function LearnEarn() {
     loadProgress();
   }, []);
 
+  const claimDailyReward = () => {
+    if (dailyClaimed) return;
+    localStorage.setItem("learnDailyClaimed", new Date().toDateString());
+    setDailyClaimed(true);
+    alert("🎁 Daily Reward Claimed: 5 EXALT");
+  };
+
   const downloadCertificate = async () => {
     const userName =
       localStorage.getItem("name") ||
@@ -98,7 +130,6 @@ export default function LearnEarn() {
     const today = new Date().toLocaleDateString();
     const certificateId = `EXALT-${Date.now()}`;
     const verifyText = `Exalt Exchange Learn & Earn Certificate | ${certificateId} | ${userName}`;
-
     const qrImage = await QRCode.toDataURL(verifyText);
 
     const doc = new jsPDF("landscape", "mm", "a4");
@@ -143,7 +174,6 @@ export default function LearnEarn() {
     doc.addImage(qrImage, "PNG", 235, 140, 35, 35);
 
     doc.setFontSize(16);
-    doc.setTextColor(246, 197, 107);
     doc.text("Secure • Fast • Global", 118, 190);
 
     doc.save(`EXALT-Certificate-${certificateId}.pdf`);
@@ -234,10 +264,7 @@ export default function LearnEarn() {
         </div>
 
         <div className="learn-progress-bar">
-          <div
-            className="learn-progress-fill"
-            style={{ width: `${progressPercent}%` }}
-          ></div>
+          <div className="learn-progress-fill" style={{ width: `${progressPercent}%` }}></div>
         </div>
 
         <div className="xp-info">
@@ -252,14 +279,11 @@ export default function LearnEarn() {
 
         <div className="achievement-box">
           <span>Achievements</span>
-
           <div className="achievement-list">
             {achievements.length === 0 ? (
               <small>No achievements yet</small>
             ) : (
-              achievements.map((item, index) => (
-                <strong key={index}>{item}</strong>
-              ))
+              achievements.map((item, index) => <strong key={index}>{item}</strong>)
             )}
           </div>
         </div>
@@ -271,8 +295,60 @@ export default function LearnEarn() {
         </button>
       )}
 
+      <div className="learn-tools">
+        <input
+          className="lesson-search"
+          placeholder="Search lessons..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <div className="lesson-tabs">
+          {["All", "Beginner", "Intermediate", "Advanced"].map((item) => (
+            <button
+              key={item}
+              className={category === item ? "active-tab" : ""}
+              onClick={() => setCategory(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="daily-reward-box">
+        <div>
+          <h3>🎁 Daily Reward</h3>
+          <p>Claim 5 EXALT every day.</p>
+        </div>
+        <button onClick={claimDailyReward} disabled={dailyClaimed}>
+          {dailyClaimed ? "Claimed Today" : "Claim 5 EXALT"}
+        </button>
+      </div>
+
+      <div className="learn-extra-grid">
+        <div className="leaderboard-box">
+          <h3>🏆 Top Learners</h3>
+          {leaderboard.map((user, index) => (
+            <div className="leader-row" key={index}>
+              <span>#{index + 1} {user.name}</span>
+              <strong>{user.xp} XP</strong>
+            </div>
+          ))}
+        </div>
+
+        <div className="activity-box">
+          <h3>Recent Activity</h3>
+          {recentActivity.length === 0 ? (
+            <p>No activity yet</p>
+          ) : (
+            recentActivity.map((item, index) => <p key={index}>{item}</p>)
+          )}
+        </div>
+      </div>
+
       <div className="lesson-grid">
-        {lessons.map((lesson) => {
+        {filteredLessons.map((lesson) => {
           const isCompleted = completed.includes(lesson.id);
           const isLocked = lesson.status === "Locked" && completed.length < 2;
 
@@ -285,9 +361,7 @@ export default function LearnEarn() {
               <p>Level: {lesson.level}</p>
               <p>Duration: {lesson.duration}</p>
 
-              {isCompleted && (
-                <span className="completed-badge">Completed</span>
-              )}
+              {isCompleted && <span className="completed-badge">Completed</span>}
 
               <button
                 className={isLocked ? "locked-btn" : "start-btn"}
@@ -322,10 +396,7 @@ export default function LearnEarn() {
               ></iframe>
 
               <p>{activeLesson.videoTitle}</p>
-
-              <small className="video-duration">
-                ⏱ {activeLesson.duration}
-              </small>
+              <small className="video-duration">⏱ {activeLesson.duration}</small>
             </div>
 
             <div className="quiz-box">
@@ -357,11 +428,7 @@ export default function LearnEarn() {
                 </label>
               ))}
 
-              <button
-                className="claim-learn-btn"
-                onClick={submitQuiz}
-                disabled={loading}
-              >
+              <button className="claim-learn-btn" onClick={submitQuiz} disabled={loading}>
                 {loading ? "Submitting..." : "Submit Quiz & Claim Reward"}
               </button>
             </div>
