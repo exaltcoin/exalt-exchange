@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AdminLearnEarn from "./components/AdminLearnEarn";
 import AdminStaking from "./components/AdminStaking";
 function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
@@ -15,6 +16,7 @@ function AdminPanel() {
   const [webSearch, setWebSearch] = useState("");
   const [web3Filter, setWeb3Filter] = useState("ALL");
   const [adminTab, setAdminTab] = useState("overview");
+  const [learnEarnRecords, setLearnEarnRecords] = useState([]);
   const [listingFilter, setListingFilter] = useState("all");
   const [loading, setLoading] = useState(false);
   const [stakingSearch, setStakingSearch] = useState("");
@@ -151,6 +153,9 @@ const filteredAdminTransactions = transactions.filter((item) => {
     }
     return value;
   };
+ if (adminTab === "learn-earn") {
+  return <AdminLearnEarn />;
+} 
 
   if (!user || user.role !== "admin") {
     return (
@@ -276,6 +281,9 @@ className={adminTab === "staking" ? "tab active-tab" : "tab"}
 onClick={() => setAdminTab("staking")}
 >
 Staking
+</button>
+<button onClick={() => setPage("admin-learn")}>
+  Learn & Earn
 </button>
 
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>

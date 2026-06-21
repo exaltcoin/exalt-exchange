@@ -44,6 +44,7 @@ import AIGridTrading from "./components/AIGridTrading";
 import AISmartAlerts from "./components/AISmartAlerts";
 import AILaunchpad from "./components/AILaunchpad";
 import AIWhaleHeatmap from "./components/AIWhaleHeatmap";
+import AdminLearnEarn from "./components/AdminLearnEarn";
 function App() {
  const [page, setPage] = useState("auth"); 
   const [wallet, setWallet] = useState("");
@@ -220,6 +221,7 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai-smart-alerts") return <AISmartAlerts />;
     if (page === "ai-launchpad") return <AILaunchpad />;
     if (page === "ai-whale-heatmap") return <AIWhaleHeatmap />;
+    if (page === "admin-learn") return <AdminLearnEarn />;
     if (page === "admin-p2p") {
   if (currentUser?.role !== "admin") {
     return <div className="panel">Access Denied</div>;
@@ -239,6 +241,21 @@ if (page === "kyc-submit") return <KycVerification />;
   }
 
   return <AdminPanel />;
+}
+if (page === "admin-learn") {
+  const user =
+    JSON.parse(localStorage.getItem("user") || "{}") || {};
+
+  if (user.role !== "admin") {
+    return (
+      <div className="panel">
+        <h2>Access Denied</h2>
+        <p>Only admin can access this panel.</p>
+      </div>
+    );
+  }
+
+  return <AdminLearnEarn />;
 }
     if (page === "settings") return <Settings />;
     if (page === "auth") return <AuthPanel setPage={setPage} />;
