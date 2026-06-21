@@ -1,38 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./LearnEarn.css";
+
+const API = "https://exalt-exchange-backend.onrender.com";
+
 export default function LearnEarn() {
- const API = "https://exalt-exchange-backend.onrender.com";
-
-const [loading, setLoading] = useState(false);
- const loadProgress = async () => {
-  try {
-    setLoading(true);
-
-    const token = localStorage.getItem("token");
-
-    const res = await axios.get(`${API}/api/learnearn`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (res.data.success) {
-      setCompleted(
-        (res.data.completed || []).map((item) => item.lessonId)
-      );
-
-      setTotalRewards(res.data.totalRewards || 0);
-    }
-  } catch (err) {
-    console.log(err);
-  } finally {
-    setLoading(false);
-  }
-};
-useEffect(() => {
-  loadProgress();
-}, []);
   const lessons = [
     {
       id: 1,
@@ -69,76 +41,95 @@ useEffect(() => {
     },
   ];
 
+  const [loading, setLoading] = useState(false);
   const [activeLesson, setActiveLesson] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [completed, setCompleted] = useState([]);
   const [totalRewards, setTotalRewards] = useState(0);
-const progressPercent = Math.round(
-  (completed.length / lessons.length) * 100
-);
 
-const xp = completed.length * 100;
-const streak = completed.length > 0 ? completed.length : 0;
-const achievements = [];
+  const progressPercent = Math.round((completed.length / lessons.length) * 100);
+  const xp = completed.length * 100;
+  const streak = completed.length > 0 ? completed.length : 0;
 
-if (completed.length >= 1)
-  achievements.push("🏆 First Lesson");
+  const achievements = [];
+  if (completed.length >= 1) achievements.push("🏆 First Lesson");
+  if (completed.length >= 2) achievements.push("🎯 Learner");
+  if (completed.length >= lessons.length) achievements.push("👑 Master");
 
-if (completed.length >= 2)
-  achievements.push("🎯 Learner");
+  const loadProgress = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
 
-if (completed.length >= lessons.length)
-  achievements.push("👑 Master");
+      const res = await axios.get(`${API}/api/learnearn`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.data.success) {
+        setCompleted((res.data.completed || []).map((item) => item.lessonId));
+        setTotalRewards(res.data.totalRewards || 0);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProgress();
+  }, []);
+
   const startLesson = (lesson) => {
-    if (lesson.status === "Locked") return;
+    const isLocked = lesson.status === "Locked" && completed.length < 2;
+    if (isLocked) return;
+
     setActiveLesson(lesson);
     setSelectedAnswer("");
   };
 
   const submitQuiz = async () => {
-  try {
-    if (!activeLesson) return;
+    try {
+      if (!activeLesson) return;
 
-    if (selectedAnswer !== activeLesson.answer) {
-      alert("Wrong answer. Please try again.");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
-
-    const res = await axios.post(
-      `${API}/api/learnearn/complete`,
-      {
-        lessonId: activeLesson.id,
-        title: activeLesson.title,
-        reward: activeLesson.reward,
-        answer: selectedAnswer,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      if (selectedAnswer !== activeLesson.answer) {
+        alert("Wrong answer. Please try again.");
+        return;
       }
-    );
 
-    if (res.data.success) {
-      alert(`${activeLesson.reward} EXALT reward completed`);
-      await loadProgress();
-      setActiveLesson(null);
-      setSelectedAnswer("");
-    } else {
-      alert(res.data.message || "Reward failed");
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("Please login first");
+        return;
+      }
+
+      const res = await axios.post(
+        `${API}/api/learnearn/complete`,
+        {
+          lessonId: activeLesson.id,
+          title: activeLesson.title,
+          reward: activeLesson.reward,
+          answer: selectedAnswer,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.data.success) {
+        alert(`${activeLesson.reward} EXALT reward completed`);
+        await loadProgress();
+        setActiveLesson(null);
+        setSelectedAnswer("");
+      } else {
+        alert(res.data.message || "Reward failed");
+      }
+    } catch (err) {
+      console.log(err);
+      alert(err.response?.data?.message || "Server error");
     }
-  } catch (err) {
-    console.log(err);
-    alert(err.response?.data?.message || "Server error");
-  }
-};
+  };
 
   return (
     <div className="learn-page">
@@ -155,7 +146,9 @@ if (completed.length >= lessons.length)
 
         <div className="learn-card">
           <span>Completed Tasks</span>
-          <h2>{completed.length} / {lessons.length}</h2>
+          <h2>
+            {completed.length} / {lessons.length}
+          </h2>
         </div>
 
         <div className="learn-card">
@@ -163,51 +156,50 @@ if (completed.length >= lessons.length)
           <h2>{completed.length >= 2 ? "Intermediate" : "Beginner"}</h2>
         </div>
       </div>
-<div className="learn-progress-box">
 
-  <div className="learn-progress-info">
-    <span>Learning Progress</span>
-    <strong>{progressPercent}%</strong>
-  </div>
+      <div className="learn-progress-box">
+        <div className="learn-progress-info">
+          <span>Learning Progress</span>
+          <strong>{progressPercent}%</strong>
+        </div>
 
-  <div className="learn-progress-bar">
-    <div
-      className="learn-progress-fill"
-      style={{ width: `${progressPercent}%` }}
-    ></div>
-  </div>
+        <div className="learn-progress-bar">
+          <div
+            className="learn-progress-fill"
+            style={{ width: `${progressPercent}%` }}
+          ></div>
+        </div>
 
-  <div className="xp-info">
-    <span>XP Points</span>
-    <strong>{xp} XP</strong>
-  </div>
+        <div className="xp-info">
+          <span>XP Points</span>
+          <strong>{xp} XP</strong>
+        </div>
 
-  <div className="streak-info">
-    <span>Daily Streak</span>
-    <strong>🔥 {streak} Days</strong>
-  </div>
+        <div className="streak-info">
+          <span>Daily Streak</span>
+          <strong>🔥 {streak} Days</strong>
+        </div>
 
-  <div className="achievement-box">
-    <span>Achievements</span>
+        <div className="achievement-box">
+          <span>Achievements</span>
 
-    <div className="achievement-list">
-      {achievements.length === 0 ? (
-        <small>No achievements yet</small>
-      ) : (
-        achievements.map((item, index) => (
-          <strong key={index}>{item}</strong>
-        ))
-      )}
-    </div>
-  </div>
-
-</div>
+          <div className="achievement-list">
+            {achievements.length === 0 ? (
+              <small>No achievements yet</small>
+            ) : (
+              achievements.map((item, index) => (
+                <strong key={index}>{item}</strong>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="lesson-grid">
         {lessons.map((lesson) => {
           const isCompleted = completed.includes(lesson.id);
-const isLocked =
-  lesson.status === "Locked" && completed.length < 2;
+          const isLocked = lesson.status === "Locked" && completed.length < 2;
+
           return (
             <div className="lesson-card" key={lesson.id}>
               <div className="video-box">▶️</div>
@@ -216,19 +208,17 @@ const isLocked =
               <p>Reward: {lesson.reward} EXALT</p>
               <p>Level: {lesson.level}</p>
 
-              {isCompleted && <span className="completed-badge">Completed</span>}
-<button
-  className={isLocked ? "locked-btn" : "start-btn"}
-  disabled={isLocked}
-  onClick={() => startLesson(lesson)}
->
-  {isLocked
-    ? "Locked"
-    : isCompleted
-    ? "View Again"
-    : "Start Lesson"}
-</button>
-             
+              {isCompleted && (
+                <span className="completed-badge">Completed</span>
+              )}
+
+              <button
+                className={isLocked ? "locked-btn" : "start-btn"}
+                disabled={isLocked}
+                onClick={() => startLesson(lesson)}
+              >
+                {isLocked ? "Locked" : isCompleted ? "View Again" : "Start Lesson"}
+              </button>
             </div>
           );
         })}
@@ -242,6 +232,7 @@ const isLocked =
             </button>
 
             <h2>{activeLesson.title}</h2>
+
             <div className="video-player">
               <span>▶️</span>
               <p>{activeLesson.videoTitle}</p>
@@ -265,12 +256,12 @@ const isLocked =
               ))}
 
               <button
-  className="claim-learn-btn"
-  onClick={submitQuiz}
-  disabled={loading}
->
-  {loading ? "Submitting..." : "Submit Quiz & Claim Reward"}
-</button>
+                className="claim-learn-btn"
+                onClick={submitQuiz}
+                disabled={loading}
+              >
+                {loading ? "Submitting..." : "Submit Quiz & Claim Reward"}
+              </button>
             </div>
           </div>
         </div>

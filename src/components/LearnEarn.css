@@ -28,7 +28,8 @@
 .learn-card span,
 .lesson-card p,
 .learn-progress-info span,
-.xp-info span {
+.xp-info span,
+.streak-info span {
   color: #b8b8b8;
 }
 
@@ -45,7 +46,8 @@
 }
 
 .learn-progress-info,
-.xp-info {
+.xp-info,
+.streak-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -75,12 +77,46 @@
   transition: 0.4s;
 }
 
-.xp-info {
-  margin-top: 15px;
+.xp-info,
+.streak-info,
+.achievement-box {
+  margin-top: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 193, 7, 0.15);
   border-radius: 12px;
   padding: 12px 15px;
+}
+
+.streak-info strong {
+  color: #ff7b54;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.achievement-box > span {
+  color: #b8b8b8;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.achievement-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.achievement-list strong {
+  color: #f6c56b;
+  background: rgba(246, 197, 107, 0.12);
+  border: 1px solid rgba(246, 197, 107, 0.2);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.achievement-list small {
+  color: #9ca3af;
 }
 
 .video-box,
@@ -94,6 +130,23 @@
   color: #f6c56b;
   font-size: 42px;
   margin-bottom: 15px;
+  transition: 0.3s ease;
+}
+
+.lesson-card {
+  transition: 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.lesson-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(246, 197, 107, 0.45);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+}
+
+.lesson-card:hover .video-box {
+  background: rgba(246, 197, 107, 0.12);
 }
 
 .start-btn,
@@ -105,6 +158,7 @@
   font-weight: 800;
   cursor: pointer;
   width: 100%;
+  transition: 0.3s ease;
 }
 
 .start-btn {
@@ -112,16 +166,29 @@
   color: #fff;
 }
 
+.start-btn:hover {
+  background: #22c55e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+}
+
 .locked-btn {
   background: #374151;
   color: #9ca3af;
   cursor: not-allowed;
+  opacity: 0.8;
 }
 
 .claim-learn-btn {
   background: #f6c56b;
   color: #111827;
   margin-top: 15px;
+}
+
+.claim-learn-btn:hover {
+  background: #ffd36e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(246, 197, 107, 0.35);
 }
 
 .completed-badge {
@@ -133,6 +200,13 @@
   border-radius: 999px;
   margin-bottom: 12px;
   font-weight: 800;
+  animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 .lesson-modal {
@@ -186,24 +260,4 @@
   .learn-page {
     padding: 15px;
   }
-}.streak-info{
-  margin-top:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,193,7,.15);
-  border-radius:12px;
-  padding:12px 15px;
-}
-
-.streak-info span{
-  color:#b8b8b8;
-  font-size:14px;
-}
-
-.streak-info strong{
-  color:#ff9f1a;
-  font-size:18px;
-  font-weight:700;
 }
