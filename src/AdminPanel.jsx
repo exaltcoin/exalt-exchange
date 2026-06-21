@@ -282,7 +282,10 @@ onClick={() => setAdminTab("staking")}
 >
 Staking
 </button>
-<button onClick={() => setPage("admin-learn")}>
+<button
+  className={adminTab === "learn-earn" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("learn-earn")}
+>
   Learn & Earn
 </button>
 
@@ -877,6 +880,9 @@ Staking
       )}
 {adminTab === "staking" && (
   <AdminStaking />
+)}
+{adminTab === "learn-earn" && (
+  <AdminLearnEarn />
 )}
       {adminTab === "transactions" && (
         <div className="admin-content">
