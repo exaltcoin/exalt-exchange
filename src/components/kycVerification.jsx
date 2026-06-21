@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import "./KycVerification.css";
+import "./kycVerification.css";
 
 const API = "https://exalt-exchange-backend.onrender.com";
 
