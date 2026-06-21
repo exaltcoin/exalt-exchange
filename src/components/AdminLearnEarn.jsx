@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./AdminLearnEarn.css";
 
@@ -6,10 +6,18 @@ const API = "https://exalt-exchange-backend.onrender.com";
 
 export default function AdminLearnEarn() {
   const [records, setRecords] = useState([]);
+  const [topLearners, setTopLearners] = useState([]);
+  const [backendStats, setBackendStats] = useState(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
+
+  const safeDate = (date) => {
+    if (!date) return "-";
+    const parsed = new Date(date);
+    return Number.isNaN(parsed.getTime()) ? "-" : parsed.toLocaleDateString();
+  };
 
   const loadLearnEarn = async () => {
     try {
@@ -19,11 +27,15 @@ export default function AdminLearnEarn() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.data.success) {
-        setRecords(res.data.records || []);
+      if (res.data?.success) {
+        setRecords(Array.isArray(res.data.records) ? res.data.records : []);
+        setTopLearners(Array.isArray(res.data.topLearners) ? res.data.topLearners : []);
+        setBackendStats(res.data.stats || null);
       }
     } catch (err) {
       console.log(err);
+      setRecords([]);
+      setTopLearners([]);
       alert(err.response?.data?.message || "Failed to load Learn & Earn data");
     } finally {
       setLoading(false);
@@ -34,42 +46,56 @@ export default function AdminLearnEarn() {
     loadLearnEarn();
   }, []);
 
-  const filteredRecords = records.filter((item) => {
-    const text = `
-      ${item.user?.email || ""}
-      ${item.user?.name || ""}
-      ${item.title || ""}
-      ${item.status || ""}
-    `.toLowerCase();
+  const filteredRecords = useMemo(() => {
+    return records.filter((item) => {
+      const text = `
+        ${item?.user?.email || ""}
+        ${item?.user?.name || ""}
+        ${item?.title || ""}
+        ${item?.status || ""}
+      `.toLowerCase();
 
-    return text.includes(search.toLowerCase());
-  });
+      return text.includes(search.toLowerCase());
+    });
+  }, [records, search]);
 
-  const totalUsers = new Set(records.map((r) => r.user?._id || r.userId)).size;
-  const totalCompleted = records.length;
-  const totalRewards = records.reduce((sum, r) => sum + Number(r.reward || 0), 0);
+  const totalUsers =
+    backendStats?.totalUsers ??
+    new Set(records.map((r) => r?.user?._id || r?.userId || r?.user).filter(Boolean)).size;
+
+  const totalCompleted = backendStats?.totalCompleted ?? records.length;
+
+  const totalRewards =
+    backendStats?.totalRewards ??
+    records.reduce((sum, r) => sum + Number(r?.reward || 0), 0);
+
+  const totalCertificates = backendStats?.totalCertificates ?? totalCompleted;
 
   const exportCSV = () => {
     const rows = [
       ["User", "Email", "Lesson", "Reward", "Status", "Date"],
       ...filteredRecords.map((r) => [
-        r.user?.name || "User",
-        r.user?.email || "-",
-        r.title || "-",
-        r.reward || 0,
-        r.status || "completed",
-        new Date(r.createdAt).toLocaleDateString(),
+        r?.user?.name || "User",
+        r?.user?.email || "-",
+        r?.title || "-",
+        r?.reward || 0,
+        r?.status || "completed",
+        safeDate(r?.createdAt),
       ]),
     ];
 
-    const csv = rows.map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    const csv = rows
+      .map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
     a.download = "learn-earn-records.csv";
     a.click();
+
     window.URL.revokeObjectURL(url);
   };
 
@@ -77,7 +103,7 @@ export default function AdminLearnEarn() {
     <div className="admin-learn-page">
       <div className="admin-learn-header">
         <h1>Admin Learn & Earn</h1>
-        <p>Monitor user lessons, rewards, XP, and completed tasks.</p>
+        <p>Monitor user lessons, rewards, XP, certificates, and completed tasks.</p>
       </div>
 
       <div className="admin-learn-stats">
@@ -97,8 +123,8 @@ export default function AdminLearnEarn() {
         </div>
 
         <div>
-          <span>Status</span>
-          <h2>{loading ? "Loading..." : "Live"}</h2>
+          <span>Certificates</span>
+          <h2>{totalCertificates}</h2>
         </div>
       </div>
 
@@ -109,7 +135,45 @@ export default function AdminLearnEarn() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <button onClick={exportCSV}>Export CSV</button>
+        <button onClick={loadLearnEarn} disabled={loading}>
+          {loading ? "Loading..." : "Refresh"}
+        </button>
+
+        <button onClick={exportCSV} disabled={filteredRecords.length === 0}>
+          Export CSV
+        </button>
+      </div>
+
+      <div className="admin-learn-table-box">
+        <h2>Top Learners</h2>
+
+        {topLearners.length === 0 ? (
+          <p className="admin-learn-empty">No top learners yet</p>
+        ) : (
+          <table className="admin-learn-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Completed</th>
+                <th>Rewards</th>
+                <th>XP</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {topLearners.map((item, index) => (
+                <tr key={item?.user?._id || index}>
+                  <td>{item?.user?.name || "User"}</td>
+                  <td>{item?.user?.email || "-"}</td>
+                  <td>{item?.completed || 0}</td>
+                  <td>{item?.rewards || 0} EXALT</td>
+                  <td>{item?.xp || 0} XP</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <div className="admin-learn-table-box">
@@ -134,17 +198,17 @@ export default function AdminLearnEarn() {
               </tr>
             ) : (
               filteredRecords.map((item, index) => (
-                <tr key={item._id || index}>
-                  <td>{item.user?.name || "User"}</td>
-                  <td>{item.user?.email || "-"}</td>
-                  <td>{item.title || "-"}</td>
-                  <td>{item.reward || 0} EXALT</td>
+                <tr key={item?._id || index}>
+                  <td>{item?.user?.name || "User"}</td>
+                  <td>{item?.user?.email || "-"}</td>
+                  <td>{item?.title || "-"}</td>
+                  <td>{item?.reward || 0} EXALT</td>
                   <td>
                     <span className="learn-status">
-                      {item.status || "completed"}
+                      {item?.status || "completed"}
                     </span>
                   </td>
-                  <td>{new Date(item.createdAt).toLocaleDateString()}</td>
+                  <td>{safeDate(item?.createdAt)}</td>
                 </tr>
               ))
             )}
