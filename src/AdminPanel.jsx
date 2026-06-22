@@ -4,6 +4,7 @@ import AdminStaking from "./components/AdminStaking";
 import AdminCopyTrading from "./components/AdminCopyTrading";
 import AdminAIPortfolio from "./components/AdminAIPortfolio";
 import AdminSocial from "./components/AdminSocial";
+import AdminAIRisk from "./components/AdminAIRisk";
 function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
   const token = localStorage.getItem("token");
@@ -305,6 +306,12 @@ Staking
   onClick={() => setAdminTab("social-trading")}
 >
   Social Trading
+</button>
+<button
+  className={adminTab === "ai-risk" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-risk")}
+>
+  AI Risk Manager
 </button>
 
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>
@@ -911,6 +918,7 @@ Staking
 {adminTab === "social-trading" && (
   <AdminSocial />
 )}
+{adminTab === "ai-risk" && <AdminAIRisk />}
       {adminTab === "transactions" && (
         <div className="admin-content">
           <h3>Transaction History</h3>

@@ -1,0 +1,126 @@
+.admin-risk-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
+}
+
+.admin-risk-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.admin-risk-header h2 {
+  margin: 0;
+  color: #f6c56b;
+}
+
+.admin-risk-header button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-risk-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.admin-risk-cards div {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.admin-risk-cards span {
+  display: block;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+
+.admin-risk-cards strong {
+  color: #f6c56b;
+  font-size: 28px;
+}
+
+.admin-risk-table-box {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 18px;
+  padding: 22px;
+  overflow-x: auto;
+}
+
+.admin-risk-table-box h3 {
+  margin-top: 0;
+  color: #f6c56b;
+}
+
+.admin-risk-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.admin-risk-table th,
+.admin-risk-table td {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  text-align: left;
+}
+
+.admin-risk-table th {
+  color: #9ca3af;
+  font-weight: 700;
+}
+
+.admin-risk-table td {
+  color: #e5e7eb;
+}
+
+.risk-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.risk-badge.low {
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+}
+
+.risk-badge.medium {
+  background: rgba(240,185,11,.15);
+  color: #f0b90b;
+}
+
+.risk-badge.high {
+  background: rgba(239,68,68,.15);
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .admin-risk-page {
+    padding: 14px;
+  }
+
+  .admin-risk-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
