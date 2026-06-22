@@ -1,0 +1,253 @@
+.admin-social-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
+}
+
+.admin-social-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.admin-social-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.admin-social-header p {
+  margin-top: 6px;
+  color: #8b95a7;
+}
+
+.refresh-btn,
+.verify-btn,
+.danger-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.refresh-btn,
+.verify-btn {
+  background: #f0b90b;
+  color: #111;
+}
+
+.danger-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.admin-social-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ff7b7b;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-social-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.social-card {
+  background: #121826;
+  border: 1px solid #1f2937;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.social-card span {
+  color: #8b95a7;
+  font-size: 13px;
+}
+
+.social-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 26px;
+}
+
+.admin-social-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.admin-social-tabs button {
+  background: #121826;
+  color: #8b95a7;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  padding: 11px 18px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-social-tabs button.active {
+  background: #f0b90b;
+  color: #111;
+  border-color: #f0b90b;
+}
+
+.admin-social-panel {
+  background: #121826;
+  border: 1px solid #1f2937;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.panel-title h3 {
+  margin: 0;
+}
+
+.panel-title span {
+  color: #8b95a7;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-social-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 950px;
+}
+
+.admin-social-table th,
+.admin-social-table td {
+  padding: 14px;
+  border-bottom: 1px solid #1f2937;
+  text-align: left;
+  font-size: 14px;
+}
+
+.admin-social-table th {
+  color: #8b95a7;
+  font-weight: 600;
+}
+
+.trader-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trader-cell small {
+  display: block;
+  color: #8b95a7;
+  margin-top: 3px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  background: #f0b90b;
+  color: #111;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.sentiment,
+.risk,
+.verified,
+.pending {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sentiment.bullish,
+.risk.low,
+.verified,
+.positive {
+  color: #22c55e;
+}
+
+.sentiment.bearish,
+.risk.high {
+  color: #ef4444;
+}
+
+.sentiment.neutral,
+.risk.medium,
+.pending {
+  color: #f0b90b;
+}
+
+.post-content {
+  max-width: 280px;
+  color: #cbd5e1;
+}
+
+.empty-row {
+  text-align: center !important;
+  color: #8b95a7;
+  padding: 30px !important;
+}
+
+.done-text {
+  color: #22c55e;
+  font-weight: 700;
+}
+
+.admin-social-loading {
+  background: #121826;
+  border: 1px solid #1f2937;
+  padding: 30px;
+  border-radius: 18px;
+  text-align: center;
+  color: #f0b90b;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .admin-social-page {
+    padding: 14px;
+  }
+
+  .admin-social-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .admin-social-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-social-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-social-header h2 {
+    font-size: 22px;
+  }
+}
