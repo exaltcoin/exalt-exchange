@@ -1,98 +1,277 @@
-.profit-page{
-  padding:25px;
-  color:#fff;
+.ai-profit-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
 }
 
-.profit-header{
-  background:#111827;
-  padding:25px;
-  border-radius:18px;
-  border:1px solid rgba(255,193,7,.15);
-  margin-bottom:25px;
+.ai-profit-header {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
 }
 
-.profit-header h1{
-  color:#f6c56b;
+.ai-profit-header h1 {
+  margin: 0;
+  color: #f6c56b;
 }
 
-.profit-header p{
-  color:#9ca3af;
+.ai-profit-header p {
+  margin: 8px 0 0;
+  color: #9ca3af;
 }
 
-.profit-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:22px;
+.ai-profit-header button,
+.profit-form-card button,
+.profit-row-actions button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 13px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.profit-form,
-.profit-result{
-  background:#111827;
-  padding:25px;
-  border-radius:18px;
-  border:1px solid rgba(255,193,7,.15);
+.ai-profit-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ff7b7b;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 20px;
 }
 
-.profit-form h2,
-.profit-result h2{
-  color:#f6c56b;
-  margin-bottom:18px;
+.ai-profit-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
 }
 
-.profit-form input,
-.profit-form select{
-  width:100%;
-  background:#0b1120;
-  color:white;
-  border:1px solid rgba(255,193,7,.2);
-  padding:14px;
-  border-radius:12px;
-  margin-bottom:14px;
+.profit-form-card,
+.profit-result-card,
+.profit-history-card {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 20px;
+  padding: 24px;
 }
 
-.profit-form button{
-  width:100%;
-  background:#16a34a;
-  color:white;
-  border:none;
-  padding:14px;
-  border-radius:12px;
-  font-weight:800;
-  cursor:pointer;
+.profit-form-card h2,
+.profit-result-card h2,
+.profit-history-card h2 {
+  color: #f6c56b;
+  margin-top: 0;
 }
 
-.result-card{
-  background:#0b1120;
-  padding:20px;
-  border-radius:16px;
-  margin-bottom:16px;
+.profit-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
 }
 
-.result-card span{
-  color:#9ca3af;
+.profit-input-grid label,
+.compound-check {
+  color: #cbd5e1;
+  font-weight: 700;
 }
 
-.profit-green{
-  color:#22c55e;
+.profit-input-grid input,
+.profit-input-grid select {
+  width: 100%;
+  margin-top: 8px;
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  color: #f5f7fa;
+  border-radius: 13px;
+  padding: 12px;
+  outline: none;
 }
 
-.profit-red{
-  color:#ef4444;
+.compound-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
 }
 
-.ai-note{
-  background:#0b1120;
-  padding:18px;
-  border-radius:16px;
-  color:#9ca3af;
+.compound-check input {
+  width: auto;
 }
 
-.ai-note strong{
-  color:#f6c56b;
+.profit-main-result {
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 18px;
 }
 
-@media(max-width:900px){
-  .profit-grid{
-    grid-template-columns:1fr;
+.profit-main-result span,
+.profit-result-grid span,
+.profit-history-head span {
+  color: #9ca3af;
+}
+
+.profit-main-result strong {
+  display: block;
+  margin: 10px 0;
+  color: #22c55e;
+  font-size: 32px;
+}
+
+.profit-main-result p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.profit-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.profit-result-grid div {
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.profit-result-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: #f6c56b;
+  font-size: 20px;
+}
+
+.positive {
+  color: #22c55e !important;
+}
+
+.negative {
+  color: #ef4444 !important;
+}
+
+.profit-risk-text.low,
+.profit-risk-pill.low {
+  color: #22c55e !important;
+}
+
+.profit-risk-text.medium,
+.profit-risk-pill.medium {
+  color: #f0b90b !important;
+}
+
+.profit-risk-text.high,
+.profit-risk-pill.high {
+  color: #ef4444 !important;
+}
+
+.profit-history-card {
+  margin-top: 24px;
+}
+
+.profit-history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.profit-history-head h2 {
+  margin: 0;
+}
+
+.profit-history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.profit-history-row {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 0.6fr 0.8fr 0.7fr 0.8fr;
+  gap: 14px;
+  align-items: center;
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.profit-history-row strong {
+  color: #f6c56b;
+}
+
+.profit-history-row small {
+  display: block;
+  color: #9ca3af;
+  margin-top: 5px;
+}
+
+.profit-risk-pill {
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(240, 185, 11, 0.12);
+  font-weight: 900;
+}
+
+.profit-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.profit-row-actions button {
+  padding: 9px 12px;
+}
+
+.profit-row-actions .danger {
+  background: #ef4444;
+  color: white;
+}
+
+.empty-profit-result {
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 16px;
+  padding: 22px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1000px) {
+  .ai-profit-layout,
+  .profit-input-grid,
+  .profit-result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profit-history-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .ai-profit-page {
+    padding: 14px;
+  }
+
+  .ai-profit-header,
+  .profit-history-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

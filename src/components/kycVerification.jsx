@@ -2,7 +2,9 @@ import { useState } from "react";
 import axios from "axios";
 import "./kycVerification.css";
 
-const API = "https://exalt-exchange-backend.onrender.com";
+const API =
+  import.meta.env.VITE_API_URL ||
+  "https://exalt-exchange-backend.onrender.com";
 
 export default function KycVerification() {
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ export default function KycVerification() {
   };
 
   const handleFile = (name, file) => {
-    setFiles({ ...files, [name]: file });
+    setFiles({ ...files, [name]: file || null });
   };
 
   const sendEmailOtp = () => {
@@ -62,13 +64,19 @@ export default function KycVerification() {
         return;
       }
 
-      if (!form.fullName || !form.email || !form.phone || !form.country || !form.documentNumber) {
+      if (
+        !form.fullName ||
+        !form.email ||
+        !form.phone ||
+        !form.country ||
+        !form.documentNumber
+      ) {
         alert("Please fill all required fields");
         return;
       }
 
-      if (!files.cnicFront || !files.cnicBack || !files.passport || !files.selfie) {
-        alert("Please upload all required documents");
+      if (!files.cnicFront && !files.passport) {
+        alert("Please upload CNIC Front or Passport / National ID");
         return;
       }
 
@@ -89,12 +97,13 @@ export default function KycVerification() {
       data.append("email", form.email);
       data.append("phone", form.phone);
       data.append("country", form.country);
-      data.append("documentType", form.documentType);
-      data.append("documentNumber", form.documentNumber);
-      data.append("cnicFront", files.cnicFront);
-      data.append("cnicBack", files.cnicBack);
-      data.append("passport", files.passport);
-      data.append("selfie", files.selfie);
+      data.append("idType", form.documentType);
+      data.append("idNumber", form.documentNumber);
+
+      if (files.cnicFront) data.append("cnicFront", files.cnicFront);
+      if (files.cnicBack) data.append("cnicBack", files.cnicBack);
+      if (files.passport) data.append("passportImage", files.passport);
+      if (files.selfie) data.append("selfieImage", files.selfie);
 
       const res = await axios.post(`${API}/api/kyc/submit`, data, {
         headers: {
@@ -105,6 +114,9 @@ export default function KycVerification() {
 
       if (res.data.success) {
         alert("KYC submitted successfully");
+        setEmailOtp("");
+        setEmailVerified(false);
+        setFaceVerified(false);
       } else {
         alert(res.data.message || "KYC submission failed");
       }
@@ -182,7 +194,7 @@ export default function KycVerification() {
             <input
               type="file"
               accept="image/*,.pdf"
-              onChange={(e) => handleFile("cnicFront", e.target.files[0])}
+              onChange={(e) => handleFile("cnicFront", e.target.files?.[0])}
             />
           </div>
 
@@ -193,7 +205,7 @@ export default function KycVerification() {
             <input
               type="file"
               accept="image/*,.pdf"
-              onChange={(e) => handleFile("cnicBack", e.target.files[0])}
+              onChange={(e) => handleFile("cnicBack", e.target.files?.[0])}
             />
           </div>
 
@@ -204,7 +216,7 @@ export default function KycVerification() {
             <input
               type="file"
               accept="image/*,.pdf"
-              onChange={(e) => handleFile("passport", e.target.files[0])}
+              onChange={(e) => handleFile("passport", e.target.files?.[0])}
             />
           </div>
 
@@ -215,16 +227,13 @@ export default function KycVerification() {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => handleFile("selfie", e.target.files[0])}
+              onChange={(e) => handleFile("selfie", e.target.files?.[0])}
             />
           </div>
         </div>
 
         <div className="verify-box">
-          <h3>
-            Email Verification{" "}
-            {emailVerified ? "✅" : "❌"}
-          </h3>
+          <h3>Email Verification {emailVerified ? "✅" : "❌"}</h3>
 
           <div className="verify-row">
             <button type="button" onClick={sendEmailOtp}>
@@ -244,10 +253,7 @@ export default function KycVerification() {
         </div>
 
         <div className="verify-box">
-          <h3>
-            Face Verification{" "}
-            {faceVerified ? "✅" : "❌"}
-          </h3>
+          <h3>Face Verification {faceVerified ? "✅" : "❌"}</h3>
 
           <button className="face-btn" type="button" onClick={startFaceVerification}>
             Start Face Verification

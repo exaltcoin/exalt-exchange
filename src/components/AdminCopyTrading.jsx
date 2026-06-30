@@ -1,218 +1,218 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
-import "./AdminCopyTrading.css";
 
-const API = "https://exalt-exchange-backend.onrender.com";
+const API =
+  import.meta.env.VITE_API_URL ||
+  "https://exalt-exchange-backend.onrender.com";
 
 export default function AdminCopyTrading() {
-  const [copies, setCopies] = useState([]);
+  const [records, setRecords] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    paused: 0,
+    totalFollowers: 0,
+  });
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("token");
 
-  const loadCopies = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
 
-      const res = await axios.get(`${API}/api/copy/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch(`${API}/api/copy-trading/admin/all`, {
+        headers: {
+          Authorization: `Bearer ${token || ""}`,
+        },
       });
 
-      if (res.data?.success) {
-        setCopies(Array.isArray(res.data.copies) ? res.data.copies : []);
-      }
-    } catch (err) {
-      console.log(err);
-      alert(err.response?.data?.message || "Failed to load copy trading data");
+      const data = await res.json();
+
+      const list = Array.isArray(data.traders)
+        ? data.traders
+        : Array.isArray(data.records)
+        ? data.records
+        : Array.isArray(data.data)
+        ? data.data
+        : Array.isArray(data)
+        ? data
+        : [];
+
+      setRecords(list);
+
+      setStats({
+        total: list.length,
+        active: list.filter((x) => x.status === "active").length,
+        paused: list.filter((x) => x.status === "paused").length,
+        totalFollowers: list.reduce(
+          (sum, x) => sum + Number(x.followers || x.copiers || 0),
+          0
+        ),
+      });
+    } catch (error) {
+      console.log("Admin copy trading load error:", error);
+      setRecords([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadCopies();
+    loadData();
+    const interval = setInterval(loadData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
-  const safeDate = (date) => {
-    if (!date) return "-";
-    const parsed = new Date(date);
-    return Number.isNaN(parsed.getTime()) ? "-" : parsed.toLocaleDateString();
-  };
-
-  const getUserName = (item) =>
-    item?.userId?.name || item?.user?.name || "User";
-
-  const getUserEmail = (item) =>
-    item?.userId?.email || item?.user?.email || "-";
-
-  const filteredCopies = useMemo(() => {
-    return copies.filter((item) => {
-      const matchesFilter = filter === "all" || item?.status === filter;
-
+  const filteredRecords = useMemo(() => {
+    return records.filter((item) => {
       const text = `
-        ${getUserName(item)}
-        ${getUserEmail(item)}
-        ${item?.traderName || ""}
-        ${item?.symbol || ""}
-        ${item?.status || ""}
+        ${item.user?.email || ""}
+        ${item.traderName || item.name || ""}
+        ${item.strategy || ""}
+        ${item.status || ""}
       `.toLowerCase();
 
-      return matchesFilter && text.includes(search.toLowerCase());
+      const matchSearch = text.includes(search.toLowerCase());
+      const matchStatus =
+        statusFilter === "all" || item.status === statusFilter;
+
+      return matchSearch && matchStatus;
     });
-  }, [copies, search, filter]);
+  }, [records, search, statusFilter]);
 
-  const totalUsers = new Set(
-    copies.map((c) => c?.userId?._id || c?.userId || c?.user).filter(Boolean)
-  ).size;
+  const updateStatus = async (id, status) => {
+    try {
+      const res = await fetch(`${API}/api/copy-trading/admin/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token || ""}`,
+        },
+        body: JSON.stringify({ status }),
+      });
 
-  const activeCopies = copies.filter((c) => c.status === "active").length;
-  const stoppedCopies = copies.filter((c) => c.status === "stopped").length;
+      const data = await res.json();
 
-  const totalCopied = copies.reduce(
-    (sum, c) => sum + Number(c.copyAmount || 0),
-    0
-  );
-
-  const totalPL = copies.reduce(
-    (sum, c) => sum + Number(c.profitLoss || 0),
-    0
-  );
-
-  const exportCSV = () => {
-    const rows = [
-      ["User", "Email", "Trader", "Symbol", "Amount", "Status", "P/L", "Date"],
-      ...filteredCopies.map((c) => [
-        getUserName(c),
-        getUserEmail(c),
-        c?.traderName || "-",
-        c?.symbol || "-",
-        c?.copyAmount || 0,
-        c?.status || "-",
-        c?.profitLoss || 0,
-        safeDate(c?.createdAt),
-      ]),
-    ];
-
-    const csv = rows
-      .map((row) =>
-        row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(",")
-      )
-      .join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "admin-copy-trading.csv";
-    a.click();
-
-    window.URL.revokeObjectURL(url);
+      if (res.ok && data.success !== false) {
+        alert(`Copy trader ${status}`);
+        loadData();
+      } else {
+        alert(data.message || "Status update failed");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Status update failed");
+    }
   };
 
   return (
-    <div className="admin-copy-page">
-      <div className="admin-copy-header">
-        <h1>Admin Copy Trading</h1>
-        <p>Monitor all users copying AI-ranked traders and strategies.</p>
-      </div>
+    <div className="admin-content">
+      <h2>Admin AI Copy Trading</h2>
+      <p>Monitor copy traders, followers, strategies and account status.</p>
 
-      <div className="admin-copy-stats">
-        <div>
-          <span>Total Users</span>
-          <h2>{totalUsers}</h2>
+      <div className="stats-grid">
+        <div className="stat-card">
+          <h3>Total Traders</h3>
+          <p>{stats.total}</p>
         </div>
 
-        <div>
-          <span>Active Copies</span>
-          <h2>{activeCopies}</h2>
+        <div className="stat-card">
+          <h3>Active</h3>
+          <p>{stats.active}</p>
         </div>
 
-        <div>
-          <span>Stopped Copies</span>
-          <h2>{stoppedCopies}</h2>
+        <div className="stat-card">
+          <h3>Paused</h3>
+          <p>{stats.paused}</p>
         </div>
 
-        <div>
-          <span>Total Copied</span>
-          <h2>{totalCopied} USDT</h2>
-        </div>
-
-        <div>
-          <span>Total P/L</span>
-          <h2>{totalPL} USDT</h2>
+        <div className="stat-card">
+          <h3>Total Followers</h3>
+          <p>{stats.totalFollowers}</p>
         </div>
       </div>
 
-      <div className="admin-copy-tools">
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", margin: "18px 0" }}>
         <input
-          placeholder="Search user, email, trader, symbol, status..."
+          className="web3-input"
+          placeholder="Search trader, email, strategy..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          style={{ flex: 1, minWidth: "240px" }}
         />
 
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">All</option>
+        <select
+          className="web3-input"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{ maxWidth: "180px" }}
+        >
+          <option value="all">All Status</option>
           <option value="active">Active</option>
-          <option value="stopped">Stopped</option>
+          <option value="paused">Paused</option>
+          <option value="blocked">Blocked</option>
         </select>
 
-        <button onClick={loadCopies} disabled={loading}>
-          {loading ? "Loading..." : "Refresh"}
-        </button>
-
-        <button onClick={exportCSV} disabled={filteredCopies.length === 0}>
-          Export CSV
+        <button className="action-btn yellow-btn" onClick={loadData}>
+          Refresh
         </button>
       </div>
 
-      <div className="admin-copy-table-box">
-        <h2>Copy Trading Records</h2>
-
-        <table className="admin-copy-table">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Trader</th>
-              <th>Symbol</th>
-              <th>Amount</th>
-              <th>Risk</th>
-              <th>Status</th>
-              <th>P/L</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredCopies.length === 0 ? (
+      {loading ? (
+        <p>Loading copy trading data...</p>
+      ) : filteredRecords.length === 0 ? (
+        <p>No copy trading records found.</p>
+      ) : (
+        <div className="orders-table-wrapper">
+          <table className="orders-table">
+            <thead>
               <tr>
-                <td colSpan="9">No copy trading records found</td>
+                <th>Trader</th>
+                <th>Email</th>
+                <th>Strategy</th>
+                <th>ROI</th>
+                <th>Followers</th>
+                <th>Risk</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ) : (
-              filteredCopies.map((item, index) => (
-                <tr key={item?._id || index}>
-                  <td>{getUserName(item)}</td>
-                  <td>{getUserEmail(item)}</td>
-                  <td>{item?.traderName || "-"}</td>
-                  <td>{item?.symbol || "-"}</td>
-                  <td>{item?.copyAmount || 0} USDT</td>
-                  <td>{item?.risk || "-"}</td>
-                  <td>
-                    <span className={`copy-status ${item?.status || "active"}`}>
-                      {item?.status || "active"}
-                    </span>
+            </thead>
+
+            <tbody>
+              {filteredRecords.map((item, index) => (
+                <tr key={item._id || index}>
+                  <td>{item.traderName || item.name || "Trader"}</td>
+                  <td>{item.user?.email || item.email || "N/A"}</td>
+                  <td>{item.strategy || "Smart Copy"}</td>
+                  <td className="green-text">
+                    {Number(item.roi || item.profitPercent || 0).toFixed(2)}%
                   </td>
-                  <td>{item?.profitLoss || 0} USDT</td>
-                  <td>{safeDate(item?.createdAt)}</td>
+                  <td>{item.followers || item.copiers || 0}</td>
+                  <td>{item.riskLevel || "Medium"}</td>
+                  <td>{item.status || "active"}</td>
+                  <td>
+                    <button
+                      className="action-btn green-btn"
+                      onClick={() => updateStatus(item._id, "active")}
+                    >
+                      Active
+                    </button>
+
+                    <button
+                      className="action-btn reject-btn"
+                      onClick={() => updateStatus(item._id, "paused")}
+                    >
+                      Pause
+                    </button>
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

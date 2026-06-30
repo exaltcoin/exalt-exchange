@@ -5,10 +5,25 @@ import AdminCopyTrading from "./components/AdminCopyTrading";
 import AdminAIPortfolio from "./components/AdminAIPortfolio";
 import AdminSocial from "./components/AdminSocial";
 import AdminAIRisk from "./components/AdminAIRisk";
+import AdminAIProfit from "./components/AdminAIProfit";
+import AdminAIMarketScanner from "./components/AdminAIMarketScanner";
+import AdminAINews from "./components/AdminAINews";
+import AdminAIWhaleTracker from "./components/AdminAIWhaleTracker";
+import AdminAIArbitrage from "./components/AdminAIArbitrage";
+import AdminAIGridTrading from "./components/AdminAIGridTrading";
+import AdminAISmartAlerts from "./components/AISmartAlerts";
+import AdminAILaunchpad from "./components/AdminAILaunchpad";
+import AdminAIWhaleHeatmap from "./components/AdminAIWhaleHeatmap";
+import AdminAITrustScore from "./components/AdminAITrustScore";
+import AdminAIWhaleAlert from "./components/AdminAIWhaleAlert";
+import AdminExaltUtility from "./components/AdminExaltUtility";
+import AdminReputation from "./components/AdminReputation";
+import AdminAchievement from "./components/AdminAchievement";
+import AdminNotifications from "./components/AdminNotifications";
 function AdminPanel() {
   const API = import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+ const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [listings, setListings] = useState([]);
   const [deposits, setDeposits] = useState([]);
   const [tickets, setTickets] = useState([]);
@@ -189,7 +204,19 @@ const filteredAdminTransactions = transactions.filter((item) => {
       const transactionsRes = await fetch(`${API}/api/transactions/admin`, { headers });
       const transactionsData = await transactionsRes.json();
       setTransactions(transactionsData.transactions || transactionsData.requests || transactionsData.data || transactionsData || []);
-
+const kycRes = await fetch(`${API}/api/kyc/admin/all`, { headers });
+const kycData = await kycRes.json();
+setKycRequests(
+  Array.isArray(kycData.kycList)
+    ? kycData.kycList
+    : Array.isArray(kycData.kycRequests)
+    ? kycData.kycRequests
+    : Array.isArray(kycData.requests)
+    ? kycData.requests
+    : Array.isArray(kycData.data)
+    ? kycData.data
+    : []
+);
       const web3Res = await fetch(`${API}/api/web3-transactions`);
       const web3Data = await web3Res.json();
       setWeb3Transactions(web3Data.transactions || []);
@@ -312,6 +339,97 @@ Staking
   onClick={() => setAdminTab("ai-risk")}
 >
   AI Risk Manager
+</button>
+<button
+  className={adminTab === "ai-profit" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-profit")}
+>
+  AI Profit Calculator
+</button>
+<button
+  className={adminTab === "ai-market-scanner" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-market-scanner")}
+>
+  AI Market Scanner
+</button>
+<button
+  className={adminTab === "ai-news" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-news")}
+>
+  AI News
+</button>
+<button
+  className={adminTab === "ai-whale-tracker" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-whale-tracker")}
+>
+  AI Whale Tracker
+</button>
+<button
+  className={adminTab === "ai-arbitrage" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-arbitrage")}
+>
+  AI Arbitrage Scanner
+</button>
+<button
+  className={adminTab === "ai-grid-trading" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-grid-trading")}
+>
+  AI Grid Trading
+</button>
+<button
+  className={adminTab === "ai-smart-alerts" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-smart-alerts")}
+>
+  AI Smart Alerts
+</button>
+<button
+  className={adminTab === "ai-launchpad" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-launchpad")}
+>
+  AI Launchpad
+</button>
+<button
+  className={adminTab === "ai-whale-heatmap" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-whale-heatmap")}
+>
+  AI Whale Heatmap
+</button>
+<button
+  className={adminTab === "ai-trust-score" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-trust-score")}
+>
+  AI Trust Score
+</button>
+<button
+  className={adminTab === "ai-whale-alerts" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("ai-whale-alerts")}
+>
+  AI Whale Alerts
+</button>
+
+<button
+  className={adminTab === "exalt-utility" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("exalt-utility")}
+>
+  Exalt Utility
+</button>
+<button
+  className={adminTab === "reputation" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("reputation")}
+>
+  Reputation
+</button>
+<button
+  className={adminTab === "achievements" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("achievements")}
+>
+  Achievements
+</button>
+<button
+  className={adminTab === "notifications" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("notifications")}
+>
+  Notifications
 </button>
 
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>
@@ -918,7 +1036,23 @@ Staking
 {adminTab === "social-trading" && (
   <AdminSocial />
 )}
+
+{adminTab === "ai-news" && <AdminAINews />}
+{adminTab === "ai-market-scanner" && <AdminAIMarketScanner />}
+{adminTab === "ai-profit" && <AdminAIProfit />}
 {adminTab === "ai-risk" && <AdminAIRisk />}
+{adminTab === "ai-whale-tracker" && <AdminAIWhaleTracker />}
+{adminTab === "ai-arbitrage" && <AdminAIArbitrage />}
+{adminTab === "ai-grid-trading" && <AdminAIGridTrading />}
+{adminTab === "ai-smart-alerts" && <AdminAISmartAlerts />}
+{adminTab === "ai-launchpad" && <AdminAILaunchpad />}
+{adminTab === "ai-whale-heatmap" && <AdminAIWhaleHeatmap />}
+{adminTab === "ai-trust-score" && <AdminAITrustScore />}
+{adminTab === "ai-whale-alerts" && <AdminAIWhaleAlert />}
+{adminTab === "exalt-utility" && <AdminExaltUtility />}
+{adminTab === "reputation" && <AdminReputation />}
+{adminTab === "achievements" && <AdminAchievement />}
+{adminTab === "notifications" && <AdminNotifications />}
       {adminTab === "transactions" && (
         <div className="admin-content">
           <h3>Transaction History</h3>

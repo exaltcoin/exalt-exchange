@@ -1,132 +1,188 @@
-.whale-page{
-padding:25px;
-color:white;
+.whale-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
 }
 
-.whale-header{
-background:#111827;
-padding:25px;
-border-radius:20px;
-border:1px solid rgba(255,193,7,.15);
-margin-bottom:25px;
+.whale-header {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
 }
 
-.whale-header h1{
-color:#f6c56b;
-margin-bottom:8px;
+.whale-header h1 {
+  margin: 0;
+  color: #f6c56b;
 }
 
-.whale-header p{
-color:#9ca3af;
+.whale-header p {
+  margin: 8px 0 0;
+  color: #9ca3af;
 }
 
-.whale-stats{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:20px;
-margin-bottom:25px;
+.whale-header button,
+.whale-toolbar button,
+.favorite-btn {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 13px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.whale-card{
-background:#111827;
-padding:22px;
-border-radius:18px;
-border:1px solid rgba(255,193,7,.15);
+.whale-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ff7b7b;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 20px;
 }
 
-.whale-card span{
-color:#9ca3af;
-font-size:14px;
+.whale-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 160px 160px 160px auto;
+  gap: 12px;
+  margin-bottom: 22px;
 }
 
-.whale-card h2{
-color:#f6c56b;
-margin-top:10px;
+.whale-toolbar input,
+.whale-toolbar select {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  color: #f5f7fa;
+  border-radius: 14px;
+  padding: 13px;
+  outline: none;
 }
 
-.whale-box{
-background:#111827;
-padding:25px;
-border-radius:20px;
-border:1px solid rgba(255,193,7,.15);
-margin-bottom:25px;
+.whale-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 18px;
 }
 
-.whale-box h2{
-color:#f6c56b;
-margin-bottom:20px;
+.whale-card {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 20px;
+  padding: 22px;
 }
 
-.whale-row{
-display:grid;
-grid-template-columns:2fr 1fr 1fr 1fr;
-align-items:center;
-padding:18px 0;
-border-bottom:1px solid rgba(255,255,255,.08);
+.whale-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.whale-row p{
-color:#9ca3af;
+.whale-top h2 {
+  margin: 0;
+  color: #f6c56b;
 }
 
-.buy-tag{
-background:#16a34a;
-padding:10px;
-border-radius:12px;
-text-align:center;
-font-weight:700;
+.whale-type {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
 }
 
-.sell-tag{
-background:#dc2626;
-padding:10px;
-border-radius:12px;
-text-align:center;
-font-weight:700;
+.whale-type.buy {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
 }
 
-.confidence{
-color:#22c55e;
-font-weight:700;
+.whale-type.sell {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
-.recommend-box{
-background:#111827;
-padding:25px;
-border-radius:20px;
-border:1px solid rgba(255,193,7,.15);
+.whale-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.recommend-box h2{
-color:#f6c56b;
-margin-bottom:15px;
+.whale-row span {
+  color: #9ca3af;
 }
 
-.recommend-box p{
-color:#9ca3af;
-line-height:1.7;
+.whale-row strong {
+  color: #e5e7eb;
+  text-align: right;
+  word-break: break-all;
 }
 
-.recommend-box button{
-margin-top:20px;
-background:#22c55e;
-border:none;
-padding:14px 24px;
-border-radius:14px;
-font-weight:700;
-color:white;
-cursor:pointer;
+.risk-low,
+.impact-low {
+  color: #22c55e !important;
 }
 
-@media(max-width:900px){
-
-.whale-stats{
-grid-template-columns:1fr;
+.risk-medium,
+.impact-medium {
+  color: #f0b90b !important;
 }
 
-.whale-row{
-grid-template-columns:1fr;
-gap:15px;
+.risk-high,
+.impact-high {
+  color: #ef4444 !important;
 }
 
+.recommendation {
+  margin-top: 16px;
+  color: #cbd5e1;
+  line-height: 1.6;
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 15px;
+  padding: 14px;
+}
+
+.favorite-btn {
+  width: 100%;
+  margin-top: 14px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .whale-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .whale-page {
+    padding: 14px;
+  }
+
+  .whale-header,
+  .whale-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .whale-row {
+    flex-direction: column;
+  }
+
+  .whale-row strong {
+    text-align: left;
+  }
 }

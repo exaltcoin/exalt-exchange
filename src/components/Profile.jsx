@@ -53,8 +53,13 @@ setTwoFactorEnabled(profileUser.twoFactorEnabled || false);
       setProfileImage(profileUser.profileImage || "");
 try {
   const kycRes = await fetch(
-    `${API}/api/kyc/user/${encodeURIComponent(profileUser.email)}`
-  );
+  `${API}/api/kyc/user/${encodeURIComponent(profileUser.email)}`,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
   const kycData = await kycRes.json();
 
   if (kycData.success) {

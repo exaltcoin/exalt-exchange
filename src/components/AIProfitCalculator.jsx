@@ -1,95 +1,395 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import "./AIProfitCalculator.css";
 
+const API_BASE =
+  import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
+
+const formatMoney = (value) => `$${Number(value || 0).toLocaleString()}`;
+
+const formatDate = (date) => {
+  if (!date) return "No date";
+  return new Date(date).toLocaleString();
+};
+
 export default function AIProfitCalculator() {
-  const [entry, setEntry] = useState("");
-  const [exit, setExit] = useState("");
-  const [amount, setAmount] = useState("");
-  const [leverage, setLeverage] = useState("1");
+  const [form, setForm] = useState({
+    symbol: "BTC/USDT",
+    marketType: "Futures",
+    capital: 100,
+    entryPrice: 60000,
+    exitPrice: 62000,
+    stopLossPrice: 59000,
+    takeProfitPrice: 62500,
+    leverage: 3,
+    positionType: "Long",
+    compoundEnabled: false,
+    compoundDays: 30,
+  });
 
-  const pnl =
-    entry && exit && amount
-      ? ((Number(exit) - Number(entry)) / Number(entry)) *
-        Number(amount) *
-        Number(leverage)
-      : 0;
+  const [calculations, setCalculations] = useState([]);
+  const [latest, setLatest] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [calculating, setCalculating] = useState(false);
+  const [error, setError] = useState("");
 
-  const roi =
-    entry && exit
-      ? ((Number(exit) - Number(entry)) / Number(entry)) *
-        100 *
-        Number(leverage)
-      : 0;
+  const token = localStorage.getItem("token");
+
+  const authHeaders = useMemo(
+    () => ({ headers: { Authorization: `Bearer ${token}` } }),
+    [token]
+  );
+
+  const fetchMyCalculations = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await axios.get(`${API_BASE}/api/ai-profit/my`, authHeaders);
+      setCalculations(res.data?.calculations || []);
+      setLatest(res.data?.calculations?.[0] || null);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load AI Profit Calculator");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMyCalculations();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const calculateProfit = async (e) => {
+    e.preventDefault();
+
+    if (!form.capital || Number(form.capital) <= 0) {
+      alert("Capital must be greater than 0");
+      return;
+    }
+
+    try {
+      setCalculating(true);
+      setError("");
+
+      const res = await axios.post(
+        `${API_BASE}/api/ai-profit/calculate`,
+        {
+          ...form,
+          capital: Number(form.capital),
+          entryPrice: Number(form.entryPrice),
+          exitPrice: Number(form.exitPrice),
+          stopLossPrice: Number(form.stopLossPrice),
+          takeProfitPrice: Number(form.takeProfitPrice),
+          leverage: Number(form.leverage),
+          compoundDays: Number(form.compoundDays),
+        },
+        authHeaders
+      );
+
+      setLatest(res.data?.calculation || null);
+      fetchMyCalculations();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to calculate profit");
+    } finally {
+      setCalculating(false);
+    }
+  };
+
+  const toggleFavorite = async (id) => {
+    try {
+      await axios.put(`${API_BASE}/api/ai-profit/my/${id}/favorite`, {}, authHeaders);
+      fetchMyCalculations();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update favorite");
+    }
+  };
+
+  const deleteCalculation = async (id) => {
+    const confirmDelete = window.confirm("Delete this calculation?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(`${API_BASE}/api/ai-profit/my/${id}`, authHeaders);
+      fetchMyCalculations();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to delete calculation");
+    }
+  };
+
+  if (loading) {
+    return <div className="ai-profit-page">Loading AI Profit Calculator...</div>;
+  }
 
   return (
-    <div className="profit-page">
-      <div className="profit-header">
-        <h1>AI Profit Calculator</h1>
-        <p>Calculate futures profit, ROI, leverage impact, and AI trade outcome.</p>
+    <div className="ai-profit-page">
+      <div className="ai-profit-header">
+        <div>
+          <h1>AI Profit Calculator</h1>
+          <p>
+            Calculate expected profit, ROI, risk/reward, compounding and AI-based
+            trading confidence.
+          </p>
+        </div>
+
+        <button onClick={fetchMyCalculations}>Refresh</button>
       </div>
 
-      <div className="profit-grid">
-        <div className="profit-form">
-          <h2>Trade Calculator</h2>
+      {error && <div className="ai-profit-error">{error}</div>}
 
-          <input
-            type="number"
-            placeholder="Entry Price"
-            value={entry}
-            onChange={(e) => setEntry(e.target.value)}
-          />
+      <div className="ai-profit-layout">
+        <form className="profit-form-card" onSubmit={calculateProfit}>
+          <h2>Trade Setup</h2>
 
-          <input
-            type="number"
-            placeholder="Exit Price"
-            value={exit}
-            onChange={(e) => setExit(e.target.value)}
-          />
+          <div className="profit-input-grid">
+            <label>
+              Symbol
+              <select name="symbol" value={form.symbol} onChange={handleChange}>
+                <option>BTC/USDT</option>
+                <option>ETH/USDT</option>
+                <option>BNB/USDT</option>
+                <option>SOL/USDT</option>
+                <option>EXALT/USDT</option>
+              </select>
+            </label>
 
-          <input
-            type="number"
-            placeholder="Margin Amount USDT"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+            <label>
+              Market Type
+              <select name="marketType" value={form.marketType} onChange={handleChange}>
+                <option>Spot</option>
+                <option>Futures</option>
+                <option>Staking</option>
+                <option>Copy Trading</option>
+                <option>Grid Trading</option>
+              </select>
+            </label>
 
-          <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
-            <option value="1">1x Leverage</option>
-            <option value="3">3x Leverage</option>
-            <option value="5">5x Leverage</option>
-            <option value="10">10x Leverage</option>
-            <option value="20">20x Leverage</option>
-            <option value="50">50x Leverage</option>
-          </select>
+            <label>
+              Position
+              <select name="positionType" value={form.positionType} onChange={handleChange}>
+                <option>Long</option>
+                <option>Short</option>
+                <option>Spot Buy</option>
+                <option>Neutral</option>
+              </select>
+            </label>
 
-          <button>Calculate Profit</button>
-        </div>
+            <label>
+              Capital ($)
+              <input
+                name="capital"
+                type="number"
+                min="0"
+                value={form.capital}
+                onChange={handleChange}
+              />
+            </label>
 
-        <div className="profit-result">
+            <label>
+              Entry Price
+              <input
+                name="entryPrice"
+                type="number"
+                min="0"
+                value={form.entryPrice}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label>
+              Exit Price
+              <input
+                name="exitPrice"
+                type="number"
+                min="0"
+                value={form.exitPrice}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label>
+              Stop Loss
+              <input
+                name="stopLossPrice"
+                type="number"
+                min="0"
+                value={form.stopLossPrice}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label>
+              Take Profit
+              <input
+                name="takeProfitPrice"
+                type="number"
+                min="0"
+                value={form.takeProfitPrice}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label>
+              Leverage
+              <input
+                name="leverage"
+                type="number"
+                min="1"
+                max="125"
+                value={form.leverage}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label>
+              Compound Days
+              <input
+                name="compoundDays"
+                type="number"
+                min="1"
+                value={form.compoundDays}
+                onChange={handleChange}
+              />
+            </label>
+          </div>
+
+          <label className="compound-check">
+            <input
+              name="compoundEnabled"
+              type="checkbox"
+              checked={form.compoundEnabled}
+              onChange={handleChange}
+            />
+            Enable compounding projection
+          </label>
+
+          <button type="submit" disabled={calculating}>
+            {calculating ? "Calculating..." : "Calculate AI Profit"}
+          </button>
+        </form>
+
+        <div className="profit-result-card">
           <h2>AI Result</h2>
 
-          <div className="result-card">
-            <span>Estimated PNL</span>
-            <h1 className={pnl >= 0 ? "profit-green" : "profit-red"}>
-              {pnl.toFixed(2)} USDT
-            </h1>
-          </div>
+          {!latest ? (
+            <div className="empty-profit-result">No calculation yet.</div>
+          ) : (
+            <>
+              <div className="profit-main-result">
+                <span>Expected Profit</span>
+                <strong>{formatMoney(latest.expectedProfit)}</strong>
+                <p>{latest.recommendation}</p>
+              </div>
 
-          <div className="result-card">
-            <span>ROI</span>
-            <h1 className={roi >= 0 ? "profit-green" : "profit-red"}>
-              {roi.toFixed(2)}%
-            </h1>
-          </div>
+              <div className="profit-result-grid">
+                <div>
+                  <span>ROI</span>
+                  <strong className={latest.roi >= 0 ? "positive" : "negative"}>
+                    {latest.roi}%
+                  </strong>
+                </div>
 
-          <div className="ai-note">
-            <strong>AI Note:</strong>
-            <p>
-              Use lower leverage during high volatility. Always apply stop-loss
-              and risk only a small percentage of your portfolio.
-            </p>
-          </div>
+                <div>
+                  <span>Expected Loss</span>
+                  <strong>{formatMoney(latest.expectedLoss)}</strong>
+                </div>
+
+                <div>
+                  <span>Risk/Reward</span>
+                  <strong>{latest.riskRewardRatio}</strong>
+                </div>
+
+                <div>
+                  <span>Win Rate</span>
+                  <strong>{latest.winRate}%</strong>
+                </div>
+
+                <div>
+                  <span>AI Confidence</span>
+                  <strong>{latest.aiConfidence}%</strong>
+                </div>
+
+                <div>
+                  <span>Risk Level</span>
+                  <strong className={`profit-risk-text ${latest.riskLevel?.toLowerCase()}`}>
+                    {latest.riskLevel}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Daily Profit</span>
+                  <strong>{formatMoney(latest.dailyProfit)}</strong>
+                </div>
+
+                <div>
+                  <span>Monthly Profit</span>
+                  <strong>{formatMoney(latest.monthlyProfit)}</strong>
+                </div>
+
+                <div>
+                  <span>Yearly Profit</span>
+                  <strong>{formatMoney(latest.yearlyProfit)}</strong>
+                </div>
+
+                <div>
+                  <span>Compound Result</span>
+                  <strong>{formatMoney(latest.compoundResult)}</strong>
+                </div>
+              </div>
+            </>
+          )}
         </div>
+      </div>
+
+      <div className="profit-history-card">
+        <div className="profit-history-head">
+          <h2>My Profit History</h2>
+          <span>{calculations.length} records</span>
+        </div>
+
+        {calculations.length === 0 ? (
+          <div className="empty-profit-result">No saved calculations.</div>
+        ) : (
+          <div className="profit-history-list">
+            {calculations.map((item) => (
+              <div className="profit-history-row" key={item._id}>
+                <div>
+                  <strong>{item.symbol}</strong>
+                  <small>{item.marketType} • {formatDate(item.createdAt)}</small>
+                </div>
+
+                <span>{formatMoney(item.capital)}</span>
+
+                <span className={item.roi >= 0 ? "positive" : "negative"}>
+                  {item.roi}%
+                </span>
+
+                <span>{formatMoney(item.expectedProfit)}</span>
+
+                <span className={`profit-risk-pill ${item.riskLevel?.toLowerCase()}`}>
+                  {item.riskLevel}
+                </span>
+
+                <div className="profit-row-actions">
+                  <button onClick={() => toggleFavorite(item._id)}>
+                    {item.isFavorite ? "★" : "☆"}
+                  </button>
+                  <button className="danger" onClick={() => deleteCalculation(item._id)}>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

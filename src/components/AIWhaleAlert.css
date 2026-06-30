@@ -1,0 +1,225 @@
+.whale-alert-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
+}
+
+.whale-alert-header,
+.whale-alert-form,
+.whale-alert-list,
+.whale-alert-card,
+.whale-alert-stats div {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.15);
+  border-radius: 20px;
+}
+
+.whale-alert-header {
+  padding: 24px;
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+}
+
+.whale-alert-header h1,
+.whale-alert-form h2,
+.whale-alert-list h2,
+.whale-alert-card h3 {
+  margin: 0;
+  color: #f6c56b;
+}
+
+.whale-alert-header p,
+.whale-alert-card p,
+.whale-alert-list-head span,
+.whale-alert-card small {
+  color: #9ca3af;
+}
+
+.whale-alert-header button,
+.whale-alert-form button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.whale-alert-warning {
+  background: rgba(240,185,11,.12);
+  border: 1px solid rgba(240,185,11,.25);
+  color: #f0b90b;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+.whale-alert-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.whale-alert-stats div {
+  padding: 18px;
+}
+
+.whale-alert-stats span {
+  display: block;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+.whale-alert-stats strong {
+  color: #f6c56b;
+  font-size: 26px;
+}
+
+.whale-alert-layout {
+  display: grid;
+  grid-template-columns: .8fr 1.2fr;
+  gap: 22px;
+}
+
+.whale-alert-form,
+.whale-alert-list {
+  padding: 22px;
+}
+
+.whale-alert-form label {
+  display: block;
+  color: #cbd5e1;
+  font-weight: 700;
+  margin-top: 14px;
+}
+
+.whale-alert-form input,
+.whale-alert-form select {
+  width: 100%;
+  margin-top: 8px;
+  background: #0b0f19;
+  border: 1px solid rgba(240,185,11,.15);
+  color: #f5f7fa;
+  border-radius: 13px;
+  padding: 12px;
+  outline: none;
+}
+
+.whale-alert-checks {
+  margin: 14px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.whale-alert-checks label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.whale-alert-checks input {
+  width: auto;
+}
+
+.whale-alert-form button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.whale-alert-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.whale-alert-card {
+  padding: 18px;
+  margin-bottom: 14px;
+  background: #0b0f19;
+}
+
+.whale-alert-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.alert-signal {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  height: fit-content;
+}
+
+.alert-signal.bullish {
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+}
+
+.alert-signal.bearish {
+  background: rgba(239,68,68,.15);
+  color: #ef4444;
+}
+
+.alert-signal.neutral {
+  background: rgba(240,185,11,.15);
+  color: #f0b90b;
+}
+
+.whale-alert-grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.whale-alert-grid span {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.1);
+  border-radius: 12px;
+  padding: 11px;
+  color: #9ca3af;
+}
+
+.whale-alert-grid b {
+  display: block;
+  color: #f5f7fa;
+  margin-top: 5px;
+}
+
+.whale-alert-message {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.1);
+  border-radius: 14px;
+  padding: 13px;
+  color: #cbd5e1 !important;
+  line-height: 1.6;
+}
+
+@media (max-width: 1000px) {
+  .whale-alert-layout,
+  .whale-alert-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .whale-alert-page {
+    padding: 14px;
+  }
+
+  .whale-alert-header,
+  .whale-alert-list-head,
+  .whale-alert-card-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

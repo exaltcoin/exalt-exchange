@@ -2,6 +2,7 @@ import exchangeLogo from "./assets/exalt-exchange.png";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "./style.css";
+
 import Dashboard from "./components/Dashboard";
 import Markets from "./components/Markets";
 import Trade from "./components/Trade";
@@ -9,7 +10,6 @@ import BuyCrypto from "./components/BuyCrypto";
 import ListingForm from "./components/ListingForm";
 import Orders from "./components/Orders";
 import Referral from "./components/Referral";
-import Rewards from "./components/Rewards";
 import Support from "./components/Support";
 import AdminPanel from "./AdminPanel";
 import Wallets from "./components/Wallets";
@@ -25,8 +25,6 @@ import KycVerification from "./components/kycVerification";
 import AdminP2P from "./components/AdminP2P";
 import Futures from "./components/Futures";
 import ReplitRewards from "./replit_ui/Rewards";
-import ReplitTrade from "./replit_ui/Trade";
-import ReplitFutures from "./replit_ui/Futures";
 import Profile from "./components/Profile";
 import Staking from "./components/Staking";
 import LearnEarn from "./components/LearnEarn";
@@ -44,160 +42,186 @@ import AIGridTrading from "./components/AIGridTrading";
 import AISmartAlerts from "./components/AISmartAlerts";
 import AILaunchpad from "./components/AILaunchpad";
 import AIWhaleHeatmap from "./components/AIWhaleHeatmap";
+import AITrustScore from "./components/AITrustScore";
+import AIWhaleAlert from "./components/AIWhaleAlert";
+import ExaltUtilityCenter from "./components/ExaltUtilityCenter";
 import AdminLearnEarn from "./components/AdminLearnEarn";
+import AdminReferrals from "./components/AdminReferrals";
+import ReputationCenter from "./components/ReputationCenter";
+import AchievementCenter from "./components/AchievementCenter";
+import AdminRewards from "./components/AdminRewards";
+import NotificationCenter from "./components/NotificationCenter";
+import VerifyEmail from "./components/VerifyEmail";
+
 function App() {
- const [page, setPage] = useState("auth"); 
+  const path = window.location.pathname;
+
+  if (path.startsWith("/verify-email/")) {
+    return <VerifyEmail />;
+  }
+if (path.startsWith("/ref/")) {
+  const referralCode = path.split("/ref/")[1];
+
+  if (referralCode) {
+    localStorage.setItem("pendingReferralCode", referralCode);
+    window.history.replaceState({}, "", "/");
+  }
+}
+  const API_BASE =
+    import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  const [page, setPage] = useState(() =>
+    localStorage.getItem("token") ? "dashboard" : "auth"
+  );
+
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
-const [menuOpen, setMenuOpen] = useState(false);
-useEffect(() => {
-  const checkAuth = async () => {
-    const token = localStorage.getItem("token");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-    if (!token) {
-      setPage("auth");
-      return;
-    }
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isLoggedIn = !!localStorage.getItem("token");
+  const userEmail = storedUser?.email || "User";
+  const isAdmin = storedUser?.role === "admin";
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/auth/me`,
-        {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setPage("auth");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setPage("dashboard");
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setPage("auth");
         }
-      );
-
-      const data = await res.json();
-
-      if (data.success) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setPage("dashboard");
-      } else {
+      } catch (error) {
+        console.log(error);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setPage("auth");
       }
-    } catch (error) {
-      console.log(error);
+    };
 
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    checkAuth();
+  }, [API_BASE]);
 
-      setPage("auth");
-    }
-  };
-
-  checkAuth();
-}, []);
-const isLoggedIn =
-  typeof window !== "undefined" &&
-  !!localStorage.getItem("token");
-/*
-if (!isLoggedIn) {
-  return (
-    <div className="app">
-      <main className="main auth-only">
-        <AuthPanel setPage={setPage} />
-      </main>
-    </div>
-  );
-}
-  */
-const logout = () => {
-  try {
+  const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
     setWallet("");
     setBnbBalance("0.0000");
-
     setPage("auth");
-
-    alert("Logout successful");
 
     setTimeout(() => {
       window.location.reload();
     }, 300);
-  } catch (error) {
-    console.log(error);
-  }
-};
-  const connectWallet = async () => {
-  try {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const siteUrl = "exaltexchange.io";
+  };
 
-    if (!window.ethereum) {
-      if (isMobile) {
-        window.location.href = `https://metamask.app.link/dapp/${siteUrl}`;
+  const connectWallet = async () => {
+    try {
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const siteUrl = "exaltexchange.io";
+
+      if (!window.ethereum) {
+        if (isMobile) {
+          window.location.href = `https://metamask.app.link/dapp/${siteUrl}`;
+          return;
+        }
+
+        alert("Please install MetaMask extension");
         return;
       }
 
-      alert("Please install MetaMask extension");
-      return;
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0x38" }],
+      });
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
+
+      if (!accounts || !accounts.length) {
+        alert("No wallet account found");
+        return;
+      }
+
+      const address = accounts[0];
+      const balance = await provider.getBalance(address);
+
+      setWallet(address);
+      setBnbBalance(Number(ethers.formatEther(balance)).toFixed(4));
+
+      alert("Wallet Connected Successfully");
+    } catch (error) {
+      console.log(error);
+      alert("Wallet connection failed");
     }
+  };
 
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x38" }],
-    });
-
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const accounts = await provider.send("eth_requestAccounts", []);
-    if (!accounts || !accounts.length) {
-  alert("No wallet account found");
-  return;
-}
-    const address = accounts[0];
-
-    const balance = await provider.getBalance(address);
-
-    setWallet(address);
-    setBnbBalance(Number(ethers.formatEther(balance)).toFixed(4));
-
-    alert("Wallet Connected Successfully");
-  } catch (error) {
-    console.log(error);
-    alert("Wallet connection failed");
-  }
-};
   const shortWallet = wallet
     ? wallet.slice(0, 6) + "..." + wallet.slice(-4)
     : "Connect Wallet";
-const storedUser = JSON.parse(
-  localStorage.getItem("user") || "{}"
-);
 
-const userEmail = storedUser?.email || "User";
+  if (!isLoggedIn) {
+    return (
+      <div className="app">
+        <main className="main auth-only">
+          <AuthPanel setPage={setPage} />
+        </main>
+      </div>
+    );
+  }
+
+  const adminOnlyPanel = (Component) => {
+    if (!isAdmin) {
+      return (
+        <div className="panel">
+          <h2>Access Denied</h2>
+          <p>Only admin can access this panel.</p>
+        </div>
+      );
+    }
+
+    return <Component />;
+  };
+
   const renderPage = () => {
-   const currentUser =
-  JSON.parse(localStorage.getItem("user") || "{}") || {}; 
-    if (page === "dashboard")
-  return (
-    <>
-     <Dashboard setPage={setPage} />
-      <TradingPanel />
-      <OrderBook />
-    </>
-  );
+    if (page === "dashboard") {
+      return (
+        <>
+          <Dashboard setPage={setPage} />
+          <TradingPanel />
+          <OrderBook />
+        </>
+      );
+    }
+
     if (page === "markets") return <Markets />;
-    if (page === "trade") return <Trade />;
+   if (page === "trade") return <Trade setPage={setPage} />;
     if (page === "buy") return <BuyCrypto />;
-    if (page === "futures") return <Futures />;
+    if (page === "futures") return <Futures setPage={setPage} />;
     if (page === "wallets") return <Wallets />;
-   if (page === "web3wallet") return <Web3Wallet />;
+    if (page === "web3wallet") return <Web3Wallet />;
     if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
     if (page === "p2p") return <P2P />;
-  if (page === "kyc") {
-  if (currentUser?.role !== "admin") {
-    return <div className="panel">Access Denied</div>;
-  }
-  return <AdminKycPanel />;
-}
-if (page === "kyc-submit") return <KycVerification />;
+    if (page === "kyc") return adminOnlyPanel(AdminKycPanel);
+    if (page === "kyc-submit") return <KycVerification />;
     if (page === "referral") return <Referral />;
     if (page === "rewards") return <ReplitRewards />;
     if (page === "support") return <Support />;
@@ -208,12 +232,10 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai-assistant") return <AITradingAssistant />;
     if (page === "ai-copy-trading") return <AICopyTrading />;
     if (page === "ai-portfolio") return <AIPortfolioManager />;
-    if (page === "social-trading")
-    return <SocialTrading />;
-    if (page === "ai risk manager")
-  return <AIRiskManager />;
+    if (page === "social-trading") return <SocialTrading />;
+    if (page === "ai-risk-manager") return <AIRiskManager />;
     if (page === "ai-profit-calculator") return <AIProfitCalculator />;
-   if (page === "ai-market-scanner") return <AIMarketScanner />;
+    if (page === "ai-market-scanner") return <AIMarketScanner />;
     if (page === "ai-news") return <AINews />;
     if (page === "ai-whale-tracker") return <AIWhaleTracker />;
     if (page === "ai-arbitrage-scanner") return <AIArbitrageScanner />;
@@ -221,421 +243,154 @@ if (page === "kyc-submit") return <KycVerification />;
     if (page === "ai-smart-alerts") return <AISmartAlerts />;
     if (page === "ai-launchpad") return <AILaunchpad />;
     if (page === "ai-whale-heatmap") return <AIWhaleHeatmap />;
-    if (page === "admin-learn") return <AdminLearnEarn />;
-    if (page === "admin-p2p") {
-  if (currentUser?.role !== "admin") {
-    return <div className="panel">Access Denied</div>;
-  }
-  return <AdminP2P />;
-}
-    if (page === "admin") {
- const user =
-  JSON.parse(localStorage.getItem("user") || "{}") || {};
-  if (user.role !== "admin") {
-    return (
-      <div className="panel">
-        <h2>Access Denied</h2>
-        <p>Only admin can access this panel.</p>
-      </div>
-    );
-  }
-
-  return <AdminPanel />;
-}
-if (page === "admin-learn") {
-  const user =
-    JSON.parse(localStorage.getItem("user") || "{}") || {};
-
-  if (user.role !== "admin") {
-    return (
-      <div className="panel">
-        <h2>Access Denied</h2>
-        <p>Only admin can access this panel.</p>
-      </div>
-    );
-  }
-
-  return <AdminLearnEarn />;
-}
+    if (page === "ai-trust-score") return <AITrustScore />;
+    if (page === "ai-whale-alerts") return <AIWhaleAlert />;
+    if (page === "exalt-utility-center") return <ExaltUtilityCenter />;
+    if (page === "reputation-center") return <ReputationCenter />;
+    if (page === "achievement-center") return <AchievementCenter />;
+    if (page === "notification-center") return <NotificationCenter />;
+    if (page === "admin-p2p") return adminOnlyPanel(AdminP2P);
+    if (page === "admin") return adminOnlyPanel(AdminPanel);
+    if (page === "admin-rewards") return adminOnlyPanel(AdminRewards);
+    if (page === "admin-learn") return adminOnlyPanel(AdminLearnEarn);
+    if (page === "admin-referrals") return adminOnlyPanel(AdminReferrals);
     if (page === "settings") return <Settings />;
-    if (page === "auth") return <AuthPanel setPage={setPage} />;
+
     return (
       <div className="panel">
         <h2>{page.toUpperCase()}</h2>
         <p>This section is coming soon.</p>
-        <button
-  className="buy-btn"
-  onClick={() => setPage("transactions")}
->
-  Open Transaction History
-</button>
+        <button className="buy-btn" onClick={() => setPage("transactions")}>
+          Open Transaction History
+        </button>
       </div>
     );
   };
 
+  const menuItems = [
+    ["profile", "👤 Profile"],
+    ["dashboard", "📊 Dashboard"],
+    ["markets", "📈 Markets"],
+    ["trade", "💱 Spot Trading"],
+    ["futures", "📉 Futures"],
+    ["buy", "💳 Buy Crypto"],
+    ["p2p", "🌍 P2P"],
+    ["staking", "🔒 Staking"],
+    ["learnearn", "🎓 Learn & Earn"],
+    ["ai-assistant", "🤖 AI Trading Assistant"],
+    ["ai-copy-trading", "🔁 AI Copy Trading"],
+    ["ai-portfolio", "📂 AI Portfolio Manager"],
+    ["social-trading", "👥 Social Trading"],
+    ["ai-risk-manager", "🛡️ AI Risk Manager"],
+    ["ai-profit-calculator", "💰 AI Profit Calculator"],
+    ["ai-market-scanner", "🔎 AI Market Scanner"],
+    ["ai-news", "📰 AI News"],
+    ["ai-whale-tracker", "🐋 AI Whale Tracker"],
+    ["ai-arbitrage-scanner", "⚡ AI Arbitrage Scanner"],
+    ["ai-grid-trading", "🧮 AI Grid Trading"],
+    ["ai-smart-alerts", "🚨 AI Smart Alerts"],
+    ["ai-launchpad", "🚀 AI Launchpad"],
+    ["ai-whale-heatmap", "🔥 AI Whale Heatmap"],
+    ["ai-trust-score", "✅ AI Trust Score"],
+    ["ai-whale-alerts", "🐳 AI Whale Alerts"],
+    ["exalt-utility-center", "🧰 Exalt Utility Center"],
+    ["reputation-center", "⭐ Community Reputation"],
+    ["achievement-center", "🏆 Achievement Center"],
+    ["notification-center", "🔔 Notification Center"],
+    ["wallets", "👛 Wallets"],
+    ["web3wallet", "🌐 Web3 Wallet"],
+    ["orders", "📦 Orders"],
+    ["kyc-submit", "📝 Submit KYC"],
+    ["listings", "📌 Submit Listing"],
+    ["referral", "🤝 Referral"],
+    ["transactions", "📜 Transactions"],
+    ["rewards", "🎁 Rewards"],
+    ["support", "🎧 Support"],
+    ["settings", "⚙️ Settings"],
+  ];
+
+  const adminMenuItems = [
+  ["admin-p2p", "🧾 Admin P2P"],
+  ["kyc", "🪪 KYC Requests"],
+  ["admin-learn", "🎓 Admin Learn & Earn"],
+  ["admin-referrals", "🤝 Admin Referrals"],
+  ["admin-rewards", "🎁 Admin Rewards"],
+  ["admin", "⚙️ Admin"],
+];
+  const openPage = (pageName) => {
+    setPage(pageName);
+    setMenuOpen(false);
+  };
+
   return (
-  <div className="app">
+    <div className="app">
+      <button
+        className="mobile-menu-btn"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        ☰
+      </button>
 
-    <button
-      className="mobile-menu-btn"
-      onClick={() => setMenuOpen(!menuOpen)}
-    >
-      ☰
-    </button>
+      <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
+        <img src={exchangeLogo} alt="Exalt Exchange" className="main-logo" />
 
-    <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-      
-       <img
-  src={exchangeLogo}
-  alt="Exalt Exchange"
-  className="main-logo"
-/>
-      <div className="user-profile sidebar-profile">
-  <div className="user-avatar">
-    {userEmail.charAt(0).toUpperCase()}
-  </div>
-  <div>
-    <strong>{userEmail}</strong>
-    <p>{wallet ? shortWallet : "Wallet not connected"}</p>
-  </div>
-</div>
-       <div className="menu">
-<button
-  onClick={() => {
-    setPage("profile");
-    setMenuOpen(false);
-  }}
->
-  Profile
-</button>
-  <button
-    onClick={() => {
-      setPage("dashboard");
-      setMenuOpen(false);
-    }}
-  >
-    Dashboard
-  </button>
+        <div className="user-profile sidebar-profile">
+          <div className="user-avatar">{userEmail.charAt(0).toUpperCase()}</div>
+          <div>
+            <strong>{userEmail}</strong>
+            <p>{wallet ? shortWallet : "Wallet not connected"}</p>
+          </div>
+        </div>
 
-  <button
-    onClick={() => {
-      setPage("markets");
-      setMenuOpen(false);
-    }}
-  >
-    Markets
-  </button>
+        <div className="menu">
+          {menuItems.map(([key, label]) => (
+            <button
+              key={key}
+              className={`menu-btn ${page === key ? "active" : ""}`}
+              onClick={() => openPage(key)}
+            >
+              {label}
+            </button>
+          ))}
 
-  <button
-    onClick={() => {
-      setPage("trade");
-      setMenuOpen(false);
-    }}
-  >
-   Spot Trading
-  </button>
-<button
-  onClick={() => {
-    setPage("futures");
-    setMenuOpen(false);
-  }}
->
-  Futures
-</button>
-  <button
-    onClick={() => {
-      setPage("buy");
-      setMenuOpen(false);
-    }}
-  >
-    Buy Crypto
-  </button>
-
-  <button
-  onClick={() => {
-    setPage("p2p");
-    setMenuOpen(false);
-  }}
->
-  P2P
-</button>
-<button
-  onClick={() => {
-    setPage("staking");
-    setMenuOpen(false);
-  }}
->
-  Staking
-</button>
-<button
-onClick={() => {
-setPage("learnearn");
-setMenuOpen(false);
-}}
->
-Learn & Earn
-</button>
-<button
-  onClick={() => {
-    setPage("ai-assistant");
-    setMenuOpen(false);
-  }}
->
-  AI Trading Assistant
-</button>
-<button
-onClick={() => {
-setPage("ai-copy-trading");
-setMenuOpen(false);
-}}
->
-AI Copy Trading
-</button>
-<button
-onClick={() => {
-setPage("ai-portfolio");
-setMenuOpen(false);
-}}
->
-AI Portfolio Manager
-</button>
-<button
-onClick={()=>{
-setPage("social-trading");
-setMenuOpen(false);
-}}
->
-Social Trading
-</button>
-<button
-onClick={() => {
-setPage("ai risk manager");
-setMenuOpen(false);
-}}
->
-AI Risk Manager
-</button>
-<button
-  onClick={() => {
-    setPage("ai-profit-calculator");
-    setMenuOpen(false);
-  }}
->
-  AI Profit Calculator
-</button>
-<button
-onClick={()=>{
-setPage("ai-market-scanner");
-setMenuOpen(false);
-}}
->
-AI Market Scanner
-</button>
-<button
-onClick={()=>{
-setPage("ai-news");
-setMenuOpen(false);
-}}
->
-AI News
-</button>
-<button
-onClick={()=>{
-setPage("ai-whale-tracker");
-setMenuOpen(false);
-}}
->
-AI Whale Tracker
-</button>
-<button
-  onClick={() => {
-    setPage("ai-arbitrage-scanner");
-    setMenuOpen(false);
-  }}
->
-  AI Arbitrage Scanner
-</button>
-<button
-  onClick={() => {
-    setPage("ai-grid-trading");
-    setMenuOpen(false);
-  }}
->
-  AI Grid Trading
-</button>
-<button
-  onClick={() => {
-    setPage("ai-smart-alerts");
-    setMenuOpen(false);
-  }}
->
-  AI Smart Alerts
-</button>
-<button
-  onClick={() => {
-    setPage("ai-launchpad");
-    setMenuOpen(false);
-  }}
->
-  AI Launchpad
-</button>
-<button
-  onClick={() => {
-    setPage("ai-whale-heatmap");
-    setMenuOpen(false);
-  }}
->
-  AI Whale Heatmap
-</button>
-<button
-  onClick={() => {
-    setPage("wallets");
-    setMenuOpen(false);
-  }}
->
-  Wallets
-</button>
-<button
-  onClick={() => {
-    setPage("web3wallet");
-    setMenuOpen(false);
-  }}
->
-  Web3 Wallet
-</button>
-  <button
-    onClick={() => {
-      setPage("orders");
-      setMenuOpen(false);
-    }}
-  >
-    Orders
-  </button>
-  {storedUser?.role === "admin" && (
-  <>
-    <button
-      onClick={() => {
-        setPage("admin-p2p");
-        setMenuOpen(false);
-      }}
-    >
-      Admin P2P
-    </button>
-
-    <button
-      onClick={() => {
-        setPage("kyc");
-        setMenuOpen(false);
-      }}
-    >
-      KYC Requests
-    </button>
-  </>
-)}
-<button
-  onClick={() => {
-    setPage("kyc-submit");
-    setMenuOpen(false);
-  }}
->
-  Submit KYC
-</button>
-
-  <button
-    onClick={() => {
-      setPage("listings");
-      setMenuOpen(false);
-    }}
-  >
-    Submit Listing
-  </button>
-
-  <button
-    onClick={() => {
-      setPage("referral");
-      setMenuOpen(false);
-    }}
-  >
-    Referral
-  </button>
-<button
-  onClick={() => {
-    setPage("transactions");
-    setMenuOpen(false);
-  }}
->
-  Transactions
-</button>
-  <button
-    onClick={() => {
-      setPage("rewards");
-      setMenuOpen(false);
-    }}
-  >
-    Rewards
-  </button>
-
-  <button
-    onClick={() => {
-      setPage("support");
-      setMenuOpen(false);
-    }}
-  >
-    Support
-  </button>
-{storedUser?.role === "admin" && (
-  <button
-    onClick={() => {
-      setPage("admin");
-      setMenuOpen(false);
-    }}
-  >
-    Admin
-  </button>
-)}
-
-  <button
-    onClick={() => {
-      setPage("settings");
-      setMenuOpen(false);
-    }}
-  >
-    Settings
-  </button>
-
-</div>
+          {isAdmin &&
+            adminMenuItems.map(([key, label]) => (
+              <button
+                key={key}
+                className={`menu-btn ${page === key ? "active" : ""}`}
+                onClick={() => openPage(key)}
+              >
+                {label}
+              </button>
+            ))}
+        </div>
 
         <div className="coin-box">
-          <h3>EXALT Coin</h3>
-          <p>$0.02456</p>
-          <span>+8.62%</span>
+       
         </div>
       </aside>
 
       <main className="main">
         <div className="topbar">
           <div>
-          <h2>
-  {page === "trade"
-    ? "SPOT TRADING"
-    : page.toUpperCase()}
-</h2>
+            <h2>{page === "trade" ? "SPOT TRADING" : page.toUpperCase()}</h2>
             <p>
-{page === "trade"
- ? "Professional Spot Trading Engine Powered by Exalt Exchange"
- : "Secure • Fast • Global Digital Asset Exchange"}
-</p>
+              {page === "trade"
+                ? "Professional Spot Trading Engine Powered by Exalt Exchange"
+                : "Secure • Fast • Global Digital Asset Exchange"}
+            </p>
             {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
-            </div>
+          </div>
+
           <button className="connect-btn" onClick={connectWallet}>
             {shortWallet}
           </button>
         </div>
-{localStorage.getItem("token") && (
-  <button className="connect-btn" onClick={logout}>
-    Logout
-  </button>
-)}
+
+        <button className="connect-btn" onClick={logout}>
+          Logout
+        </button>
+
         {renderPage()}
       </main>
     </div>

@@ -1,0 +1,173 @@
+.admin-trust-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
+}
+
+.admin-trust-header,
+.admin-trust-form,
+.admin-trust-table-box {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.15);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.admin-trust-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+.admin-trust-header h2,
+.admin-trust-form h3,
+.admin-trust-table-box h3 {
+  margin: 0 0 16px;
+  color: #f6c56b;
+}
+
+.admin-trust-header p {
+  color: #9ca3af;
+  margin: 0;
+}
+
+.admin-trust-header button,
+.admin-trust-form button,
+.admin-trust-actions button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-trust-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.admin-trust-inputs label {
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
+.admin-trust-inputs input,
+.admin-trust-inputs select {
+  width: 100%;
+  margin-top: 8px;
+  background: #0b0f19;
+  border: 1px solid rgba(240,185,11,.15);
+  color: #f5f7fa;
+  border-radius: 13px;
+  padding: 12px;
+  outline: none;
+}
+
+.admin-trust-form button {
+  margin-top: 18px;
+}
+
+.admin-trust-table-box {
+  overflow-x: auto;
+}
+
+.admin-trust-table {
+  width: 100%;
+  min-width: 1150px;
+  border-collapse: collapse;
+}
+
+.admin-trust-table th,
+.admin-trust-table td {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-trust-table th {
+  color: #9ca3af;
+}
+
+.admin-trust-table td {
+  color: #e5e7eb;
+}
+
+.admin-trust-table small {
+  display: block;
+  color: #9ca3af;
+  margin-top: 5px;
+}
+
+.admin-trust-risk,
+.admin-trust-status {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  display: inline-block;
+}
+
+.admin-trust-risk.low,
+.admin-trust-status.trusted {
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+}
+
+.admin-trust-risk.medium,
+.admin-trust-status.watchlist {
+  background: rgba(240,185,11,.15);
+  color: #f0b90b;
+}
+
+.admin-trust-risk.high,
+.admin-trust-risk.critical,
+.admin-trust-status.risky,
+.admin-trust-status.blocked {
+  background: rgba(239,68,68,.15);
+  color: #ef4444;
+}
+
+.admin-trust-flags,
+.admin-trust-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-trust-flags span {
+  background: rgba(239,68,68,.12);
+  color: #ef4444;
+  border: 1px solid rgba(239,68,68,.25);
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-trust-actions .danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .admin-trust-page {
+    padding: 14px;
+  }
+
+  .admin-trust-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -79,4 +79,149 @@
 
 .copy-btn:hover {
   background: #4b5563;
+}/* ===== ADMIN P2P PREMIUM ===== */
+
+.admin-p2p-page .markets-table{
+    width:100%;
+    border-collapse:collapse;
+    overflow:hidden;
+    border-radius:16px;
+}
+
+.admin-p2p-page .markets-table th{
+    background:#111827;
+    color:#cbd5e1;
+    padding:16px;
+    font-size:13px;
+    font-weight:700;
+    position:sticky;
+    top:0;
+    z-index:2;
+}
+
+.admin-p2p-page .markets-table td{
+    padding:15px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    vertical-align:middle;
+}
+
+.admin-p2p-page .markets-table tbody tr{
+    transition:.25s;
+}
+
+.admin-p2p-page .markets-table tbody tr:hover{
+    background:rgba(255,255,255,.04);
+}
+
+.table-wrapper{
+    overflow:auto;
+    border-radius:16px;
+}
+
+.orders-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.orders-header p{
+    color:#94a3b8;
+    margin-top:6px;
+}
+
+.live-alert{
+    background:linear-gradient(90deg,#16a34a,#22c55e);
+    color:#fff;
+    padding:12px 18px;
+    border-radius:12px;
+    margin-bottom:18px;
+    font-weight:700;
+}
+
+.live-status{
+    color:#22c55e;
+    margin:18px 0;
+}
+
+.activity-box{
+    background:#111827;
+    border-radius:16px;
+    padding:18px;
+    margin:20px 0;
+}
+
+.activity-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.activity-item:last-child{
+    border-bottom:none;
+}
+
+.filter-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:20px 0;
+}
+
+.filter-row button{
+    border:none;
+    cursor:pointer;
+    padding:10px 16px;
+    border-radius:10px;
+    background:#1f2937;
+    color:#fff;
+    transition:.25s;
+}
+
+.filter-row button:hover{
+    background:#374151;
+}
+
+.filter-row .active{
+    background:#f59e0b;
+    color:#000;
+}
+
+.buy-signal{
+    color:#22c55e;
+    font-weight:800;
+}
+
+.sell-signal{
+    color:#ef4444;
+    font-weight:800;
+}
+
+.stat-card{
+    transition:.25s;
+}
+
+.stat-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 0 18px rgba(245,158,11,.18);
+}
+
+@media(max-width:992px){
+
+.orders-header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+}
+
+.table-wrapper{
+    overflow-x:auto;
+}
+
+.admin-p2p-page .markets-table{
+    min-width:1200px;
+}
+
 }

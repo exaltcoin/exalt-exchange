@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^7.6.7",
+    "@capacitor/core": "^8.4.1",
     "@vitejs/plugin-react": "latest",
     "axios": "^1.18.0",
     "ethers": "^6.16.0",

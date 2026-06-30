@@ -1,20 +1,28 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://exalt-exchange-backend.onrender.com/api";
-
 import { io } from "socket.io-client";
 
-export const socket = io(
+const isLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (isLocal
+    ? "http://localhost:5000/api"
+    : "https://exalt-exchange-backend.onrender.com/api");
+
+const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL ||
-    "https://exalt-exchange-backend.onrender.com",
-  {
-    transports: ["polling", "websocket"],
-    withCredentials: true,
-    reconnection: true,
-    reconnectionAttempts: 5,
-    timeout: 10000,
-  }
-);
+  (isLocal
+    ? "http://localhost:5000"
+    : "https://exalt-exchange-backend.onrender.com");
+
+export const socket = io(SOCKET_URL, {
+  transports: ["websocket", "polling"],
+  withCredentials: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  timeout: 10000,
+});
 
 async function apiRequest(path, options = {}) {
   if (!path || !path.startsWith("/")) {
@@ -24,12 +32,11 @@ async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("token");
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => {
-    controller.abort();
-  }, 15000);
+  const timeout = setTimeout(() => controller.abort(), 15000);
 
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
       headers: {
         "Content-Type": "application/json",
         "X-Requested-With": "XMLHttpRequest",
@@ -37,7 +44,6 @@ async function apiRequest(path, options = {}) {
         ...(options.headers || {}),
       },
       signal: controller.signal,
-      ...options,
     });
 
     clearTimeout(timeout);
@@ -46,7 +52,7 @@ async function apiRequest(path, options = {}) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location.href = "/";
-      return;
+      return null;
     }
 
     const data = await response.json().catch(() => ({}));

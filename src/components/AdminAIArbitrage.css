@@ -1,0 +1,132 @@
+.admin-arb-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
+}
+
+.admin-arb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.15);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 24px;
+}
+
+.admin-arb-header h2 {
+  margin: 0;
+  color: #f6c56b;
+}
+
+.admin-arb-header p {
+  color: #9ca3af;
+  margin-top: 8px;
+}
+
+.admin-arb-header button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-arb-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.admin-arb-cards div {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.15);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.admin-arb-cards span {
+  color: #9ca3af;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.admin-arb-cards strong {
+  color: #f6c56b;
+  font-size: 24px;
+}
+
+.admin-arb-table-box {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.15);
+  border-radius: 18px;
+  padding: 22px;
+  overflow-x: auto;
+}
+
+.admin-arb-table-box h3 {
+  margin-top: 0;
+  color: #f6c56b;
+}
+
+.admin-arb-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 950px;
+}
+
+.admin-arb-table th,
+.admin-arb-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.admin-arb-table th {
+  color: #9ca3af;
+}
+
+.admin-arb-table td {
+  color: #e5e7eb;
+}
+
+.arb-risk {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.arb-risk.low {
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+}
+
+.arb-risk.medium {
+  background: rgba(240,185,11,.15);
+  color: #f0b90b;
+}
+
+.arb-risk.high {
+  background: rgba(239,68,68,.15);
+  color: #ef4444;
+}
+
+@media(max-width:768px){
+
+.admin-arb-page{
+padding:14px;
+}
+
+.admin-arb-header{
+flex-direction:column;
+align-items:flex-start;
+}
+
+}

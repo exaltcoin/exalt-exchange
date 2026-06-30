@@ -2,8 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./AdminLearnEarn.css";
 
-const API = "https://exalt-exchange-backend.onrender.com";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
+const API = API_BASE.endsWith("/api")
+  ? API_BASE.replace("/api", "")
+  : API_BASE;
 export default function AdminLearnEarn() {
   const [records, setRecords] = useState([]);
   const [topLearners, setTopLearners] = useState([]);

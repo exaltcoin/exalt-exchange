@@ -1,104 +1,274 @@
-.scanner-page{
-  padding:25px;
-  color:#fff;
+.ai-market-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
 }
 
-.scanner-header{
-  background:#111827;
-  padding:25px;
-  border-radius:18px;
-  border:1px solid rgba(255,193,7,.15);
-  margin-bottom:25px;
+.ai-market-header {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
 }
 
-.scanner-header h1{
-  color:#f6c56b;
+.ai-market-header h1 {
+  margin: 0;
+  color: #f6c56b;
 }
 
-.scanner-header p{
-  color:#9ca3af;
+.ai-market-header p {
+  margin: 8px 0 0;
+  color: #9ca3af;
 }
 
-.scanner-stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-  margin-bottom:25px;
+.ai-market-header button,
+.market-scan-card button,
+.market-row-actions button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 13px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.scanner-stats div,
-.scanner-box,
-.scanner-recommend{
-  background:#111827;
-  border:1px solid rgba(255,193,7,.15);
-  border-radius:18px;
-  padding:22px;
+.ai-market-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ff7b7b;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 20px;
 }
 
-.scanner-stats span{
-  color:#9ca3af;
+.ai-market-layout {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 22px;
 }
 
-.scanner-stats h2,
-.scanner-box h2,
-.scanner-recommend h2{
-  color:#f6c56b;
+.market-scan-card,
+.market-result-card,
+.market-history-card {
+  background: #121826;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  border-radius: 20px;
+  padding: 24px;
 }
 
-.scanner-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+.market-scan-card h2,
+.market-result-card h2,
+.market-history-card h2 {
+  color: #f6c56b;
+  margin-top: 0;
 }
 
-.scan-row{
-  display:grid;
-  grid-template-columns:1fr 1fr .6fr .6fr;
-  gap:10px;
-  padding:14px 0;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  align-items:center;
+.market-input-grid {
+  display: grid;
+  gap: 14px;
 }
 
-.scan-row span,
-.scan-row small{
-  color:#9ca3af;
+.market-input-grid label {
+  color: #cbd5e1;
+  font-weight: 700;
 }
 
-.green{
-  color:#22c55e;
+.market-input-grid select {
+  width: 100%;
+  margin-top: 8px;
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.15);
+  color: #f5f7fa;
+  border-radius: 13px;
+  padding: 12px;
+  outline: none;
 }
 
-.red{
-  color:#ef4444;
+.market-scan-card button {
+  width: 100%;
+  margin-top: 18px;
 }
 
-.scanner-recommend{
-  margin-top:25px;
+.market-main-result {
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 18px;
 }
 
-.scanner-recommend p{
-  color:#9ca3af;
+.market-main-result span,
+.market-result-grid span,
+.market-history-head span {
+  color: #9ca3af;
 }
 
-.scanner-recommend button{
-  margin-top:16px;
-  background:#16a34a;
-  color:#fff;
-  border:none;
-  padding:12px 18px;
-  border-radius:12px;
-  font-weight:800;
-  cursor:pointer;
+.market-main-result strong {
+  display: block;
+  margin: 10px 0;
+  font-size: 32px;
 }
 
-@media(max-width:900px){
-  .scanner-stats,
-  .scanner-grid{
-    grid-template-columns:1fr;
+.market-main-result p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.signal-text.buy,
+.signal-pill.buy {
+  color: #22c55e;
+}
+
+.signal-text.sell,
+.signal-pill.sell {
+  color: #ef4444;
+}
+
+.signal-text.hold,
+.signal-pill.hold {
+  color: #f0b90b;
+}
+
+.market-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.market-result-grid div {
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.market-result-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: #f6c56b;
+  font-size: 20px;
+}
+
+.market-risk-text.low,
+.market-risk-pill.low {
+  color: #22c55e !important;
+}
+
+.market-risk-text.medium,
+.market-risk-pill.medium {
+  color: #f0b90b !important;
+}
+
+.market-risk-text.high,
+.market-risk-pill.high {
+  color: #ef4444 !important;
+}
+
+.market-history-card {
+  margin-top: 24px;
+}
+
+.market-history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.market-history-head h2 {
+  margin: 0;
+}
+
+.market-history-list {
+  display: grid;
+  gap: 12px;
+}
+
+.market-history-row {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 0.6fr 0.8fr 0.7fr 0.6fr 0.8fr;
+  gap: 14px;
+  align-items: center;
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.market-history-row strong {
+  color: #f6c56b;
+}
+
+.market-history-row small {
+  display: block;
+  color: #9ca3af;
+  margin-top: 5px;
+}
+
+.signal-pill,
+.market-risk-pill {
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(240, 185, 11, 0.12);
+  font-weight: 900;
+}
+
+.market-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.market-row-actions button {
+  padding: 9px 12px;
+}
+
+.market-row-actions .danger {
+  background: #ef4444;
+  color: white;
+}
+
+.empty-market-result {
+  background: #0b0f19;
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: 16px;
+  padding: 22px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+  .ai-market-layout,
+  .market-result-grid {
+    grid-template-columns: 1fr;
   }
 
-  .scan-row{
-    grid-template-columns:1fr 1fr;
+  .market-history-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .ai-market-page {
+    padding: 14px;
+  }
+
+  .ai-market-header,
+  .market-history-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

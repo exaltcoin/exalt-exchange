@@ -1,0 +1,155 @@
+.utility-page {
+  padding: 24px;
+  color: #f5f7fa;
+  background: #0b0f19;
+  min-height: 100vh;
+}
+
+.utility-header,
+.utility-calculator,
+.utility-result-grid div,
+.utility-tools-box,
+.utility-tool {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.15);
+  border-radius: 20px;
+}
+
+.utility-header {
+  padding: 24px;
+  margin-bottom: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+.utility-header h1,
+.utility-calculator h2,
+.utility-tools-head h2,
+.utility-tool h3 {
+  margin: 0;
+  color: #f6c56b;
+}
+
+.utility-header p,
+.utility-tools-head span,
+.utility-tool p {
+  color: #9ca3af;
+}
+
+.utility-header button,
+.utility-tool button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.utility-layout {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.utility-calculator,
+.utility-tools-box {
+  padding: 22px;
+}
+
+.utility-input-grid,
+.utility-result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.utility-input-grid label {
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
+.utility-input-grid input {
+  width: 100%;
+  margin-top: 8px;
+  background: #0b0f19;
+  border: 1px solid rgba(240,185,11,.15);
+  color: #f5f7fa;
+  border-radius: 13px;
+  padding: 12px;
+  outline: none;
+}
+
+.utility-result-grid div {
+  padding: 18px;
+}
+
+.utility-result-grid span {
+  color: #9ca3af;
+}
+
+.utility-result-grid strong {
+  display: block;
+  color: #22c55e;
+  font-size: 24px;
+  margin-top: 8px;
+}
+
+.utility-tools-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.utility-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+  gap: 16px;
+}
+
+.utility-tool {
+  padding: 18px;
+  background: #0b0f19;
+}
+
+.utility-tool-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.utility-tool-meta span {
+  background: rgba(240,185,11,.12);
+  color: #f0b90b;
+  border: 1px solid rgba(240,185,11,.22);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@media (max-width: 1000px) {
+  .utility-layout,
+  .utility-input-grid,
+  .utility-result-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .utility-page {
+    padding: 14px;
+  }
+
+  .utility-header,
+  .utility-tools-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
