@@ -6,7 +6,7 @@ import AdminAIPortfolio from "./components/AdminAIPortfolio";
 import AdminSocial from "./components/AdminSocial";
 import AdminAIRisk from "./components/AdminAIRisk";
 import AdminAIProfit from "./components/AdminAIProfit";
-import AdminAIMarketScanner from "./components/AdminAIMarketScanner";
+import AdminAIMarketScanner from "./components/AdminMarketScanner";
 import AdminAINews from "./components/AdminAINews";
 import AdminAIWhaleTracker from "./components/AdminAIWhaleTracker";
 import AdminAIArbitrage from "./components/AdminAIArbitrage";
