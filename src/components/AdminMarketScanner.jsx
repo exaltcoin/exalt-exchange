@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import "./AdminAIMarketScanner.css";
+import "./AdminMarketScanner.css";
 
 const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
