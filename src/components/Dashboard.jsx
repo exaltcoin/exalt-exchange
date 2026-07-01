@@ -163,21 +163,52 @@ const [rewardStats, setRewardStats] = useState({
         </div>
 
         <div className="mobile-action-grid">
-          {[
-            ["👥", "Referral", "referral"],
-            ["🔁", "P2P", "p2p"],
-            ["📈", "Trade", "trade"],
-            ["⚡", "Futures", "futures"],
-            ["💰", "Assets", "wallets"],
-            ["🌐", "Web3", "web3wallet"],
-            ["✅", "KYC", "kyc-submit"],
-          ].map(([icon, label, page]) => (
-            <button key={page} onClick={() => setPage(page)}>
-              {icon}
-              <span>{label}</span>
-            </button>
-          ))}
-        </div>
+  {[
+    ["👤", "Profile", "profile"],
+    ["📊", "Markets", "markets"],
+    ["📈", "Spot", "trade"],
+    ["⚡", "Futures", "futures"],
+    ["💳", "Buy", "buy"],
+    ["🔁", "P2P", "p2p"],
+    ["🔒", "Staking", "staking"],
+    ["🎓", "Learn", "learnearn"],
+    ["🤖", "AI Assistant", "ai-assistant"],
+    ["🔁", "AI Copy", "ai-copy-trading"],
+    ["📂", "AI Portfolio", "ai-portfolio"],
+    ["👥", "Social", "social-trading"],
+    ["🛡️", "AI Risk", "ai-risk-manager"],
+    ["💰", "AI Profit", "ai-profit-calculator"],
+    ["🔎", "Market Scan", "ai-market-scanner"],
+    ["📰", "AI News", "ai-news"],
+    ["🐋", "Whale Track", "ai-whale-tracker"],
+    ["⚡", "Arbitrage", "ai-arbitrage-scanner"],
+    ["🧮", "Grid Trading", "ai-grid-trading"],
+    ["🚨", "Smart Alerts", "ai-smart-alerts"],
+    ["🚀", "Launchpad", "ai-launchpad"],
+    ["🔥", "Heatmap", "ai-whale-heatmap"],
+    ["✅", "Trust Score", "ai-trust-score"],
+    ["🐳", "Whale Alerts", "ai-whale-alerts"],
+    ["🧰", "Utility", "exalt-utility-center"],
+    ["⭐", "Reputation", "reputation-center"],
+    ["🏆", "Achievement", "achievement-center"],
+    ["🔔", "Notifications", "notification-center"],
+    ["💼", "Wallets", "wallets"],
+    ["🌐", "Web3", "web3wallet"],
+    ["📦", "Orders", "orders"],
+    ["📝", "KYC", "kyc-submit"],
+    ["📌", "Listing", "listings"],
+    ["🤝", "Referral", "referral"],
+    ["📜", "History", "transactions"],
+    ["🎁", "Rewards", "rewards"],
+    ["🎧", "Support", "support"],
+    ["⚙️", "Settings", "settings"],
+  ].map(([icon, label, page]) => (
+    <button key={page} onClick={() => setPage(page)}>
+      {icon}
+      <span>{label}</span>
+    </button>
+  ))}
+</div>
 
         <div className="mobile-feature-row">
           <div onClick={() => setPage("p2p")} className="mobile-feature-card">

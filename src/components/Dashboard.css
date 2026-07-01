@@ -465,3 +465,26 @@
     font-size: 22px;
   }
 }
+.mobile-action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+  padding-bottom: 90px;
+}
+
+.mobile-action-grid button {
+  min-height: 86px;
+  border: 1px solid rgba(255, 166, 0, 0.25);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(32, 55, 120, 0.95), rgba(16, 29, 72, 0.95));
+  color: #fff;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.mobile-action-grid button span {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+}
