@@ -13,7 +13,7 @@ function TradingPanel({ setPage }) {
 
   const loadExaltMarket = async () => {
     try {
-      const res = await fetch(`${API}/api/market/live`);
+      const res = await fetch(`${API_BASE}/api/market/live`);
       const data = await res.json();
 
       const pairs = data?.data?.pairs || [];
