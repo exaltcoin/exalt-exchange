@@ -14,7 +14,7 @@ function OrderBook({ coin }) {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API}/api/orders`);
+      const res = await fetch(`${API_BASE}/api/orders`)
       const data = await res.json();
 
       const list = Array.isArray(data) ? data : data.orders || [];
