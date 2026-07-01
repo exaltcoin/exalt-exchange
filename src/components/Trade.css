@@ -557,4 +557,161 @@
   .ms-amount-box {
     font-size: 11px;
   }
+}/* ===== FINAL SPOT FIXES ===== */
+
+.trade-layout {
+  width: 100%;
+  align-items: flex-start;
+}
+
+.trade-main {
+  overflow: hidden;
+}
+
+.trade-header {
+  min-height: 92px;
+}
+
+.trade-sidebar::-webkit-scrollbar,
+.ms-market-drawer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.trade-sidebar::-webkit-scrollbar-thumb,
+.ms-market-drawer::-webkit-scrollbar-thumb {
+  background: #f0b90b;
+  border-radius: 10px;
+}
+
+.coin-item strong,
+.ms-drawer-market strong {
+  font-size: 15px;
+}
+
+.coin-item span,
+.ms-drawer-market span {
+  white-space: nowrap;
+}
+
+.spot-order-panel {
+  min-height: 360px;
+}
+
+.mobile-orderbook-box {
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.mobile-orderbook-box * {
+  max-width: 100%;
+}
+
+.connect-btn {
+  background: #f0b90b;
+  color: #111;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.connect-btn:hover {
+  opacity: 0.9;
+}
+
+.spot-form input:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+  .trade-layout {
+    gap: 14px;
+  }
+
+  .trade-sidebar {
+    width: 285px;
+  }
+
+  .mobile-trade-grid {
+    grid-template-columns: 330px 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .trade-layout {
+    flex-direction: column;
+  }
+
+  .trade-sidebar {
+    width: 100%;
+    max-height: 420px;
+  }
+
+  .mobile-trade-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile polishing */
+@media (max-width: 768px) {
+  .ms-pair-head {
+    gap: 8px;
+  }
+
+  .ms-pair-head h2 {
+    font-size: 18px;
+  }
+
+  .ms-icons {
+    gap: 10px;
+    font-size: 18px;
+  }
+
+  .ms-trade-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 0.72fr);
+  }
+
+  .ms-orderbook {
+    font-size: 11px;
+  }
+
+  .ms-orderbook h2,
+  .ms-orderbook h3 {
+    font-size: 14px !important;
+  }
+
+  .ms-orderbook table {
+    font-size: 10px;
+  }
+
+  .ms-main-buy,
+  .ms-main-sell {
+    height: 42px;
+  }
+
+  .ms-drawer-market {
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .ms-drawer-market span {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .ms-trade-grid {
+    grid-template-columns: 56% 44%;
+  }
+
+  .ms-pair-head h2 {
+    font-size: 16px;
+  }
+
+  .ms-main-buy,
+  .ms-main-sell {
+    font-size: 13px;
+  }
 }
