@@ -6,9 +6,7 @@ import { ethers } from "ethers";
 import "./Trade.css";
 
 function Trade({ setPage }) {
-  const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://exalt-real-backend-6b6v.onrender.com";
+  const API_BASE = "https://exalt-real-backend-6b6v.onrender.com";
 
   const PANCAKE_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
   const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
