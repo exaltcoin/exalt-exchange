@@ -216,6 +216,7 @@ useEffect(() => {
     });
 
     setBinancePrices(prices);
+
   } catch (err) {
     console.log(err);
   }
@@ -240,7 +241,7 @@ useEffect(() => {
 
         if (Array.isArray(pairs) && pairs.length > 0) {
           setCoins(pairs);
-
+console.log("MARKET PAIRS:", pairs);
           setSelectedCoin((prev) => {
             if (prev) {
               const stillExists = pairs.find(
