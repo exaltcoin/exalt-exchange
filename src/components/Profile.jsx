@@ -9,7 +9,7 @@ const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
 const API = API_BASE;
-function Profile() {
+function Profile({ setPage }) {
   const [user, setUser] = useState({});
   const [kycStatus, setKycStatus] = useState("Not Verified");
  const [phone, setPhone] = useState("");
@@ -140,6 +140,14 @@ const res = await fetch(`${API}/api/auth/profile`, {
 };
   return (
     <div className="profile-page">
+      <div style={{ marginBottom: "15px" }}>
+  <button
+    className="save-profile-btn"
+    onClick={() => setPage("dashboard")}
+  >
+    ← Back to Dashboard
+  </button>
+</div>
       <div className="profile-hero">
     <div className="profile-avatar">
   {profileImage && typeof profileImage === "string" ? (

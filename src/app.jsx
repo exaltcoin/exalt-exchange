@@ -225,7 +225,7 @@ if (path.startsWith("/ref/")) {
     if (page === "rewards") return <ReplitRewards />;
     if (page === "support") return <Support />;
     if (page === "listings") return <ListingForm />;
-    if (page === "profile") return <Profile />;
+    if (page === "profile") return <Profile setPage={setPage} />;
     if (page === "staking") return <Staking />;
     if (page === "learnearn") return <LearnEarn />;
     if (page === "ai-assistant") return <AITradingAssistant />;
