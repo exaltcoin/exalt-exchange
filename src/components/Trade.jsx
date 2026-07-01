@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { socket } from "../api";
+import API_BASE_URL, { socket } from "../api";
 import Tradingchart from "./Tradingchart";
 import OrderBook from "./OrderBook";
 import { ethers } from "ethers";
 import "./Trade.css";
 
 function Trade({ setPage }) {
-  const API_BASE = "https://exalt-real-backend-6b6v.onrender.com";
-
+ 
   const PANCAKE_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
   const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
   const EXALT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
@@ -180,7 +179,7 @@ function Trade({ setPage }) {
 
       socket.emit("newOrder", payload);
 
-      const res = await fetch(`${API_BASE}/api/orders`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -222,7 +221,7 @@ function Trade({ setPage }) {
         setMarketError("");
         setMarketLoading(true);
 
-        const res = await fetch(`${API_BASE}/api/market/live`);
+        const res = await fetch(`${API_BASE_URL}/market/live`);
         const response = await res.json();
 
         const pairs = response?.data?.pairs || [];
@@ -273,7 +272,7 @@ function Trade({ setPage }) {
     const interval = setInterval(loadMarkets, 15000);
 
     return () => clearInterval(interval);
-  }, [API_BASE]);
+ }, []);
 
   return (
     <div className="trade-page-pro">
