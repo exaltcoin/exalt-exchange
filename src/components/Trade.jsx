@@ -21,22 +21,34 @@ function Trade({ setPage }) {
   const [price, setPrice] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [marketLoading, setMarketLoading] = useState(true);
+  const [marketError, setMarketError] = useState("");
   const [search, setSearch] = useState("");
   const [wallet, setWallet] = useState("");
   const [spotTab, setSpotTab] = useState("Spot");
   const [marketDrawerOpen, setMarketDrawerOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
+  const [binancePrices, setBinancePrices] = useState({});
 
   const selectedSymbol = selectedCoin?.baseToken?.symbol || "EXALT";
- const [binancePrices, setBinancePrices] = useState({});
-const selectedPrice =
-  binancePrices[`${selectedSymbol}USDT`] ||
-  Number(selectedCoin?.priceUsd || selectedCoin?.price || 0);
+
+  const selectedPrice =
+    binancePrices[`${selectedSymbol}USDT`] ||
+    Number(selectedCoin?.priceUsd || selectedCoin?.price || 0);
+
   const priceChange = Number(selectedCoin?.priceChange?.h24 || 0);
 
   const shortAddress = (addr) =>
     addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "Connect Wallet";
+
+  const formatPrice = (value) => {
+    const num = Number(value || 0);
+    if (num === 0) return "0.000000";
+    if (num < 0.000001) return num.toFixed(10);
+    if (num < 0.01) return num.toFixed(8);
+    return num.toFixed(6);
+  };
 
   const filteredCoins = useMemo(() => {
     const keyword = search.toLowerCase();
@@ -202,70 +214,65 @@ const selectedPrice =
     setSelectedCoin(coin);
     setMarketDrawerOpen(false);
   };
-useEffect(() => {
-  const loadBinancePrices = async () => {
-  try {
-    const res = await fetch(`${API_BASE}/api/market/live`);
-    const data = await res.json();
 
-    const prices = {};
-
-    (data.data?.pairs || []).forEach((item) => {
-      const symbol = `${item.baseToken?.symbol}USDT`;
-      prices[symbol] = Number(item.priceUsd || 0);
-    });
-
-    setBinancePrices(prices);
-
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-  loadBinancePrices();
-
-  const interval = setInterval(loadBinancePrices, 3000);
-
-  return () => clearInterval(interval);
-}, []);
   useEffect(() => {
-
     const savedWallet = localStorage.getItem("trade_wallet");
     if (savedWallet) setWallet(savedWallet);
 
     const loadMarkets = async () => {
       try {
+        setMarketError("");
+        setMarketLoading(true);
+
         const res = await fetch(`${API_BASE}/api/market/live`);
         const response = await res.json();
-        const pairs = response?.data?.pairs || response?.data || [];
 
-        if (Array.isArray(pairs) && pairs.length > 0) {
-          setCoins(pairs);
-          console.log("COIN LIST COUNT:", pairs.length);
-console.log("COIN LIST DATA:", pairs);
-console.log("MARKET PAIRS:", pairs);
-          setSelectedCoin((prev) => {
-            if (prev) {
-              const stillExists = pairs.find(
-                (p) => p.baseToken?.symbol === prev.baseToken?.symbol
-              );
-              return stillExists || prev;
-            }
+        const pairs = response?.data?.pairs || [];
 
-            return (
-              pairs.find(
-                (p) => p.baseToken?.symbol?.toUpperCase() === "EXALT"
-              ) || pairs[0]
-            );
-          });
+        console.log("MARKET API RESPONSE:", response);
+        console.log("COIN LIST COUNT:", pairs.length);
+        console.log("COIN LIST DATA:", pairs);
+
+        if (!Array.isArray(pairs) || pairs.length === 0) {
+          setMarketError("No market data found");
+          setCoins([]);
+          return;
         }
+
+        const prices = {};
+        pairs.forEach((item) => {
+          const symbol = item.baseToken?.symbol;
+          if (symbol) {
+            prices[`${symbol}USDT`] = Number(item.priceUsd || item.price || 0);
+          }
+        });
+
+        setBinancePrices(prices);
+        setCoins(pairs);
+
+        setSelectedCoin((prev) => {
+          if (prev) {
+            const stillExists = pairs.find(
+              (p) => p.baseToken?.symbol === prev.baseToken?.symbol
+            );
+            return stillExists || prev;
+          }
+
+          return (
+            pairs.find((p) => p.baseToken?.symbol?.toUpperCase() === "EXALT") ||
+            pairs[0]
+          );
+        });
       } catch (error) {
         console.log("Market loading error:", error);
+        setMarketError("Failed to load live market data");
+      } finally {
+        setMarketLoading(false);
       }
     };
 
     loadMarkets();
-    const interval = setInterval(loadMarkets, 30000);
+    const interval = setInterval(loadMarkets, 15000);
 
     return () => clearInterval(interval);
   }, [API_BASE]);
@@ -294,11 +301,12 @@ console.log("MARKET PAIRS:", pairs);
           <div onClick={() => setMarketDrawerOpen(true)}>
             <h2>{selectedSymbol}/USDT ▾</h2>
             <p className={priceChange >= 0 ? "green-text" : "red-text"}>
-              ${selectedPrice.toFixed(6)} • {priceChange.toFixed(2)}%
+              ${formatPrice(selectedPrice)} • {priceChange.toFixed(2)}%
             </p>
           </div>
 
           <div className="ms-icons">
+            <span onClick={() => setMarketDrawerOpen(true)}>📋</span>
             <span onClick={() => setChartOpen(!chartOpen)}>📊</span>
             <span onClick={() => setMoreOpen(!moreOpen)}>⋯</span>
           </div>
@@ -393,8 +401,14 @@ console.log("MARKET PAIRS:", pairs);
 
         <div className="ms-info-card">
           <h3>Coin Info</h3>
-          <p><span>Token</span><b>{selectedSymbol}</b></p>
-          <p><span>Price</span><b>${selectedPrice.toFixed(8)}</b></p>
+          <p>
+            <span>Token</span>
+            <b>{selectedSymbol}</b>
+          </p>
+          <p>
+            <span>Price</span>
+            <b>${formatPrice(selectedPrice)}</b>
+          </p>
           <p>
             <span>Liquidity</span>
             <b>${Number(selectedCoin?.liquidity?.usd || 0).toLocaleString()}</b>
@@ -410,7 +424,10 @@ console.log("MARKET PAIRS:", pairs);
             className="ms-drawer-overlay"
             onClick={() => setMarketDrawerOpen(false)}
           >
-            <div className="ms-market-drawer" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="ms-market-drawer"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h3>Spot Markets</h3>
 
               <input
@@ -419,23 +436,29 @@ console.log("MARKET PAIRS:", pairs);
                 onChange={(e) => setSearch(e.target.value)}
               />
 
-              {filteredCoins.map((coin, index) => {
-                const symbol = coin.baseToken?.symbol || coin.symbol || "COIN";
-                const change = Number(coin.priceChange?.h24 || 0);
+              {marketLoading && <p>Loading markets...</p>}
+              {marketError && <p className="red-text">{marketError}</p>}
 
-                return (
-                  <div
-                    key={coin.pairAddress || index}
-                    className="ms-drawer-market"
-                    onClick={() => selectCoin(coin)}
-                  >
-                    <strong>{symbol}/USDT</strong>
-                    <span className={change >= 0 ? "green-text" : "red-text"}>
-                      {change.toFixed(2)}%
-                    </span>
-                  </div>
-                );
-              })}
+              {!marketLoading &&
+                !marketError &&
+                filteredCoins.map((coin, index) => {
+                  const symbol = coin.baseToken?.symbol || coin.symbol || "COIN";
+                  const change = Number(coin.priceChange?.h24 || 0);
+
+                  return (
+                    <div
+                      key={coin.pairAddress || index}
+                      className="ms-drawer-market"
+                      onClick={() => selectCoin(coin)}
+                    >
+                      <strong>{symbol}/USDT</strong>
+                      <span>{formatPrice(coin.priceUsd || coin.price)}</span>
+                      <span className={change >= 0 ? "green-text" : "red-text"}>
+                        {change.toFixed(2)}%
+                      </span>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         )}
@@ -460,7 +483,10 @@ console.log("MARKET PAIRS:", pairs);
           <button onClick={() => setPage && setPage("markets")}>
             ⌁<span>Markets</span>
           </button>
-          <button className="active" onClick={() => setPage && setPage("trade")}>
+          <button
+            className="active"
+            onClick={() => setPage && setPage("trade")}
+          >
             ⇄<span>Trade</span>
           </button>
           <button onClick={() => setPage && setPage("futures")}>
@@ -485,31 +511,36 @@ console.log("MARKET PAIRS:", pairs);
               className="market-search support-input"
             />
 
-            {filteredCoins.map((coin, index) => {
-              const symbol = coin.baseToken?.symbol || coin.symbol || "COIN";
-              const change = Number(coin.priceChange?.h24 || 0);
+            {marketLoading && <p>Loading markets...</p>}
+            {marketError && <p className="red-text">{marketError}</p>}
 
-              return (
-                <div
-                  key={coin.pairAddress || index}
-                  className={`coin-item ${
-                    selectedCoin?.pairAddress === coin.pairAddress
-                      ? "active-coin"
-                      : ""
-                  }`}
-                  onClick={() => setSelectedCoin(coin)}
-                >
-                  <div>
-                    <strong>{symbol}</strong>
-                    <p>${Number(coin.priceUsd || coin.price || 0).toFixed(6)}</p>
+            {!marketLoading &&
+              !marketError &&
+              filteredCoins.map((coin, index) => {
+                const symbol = coin.baseToken?.symbol || coin.symbol || "COIN";
+                const change = Number(coin.priceChange?.h24 || 0);
+
+                return (
+                  <div
+                    key={coin.pairAddress || index}
+                    className={`coin-item ${
+                      selectedCoin?.pairAddress === coin.pairAddress
+                        ? "active-coin"
+                        : ""
+                    }`}
+                    onClick={() => setSelectedCoin(coin)}
+                  >
+                    <div>
+                      <strong>{symbol}/USDT</strong>
+                      <p>${formatPrice(coin.priceUsd || coin.price)}</p>
+                    </div>
+
+                    <span className={change >= 0 ? "green-text" : "red-text"}>
+                      {change.toFixed(2)}%
+                    </span>
                   </div>
-
-                  <span className={change >= 0 ? "green-text" : "red-text"}>
-                    {change.toFixed(2)}%
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
 
           <div className="trade-main">
@@ -518,7 +549,7 @@ console.log("MARKET PAIRS:", pairs);
                 <div>
                   <h2>{selectedSymbol}/USDT</h2>
                   <p className={priceChange >= 0 ? "green-text" : "red-text"}>
-                    ${selectedPrice.toFixed(6)} • {priceChange.toFixed(2)}%
+                    ${formatPrice(selectedPrice)} • {priceChange.toFixed(2)}%
                   </p>
                 </div>
               </div>
@@ -562,7 +593,7 @@ console.log("MARKET PAIRS:", pairs);
                     type="number"
                     placeholder={
                       orderMode === "market"
-                        ? `Market Price: ${selectedPrice.toFixed(6)}`
+                        ? `Market Price: ${formatPrice(selectedPrice)}`
                         : "Limit Price"
                     }
                     value={price}
@@ -614,7 +645,7 @@ console.log("MARKET PAIRS:", pairs);
 
               <div className="coin-info-row">
                 <span className="coin-label">Price</span>
-                <span className="coin-value">${selectedPrice.toFixed(8)}</span>
+                <span className="coin-value">${formatPrice(selectedPrice)}</span>
               </div>
 
               <div className="coin-info-row">
