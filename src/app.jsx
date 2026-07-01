@@ -67,9 +67,8 @@ if (path.startsWith("/ref/")) {
     window.history.replaceState({}, "", "/");
   }
 }
-  const API_BASE =
-    import.meta.env.VITE_API_URL || "http://localhost:5000";
-
+ const API_BASE =
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
   const [page, setPage] = useState(() =>
     localStorage.getItem("token") ? "dashboard" : "auth"
   );
