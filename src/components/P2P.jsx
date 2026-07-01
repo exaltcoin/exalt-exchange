@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import "./P2P.css";
 
 function P2P() {
-  const API =
-    import.meta.env.VITE_API_URL ||
-    "https://exalt-exchange-backend.onrender.com";
+  const API_BASE =
+    import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
   const [orders, setOrders] = useState([]);
   const [type, setType] = useState("sell");

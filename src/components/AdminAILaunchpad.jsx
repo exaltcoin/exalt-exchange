@@ -3,8 +3,7 @@ import axios from "axios";
 import "./AdminAILaunchpad.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
-
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 const formatMoney = (value) => `$${Number(value || 0).toLocaleString()}`;
 
 export default function AdminAILaunchpad() {

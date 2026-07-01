@@ -1,13 +1,14 @@
+
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./NotificationCenter.css";
+
 const RAW_API =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
 const API_BASE = RAW_API.endsWith("/api")
   ? RAW_API.replace("/api", "")
   : RAW_API;
-
 export default function NotificationCenter() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);

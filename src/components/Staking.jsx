@@ -1,6 +1,11 @@
 import "./Staking.css";
 import { useState, useEffect } from "react";
 import axios from "axios";
+
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  "https://exalt-real-backend-6b6v.onrender.com";
+
 export default function Staking() {
   const [amount, setAmount] = useState("");
   const [stakes, setStakes] = useState([]);
@@ -18,7 +23,7 @@ useEffect(() => {
 const loadStats = async () => {
   try {
     const res = await axios.get(
-      "https://exalt-exchange-backend.onrender.com/api/staking/stats"
+      `${API_BASE}/api/staking/stats`
     );
 
     setStats(res.data);
@@ -31,7 +36,7 @@ const loadStakes = async () => {
     const token = localStorage.getItem("token");
 
     const res = await axios.get(
-      "https://exalt-exchange-backend.onrender.com/api/staking/my-stakes",
+      `${API_BASE}/api/staking/my-stakes`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -49,7 +54,7 @@ const handleUnstake = async () => {
     const token = localStorage.getItem("token");
 
     const res = await axios.post(
-      "https://exalt-exchange-backend.onrender.com/api/staking/unstake",
+      `${API_BASE}/api/staking/unstake`,
       {},
       {
         headers: {
@@ -75,7 +80,7 @@ const handleStake = async () => {
     }
 
     const res = await axios.post(
-      "https://exalt-exchange-backend.onrender.com/api/staking/stake",
+      `${API_BASE}/api/staking/stake`,
       {
         amount: Number(amount),
         durationDays: 30,
@@ -100,7 +105,7 @@ const handleClaimRewards = async () => {
     const token = localStorage.getItem("token");
 
     const res = await axios.post(
-      "https://exalt-exchange-backend.onrender.com/api/staking/claim",
+      `${API_BASE}/api/staking/claim`,
       {},
       {
         headers: {

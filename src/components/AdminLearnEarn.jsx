@@ -3,7 +3,7 @@ import axios from "axios";
 import "./AdminLearnEarn.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
 const API = API_BASE.endsWith("/api")
   ? API_BASE.replace("/api", "")

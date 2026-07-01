@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./AchievementCenter.css";
-
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
 export default function AchievementCenter() {
   const [profile, setProfile] = useState(null);

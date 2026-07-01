@@ -5,10 +5,8 @@ import exchangeLogo from "../assets/exalt-exchange.png";
 import { ethers } from "ethers";
 
 function Web3Wallet() {
-  const API =
-    import.meta.env.VITE_API_URL ||
-    "https://exalt-exchange-backend.onrender.com";
-
+  const API_BASE =
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
   const ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
   const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
   const EXALT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";

@@ -5,8 +5,8 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import "./Profile.css";
 const SafePhoneInput = PhoneInput.default || PhoneInput;
-const API =
-  import.meta.env.VITE_API_URL || "https://exalt-exchange-backend.onrender.com";
+const API_BASE =
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 function Profile() {
   const [user, setUser] = useState({});
   const [kycStatus, setKycStatus] = useState("Not Verified");

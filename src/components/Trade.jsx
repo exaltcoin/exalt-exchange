@@ -6,9 +6,9 @@ import { ethers } from "ethers";
 import "./Trade.css";
 
 function Trade({ setPage }) {
-  const API =
+  const API_BASE =
     import.meta.env.VITE_API_URL ||
-    "https://exalt-exchange-backend.onrender.com";
+    "https://exalt-real-backend-6b6v.onrender.com";
 
   const PANCAKE_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
   const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
@@ -170,7 +170,7 @@ const selectedPrice =
 
       socket.emit("newOrder", payload);
 
-      const res = await fetch(`${API}/api/orders`, {
+      const res = await fetch(`${API_BASE}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -235,7 +235,7 @@ useEffect(() => {
 
     const loadMarkets = async () => {
       try {
-        const res = await fetch(`${API}/api/market/live`);
+        const res = await fetch(`${API_BASE}/api/market/live`);
         const response = await res.json();
         const pairs = response?.data?.pairs || response?.data || [];
 
@@ -266,7 +266,7 @@ useEffect(() => {
     const interval = setInterval(loadMarkets, 30000);
 
     return () => clearInterval(interval);
-  }, [API]);
+  }, [API_BASE]);
 
   return (
     <div className="trade-page-pro">

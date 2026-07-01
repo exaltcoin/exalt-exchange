@@ -1,5 +1,6 @@
 import { useState } from "react";
-
+const API_BASE =
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 function Support() {
   const [wallet, setWallet] = useState("");
   const [message, setMessage] = useState("");
@@ -16,7 +17,7 @@ const [loading, setLoading] = useState(false);
     try {
       setLoading(true);
 const token = localStorage.getItem("token");
-      const response = await fetch("https://exalt-exchange-backend.onrender.com/api/support-ticket", {
+      const response = await fetch(`${API_BASE}/api/support-ticket`, {
         method: "POST",
        headers: {
   "Content-Type": "application/json",

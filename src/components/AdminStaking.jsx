@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./AdminStaking.css";
 
-const API =
-  import.meta.env.VITE_API_URL ||
-  "https://exalt-exchange-backend.onrender.com";
-
+const API_BASE =
+  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 const emptyStats = {
   totalStaked: 0,
   totalRewards: 0,

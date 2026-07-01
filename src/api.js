@@ -8,13 +8,13 @@ const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
   (isLocal
     ? "http://localhost:5000/api"
-    : "https://exalt-exchange-backend.onrender.com/api");
+    : "https://exalt-real-backend-6b6v.onrender.com/api");
 
 const SOCKET_URL =
   import.meta.env.VITE_SOCKET_URL ||
   (isLocal
     ? "http://localhost:5000"
-    : "https://exalt-exchange-backend.onrender.com");
+    : "https://exalt-real-backend-6b6v.onrender.com");
 
 export const socket = io(SOCKET_URL, {
   transports: ["websocket", "polling"],

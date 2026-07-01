@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./AdminAIPortfolio.css";
 
-const API = "https://exalt-exchange-backend.onrender.com";
+const API = "https://exalt-real-backend-6b6v.onrender.com";
 
 export default function AdminAIPortfolio() {
   const [portfolios, setPortfolios] = useState([]);
