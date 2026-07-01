@@ -179,7 +179,7 @@ function Trade({ setPage }) {
 
       socket.emit("newOrder", payload);
 
-      const res = await fetch(`${API_BASE_URL}/api/orders`, {
+     const res = await fetch(`${API_BASE_URL}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -213,6 +213,41 @@ function Trade({ setPage }) {
   };
 
   useEffect(() => {
+    useEffect(() => {
+  const handleMarketUpdate = (data) => {
+    if (!data?.symbol || !data?.price) return;
+
+    const symbol = data.symbol.toUpperCase();
+
+    setBinancePrices((prev) => ({
+      ...prev,
+      [symbol]: Number(data.price),
+    }));
+
+    setCoins((prevCoins) =>
+      prevCoins.map((coin) => {
+        const coinSymbol = coin.baseToken?.symbol;
+        const pair = `${coinSymbol}USDT`.toUpperCase();
+
+        if (pair === symbol) {
+          return {
+            ...coin,
+            priceUsd: Number(data.price),
+            source: "BINANCE_SOCKET_LIVE",
+          };
+        }
+
+        return coin;
+      })
+    );
+  };
+
+  socket.on("marketUpdate", handleMarketUpdate);
+
+  return () => {
+    socket.off("marketUpdate", handleMarketUpdate);
+  };
+}, []);
     const savedWallet = localStorage.getItem("trade_wallet");
     if (savedWallet) setWallet(savedWallet);
 
@@ -224,7 +259,11 @@ function Trade({ setPage }) {
         const res = await fetch(`${API_BASE_URL}/market/live`);
         const response = await res.json();
 
-        const pairs = response?.data?.pairs || [];
+       const pairs =
+  response?.data?.pairs ||
+  response?.pairs ||
+  response?.coins ||
+  [];
 
         console.log("MARKET API RESPONSE:", response);
         console.log("COIN LIST COUNT:", pairs.length);
