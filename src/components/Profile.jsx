@@ -7,6 +7,8 @@ import "./Profile.css";
 const SafePhoneInput = PhoneInput.default || PhoneInput;
 const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+
+const API = API_BASE;
 function Profile() {
   const [user, setUser] = useState({});
   const [kycStatus, setKycStatus] = useState("Not Verified");
