@@ -211,9 +211,7 @@ function Trade({ setPage }) {
     setSelectedCoin(coin);
     setMarketDrawerOpen(false);
   };
-
-  useEffect(() => {
-    useEffect(() => {
+useEffect(() => {
   const handleMarketUpdate = (data) => {
     if (!data?.symbol || !data?.price) return;
 
@@ -248,6 +246,7 @@ function Trade({ setPage }) {
     socket.off("marketUpdate", handleMarketUpdate);
   };
 }, []);
+  useEffect(() => {
     const savedWallet = localStorage.getItem("trade_wallet");
     if (savedWallet) setWallet(savedWallet);
 
