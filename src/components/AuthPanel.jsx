@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
+const API = API_BASE;
 export default function AuthPanel({ setPage }) {
   const [mode, setMode] = useState("login");
 
