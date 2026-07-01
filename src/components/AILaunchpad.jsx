@@ -41,7 +41,7 @@ export default function AILaunchpad() {
       setLoading(true);
       setError("");
 
-      const res = await axios.get(`${API_BASE}/api/ai-launchpad`);
+      const res = await axios.get(`${API_BASE}/api/ai-launchpad`, authHeaders);
       setProjects(res.data?.projects || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load AI Launchpad");
