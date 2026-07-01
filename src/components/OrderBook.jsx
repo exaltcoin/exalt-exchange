@@ -60,14 +60,14 @@ function OrderBook({ coin }) {
 
   const buyOrders = useMemo(() => {
     return filteredOrders
-      .filter((order) => String(order.type).toLowerCase() === "buy")
+      .filter((order) =>String(order.side || order.type).toLowerCase() === "buy")
       .sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
       .slice(0, 10);
   }, [filteredOrders]);
 
   const sellOrders = useMemo(() => {
     return filteredOrders
-      .filter((order) => String(order.type).toLowerCase() === "sell")
+      .filter((order) => String(order.side || order.type).toLowerCase() === "sell")
       .sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
       .slice(0, 10);
   }, [filteredOrders]);
