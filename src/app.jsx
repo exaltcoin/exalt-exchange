@@ -323,6 +323,26 @@ if (path.startsWith("/ref/")) {
 
   return (
     <div className="app">
+      {page !== "dashboard" && (
+  <button
+    onClick={() => setPage("dashboard")}
+    style={{
+      position: "fixed",
+      top: "12px",
+      left: "12px",
+      zIndex: 99999,
+      background: "#f5a623",
+      color: "#111",
+      border: "none",
+      padding: "10px 16px",
+      borderRadius: "8px",
+      fontWeight: "600",
+      cursor: "pointer",
+    }}
+  >
+    ← Back
+  </button>
+)}
       <button
         className="mobile-menu-btn"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -389,7 +409,6 @@ if (path.startsWith("/ref/")) {
         <button className="connect-btn" onClick={logout}>
           Logout
         </button>
-
         {renderPage()}
       </main>
     </div>
