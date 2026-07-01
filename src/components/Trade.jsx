@@ -241,6 +241,8 @@ useEffect(() => {
 
         if (Array.isArray(pairs) && pairs.length > 0) {
           setCoins(pairs);
+          console.log("COIN LIST COUNT:", pairs.length);
+console.log("COIN LIST DATA:", pairs);
 console.log("MARKET PAIRS:", pairs);
           setSelectedCoin((prev) => {
             if (prev) {
