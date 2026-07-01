@@ -204,23 +204,22 @@ const selectedPrice =
   };
 useEffect(() => {
   const loadBinancePrices = async () => {
-    try {
-      const res = await fetch("https://api.binance.com/api/v3/ticker/price");
-      const data = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/api/market/live`);
+    const data = await res.json();
 
-      const prices = {};
+    const prices = {};
 
-      data.forEach((item) => {
-        if (item.symbol.endsWith("USDT")) {
-          prices[item.symbol] = Number(item.price);
-        }
-      });
+    (data.data?.pairs || []).forEach((item) => {
+      const symbol = `${item.baseToken?.symbol}USDT`;
+      prices[symbol] = Number(item.priceUsd || 0);
+    });
 
-      setBinancePrices(prices);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+    setBinancePrices(prices);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   loadBinancePrices();
 
