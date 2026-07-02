@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useI18n, LanguageSwitcher } from "../i18n";
+import { useI18n } from "../i18n";
+import LanguageSwitcher from "./LanguageSwitcher";
 function Settings() {
   const { lang, languages } = useI18n();
   const API_BASE =
