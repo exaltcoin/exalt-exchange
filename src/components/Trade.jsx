@@ -6,7 +6,11 @@ import { ethers } from "ethers";
 import "./Trade.css";
 
 function Trade({ setPage }) {
- 
+ const API_BASE = API_BASE_URL || "https://api.exaltexchange.io";
+
+const API = API_BASE.endsWith("/api")
+  ? API_BASE.replace("/api", "")
+  : API_BASE;
   const PANCAKE_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
   const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
   const EXALT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
@@ -179,7 +183,7 @@ function Trade({ setPage }) {
 
       socket.emit("newOrder", payload);
 
-     const res = await fetch(`${API_BASE_URL}/orders`, {
+     const res = await fetch(`${API}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -255,7 +259,7 @@ useEffect(() => {
         setMarketError("");
         setMarketLoading(true);
 
-        const res = await fetch(`${API_BASE_URL}/market/live`);
+        const res = await fetch(`${API}/api/market/live`);
         const response = await res.json();
 
        const pairs =
