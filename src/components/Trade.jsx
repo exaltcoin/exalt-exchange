@@ -533,7 +533,6 @@ if (!hasExalt) {
         {moreOpen && (
           <div className="ms-popup">
             <h3>{t("moreOptions")}</h3>
-            <p onClick={connectWallet}>{shortAddress(wallet)}</p>
             <p onClick={() => setPage && setPage("orders")}>{t("openOrders")}</p>
             <p onClick={() => setPage && setPage("transactions")}>
               {t("tradeHistory")}
@@ -620,10 +619,6 @@ if (!hasExalt) {
                   </p>
                 </div>
               </div>
-
-              <button onClick={connectWallet} className="connect-btn">
-                {shortAddress(wallet)}
-              </button>
             </div>
 
             <div className="mobile-trade-grid">
