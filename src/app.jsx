@@ -1,6 +1,7 @@
 import exchangeLogo from "./assets/exalt-exchange.png";
 import { useState, useEffect } from "react";
-import { useI18n, LanguageSwitcher } from "./i18n";
+import { useI18n } from "./i18n";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import { ethers } from "ethers";
 import "./style.css";
 
