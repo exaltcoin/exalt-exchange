@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useI18n } from "../i18n";
 import API_BASE_URL, { socket } from "../api";
 import Tradingchart from "./Tradingchart";
 import OrderBook from "./OrderBook";
@@ -6,6 +7,7 @@ import { ethers } from "ethers";
 import "./Trade.css";
 
 function Trade({ setPage }) {
+  const { t } = useI18n();
  const API_BASE = API_BASE_URL || "https://api.exaltexchange.io";
 
 const API = API_BASE.endsWith("/api")
@@ -41,7 +43,7 @@ const API = API_BASE.endsWith("/api")
   const priceChange = Number(selectedCoin?.priceChange?.h24 || 0);
 
   const shortAddress = (addr) =>
-    addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "Connect Wallet";
+    addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : t("connectWallet");
 
   const formatPrice = (value) => {
     const num = Number(value || 0);
@@ -68,7 +70,7 @@ const API = API_BASE.endsWith("/api")
   const connectWallet = async () => {
     try {
       if (!window.ethereum) {
-        alert("Please install MetaMask or Trust Wallet");
+        alert(t("installWallet"));
         return;
       }
 
@@ -78,10 +80,10 @@ const API = API_BASE.endsWith("/api")
 
       setWallet(accounts[0]);
       localStorage.setItem("trade_wallet", accounts[0]);
-      alert("Wallet connected successfully");
+      alert(t("walletConnected"));
     } catch (error) {
       console.log(error);
-      alert("Wallet connection failed");
+      alert(t("walletConnectionFailed"));
     }
   };
 
@@ -102,7 +104,7 @@ const API = API_BASE.endsWith("/api")
   const buyExalt = async () => {
     try {
       if (!amount || Number(amount) <= 0) {
-        alert("Enter BNB amount first");
+        alert(t("enterBnbAmount"));
         return;
       }
 
@@ -395,14 +397,14 @@ if (!hasExalt) {
                 className={type === "buy" ? "active-buy" : ""}
                 onClick={() => setType("buy")}
               >
-                Buy
+               {t("buy")}
               </button>
 
               <button
                 className={type === "sell" ? "active-sell" : ""}
                 onClick={() => setType("sell")}
               >
-                Sell
+                {t("sell")}
               </button>
             </div>
 
@@ -410,14 +412,14 @@ if (!hasExalt) {
               value={orderMode}
               onChange={(e) => setOrderMode(e.target.value)}
             >
-              <option value="market">Market</option>
-              <option value="limit">Limit</option>
+             <option value="market">{t("marketOrder")}</option>
+              <option value="limit">{t("limitOrder")}</option>
             </select>
 
             {orderMode === "limit" && (
               <input
                 type="number"
-                placeholder="Limit Price"
+                placeholder={t("limitPrice")}
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
@@ -426,7 +428,7 @@ if (!hasExalt) {
             <div className="ms-amount-box">
               <input
                 type="number"
-                placeholder={type === "buy" ? "Amount" : selectedSymbol}
+                placeholder={t("amount")}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />
@@ -440,7 +442,7 @@ if (!hasExalt) {
               <span onClick={() => setAmount("100")}></span>
             </div>
 
-            <p className="ms-balance">Available: 0.00 USDT</p>
+            <p className="ms-balance">{t("available")}: 0.00 USDT</p>
 
             <button
               disabled={loading}
@@ -452,7 +454,7 @@ if (!hasExalt) {
               className={type === "buy" ? "ms-main-buy" : "ms-main-sell"}
             >
               {loading
-                ? "Processing..."
+                ? t("processing")
                 : type === "buy"
                 ? `Buy ${selectedSymbol}`
                 : `Sell ${selectedSymbol}`}
@@ -465,21 +467,21 @@ if (!hasExalt) {
         </div>
 
         <div className="ms-info-card">
-          <h3>Coin Info</h3>
+          <h3>{t("coinInfo")}</h3>
           <p>
-            <span>Token</span>
+            <span>{t("token")}</span>
             <b>{selectedSymbol}</b>
           </p>
           <p>
-            <span>Price</span>
+            <span>{t("price")}</span>
             <b>${formatPrice(selectedPrice)}</b>
           </p>
           <p>
-            <span>Liquidity</span>
+            <span>{t("liquidity")}</span>
             <b>${Number(selectedCoin?.liquidity?.usd || 0).toLocaleString()}</b>
           </p>
           <p>
-            <span>Contract</span>
+            <span>{t("contract")}</span>
             <b>{selectedCoin?.baseToken?.address || EXALT}</b>
           </p>
         </div>
@@ -493,15 +495,15 @@ if (!hasExalt) {
               className="ms-market-drawer"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3>Spot Markets</h3>
+              <h3>{t("spotMarkets")}</h3>
 
               <input
-                placeholder="Search coin..."
+                placeholder={t("searchCoin")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
 
-              {marketLoading && <p>Loading markets...</p>}
+              {marketLoading && <p>{t("loadingMarkets")}</p>}
               {marketError && <p className="red-text">{marketError}</p>}
 
               {!marketLoading &&
@@ -530,14 +532,14 @@ if (!hasExalt) {
 
         {moreOpen && (
           <div className="ms-popup">
-            <h3>More Options</h3>
+            <h3>{t("moreOptions")}</h3>
             <p onClick={connectWallet}>{shortAddress(wallet)}</p>
-            <p onClick={() => setPage && setPage("orders")}>Open Orders</p>
+            <p onClick={() => setPage && setPage("orders")}>{t("openOrders")}</p>
             <p onClick={() => setPage && setPage("transactions")}>
-              Trade History
+              {t("tradeHistory")}
             </p>
-            <p onClick={() => setPage && setPage("wallets")}>Assets / Wallet</p>
-            <button onClick={() => setMoreOpen(false)}>Close</button>
+            <p onClick={() => setPage && setPage("wallets")}>{t("assetsWallet")}</p>
+            <button onClick={() => setMoreOpen(false)}>{t("close")}</button>
           </div>
         )}
 
@@ -566,17 +568,17 @@ if (!hasExalt) {
       <div className="desktop-spot-view">
         <div className="trade-layout">
           <div className="trade-sidebar">
-            <h2>Live Markets</h2>
+           <h2>{t("liveMarkets")}</h2>
 
             <input
               type="text"
-              placeholder="Search coin..."
+              placeholder={t("searchCoin")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="market-search support-input"
             />
 
-            {marketLoading && <p>Loading markets...</p>}
+            {marketLoading && <p>{t("loadingMarkets")}</p>}
             {marketError && <p className="red-text">{marketError}</p>}
 
             {!marketLoading &&
@@ -626,7 +628,7 @@ if (!hasExalt) {
 
             <div className="mobile-trade-grid">
               <div className="spot-order-panel trade-panel">
-                <h2 className="spot-title">Spot Order</h2>
+                <h2 className="spot-title">{t("spotOrder")}</h2>
 
                 <div className="spot-form">
                   <div className="filter-row">
@@ -635,14 +637,14 @@ if (!hasExalt) {
                       onClick={() => setType("buy")}
                       type="button"
                     >
-                      BUY
+                    {t("buy")} 
                     </button>
                     <button
                       className={type === "sell" ? "sell-btn" : "tab"}
                       onClick={() => setType("sell")}
                       type="button"
                     >
-                      SELL
+                      {t("sell")}
                     </button>
                   </div>
 
@@ -650,8 +652,8 @@ if (!hasExalt) {
                     value={orderMode}
                     onChange={(e) => setOrderMode(e.target.value)}
                   >
-                    <option value="market">Market Order</option>
-                    <option value="limit">Limit Order</option>
+                   <option value="market">{t("marketOrder")}</option>
+                    <option value="limit">{t("limitOrder")}</option>
                   </select>
 
                   <input
@@ -659,7 +661,7 @@ if (!hasExalt) {
                     placeholder={
                       orderMode === "market"
                         ? `Market Price: ${formatPrice(selectedPrice)}`
-                        : "Limit Price"
+                        : t("limitPrice")
                     }
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
@@ -670,8 +672,8 @@ if (!hasExalt) {
                     type="number"
                     placeholder={
                       type === "buy"
-                        ? "Amount in BNB / USDT"
-                        : `Amount ${selectedSymbol}`
+                        ? t("amountInBNB")
+                        : t("amount")
                     }
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
@@ -687,10 +689,10 @@ if (!hasExalt) {
                     className={type === "buy" ? "execute-buy" : "execute-sell"}
                   >
                     {loading
-                      ? "Processing..."
+                      ? t("processing")
                       : type === "buy"
-                      ? `Buy ${selectedSymbol}`
-                      : `Sell ${selectedSymbol}`}
+                      ? ` ${selectedSymbol}`
+                      : ` ${selectedSymbol}`}
                   </button>
                 </div>
               </div>
@@ -701,27 +703,27 @@ if (!hasExalt) {
             </div>
 
             <div className="coin-details-box">
-              <h3 className="coin-info-title">Coin Info</h3>
+              <h3 className="coin-info-title">{t("coinInfo")}</h3>
 
               <div className="coin-info-row">
-                <span className="coin-label">Token</span>
+                <span className="coin-label">{t("token")}</span>
                 <span className="coin-value">{selectedSymbol}</span>
               </div>
 
               <div className="coin-info-row">
-                <span className="coin-label">Price</span>
+                <span className="coin-label">{t("price")}</span>
                 <span className="coin-value">${formatPrice(selectedPrice)}</span>
               </div>
 
               <div className="coin-info-row">
-                <span className="coin-label">Liquidity</span>
+                <span className="coin-label">{t("liquidity")}</span>
                 <span className="coin-value">
                   ${Number(selectedCoin?.liquidity?.usd || 0).toLocaleString()}
                 </span>
               </div>
 
               <div className="coin-info-row">
-                <span className="coin-label">Contract</span>
+                <span className="coin-label">{t("contract")}</span>
                 <span className="coin-value">
                   {selectedCoin?.baseToken?.address || EXALT}
                 </span>
