@@ -411,9 +411,6 @@ if (path.startsWith("/ref/")) {
             {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
           </div>
             <LanguageSwitcher />
-          <button className="connect-btn" onClick={connectWallet}>
-            {shortWallet}
-          </button>
         </div>
 
        <button className="connect-btn" onClick={logout}>
