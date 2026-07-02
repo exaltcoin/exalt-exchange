@@ -298,20 +298,3 @@ export function useI18n() {
   return ctx;
 }
 
-export function LanguageSwitcher() {
-  const { lang, setLang, languages } = useI18n();
-
-  return (
-    <select
-      value={lang}
-      onChange={(e) => setLang(e.target.value)}
-      className="language-switcher"
-    >
-      {languages.map((item) => (
-        <option key={item.code} value={item.code}>
-          {item.flag} {item.native}
-        </option>
-      ))}
-    </select>
-  );
-}
