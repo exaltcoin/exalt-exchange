@@ -193,16 +193,29 @@ const filteredAdminTransactions = transactions.filter((item) => {
 
       const depositsRes = await fetch(`${API}/api/deposit-request`, { headers });
       const depositsData = await depositsRes.json();
-      setDeposits(depositsData.requests || depositsData.deposits || depositsData.data || depositsData || []);
-
+     setDeposits(
+  Array.isArray(depositsData.requests) ? depositsData.requests :
+  Array.isArray(depositsData.deposits) ? depositsData.deposits :
+  Array.isArray(depositsData.data) ? depositsData.data :
+  Array.isArray(depositsData) ? depositsData : []
+);
       const withdrawalsRes = await fetch(`${API}/api/withdrawals`, { headers });
       const withdrawalsData = await withdrawalsRes.json();
-      setWithdrawals(withdrawalsData.withdrawals || withdrawalsData.requests || withdrawalsData.data || withdrawalsData || []);
+     setWithdrawals(
+  Array.isArray(withdrawalsData.withdrawals) ? withdrawalsData.withdrawals :
+  Array.isArray(withdrawalsData.requests) ? withdrawalsData.requests :
+  Array.isArray(withdrawalsData.data) ? withdrawalsData.data :
+  Array.isArray(withdrawalsData) ? withdrawalsData : []
+);
 
       const ticketsRes = await fetch(`${API}/api/support-ticket`, { headers });
       const ticketsData = await ticketsRes.json();
-      setTickets(ticketsData.tickets || ticketsData.requests || ticketsData.data || ticketsData || []);
-
+    setTickets(
+  Array.isArray(ticketsData.tickets) ? ticketsData.tickets :
+  Array.isArray(ticketsData.requests) ? ticketsData.requests :
+  Array.isArray(ticketsData.data) ? ticketsData.data :
+  Array.isArray(ticketsData) ? ticketsData : []
+);
       const transactionsRes = await fetch(`${API}/api/transactions/admin`, { headers });
       const transactionsData = await transactionsRes.json();
       setTransactions(transactionsData.transactions || transactionsData.requests || transactionsData.data || transactionsData || []);
@@ -219,9 +232,13 @@ setKycRequests(
     ? kycData.data
     : []
 );
-      const web3Res = await fetch(`${API}/api/web3-transactions`);
+      const web3Res = await fetch(`${API}/api/web3-transactions`, { headers });
       const web3Data = await web3Res.json();
-      setWeb3Transactions(web3Data.transactions || []);
+     setWeb3Transactions(
+  Array.isArray(web3Data.transactions) ? web3Data.transactions :
+  Array.isArray(web3Data.data) ? web3Data.data :
+  Array.isArray(web3Data) ? web3Data : []
+);
     } catch (error) {
       console.log(error);
       alert("Admin data load failed");
