@@ -3,6 +3,7 @@ import "./LanguageSwitcher.css";
 
 export default function LanguageSwitcher() {
   const { lang, setLang, languages } = useI18n();
+  const active = languages.find((item) => item.code === lang);
 
   return (
     <div className="language-box">
@@ -12,6 +13,7 @@ export default function LanguageSwitcher() {
         value={lang}
         onChange={(e) => setLang(e.target.value)}
         className="language-select"
+        title="Select language"
       >
         {languages.map((item) => (
           <option key={item.code} value={item.code}>
@@ -19,6 +21,10 @@ export default function LanguageSwitcher() {
           </option>
         ))}
       </select>
+
+      <small className="language-active">
+        Active: {active?.flag} {active?.native}
+      </small>
     </div>
   );
 }
