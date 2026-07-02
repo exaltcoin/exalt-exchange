@@ -262,11 +262,37 @@ useEffect(() => {
         const res = await fetch(`${API}/api/market/live`);
         const response = await res.json();
 
-       const pairs =
+      let pairs =
   response?.data?.pairs ||
   response?.pairs ||
   response?.coins ||
+  response?.data ||
   [];
+
+pairs = Array.isArray(pairs) ? pairs : [];
+
+const exaltCoin = {
+  pairAddress: "EXALT-USDT",
+  baseToken: {
+    symbol: "EXALT",
+    name: "Exalt Coin",
+    address: EXALT,
+  },
+  quoteToken: { symbol: "USDT" },
+  priceUsd: 0.000000,
+  price: 0.000000,
+  priceChange: { h24: 0 },
+  liquidity: { usd: 0 },
+  source: "EXALT_INTERNAL",
+};
+
+const hasExalt = pairs.some(
+  (p) => (p.baseToken?.symbol || p.symbol || "").toUpperCase() === "EXALT"
+);
+
+if (!hasExalt) {
+  pairs = [exaltCoin, ...pairs];
+}
 
         console.log("MARKET API RESPONSE:", response);
         console.log("COIN LIST COUNT:", pairs.length);
@@ -311,7 +337,7 @@ useEffect(() => {
     };
 
     loadMarkets();
-    const interval = setInterval(loadMarkets, 15000);
+    const interval = setInterval(loadMarkets, 120000);
 
     return () => clearInterval(interval);
  }, []);
