@@ -268,21 +268,21 @@ const [rewardStats, setRewardStats] = useState({
         <div className="dashboard-page">
           <div className="hero-banner">
             <div>
-              <h1>EXALT EXCHANGE</h1>
-              <p>Next Generation Crypto Market Board & Community Exchange</p>
-              <span className="live-status">
-                {loading ? "Loading Live Market..." : "● Live Market Active"}
-              </span>
+              <h1>{t("exchangeName")}</h1>
+<p>{t("heroSubtitle")}</p>
+<span className="live-status">
+  {loading ? t("loadingMarket") : t("liveMarketActive")}
+</span>
             </div>
 
             <button className="action-btn yellow-btn" onClick={loadDashboard}>
-              Refresh Dashboard
+             {t("refreshDashboard")}
             </button>
           </div>
 
           <div className="stats-grid">
             <div className="stat-card glow-yellow">
-              <h3>Portfolio Value</h3>
+             <h3>{t("portfolioValue")}</h3>
               <h1>${formatUsd(portfolioValue, 2)}</h1>
               <span className="green-text">
                 EXALT Price: ${Number(exaltPrice || 0).toFixed(8)}
@@ -290,42 +290,44 @@ const [rewardStats, setRewardStats] = useState({
             </div>
 
             <div className="stat-card glow-blue">
-              <h3>EXALT Holdings</h3>
+             <h3>{t("exaltHoldings")}</h3>
               <h1>{Number(exaltHoldings || 0).toLocaleString()} EXALT</h1>
-              <span>Live Wallet Balance</span>
+             <span>{t("liveWalletBalance")}</span>
             </div>
 
             <div className="stat-card glow-green">
-              <h3>Market Cap</h3>
+              <h3>{t("marketCap")}</h3>
               <h1>${formatUsd(marketCap, 0)}</h1>
               <span>Live Market</span>
             </div>
 
             <div className="stat-card glow-red">
-              <h3>Liquidity</h3>
+              <h3>{t("liquidity")}</h3>
               <h1>${formatUsd(liquidity, 0)}</h1>
               <span>PancakeSwap LP</span>
             </div>
             <div className="stat-card glow-yellow reward-stat-card">
-  <h3>Approved Rewards</h3>
+  <h3>{t("approvedRewards")}</h3>
   <h1>{Number(rewardStats.approvedAmount || 0).toLocaleString()} EXALT</h1>
-  <span>Real Credited Rewards</span>
+  <span>{t("realCreditedRewards")}</span>
 </div>
 
 <div className="stat-card glow-blue reward-stat-card">
-  <h3>Pending Rewards</h3>
+  <h3>{t("pendingRewards")}</h3>
   <h1>{Number(rewardStats.pendingAmount || 0).toLocaleString()} EXALT</h1>
-  <span>{rewardStats.pendingClaims} Claims Under Review</span>
+ <span>
+  {rewardStats.pendingClaims} {t("claimsUnderReview")}
+</span>
 </div>
 
 <div className="stat-card glow-green reward-stat-card">
-  <h3>Active Miners</h3>
+  <h3>{t("activeMiners")}</h3>
   <h1>{rewardStats.activeMiners}</h1>
-  <span>Today Claims: {rewardStats.todayClaims}</span>
+  <span>{t("todayClaims")}: {rewardStats.todayClaims}</span>
 </div>
 
 <div className="stat-card glow-red reward-stat-card">
-  <h3>Mining Pool</h3>
+  <h3>{t("miningPool")}</h3>
   <h1>{Number(rewardStats.miningRemaining || 0).toLocaleString()}</h1>
   <span>EXALT Remaining</span>
 </div>
@@ -334,7 +336,7 @@ const [rewardStats, setRewardStats] = useState({
           <div className="dashboard-row">
             <div className="big-panel">
               <div className="panel-header">
-                <h2>Trending Coins</h2>
+                <h2>{t("trendingCoins")}</h2>
               </div>
 
               {coins.map((coin) => (
@@ -356,7 +358,7 @@ const [rewardStats, setRewardStats] = useState({
 
             <div className="big-panel">
               <div className="panel-header">
-                <h2>Quick Actions</h2>
+               <h2>{t("quickActions")}</h2> 
               </div>
 
               <button
@@ -368,28 +370,28 @@ const [rewardStats, setRewardStats] = useState({
                 }
                 className="action-btn yellow-btn"
               >
-                Buy EXALT
+               {t("buyExalt")}
               </button>
 
               <button
                 onClick={() => setPage("trade")}
                 className="action-btn green-btn"
               >
-                Spot Trading
+                {t("spotTrading")}
               </button>
 
               <button
                 onClick={() => setPage("listings")}
                 className="action-btn blue-btn"
               >
-                Submit Listing
+                {t("submitListing")}
               </button>
 
               <button
                 onClick={() => setPage("markets")}
                 className="action-btn red-btn"
               >
-                View Market Board
+                {t("viewMarketBoard")}
               </button>
             </div>
           </div>
