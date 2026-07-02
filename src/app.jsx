@@ -1,5 +1,6 @@
 import exchangeLogo from "./assets/exalt-exchange.png";
 import { useState, useEffect } from "react";
+import { useI18n, LanguageSwitcher } from "./i18n";
 import { ethers } from "ethers";
 import "./style.css";
 
@@ -54,6 +55,7 @@ import NotificationCenter from "./components/NotificationCenter";
 import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
 function App() {
+  const { t } = useI18n();
   const path = window.location.pathname;
 
   if (path.startsWith("/verify-email/")) {
@@ -360,7 +362,7 @@ if (path.startsWith("/ref/")) {
           <div className="user-avatar">{userEmail.charAt(0).toUpperCase()}</div>
           <div>
             <strong>{userEmail}</strong>
-            <p>{wallet ? shortWallet : "Wallet not connected"}</p>
+           <p>{wallet ? shortWallet : t("walletNotConnected")}</p>
           </div>
         </div>
 
@@ -395,7 +397,11 @@ if (path.startsWith("/ref/")) {
       <main className="main">
         <div className="topbar">
           <div>
-            <h2>{page === "trade" ? "SPOT TRADING" : page.toUpperCase()}</h2>
+           <h2>
+  {page === "trade"
+    ? t("spotTrading")
+    : t(page) || page.toUpperCase()}
+</h2>
             <p>
               {page === "trade"
                 ? "Professional Spot Trading Engine Powered by Exalt Exchange"
@@ -403,15 +409,15 @@ if (path.startsWith("/ref/")) {
             </p>
             {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
           </div>
-
+            <LanguageSwitcher />
           <button className="connect-btn" onClick={connectWallet}>
             {shortWallet}
           </button>
         </div>
 
-        <button className="connect-btn" onClick={logout}>
-          Logout
-        </button>
+       <button className="connect-btn" onClick={logout}>
+  {t("logout")}
+</button>
         {renderPage()}
       </main>
     </div>

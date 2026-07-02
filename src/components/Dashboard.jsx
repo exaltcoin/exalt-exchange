@@ -1,8 +1,9 @@
 import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-
+import { useI18n } from "../i18n";
 function Dashboard({ setPage }) {
+  const { t } = useI18n();
  const API_BASE = import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 const API = API_BASE.endsWith("/api")
   ? API_BASE.replace("/api", "")
@@ -157,9 +158,9 @@ const [rewardStats, setRewardStats] = useState({
         </div>
 
         <div className="mobile-balance-card">
-          <p>Est. Total Value (USDT)</p>
+          <p>{t("portfolioValue")} (USDT)</p>
           <h1>${formatUsd(portfolioValue, 2)}</h1>
-          <button onClick={() => setPage("wallets")}>Add Funds</button>
+          <button onClick={() => setPage("wallets")}>{t("addFunds")}</button>
         </div>
 
         <div className="mobile-action-grid">
@@ -205,7 +206,7 @@ const [rewardStats, setRewardStats] = useState({
   ].map(([icon, label, page]) => (
     <button key={page} onClick={() => setPage(page)}>
       {icon}
-      <span>{label}</span>
+     <span>{t(page)}</span>
     </button>
   ))}
 </div>
@@ -258,7 +259,7 @@ const [rewardStats, setRewardStats] = useState({
         ].map(([icon, label, page]) => (
           <button key={page} onClick={() => setPage(page)}>
             {icon}
-            <span>{label}</span>
+           <span>{t(page)}</span>
           </button>
         ))}
       </div>

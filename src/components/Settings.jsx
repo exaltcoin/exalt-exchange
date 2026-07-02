@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-
+import { useI18n, LanguageSwitcher } from "../i18n";
 function Settings() {
+  const { lang, languages } = useI18n();
   const API_BASE =
     import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
-
+const API = API_BASE.endsWith("/api")
+    ? API_BASE.replace("/api", "")
+    : API_BASE;
   const [qrCode, setQrCode] = useState("");
   const [twoFaToken, setTwoFaToken] = useState("");
   const [twoFaEnabled, setTwoFaEnabled] = useState(false);
@@ -215,7 +218,22 @@ function Settings() {
     <div className="panel">
       <h2>SETTINGS & SECURITY</h2>
       <p>Manage account security, KYC verification and exchange permissions.</p>
+<div className="panel" style={{ marginTop: "20px" }}>
+  <h2>🌍 Language Preferences</h2>
+  <p>
+    Choose your preferred language for Exalt Exchange. Your selection will be
+    saved automatically on this device.
+  </p>
 
+  <div style={{ marginTop: "15px", maxWidth: "320px" }}>
+    <LanguageSwitcher />
+  </div>
+
+  <p style={{ marginTop: "12px", color: "#f0c419" }}>
+    Active Language:{" "}
+    {languages.find((item) => item.code === lang)?.native || "English"}
+  </p>
+</div>
       <div className="stats-grid">
         <div className="stat-card glow-green">
           <h3>KYC Status</h3>
