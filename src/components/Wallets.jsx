@@ -362,9 +362,6 @@ try {
           <p>Manage crypto wallet, deposits, withdrawals and payment requests.</p>
         </div>
 
-        <button className="action-btn yellow-btn" onClick={connectWallet}>
-          Connect MetaMask / Trust Wallet
-        </button>
       </div>
 
       <div className="stats-grid">
