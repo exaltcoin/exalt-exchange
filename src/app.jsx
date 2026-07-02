@@ -52,13 +52,16 @@ import AchievementCenter from "./components/AchievementCenter";
 import AdminRewards from "./components/AdminRewards";
 import NotificationCenter from "./components/NotificationCenter";
 import VerifyEmail from "./components/VerifyEmail";
-
+import ResetPassword from "./components/ResetPassword";
 function App() {
   const path = window.location.pathname;
 
   if (path.startsWith("/verify-email/")) {
     return <VerifyEmail />;
   }
+  if (path.startsWith("/reset-password/")) {
+  return <ResetPassword />;
+}
 if (path.startsWith("/ref/")) {
   const referralCode = path.split("/ref/")[1];
 
