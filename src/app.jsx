@@ -368,26 +368,26 @@ if (path.startsWith("/ref/")) {
         </div>
 
         <div className="menu">
-          {menuItems.map(([key, label]) => (
-            <button
-              key={key}
-              className={`menu-btn ${page === key ? "active" : ""}`}
-              onClick={() => openPage(key)}
-            >
-              {label}
-            </button>
-          ))}
+         {menuItems.map(([key, label]) => (
+  <button
+    key={key}
+    className={`menu-btn ${page === key ? "active" : ""}`}
+    onClick={() => openPage(key)}
+  >
+    {label.split(" ")[0]} {t(key) || label}
+  </button>
+))}
 
-          {isAdmin &&
-            adminMenuItems.map(([key, label]) => (
-              <button
-                key={key}
-                className={`menu-btn ${page === key ? "active" : ""}`}
-                onClick={() => openPage(key)}
-              >
-                {label}
-              </button>
-            ))}
+         {isAdmin &&
+  adminMenuItems.map(([key, label]) => (
+    <button
+      key={key}
+      className={`menu-btn ${page === key ? "active" : ""}`}
+      onClick={() => openPage(key)}
+    >
+      {label.split(" ")[0]} {t(key) || label}
+    </button>
+  ))}
         </div>
 
         <div className="coin-box">
