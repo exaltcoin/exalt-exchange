@@ -21,9 +21,12 @@ import AdminReputation from "./components/AdminReputation";
 import AdminAchievement from "./components/AdminAchievement";
 import AdminNotifications from "./components/AdminNotifications";
 function AdminPanel() {
-  const API_BASE =
-    import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
-  const API = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
+ const API_BASE =
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
+
+const API = API_BASE.endsWith("/api")
+  ? API_BASE.replace("/api", "")
+  : API_BASE;
   const token = localStorage.getItem("token");
  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [listings, setListings] = useState([]);
