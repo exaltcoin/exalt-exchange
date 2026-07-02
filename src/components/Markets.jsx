@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "../i18n";
 import exchangeLogo from "../assets/exalt-exchange.png";
 import exaltCoinLogo from "../assets/exalt-coin.png";
 import API_BASE_URL, { socket } from "../api";
@@ -8,6 +9,7 @@ const EXALT_LOGO = exchangeLogo;
 const DEFAULT_COIN_LOGO =
   "https://cryptologos.cc/logos/generic-coin-logo.png";
 function Markets() {
+  const { t } = useI18n();
   const [coins, setCoins] = useState([]);
   const [livePrices, setLivePrices] = useState({});
   const [dexData, setDexData] = useState({});
@@ -218,19 +220,19 @@ function Markets() {
     <div className="markets-page">
       <div className="markets-hero">
         <div>
-          <span className="market-live-dot">● Live Market Board</span>
-          <h1>EXALT MARKETS</h1>
-          <p>Approved coins, verified contracts, live charts, liquidity and volume.</p>
+          <span className="market-live-dot">{t("liveMarketBoard")}</span>
+<h1>{t("exaltMarkets")}</h1>
+<p>{t("marketsSubtitle")}</p>
         </div>
 
         <button className="action-btn yellow-btn" onClick={loadListings}>
-          {loading ? "Loading..." : "Refresh"}
+          {loading ? t("loading") : t("refresh")}
         </button>
       </div>
 
       <div className="market-feature-grid">
         <div className="market-feature-card">
-          <span>🔥 Top Gainer</span>
+         <span>🔥 {t("topGainer")}</span>
           <h3>{topGainers[0]?.symbol || "EXALT"}</h3>
           <p className="green-text">
             {getChange24h(topGainers[0] || {}).toFixed(2)}%
@@ -238,7 +240,7 @@ function Markets() {
         </div>
 
         <div className="market-feature-card">
-          <span>📉 Top Loser</span>
+          <span>📉 {t("topLoser")}</span>
           <h3>{topLosers[0]?.symbol || "N/A"}</h3>
           <p className="red-text">
             {getChange24h(topLosers[0] || {}).toFixed(2)}%
@@ -246,16 +248,16 @@ function Markets() {
         </div>
 
         <div className="market-feature-card">
-          <span>⭐ Trending</span>
+          <span>⭐ {t("trending")}</span>
           <h3>{filteredCoins[0]?.symbol || "EXALT"}</h3>
-          <p>{formatMoney(getVolume24h(filteredCoins[0] || {}), 2)} Volume</p>
+         <p>{formatMoney(getVolume24h(filteredCoins[0] || {}), 2)} {t("volume")}</p>
         </div>
       </div>
 
       <div className="markets-controls">
         <input
           type="text"
-          placeholder="Search coin, symbol or contract..."
+          placeholder={t("searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -263,7 +265,7 @@ function Markets() {
         <select value={filterChain} onChange={(e) => setFilterChain(e.target.value)}>
           {chains.map((chain) => (
             <option key={chain} value={chain}>
-              {chain === "ALL" ? "All Chains" : chain}
+             {chain === "ALL" ? t("allChains") : chain}
             </option>
           ))}
         </select>
@@ -271,44 +273,44 @@ function Markets() {
 
       <div className="market-stats">
         <div className="stat-card">
-          <h3>Total Listed Coins</h3>
+         <h3>{t("totalListedCoins")}</h3>
           <p>{coins.length}</p>
         </div>
         <div className="stat-card">
-          <h3>Filtered Coins</h3>
+          <h3>{t("filteredCoins")}</h3>
           <p>{filteredCoins.length}</p>
         </div>
         <div className="stat-card">
-          <h3>Market Status</h3>
-          <p className="green-text">LIVE</p>
+          <h3>{t("marketStatus")}</h3>
+          <p className="green-text">{t("live")}</p>
         </div>
         <div className="stat-card">
-          <h3>Exchange</h3>
-          <p>EXALT</p>
+          <h3>{t("exchange")}</h3>
+          <p>{t("exalt")}</p>
         </div>
       </div>
 
       <div className="table-wrapper">
         {loading ? (
-          <p className="market-empty">Loading markets...</p>
+          <p className="market-empty">{t("loadingMarkets")}</p>
         ) : filteredCoins.length === 0 ? (
-          <p className="market-empty">No approved coins found.</p>
+          <p className="market-empty">{t("noApprovedCoins")}</p>
         ) : (
           <table className="market-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Coin</th>
-                <th>Price</th>
-                <th>24H</th>
-                <th>Volume 24H</th>
-                <th>Market Cap</th>
-                <th>Liquidity</th>
-                <th>Chain</th>
-                <th>Contract</th>
-                <th>Status</th>
-                <th>Chart</th>
-                <th>Buy</th>
+              <th>#</th>
+<th>{t("coin")}</th>
+<th>{t("price")}</th>
+<th>24H</th>
+<th>{t("volume24h")}</th>
+<th>{t("marketCap")}</th>
+<th>{t("liquidity")}</th>
+<th>{t("chain")}</th>
+<th>{t("contract")}</th>
+<th>{t("status")}</th>
+<th>{t("chart")}</th>
+<th>{t("buy")}</th>
               </tr>
             </thead>
 
