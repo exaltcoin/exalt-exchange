@@ -272,3 +272,69 @@ button:disabled {
     align-items: flex-start;
   }
 }
+/* ---------- RTL Support ---------- */
+
+html[dir="rtl"] .ai-market-page,
+body.rtl .ai-market-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .ai-market-top-action,
+html[dir="rtl"] .market-history-head,
+body.rtl .ai-market-top-action,
+body.rtl .market-history-head {
+  direction: rtl;
+}
+
+/* ---------- Top Action ---------- */
+
+.ai-market-top-action{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:18px;
+}
+
+/* ---------- Premium Hover ---------- */
+
+.market-scan-card,
+.market-result-card,
+.market-history-card,
+.market-main-result,
+.market-result-grid div,
+.market-history-row{
+  box-shadow:0 10px 28px rgba(0,0,0,.22);
+  transition:.25s ease;
+}
+
+.market-main-result:hover,
+.market-result-grid div:hover,
+.market-history-row:hover{
+  transform:translateY(-3px);
+  border-color:#f0b90b;
+}
+
+/* ---------- Buttons ---------- */
+
+.market-scan-card button,
+.market-row-actions button,
+.ai-market-top-action button{
+  transition:.25s ease;
+}
+
+.market-scan-card button:hover,
+.market-row-actions button:hover,
+.ai-market-top-action button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 22px rgba(240,185,11,.30);
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width:700px){
+
+  .ai-market-top-action button{
+    width:100%;
+  }
+
+}
