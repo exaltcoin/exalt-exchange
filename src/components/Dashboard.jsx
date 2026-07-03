@@ -1,6 +1,7 @@
 import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { useI18n } from "../i18n";
 function Dashboard({ setPage }) {
   const { t } = useI18n();
@@ -147,7 +148,11 @@ const [rewardStats, setRewardStats] = useState({
     <>
       <div className="mobile-home-view">
         <div className="mobile-topbar">
+          <div className="mobile-language-box">
+  <LanguageSwitcher />
+</div>
           <div className="mobile-avatar">E</div>
+          <LanguageSwitcher />
 
           <div className="mobile-tabs">
             <span className="active">Exchange</span>

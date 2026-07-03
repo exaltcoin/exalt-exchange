@@ -488,3 +488,16 @@
   margin-top: 8px;
   font-size: 12px;
 }
+.mobile-language-box {
+  margin: 14px 0;
+  width: 100%;
+}
+
+.mobile-language-box .language-box {
+  width: 100%;
+}
+
+.mobile-language-box .language-select {
+  width: 100%;
+  min-height: 44px;
+}
