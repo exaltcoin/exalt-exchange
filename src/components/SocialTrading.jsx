@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import PageShell from "./PageShell";
+import { useI18n } from "../i18n";
 import "./SocialTrading.css";
 
 const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
 export default function SocialTrading() {
+  const { t } = useI18n();
+
   const [posts, setPosts] = useState([]);
   const [topTraders, setTopTraders] = useState([]);
   const [myProfile, setMyProfile] = useState(null);
@@ -24,7 +28,7 @@ export default function SocialTrading() {
   const authHeaders = useMemo(
     () => ({
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token || ""}`,
       },
     }),
     [token]
@@ -45,7 +49,7 @@ export default function SocialTrading() {
       setTopTraders(tradersRes.data?.traders || []);
       setMyProfile(profileRes.data?.profile || null);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load Social Trading");
+      setError(err.response?.data?.message || t("failedLoadSocialTrading"));
     } finally {
       setLoading(false);
     }
@@ -55,21 +59,14 @@ export default function SocialTrading() {
     fetchSocialData();
   }, []);
 
-  const totalLikes = posts.reduce(
-    (sum, post) => sum + (post.likes?.length || 0),
-    0
-  );
-
-  const totalComments = posts.reduce(
-    (sum, post) => sum + (post.comments?.length || 0),
-    0
-  );
+  const totalLikes = posts.reduce((sum, post) => sum + (post.likes?.length || 0), 0);
+  const totalComments = posts.reduce((sum, post) => sum + (post.comments?.length || 0), 0);
 
   const createPost = async (e) => {
     e.preventDefault();
 
     if (!content.trim()) {
-      alert("Please write something before posting.");
+      alert(t("writeBeforePosting"));
       return;
     }
 
@@ -78,12 +75,7 @@ export default function SocialTrading() {
 
       const res = await axios.post(
         `${API_BASE}/api/social/posts`,
-        {
-          content,
-          pair,
-          tradeType,
-          sentiment,
-        },
+        { content, pair, tradeType, sentiment },
         authHeaders
       );
 
@@ -93,7 +85,7 @@ export default function SocialTrading() {
       setTradeType("General");
       setSentiment("Neutral");
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to create post");
+      alert(err.response?.data?.message || t("failedCreatePost"));
     } finally {
       setPosting(false);
     }
@@ -104,13 +96,12 @@ export default function SocialTrading() {
       await axios.put(`${API_BASE}/api/social/posts/${postId}/like`, {}, authHeaders);
       fetchSocialData();
     } catch (err) {
-      alert(err.response?.data?.message || "Like failed");
+      alert(err.response?.data?.message || t("likeFailed"));
     }
   };
 
   const addComment = async (postId) => {
     const text = commentText[postId];
-
     if (!text?.trim()) return;
 
     try {
@@ -123,7 +114,7 @@ export default function SocialTrading() {
       setCommentText((prev) => ({ ...prev, [postId]: "" }));
       fetchSocialData();
     } catch (err) {
-      alert(err.response?.data?.message || "Comment failed");
+      alert(err.response?.data?.message || t("commentFailed"));
     }
   };
 
@@ -132,297 +123,218 @@ export default function SocialTrading() {
       await axios.put(`${API_BASE}/api/social/follow/${userId}`, {}, authHeaders);
       fetchSocialData();
     } catch (err) {
-      alert(err.response?.data?.message || "Follow failed");
+      alert(err.response?.data?.message || t("followFailed"));
     }
   };
 
   if (loading) {
     return (
-      <div className="social-page">
-        <div className="social-loading">Loading Social Trading...</div>
-      </div>
+      <PageShell titleKey="socialTrading" subtitleKey="socialTradingSubtitle">
+        <div className="social-page">
+          <div className="social-loading">{t("loadingSocialTrading")}</div>
+        </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="social-page">
-      <div className="social-header">
-        <div>
-          <h1>Social Trading</h1>
-          <p>
-            Follow expert traders, share market ideas, view signals and grow with
-            the EXALT trading community.
-          </p>
+    <PageShell titleKey="socialTrading" subtitleKey="socialTradingSubtitle">
+      <div className="social-page">
+        <div className="social-top-action">
+          <button className="refresh-social-btn" onClick={fetchSocialData}>
+            {t("refresh")}
+          </button>
         </div>
 
-        <button className="refresh-social-btn" onClick={fetchSocialData}>
-          Refresh
-        </button>
-      </div>
+        {error && <div className="social-error">{error}</div>}
 
-      {error && <div className="social-error">{error}</div>}
-
-      <div className="social-stats">
-        <div>
-          <span>Total Traders</span>
-          <h2>{topTraders.length}</h2>
+        <div className="social-stats">
+          <div><span>{t("totalTraders")}</span><h2>{topTraders.length}</h2></div>
+          <div><span>{t("communityPosts")}</span><h2>{posts.length}</h2></div>
+          <div><span>{t("totalLikes")}</span><h2>{totalLikes}</h2></div>
+          <div><span>{t("totalComments")}</span><h2>{totalComments}</h2></div>
         </div>
 
-        <div>
-          <span>Community Posts</span>
-          <h2>{posts.length}</h2>
+        <div className="social-tabs">
+          <button className={activeTab === "feed" ? "active" : ""} onClick={() => setActiveTab("feed")}>
+            {t("communityFeed")}
+          </button>
+          <button className={activeTab === "leaders" ? "active" : ""} onClick={() => setActiveTab("leaders")}>
+            {t("topTraders")}
+          </button>
+          <button className={activeTab === "profile" ? "active" : ""} onClick={() => setActiveTab("profile")}>
+            {t("myTraderProfile")}
+          </button>
         </div>
 
-        <div>
-          <span>Total Likes</span>
-          <h2>{totalLikes}</h2>
-        </div>
+        <div className="social-layout">
+          <div className="feed">
+            {activeTab === "feed" && (
+              <>
+                <div className="create-post-card">
+                  <h2>{t("createSignalPost")}</h2>
 
-        <div>
-          <span>Total Comments</span>
-          <h2>{totalComments}</h2>
-        </div>
-      </div>
+                  <form onSubmit={createPost}>
+                    <textarea
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      placeholder={t("shareMarketViewPlaceholder")}
+                    />
 
-      <div className="social-tabs">
-        <button
-          className={activeTab === "feed" ? "active" : ""}
-          onClick={() => setActiveTab("feed")}
-        >
-          Community Feed
-        </button>
+                    <div className="post-input-grid">
+                      <select value={pair} onChange={(e) => setPair(e.target.value)}>
+                        <option>BTC/USDT</option>
+                        <option>ETH/USDT</option>
+                        <option>BNB/USDT</option>
+                        <option>EXALT/USDT</option>
+                        <option>SOL/USDT</option>
+                      </select>
 
-        <button
-          className={activeTab === "leaders" ? "active" : ""}
-          onClick={() => setActiveTab("leaders")}
-        >
-          Top Traders
-        </button>
+                      <select value={tradeType} onChange={(e) => setTradeType(e.target.value)}>
+                        <option>General</option>
+                        <option>Spot</option>
+                        <option>Futures</option>
+                        <option>P2P</option>
+                      </select>
 
-        <button
-          className={activeTab === "profile" ? "active" : ""}
-          onClick={() => setActiveTab("profile")}
-        >
-          My Trader Profile
-        </button>
-      </div>
+                      <select value={sentiment} onChange={(e) => setSentiment(e.target.value)}>
+                        <option>Neutral</option>
+                        <option>Bullish</option>
+                        <option>Bearish</option>
+                      </select>
+                    </div>
 
-      <div className="social-layout">
-        <div className="feed">
-          {activeTab === "feed" && (
-            <>
-              <div className="create-post-card">
-                <h2>Create Signal / Market Post</h2>
+                    <button type="submit" disabled={posting}>
+                      {posting ? t("posting") : t("publishPost")}
+                    </button>
+                  </form>
+                </div>
 
-                <form onSubmit={createPost}>
-                  <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Share market view, trading setup, EXALT update or signal..."
-                  />
+                <h2>{t("communityFeed")}</h2>
 
-                  <div className="post-input-grid">
-                    <select value={pair} onChange={(e) => setPair(e.target.value)}>
-                      <option>BTC/USDT</option>
-                      <option>ETH/USDT</option>
-                      <option>BNB/USDT</option>
-                      <option>EXALT/USDT</option>
-                      <option>SOL/USDT</option>
-                    </select>
+                {posts.length === 0 ? (
+                  <div className="empty-social">{t("noPostsYet")}</div>
+                ) : (
+                  posts.map((post) => (
+                    <div className="feed-card" key={post._id}>
+                      <div className="feed-head">
+                        <div className="avatar">
+                          {post.trader?.name?.charAt(0)?.toUpperCase() || "T"}
+                        </div>
 
-                    <select
-                      value={tradeType}
-                      onChange={(e) => setTradeType(e.target.value)}
-                    >
-                      <option>General</option>
-                      <option>Spot</option>
-                      <option>Futures</option>
-                      <option>P2P</option>
-                    </select>
-
-                    <select
-                      value={sentiment}
-                      onChange={(e) => setSentiment(e.target.value)}
-                    >
-                      <option>Neutral</option>
-                      <option>Bullish</option>
-                      <option>Bearish</option>
-                    </select>
-                  </div>
-
-                  <button type="submit" disabled={posting}>
-                    {posting ? "Posting..." : "Publish Post"}
-                  </button>
-                </form>
-              </div>
-
-              <h2>Community Feed</h2>
-
-              {posts.length === 0 ? (
-                <div className="empty-social">No posts yet.</div>
-              ) : (
-                posts.map((post) => (
-                  <div className="feed-card" key={post._id}>
-                    <div className="feed-head">
-                      <div className="avatar">
-                        {post.trader?.name?.charAt(0)?.toUpperCase() || "T"}
+                        <div>
+                          <h3>{post.trader?.name || t("trader")}</h3>
+                          <p>{post.trader?.email || t("exaltTrader")}</p>
+                        </div>
                       </div>
 
-                      <div>
-                        <h3>{post.trader?.name || "Trader"}</h3>
-                        <p>{post.trader?.email || "EXALT Trader"}</p>
+                      <div className="signal-box-social">
+                        <span>{post.tradeType || "General"} • {post.pair || "BTC/USDT"}</span>
+                        <strong>{post.content}</strong>
+                        <small className={`sentiment-tag ${String(post.sentiment || "neutral").toLowerCase()}`}>
+                          {post.sentiment || t("neutral")}
+                        </small>
                       </div>
-                    </div>
 
-                    <div className="signal-box-social">
-                      <span>
-                        {post.tradeType || "General"} • {post.pair || "BTC/USDT"}
-                      </span>
-
-                      <strong>{post.content}</strong>
-
-                      <small
-                        className={`sentiment-tag ${String(
-                          post.sentiment || "neutral"
-                        ).toLowerCase()}`}
-                      >
-                        {post.sentiment || "Neutral"}
-                      </small>
-                    </div>
-
-                    <div className="feed-metrics">
-                      <span>❤️ {post.likes?.length || 0}</span>
-                      <span>💬 {post.comments?.length || 0}</span>
-                      <span>
-                        {new Date(post.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-
-                    <div className="feed-actions">
-                      <button onClick={() => toggleLike(post._id)}>Like</button>
-                      <button onClick={() => followTrader(post.trader?._id)}>
-                        Follow
-                      </button>
-                    </div>
-
-                    <div className="comment-box">
-                      <input
-                        value={commentText[post._id] || ""}
-                        onChange={(e) =>
-                          setCommentText((prev) => ({
-                            ...prev,
-                            [post._id]: e.target.value,
-                          }))
-                        }
-                        placeholder="Write a comment..."
-                      />
-
-                      <button onClick={() => addComment(post._id)}>Send</button>
-                    </div>
-
-                    {post.comments?.length > 0 && (
-                      <div className="comments-list">
-                        {post.comments.slice(-3).map((comment) => (
-                          <p key={comment._id}>
-                            <b>{comment.user?.name || "User"}:</b> {comment.text}
-                          </p>
-                        ))}
+                      <div className="feed-metrics">
+                        <span>❤️ {post.likes?.length || 0}</span>
+                        <span>💬 {post.comments?.length || 0}</span>
+                        <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                       </div>
-                    )}
+
+                      <div className="feed-actions">
+                        <button onClick={() => toggleLike(post._id)}>{t("like")}</button>
+                        <button onClick={() => followTrader(post.trader?._id)}>{t("follow")}</button>
+                      </div>
+
+                      <div className="comment-box">
+                        <input
+                          value={commentText[post._id] || ""}
+                          onChange={(e) =>
+                            setCommentText((prev) => ({
+                              ...prev,
+                              [post._id]: e.target.value,
+                            }))
+                          }
+                          placeholder={t("writeComment")}
+                        />
+
+                        <button onClick={() => addComment(post._id)}>{t("send")}</button>
+                      </div>
+
+                      {post.comments?.length > 0 && (
+                        <div className="comments-list">
+                          {post.comments.slice(-3).map((comment) => (
+                            <p key={comment._id}>
+                              <b>{comment.user?.name || t("user")}:</b> {comment.text}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </>
+            )}
+
+            {activeTab === "leaders" && (
+              <div className="leaderboard full">
+                <h2>{t("topTradersLeaderboard")}</h2>
+
+                {topTraders.length === 0 ? (
+                  <div className="empty-social">{t("noTradersFound")}</div>
+                ) : (
+                  topTraders.map((trader, index) => (
+                    <div className="leader-row" key={trader._id}>
+                      <span>#{index + 1}</span>
+                      <strong>
+                        {trader.displayName || trader.user?.name || t("trader")}
+                        {trader.verifiedTrader && <em> {t("verified")}</em>}
+                      </strong>
+                      <b>{trader.roi || 0}% ROI</b>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {activeTab === "profile" && (
+              <div className="profile-card-social">
+                <h2>{t("myTraderProfile")}</h2>
+
+                <div className="profile-grid-social">
+                  <div>
+                    <span>{t("displayName")}</span>
+                    <strong>{myProfile?.displayName || myProfile?.user?.name || t("exaltTrader")}</strong>
                   </div>
-                ))
-              )}
-            </>
-          )}
 
-          {activeTab === "leaders" && (
-            <div className="leaderboard full">
-              <h2>Top Traders Leaderboard</h2>
-
-              {topTraders.length === 0 ? (
-                <div className="empty-social">No traders found.</div>
-              ) : (
-                topTraders.map((trader, index) => (
-                  <div className="leader-row" key={trader._id}>
-                    <span>#{index + 1}</span>
-
-                    <strong>
-                      {trader.displayName || trader.user?.name || "Trader"}
-                      {trader.verifiedTrader && <em> Verified</em>}
-                    </strong>
-
-                    <b>{trader.roi || 0}% ROI</b>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {activeTab === "profile" && (
-            <div className="profile-card-social">
-              <h2>My Trader Profile</h2>
-
-              <div className="profile-grid-social">
-                <div>
-                  <span>Display Name</span>
-                  <strong>
-                    {myProfile?.displayName ||
-                      myProfile?.user?.name ||
-                      "EXALT Trader"}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>ROI</span>
-                  <strong>{myProfile?.roi || 0}%</strong>
-                </div>
-
-                <div>
-                  <span>Win Rate</span>
-                  <strong>{myProfile?.winRate || 0}%</strong>
-                </div>
-
-                <div>
-                  <span>Followers</span>
-                  <strong>{myProfile?.followers?.length || 0}</strong>
-                </div>
-
-                <div>
-                  <span>Risk Level</span>
-                  <strong>{myProfile?.riskLevel || "Low"}</strong>
-                </div>
-
-                <div>
-                  <span>Status</span>
-                  <strong>
-                    {myProfile?.verifiedTrader ? "Verified" : "Pending"}
-                  </strong>
+                  <div><span>ROI</span><strong>{myProfile?.roi || 0}%</strong></div>
+                  <div><span>{t("winRate")}</span><strong>{myProfile?.winRate || 0}%</strong></div>
+                  <div><span>{t("followers")}</span><strong>{myProfile?.followers?.length || 0}</strong></div>
+                  <div><span>{t("riskLevel")}</span><strong>{myProfile?.riskLevel || t("low")}</strong></div>
+                  <div><span>{t("status")}</span><strong>{myProfile?.verifiedTrader ? t("verified") : t("pending")}</strong></div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        <div className="leaderboard">
-          <h2>Top Traders</h2>
+          <div className="leaderboard">
+            <h2>{t("topTraders")}</h2>
 
-          {topTraders.length === 0 ? (
-            <div className="empty-social small">No traders</div>
-          ) : (
-            topTraders.slice(0, 8).map((trader, index) => (
-              <div className="leader-row" key={trader._id}>
-                <span>#{index + 1}</span>
-
-                <strong>
-                  {trader.displayName || trader.user?.name || "Trader"}
-                </strong>
-
-                <b>{trader.roi || 0}%</b>
-              </div>
-            ))
-          )}
+            {topTraders.length === 0 ? (
+              <div className="empty-social small">{t("noTraders")}</div>
+            ) : (
+              topTraders.slice(0, 8).map((trader, index) => (
+                <div className="leader-row" key={trader._id}>
+                  <span>#{index + 1}</span>
+                  <strong>{trader.displayName || trader.user?.name || t("trader")}</strong>
+                  <b>{trader.roi || 0}%</b>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

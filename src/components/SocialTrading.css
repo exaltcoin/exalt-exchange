@@ -338,3 +338,91 @@ button:disabled {
     align-items: flex-start;
   }
 }
+html[dir="rtl"] .social-page,
+body.rtl .social-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .social-top-action,
+html[dir="rtl"] .social-tabs,
+html[dir="rtl"] .feed-head,
+html[dir="rtl"] .feed-actions,
+html[dir="rtl"] .feed-metrics,
+html[dir="rtl"] .leader-row,
+body.rtl .social-top-action,
+body.rtl .social-tabs,
+body.rtl .feed-head,
+body.rtl .feed-actions,
+body.rtl .feed-metrics,
+body.rtl .leader-row {
+  direction: rtl;
+}
+
+html[dir="rtl"] .leader-row em,
+body.rtl .leader-row em {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
+.social-top-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.social-stats div,
+.create-post-card,
+.feed,
+.leaderboard,
+.profile-card-social,
+.feed-card,
+.profile-grid-social div {
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
+
+.social-stats div,
+.feed-card,
+.leader-row,
+.profile-grid-social div,
+.refresh-social-btn,
+.create-post-card button,
+.feed-actions button,
+.comment-box button {
+  transition: .25s ease;
+}
+
+.social-stats div:hover,
+.feed-card:hover,
+.profile-grid-social div:hover {
+  transform: translateY(-3px);
+  border-color: #f0b90b;
+}
+
+.refresh-social-btn:hover,
+.create-post-card button:hover,
+.feed-actions button:hover,
+.comment-box button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(240,185,11,.3);
+}
+
+@media (max-width: 768px) {
+  .social-page {
+    padding: 14px;
+  }
+
+  .social-tabs button,
+  .refresh-social-btn,
+  .create-post-card button,
+  .feed-actions button,
+  .comment-box button {
+    width: 100%;
+  }
+
+  .feed-actions,
+  .comment-box {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}
