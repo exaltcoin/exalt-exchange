@@ -93,7 +93,7 @@ export default function AITradingAssistant() {
   const change24h = "+2.45%";
   const signalStrength = latest.confidence || 0;
   const lastUpdated = new Date().toLocaleTimeString();
-
+const coinLogo = selectedCoin.split("-")[0];
   const aiAlert =
     latest.signal === "buy"
       ? t("strongBuyOpportunity")
