@@ -1,0 +1,175 @@
+.buy-crypto-page {
+  padding: 24px;
+  min-height: 100vh;
+  color: #fff;
+  background: radial-gradient(circle at top, #1e293b 0%, #0f172a 45%, #020617 100%);
+}
+
+.buy-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  margin-bottom: 22px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(17,24,39,.94), rgba(8,13,24,.98));
+  border: 1px solid rgba(245,158,11,.25);
+  box-shadow: 0 18px 45px rgba(0,0,0,.35);
+}
+
+.buy-hero h1 {
+  margin: 0 0 8px;
+  color: #f59e0b;
+  font-size: 34px;
+}
+
+.buy-hero p {
+  margin: 0;
+  max-width: 720px;
+  color: #d1d5db;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.buy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.buy-card,
+.buy-note,
+.buy-security-box {
+  background: linear-gradient(145deg, rgba(17,24,39,.94), rgba(8,13,24,.98));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 18px 45px rgba(0,0,0,.35);
+}
+
+.buy-step {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(245,158,11,.15);
+  border: 1px solid rgba(245,158,11,.45);
+  color: #fbbf24;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.buy-card h2,
+.buy-note h3,
+.buy-security-box h3 {
+  margin: 0 0 10px;
+  color: #f59e0b;
+}
+
+.buy-card p,
+.buy-security-box p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.buy-card button,
+.copy-contract-btn,
+.action-btn.yellow-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #f59e0b, #f97316);
+  color: #111827;
+  font-weight: 900;
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.action-btn.yellow-btn {
+  width: auto;
+  min-width: 220px;
+}
+
+.buy-card button:hover,
+.copy-contract-btn:hover,
+.action-btn.yellow-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.buy-note {
+  margin-bottom: 22px;
+  border-color: rgba(245,158,11,.25);
+}
+
+.buy-note p {
+  word-break: break-all;
+  background: rgba(15,23,42,.9);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 14px;
+  border-radius: 14px;
+  color: #e5e7eb;
+  font-weight: 700;
+}
+
+.buy-security-box {
+  border-color: rgba(34,197,94,.22);
+}
+
+.buy-security-box h3 {
+  color: #22c55e;
+}
+
+html[dir="rtl"] .buy-hero,
+body.rtl .buy-hero {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .buy-card,
+html[dir="rtl"] .buy-note,
+html[dir="rtl"] .buy-security-box,
+body.rtl .buy-card,
+body.rtl .buy-note,
+body.rtl .buy-security-box {
+  direction: rtl;
+  text-align: right;
+}
+
+@media (max-width: 1000px) {
+  .buy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .buy-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .action-btn.yellow-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .buy-crypto-page {
+    padding: 14px;
+  }
+
+  .buy-hero {
+    padding: 18px;
+  }
+
+  .buy-hero h1 {
+    font-size: 26px;
+  }
+
+  .buy-card,
+  .buy-note,
+  .buy-security-box {
+    padding: 17px;
+  }
+}
