@@ -267,3 +267,63 @@ button:disabled {
     align-items: flex-start;
   }
 }
+html[dir="rtl"] .risk-page,
+body.rtl .risk-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .risk-top-action,
+html[dir="rtl"] .risk-score-top,
+html[dir="rtl"] .factor-row,
+body.rtl .risk-top-action,
+body.rtl .risk-score-top,
+body.rtl .factor-row {
+  direction: rtl;
+}
+
+.risk-top-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.risk-score-panel,
+.recommend-box,
+.risk-factors-box,
+.risk-history-box,
+.risk-loading,
+.risk-card {
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+}
+
+.risk-card,
+.risk-score-panel,
+.recommend-box,
+.risk-factors-box,
+.risk-history-box,
+.risk-header button,
+.recommend-box button {
+  transition: .25s ease;
+}
+
+.risk-card:hover,
+.risk-score-panel:hover,
+.recommend-box:hover,
+.risk-factors-box:hover,
+.risk-history-box:hover {
+  transform: translateY(-3px);
+  border-color: #f0b90b;
+}
+
+.risk-header button:hover,
+.recommend-box button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(240,185,11,.3);
+}
+
+@media (max-width: 700px) {
+  .risk-top-action button {
+    width: 100%;
+  }
+}
