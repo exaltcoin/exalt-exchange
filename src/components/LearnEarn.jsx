@@ -1,51 +1,68 @@
 import { useEffect, useState } from "react";
+import { useI18n } from "../i18n";
 import axios from "axios";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import "./LearnEarn.css";
+
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL ||
+  "https://exalt-real-backend-6b6v.onrender.com";
 
 export default function LearnEarn() {
+  const { t } = useI18n();
+
   const lessons = [
     {
       id: 1,
-      title: "Crypto Basics",
+      titleKey: "cryptoBasics",
       reward: 25,
-      level: "Beginner",
+      levelKey: "beginner",
       status: "Available",
-      videoTitle: "What is crypto and how exchanges work?",
+      videoTitleKey: "cryptoBasicsVideoTitle",
       videoUrl: "https://www.youtube.com/embed/SSo_EIwHSd4",
       duration: "5 min",
-      question: "What is the safest rule in crypto?",
-      options: ["Share private key", "Use unknown links", "Protect wallet keys"],
-      answer: "Protect wallet keys",
+      questionKey: "cryptoBasicsQuestion",
+      options: [
+        { key: "sharePrivateKey", value: "sharePrivateKey" },
+        { key: "useUnknownLinks", value: "useUnknownLinks" },
+        { key: "protectWalletKeys", value: "protectWalletKeys" },
+      ],
+      answer: "protectWalletKeys",
     },
     {
       id: 2,
-      title: "P2P Safety",
+      titleKey: "p2pSafety",
       reward: 40,
-      level: "Beginner",
+      levelKey: "beginner",
       status: "Available",
-      videoTitle: "How to trade safely with P2P users",
+      videoTitleKey: "p2pSafetyVideoTitle",
       videoUrl: "https://www.youtube.com/embed/9g8N0yJmY4U",
       duration: "7 min",
-      question: "When should you release crypto in P2P?",
-      options: ["Before payment", "After confirmed payment", "Any time"],
-      answer: "After confirmed payment",
+      questionKey: "p2pSafetyQuestion",
+      options: [
+        { key: "beforePayment", value: "beforePayment" },
+        { key: "afterConfirmedPayment", value: "afterConfirmedPayment" },
+        { key: "anyTime", value: "anyTime" },
+      ],
+      answer: "afterConfirmedPayment",
     },
     {
       id: 3,
-      title: "Staking Guide",
+      titleKey: "stakingGuide",
       reward: 50,
-      level: "Intermediate",
+      levelKey: "intermediate",
       status: "Locked",
-      videoTitle: "How staking rewards work",
+      videoTitleKey: "stakingGuideVideoTitle",
       videoUrl: "https://www.youtube.com/embed/UjA8W3M5l6Q",
       duration: "10 min",
-      question: "What does staking mean?",
-      options: ["Lock tokens for rewards", "Delete tokens", "Send tokens away"],
-      answer: "Lock tokens for rewards",
+      questionKey: "stakingGuideQuestion",
+      options: [
+        { key: "lockTokensForRewards", value: "lockTokensForRewards" },
+        { key: "deleteTokens", value: "deleteTokens" },
+        { key: "sendTokensAway", value: "sendTokensAway" },
+      ],
+      answer: "lockTokensForRewards",
     },
   ];
 
@@ -66,18 +83,28 @@ export default function LearnEarn() {
   const streak = completed.length > 0 ? completed.length : 0;
 
   const achievements = [];
-  if (completed.length >= 1) achievements.push("🏆 First Lesson");
-  if (completed.length >= 2) achievements.push("🎯 Learner");
-  if (completed.length >= lessons.length) achievements.push("👑 Master");
+  if (completed.length >= 1) achievements.push(t("firstLesson"));
+  if (completed.length >= 2) achievements.push(t("learnerAchievement"));
+  if (completed.length >= lessons.length) achievements.push(t("masterAchievement"));
+
+  const categoryMap = {
+    All: t("all"),
+    Beginner: t("beginner"),
+    Intermediate: t("intermediate"),
+    Advanced: t("advanced"),
+  };
 
   const filteredLessons = lessons.filter((lesson) => {
-    const matchSearch = lesson.title.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = category === "All" || lesson.level === category;
+    const title = t(lesson.titleKey).toLowerCase();
+    const matchSearch = title.includes(search.toLowerCase());
+    const matchCategory =
+      category === "All" || t(lesson.levelKey) === categoryMap[category];
+
     return matchSearch && matchCategory;
   });
 
   const leaderboard = [
-    { name: "You", xp },
+    { name: t("you"), xp },
     { name: "Rehan", xp: 900 },
     { name: "Ali", xp: 700 },
     { name: "Ahmed", xp: 500 },
@@ -86,7 +113,9 @@ export default function LearnEarn() {
   const recentActivity = completed
     .map((id) => {
       const lesson = lessons.find((l) => l.id === id);
-      return lesson ? `✅ ${lesson.title} Completed +${lesson.reward} EXALT` : null;
+      return lesson
+        ? `✅ ${t(lesson.titleKey)} ${t("completed")} +${lesson.reward} EXALT`
+        : null;
     })
     .filter(Boolean);
 
@@ -95,7 +124,7 @@ export default function LearnEarn() {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(`${API}/api/learnearn`, {
+      const res = await axios.get(`${API_BASE}/api/learnearn`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -116,16 +145,17 @@ export default function LearnEarn() {
 
   const claimDailyReward = () => {
     if (dailyClaimed) return;
+
     localStorage.setItem("learnDailyClaimed", new Date().toDateString());
     setDailyClaimed(true);
-    alert("🎁 Daily Reward Claimed: 5 EXALT");
+    alert(t("dailyRewardClaimed"));
   };
 
   const downloadCertificate = async () => {
     const userName =
       localStorage.getItem("name") ||
       localStorage.getItem("email") ||
-      "Exalt Exchange User";
+      t("exaltExchangeUser");
 
     const today = new Date().toLocaleDateString();
     const certificateId = `EXALT-${Date.now()}`;
@@ -194,22 +224,22 @@ export default function LearnEarn() {
 
       if (selectedAnswer !== activeLesson.answer) {
         setQuizResult("wrong");
-        alert("Wrong answer. Please try again.");
+        alert(t("wrongAnswerTryAgain"));
         return;
       }
 
       const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("Please login first");
+        alert(t("pleaseLoginFirst"));
         return;
       }
 
       const res = await axios.post(
-        `${API}/api/learnearn/complete`,
+        `${API_BASE}/api/learnearn/complete`,
         {
           lessonId: activeLesson.id,
-          title: activeLesson.title,
+          title: t(activeLesson.titleKey),
           reward: activeLesson.reward,
           answer: selectedAnswer,
         },
@@ -220,221 +250,290 @@ export default function LearnEarn() {
 
       if (res.data.success) {
         setQuizResult("correct");
-        alert(`${activeLesson.reward} EXALT reward completed`);
+        alert(`${activeLesson.reward} EXALT ${t("rewardCompleted")}`);
         await loadProgress();
         setActiveLesson(null);
         setSelectedAnswer("");
       } else {
-        alert(res.data.message || "Reward failed");
+        alert(res.data.message || t("rewardFailed"));
       }
     } catch (err) {
       console.log(err);
-      alert(err.response?.data?.message || "Server error");
+      alert(err.response?.data?.message || t("serverError"));
     }
   };
-
   return (
-    <div className="learn-page">
-      <div className="learn-header">
-        <h1>Learn & Earn</h1>
-        <p>Watch lessons, complete quizzes, and earn EXALT rewards.</p>
+  <div className="learn-page">
+    <div className="learn-header">
+      <h1>{t("learnEarn")}</h1>
+      <p>{t("learnEarnSubtitle")}</p>
+    </div>
+
+    <div className="learn-stats">
+      <div className="learn-card">
+        <span>{t("totalRewards")}</span>
+        <h2>{totalRewards} EXALT</h2>
       </div>
 
-      <div className="learn-stats">
-        <div className="learn-card">
-          <span>Total Rewards</span>
-          <h2>{totalRewards} EXALT</h2>
-        </div>
-
-        <div className="learn-card">
-          <span>Completed Tasks</span>
-          <h2>{completed.length} / {lessons.length}</h2>
-        </div>
-
-        <div className="learn-card">
-          <span>Learning Level</span>
-          <h2>{completed.length >= 2 ? "Intermediate" : "Beginner"}</h2>
-        </div>
+      <div className="learn-card">
+        <span>{t("completedTasks")}</span>
+        <h2>{completed.length} / {lessons.length}</h2>
       </div>
 
-      <div className="learn-progress-box">
-        <div className="learn-progress-info">
-          <span>Learning Progress</span>
-          <strong>{progressPercent}%</strong>
-        </div>
+      <div className="learn-card">
+        <span>{t("learningLevel")}</span>
+        <h2>
+          {completed.length >= 2
+            ? t("intermediate")
+            : t("beginner")}
+        </h2>
+      </div>
+    </div>
 
-        <div className="learn-progress-bar">
-          <div className="learn-progress-fill" style={{ width: `${progressPercent}%` }}></div>
-        </div>
-
-        <div className="xp-info">
-          <span>XP Points</span>
-          <strong>{xp} XP</strong>
-        </div>
-
-        <div className="streak-info">
-          <span>Daily Streak</span>
-          <strong>🔥 {streak} Days</strong>
-        </div>
-
-        <div className="achievement-box">
-          <span>Achievements</span>
-          <div className="achievement-list">
-            {achievements.length === 0 ? (
-              <small>No achievements yet</small>
-            ) : (
-              achievements.map((item, index) => <strong key={index}>{item}</strong>)
-            )}
-          </div>
-        </div>
+    <div className="learn-progress-box">
+      <div className="learn-progress-info">
+        <span>{t("learningProgress")}</span>
+        <strong>{progressPercent}%</strong>
       </div>
 
-      {completed.length === lessons.length && (
-        <button className="certificate-btn" onClick={downloadCertificate}>
-          🏆 Download Certificate
-        </button>
-      )}
-
-      <div className="learn-tools">
-        <input
-          className="lesson-search"
-          placeholder="Search lessons..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+      <div className="learn-progress-bar">
+        <div
+          className="learn-progress-fill"
+          style={{ width: `${progressPercent}%` }}
         />
-
-        <div className="lesson-tabs">
-          {["All", "Beginner", "Intermediate", "Advanced"].map((item) => (
-            <button
-              key={item}
-              className={category === item ? "active-tab" : ""}
-              onClick={() => setCategory(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
       </div>
 
-      <div className="daily-reward-box">
-        <div>
-          <h3>🎁 Daily Reward</h3>
-          <p>Claim 5 EXALT every day.</p>
-        </div>
-        <button onClick={claimDailyReward} disabled={dailyClaimed}>
-          {dailyClaimed ? "Claimed Today" : "Claim 5 EXALT"}
-        </button>
+      <div className="xp-info">
+        <span>{t("xpPoints")}</span>
+        <strong>{xp} XP</strong>
       </div>
 
-      <div className="learn-extra-grid">
-        <div className="leaderboard-box">
-          <h3>🏆 Top Learners</h3>
-          {leaderboard.map((user, index) => (
-            <div className="leader-row" key={index}>
-              <span>#{index + 1} {user.name}</span>
-              <strong>{user.xp} XP</strong>
-            </div>
-          ))}
-        </div>
+      <div className="streak-info">
+        <span>{t("dailyStreak")}</span>
+        <strong>🔥 {streak} {t("days")}</strong>
+      </div>
 
-        <div className="activity-box">
-          <h3>Recent Activity</h3>
-          {recentActivity.length === 0 ? (
-            <p>No activity yet</p>
+      <div className="achievement-box">
+        <span>{t("achievements")}</span>
+
+        <div className="achievement-list">
+          {achievements.length === 0 ? (
+            <small>{t("noAchievements")}</small>
           ) : (
-            recentActivity.map((item, index) => <p key={index}>{item}</p>)
+            achievements.map((item, index) => (
+              <strong key={index}>{item}</strong>
+            ))
           )}
         </div>
       </div>
+    </div>
 
-      <div className="lesson-grid">
-        {filteredLessons.map((lesson) => {
-          const isCompleted = completed.includes(lesson.id);
-          const isLocked = lesson.status === "Locked" && completed.length < 2;
+    {completed.length === lessons.length && (
+      <button
+        className="certificate-btn"
+        onClick={downloadCertificate}
+      >
+        🏆 {t("downloadCertificate")}
+      </button>
+    )}
 
-          return (
-            <div className="lesson-card" key={lesson.id}>
-              <div className="video-box">▶️</div>
+    <div className="learn-tools">
+      <input
+        className="lesson-search"
+        placeholder={t("searchLessons")}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
 
-              <h3>{lesson.title}</h3>
-              <p>Reward: {lesson.reward} EXALT</p>
-              <p>Level: {lesson.level}</p>
-              <p>Duration: {lesson.duration}</p>
+      <div className="lesson-tabs">
+        {["All", "Beginner", "Intermediate", "Advanced"].map((item) => (
+          <button
+            key={item}
+            className={category === item ? "active-tab" : ""}
+            onClick={() => setCategory(item)}
+          >
+            {categoryMap[item]}
+          </button>
+        ))}
+      </div>
+    </div>
 
-              {isCompleted && <span className="completed-badge">Completed</span>}
-
-              <button
-                className={isLocked ? "locked-btn" : "start-btn"}
-                disabled={isLocked}
-                onClick={() => startLesson(lesson)}
-              >
-                {isLocked ? "Locked" : isCompleted ? "View Again" : "Start Lesson"}
-              </button>
-            </div>
-          );
-        })}
+    <div className="daily-reward-box">
+      <div>
+        <h3>🎁 {t("dailyReward")}</h3>
+        <p>{t("claimDailyRewardDesc")}</p>
       </div>
 
-      {activeLesson && (
-        <div className="lesson-modal">
-          <div className="lesson-modal-content">
-            <button className="close-btn" onClick={() => setActiveLesson(null)}>
-              ×
+      <button
+        onClick={claimDailyReward}
+        disabled={dailyClaimed}
+      >
+        {dailyClaimed
+          ? t("claimedToday")
+          : t("claim5Exalt")}
+      </button>
+    </div>
+
+    <div className="learn-extra-grid">
+      <div className="leaderboard-box">
+        <h3>🏆 {t("topLearners")}</h3>
+
+        {leaderboard.map((user, index) => (
+          <div
+            className="leader-row"
+            key={index}
+          >
+            <span>
+              #{index + 1} {user.name}
+            </span>
+
+            <strong>{user.xp} XP</strong>
+          </div>
+        ))}
+      </div>
+
+      <div className="activity-box">
+        <h3>{t("recentActivity")}</h3>
+
+        {recentActivity.length === 0 ? (
+          <p>{t("noActivityYet")}</p>
+        ) : (
+          recentActivity.map((item, index) => (
+            <p key={index}>{item}</p>
+          ))
+        )}
+      </div>
+    </div>
+
+    <div className="lesson-grid">
+      {filteredLessons.map((lesson) => {
+        const isCompleted = completed.includes(lesson.id);
+
+        const isLocked =
+          lesson.status === "Locked" &&
+          completed.length < 2;
+
+        return (
+          <div
+            className="lesson-card"
+            key={lesson.id}
+          >
+            <div className="video-box">▶️</div>
+
+            <h3>{t(lesson.titleKey)}</h3>
+
+            <p>
+              {t("reward")}: {lesson.reward} EXALT
+            </p>
+
+            <p>
+              {t("level")}: {t(lesson.levelKey)}
+            </p>
+
+            <p>
+              {t("duration")}: {lesson.duration}
+            </p>
+
+            {isCompleted && (
+              <span className="completed-badge">
+                {t("completed")}
+              </span>
+            )}
+
+            <button
+              className={
+                isLocked
+                  ? "locked-btn"
+                  : "start-btn"
+              }
+              disabled={isLocked}
+              onClick={() => startLesson(lesson)}
+            >
+              {isLocked
+                ? t("locked")
+                : isCompleted
+                ? t("viewAgain")
+                : t("startLesson")}
             </button>
+          </div>
+        );
+      })}
+    </div>
+    {activeLesson && (
+      <div className="lesson-modal">
+        <div className="lesson-modal-content">
+          <button
+            className="close-btn"
+            onClick={() => setActiveLesson(null)}
+          >
+            ×
+          </button>
 
-            <h2>{activeLesson.title}</h2>
+          <h2>{t(activeLesson.titleKey)}</h2>
 
-            <div className="video-player">
-              <iframe
-                width="100%"
-                height="300"
-                src={activeLesson.videoUrl}
-                title={activeLesson.videoTitle}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+          <div className="video-player">
+            <iframe
+              width="100%"
+              height="300"
+              src={activeLesson.videoUrl}
+              title={t(activeLesson.videoTitleKey)}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
 
-              <p>{activeLesson.videoTitle}</p>
-              <small className="video-duration">⏱ {activeLesson.duration}</small>
-            </div>
+            <p>{t(activeLesson.videoTitleKey)}</p>
+            <small className="video-duration">
+              ⏱ {activeLesson.duration}
+            </small>
+          </div>
 
-            <div className="quiz-box">
-              <h3>Quiz</h3>
-              <p>{activeLesson.question}</p>
+          <div className="quiz-box">
+            <h3>{t("quiz")}</h3>
+            <p>{t(activeLesson.questionKey)}</p>
 
-              {quizResult === "correct" && (
-                <div className="quiz-result success">
-                  ✅ Correct Answer! Reward added.
-                </div>
-              )}
+            {quizResult === "correct" && (
+              <div className="quiz-result success">
+                ✅ {t("correctAnswerRewardAdded")}
+              </div>
+            )}
 
-              {quizResult === "wrong" && (
-                <div className="quiz-result error">
-                  ❌ Wrong Answer. Try again.
-                </div>
-              )}
+            {quizResult === "wrong" && (
+              <div className="quiz-result error">
+                ❌ {t("wrongAnswerTryAgain")}
+              </div>
+            )}
 
-              {activeLesson.options.map((option) => (
-                <label className="quiz-option" key={option}>
-                  <input
-                    type="radio"
-                    name="quiz"
-                    value={option}
-                    checked={selectedAnswer === option}
-                    onChange={(e) => setSelectedAnswer(e.target.value)}
-                  />
-                  {option}
-                </label>
-              ))}
+            {activeLesson.options.map((option) => (
+              <label
+                className="quiz-option"
+                key={option.value}
+              >
+                <input
+                  type="radio"
+                  name="quiz"
+                  value={option.value}
+                  checked={selectedAnswer === option.value}
+                  onChange={(e) => setSelectedAnswer(e.target.value)}
+                />
 
-              <button className="claim-learn-btn" onClick={submitQuiz} disabled={loading}>
-                {loading ? "Submitting..." : "Submit Quiz & Claim Reward"}
-              </button>
-            </div>
+                {t(option.key)}
+              </label>
+            ))}
+
+            <button
+              className="claim-learn-btn"
+              onClick={submitQuiz}
+              disabled={loading}
+            >
+              {loading
+                ? t("submitting")
+                : t("submitQuizClaimReward")}
+            </button>
           </div>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
 }

@@ -445,3 +445,57 @@
     align-items: stretch;
   }
 }
+html[dir="rtl"] .learn-page,
+body.rtl .learn-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .learn-progress-info,
+html[dir="rtl"] .xp-info,
+html[dir="rtl"] .streak-info,
+html[dir="rtl"] .daily-reward-box,
+html[dir="rtl"] .leader-row,
+body.rtl .learn-progress-info,
+body.rtl .xp-info,
+body.rtl .streak-info,
+body.rtl .daily-reward-box,
+body.rtl .leader-row {
+  direction: rtl;
+}
+
+html[dir="rtl"] .close-btn,
+body.rtl .close-btn {
+  right: auto;
+  left: 16px;
+}
+
+html[dir="rtl"] .quiz-option input,
+body.rtl .quiz-option input {
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+@media (max-width: 768px) {
+  .learn-header h1 {
+    font-size: 26px;
+  }
+
+  .learn-card,
+  .lesson-card,
+  .learn-progress-box,
+  .learn-tools,
+  .daily-reward-box,
+  .leaderboard-box,
+  .activity-box {
+    padding: 16px;
+  }
+
+  .lesson-tabs button {
+    flex: 1;
+  }
+
+  .lesson-modal-content {
+    padding: 18px;
+  }
+}

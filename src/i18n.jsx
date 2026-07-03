@@ -325,6 +325,83 @@ unstakeFailed: "Unstake failed.",
 
 rewardsClaimedSuccessfully: "Rewards claimed successfully.",
 claimRewardsFailed: "Claim rewards failed.",
+learnEarn: "Learn & Earn",
+learnEarnSubtitle: "Watch lessons, complete quizzes and earn EXALT rewards.",
+
+totalRewards: "Total Rewards",
+completedTasks: "Completed Tasks",
+learningLevel: "Learning Level",
+learningProgress: "Learning Progress",
+
+xpPoints: "XP Points",
+dailyStreak: "Daily Streak",
+days: "Days",
+
+achievements: "Achievements",
+noAchievements: "No achievements yet",
+
+downloadCertificate: "Download Certificate",
+
+searchLessons: "Search lessons...",
+
+dailyReward: "Daily Reward",
+claimDailyRewardDesc: "Claim 5 EXALT every day.",
+claimedToday: "Claimed Today",
+claim5Exalt: "Claim 5 EXALT",
+
+topLearners: "Top Learners",
+recentActivity: "Recent Activity",
+noActivityYet: "No activity yet",
+
+reward: "Reward",
+level: "Level",
+duration: "Duration",
+
+completed: "Completed",
+locked: "Locked",
+viewAgain: "View Again",
+startLesson: "Start Lesson",
+
+quiz: "Quiz",
+
+correctAnswerRewardAdded: "Correct Answer! Reward added.",
+wrongAnswerTryAgain: "Wrong Answer. Try again.",
+
+submitting: "Submitting...",
+submitQuizClaimReward: "Submit Quiz & Claim Reward",
+
+beginner: "Beginner",
+intermediate: "Intermediate",
+advanced: "Advanced",
+
+cryptoBasics: "Crypto Basics",
+p2pSafety: "P2P Safety",
+stakingGuide: "Staking Guide",
+
+videoCryptoBasics: "What is crypto and how exchanges work?",
+videoP2PSafety: "How to trade safely with P2P users",
+videoStakingGuide: "How staking rewards work",
+
+questionCrypto:
+"What is the safest rule in crypto?",
+
+questionP2P:
+"When should you release crypto in P2P?",
+
+questionStaking:
+"What does staking mean?",
+
+optionPrivateKey: "Share private key",
+optionUnknownLinks: "Use unknown links",
+optionProtectWallet: "Protect wallet keys",
+
+optionBeforePayment: "Before payment",
+optionAfterPayment: "After confirmed payment",
+optionAnyTime: "Any time",
+
+optionLockTokens: "Lock tokens for rewards",
+optionDeleteTokens: "Delete tokens",
+optionSendTokens: "Send tokens away",
   },
 
   ar: {
@@ -631,6 +708,78 @@ unstakeFailed: "فشل إلغاء التكديس.",
 
 rewardsClaimedSuccessfully: "تم استلام المكافآت بنجاح.",
 claimRewardsFailed: "فشل استلام المكافآت.",
+learnEarn: "تعلّم واربح",
+learnEarnSubtitle: "شاهد الدروس وأكمل الاختبارات واربح عملات EXALT.",
+
+totalRewards: "إجمالي المكافآت",
+completedTasks: "الدروس المكتملة",
+learningLevel: "مستوى التعلم",
+learningProgress: "تقدم التعلم",
+
+xpPoints: "نقاط XP",
+dailyStreak: "السلسلة اليومية",
+days: "أيام",
+
+achievements: "الإنجازات",
+noAchievements: "لا توجد إنجازات",
+
+downloadCertificate: "تحميل الشهادة",
+
+searchLessons: "ابحث عن الدروس...",
+
+dailyReward: "المكافأة اليومية",
+claimDailyRewardDesc: "احصل على 5 EXALT يومياً.",
+claimedToday: "تم الاستلام اليوم",
+claim5Exalt: "استلم 5 EXALT",
+
+topLearners: "أفضل المتعلمين",
+recentActivity: "آخر النشاطات",
+noActivityYet: "لا يوجد نشاط",
+
+reward: "المكافأة",
+level: "المستوى",
+duration: "المدة",
+
+completed: "مكتمل",
+locked: "مغلق",
+viewAgain: "إعادة المشاهدة",
+startLesson: "ابدأ الدرس",
+
+quiz: "الاختبار",
+
+correctAnswerRewardAdded: "إجابة صحيحة! تمت إضافة المكافأة.",
+wrongAnswerTryAgain: "إجابة خاطئة، حاول مرة أخرى.",
+
+submitting: "جارٍ الإرسال...",
+submitQuizClaimReward: "إرسال الاختبار واستلام المكافأة",
+
+beginner: "مبتدئ",
+intermediate: "متوسط",
+advanced: "متقدم",
+
+cryptoBasics: "أساسيات العملات الرقمية",
+p2pSafety: "أمان P2P",
+stakingGuide: "دليل الستيكينغ",
+
+videoCryptoBasics: "ما هي العملات الرقمية وكيف تعمل المنصات؟",
+videoP2PSafety: "كيفية التداول الآمن عبر P2P",
+videoStakingGuide: "كيف تعمل مكافآت الستيكينغ",
+
+questionCrypto: "ما هي أكثر قاعدة أماناً في العملات الرقمية؟",
+questionP2P: "متى يجب تحرير العملات في P2P؟",
+questionStaking: "ماذا يعني Staking؟",
+
+optionPrivateKey: "مشاركة المفتاح الخاص",
+optionUnknownLinks: "استخدام روابط مجهولة",
+optionProtectWallet: "حماية مفاتيح المحفظة",
+
+optionBeforePayment: "قبل الدفع",
+optionAfterPayment: "بعد تأكيد الدفع",
+optionAnyTime: "في أي وقت",
+
+optionLockTokens: "قفل العملات مقابل مكافآت",
+optionDeleteTokens: "حذف العملات",
+optionSendTokens: "إرسال العملات",
   },
 
   ur: {
@@ -949,6 +1098,78 @@ unstakeFailed: "اَن اسٹیک ناکام ہوگیا۔",
 
 rewardsClaimedSuccessfully: "ریوارڈ کامیابی سے حاصل ہوگیا۔",
 claimRewardsFailed: "ریوارڈ حاصل نہیں ہوسکا۔",
+learnEarn: "لرن اینڈ ارن",
+learnEarnSubtitle: "ویڈیوز دیکھیں، کوئز مکمل کریں اور EXALT انعام حاصل کریں۔",
+
+totalRewards: "کل انعامات",
+completedTasks: "مکمل اسباق",
+learningLevel: "سیکھنے کی سطح",
+learningProgress: "سیکھنے کی پیشرفت",
+
+xpPoints: "XP پوائنٹس",
+dailyStreak: "ڈیلی اسٹریک",
+days: "دن",
+
+achievements: "اچیومنٹس",
+noAchievements: "ابھی کوئی اچیومنٹ نہیں",
+
+downloadCertificate: "سرٹیفکیٹ ڈاؤن لوڈ کریں",
+
+searchLessons: "اسباق تلاش کریں...",
+
+dailyReward: "روزانہ انعام",
+claimDailyRewardDesc: "روزانہ 5 EXALT حاصل کریں۔",
+claimedToday: "آج وصول ہو چکا",
+claim5Exalt: "5 EXALT حاصل کریں",
+
+topLearners: "ٹاپ لرنرز",
+recentActivity: "حالیہ سرگرمی",
+noActivityYet: "ابھی کوئی سرگرمی نہیں",
+
+reward: "انعام",
+level: "لیول",
+duration: "دورانیہ",
+
+completed: "مکمل",
+locked: "لاک",
+viewAgain: "دوبارہ دیکھیں",
+startLesson: "سبق شروع کریں",
+
+quiz: "کوئز",
+
+correctAnswerRewardAdded: "صحیح جواب! انعام شامل کر دیا گیا۔",
+wrongAnswerTryAgain: "غلط جواب، دوبارہ کوشش کریں۔",
+
+submitting: "جمع کیا جا رہا ہے...",
+submitQuizClaimReward: "کوئز جمع کریں اور انعام حاصل کریں",
+
+beginner: "ابتدائی",
+intermediate: "درمیانہ",
+advanced: "ایڈوانس",
+
+cryptoBasics: "کرپٹو کی بنیادی معلومات",
+p2pSafety: "P2P حفاظت",
+stakingGuide: "اسٹیکنگ گائیڈ",
+
+videoCryptoBasics: "کرپٹو کیا ہے اور ایکسچینج کیسے کام کرتی ہے؟",
+videoP2PSafety: "P2P پر محفوظ ٹریڈنگ کیسے کریں",
+videoStakingGuide: "اسٹیکنگ ریوارڈز کیسے کام کرتے ہیں",
+
+questionCrypto: "کرپٹو میں سب سے محفوظ اصول کیا ہے؟",
+questionP2P: "P2P میں کوائن کب ریلیز کرنا چاہیے؟",
+questionStaking: "اسٹیکنگ کا مطلب کیا ہے؟",
+
+optionPrivateKey: "پرائیویٹ کی شیئر کریں",
+optionUnknownLinks: "نامعلوم لنکس استعمال کریں",
+optionProtectWallet: "والیٹ کیز محفوظ رکھیں",
+
+optionBeforePayment: "ادائیگی سے پہلے",
+optionAfterPayment: "ادائیگی کی تصدیق کے بعد",
+optionAnyTime: "کبھی بھی",
+
+optionLockTokens: "ریوارڈ کے لیے کوائن لاک کرنا",
+optionDeleteTokens: "کوائن حذف کرنا",
+optionSendTokens: "کوائن بھیج دینا",
   },
 
   hi: {
@@ -1267,6 +1488,78 @@ unstakeFailed: "अनस्टेक असफल रहा।",
 
 rewardsClaimedSuccessfully: "रिवॉर्ड सफलतापूर्वक प्राप्त हो गया।",
 claimRewardsFailed: "रिवॉर्ड प्राप्त करने में असफल।",
+learnEarn: "लर्न एंड अर्न",
+learnEarnSubtitle: "वीडियो देखें, क्विज़ पूरा करें और EXALT रिवॉर्ड कमाएँ।",
+
+totalRewards: "कुल रिवॉर्ड",
+completedTasks: "पूरा किए गए लेसन",
+learningLevel: "लर्निंग लेवल",
+learningProgress: "लर्निंग प्रोग्रेस",
+
+xpPoints: "XP पॉइंट्स",
+dailyStreak: "डेली स्ट्रीक",
+days: "दिन",
+
+achievements: "अचीवमेंट्स",
+noAchievements: "अभी कोई अचीवमेंट नहीं",
+
+downloadCertificate: "सर्टिफिकेट डाउनलोड करें",
+
+searchLessons: "लेसन खोजें...",
+
+dailyReward: "डेली रिवॉर्ड",
+claimDailyRewardDesc: "हर दिन 5 EXALT प्राप्त करें।",
+claimedToday: "आज क्लेम हो चुका",
+claim5Exalt: "5 EXALT क्लेम करें",
+
+topLearners: "टॉप लर्नर्स",
+recentActivity: "हाल की गतिविधि",
+noActivityYet: "अभी कोई गतिविधि नहीं",
+
+reward: "रिवॉर्ड",
+level: "लेवल",
+duration: "समय",
+
+completed: "पूरा",
+locked: "लॉक",
+viewAgain: "फिर देखें",
+startLesson: "लेसन शुरू करें",
+
+quiz: "क्विज़",
+
+correctAnswerRewardAdded: "सही उत्तर! रिवॉर्ड जोड़ दिया गया।",
+wrongAnswerTryAgain: "गलत उत्तर, फिर प्रयास करें।",
+
+submitting: "सबमिट हो रहा है...",
+submitQuizClaimReward: "क्विज़ सबमिट करें और रिवॉर्ड लें",
+
+beginner: "शुरुआती",
+intermediate: "मध्यम",
+advanced: "उन्नत",
+
+cryptoBasics: "क्रिप्टो बेसिक्स",
+p2pSafety: "P2P सुरक्षा",
+stakingGuide: "स्टेकिंग गाइड",
+
+videoCryptoBasics: "क्रिप्टो क्या है और एक्सचेंज कैसे काम करते हैं?",
+videoP2PSafety: "P2P पर सुरक्षित ट्रेड कैसे करें",
+videoStakingGuide: "स्टेकिंग रिवॉर्ड कैसे काम करते हैं",
+
+questionCrypto: "क्रिप्टो में सबसे सुरक्षित नियम क्या है?",
+questionP2P: "P2P में कॉइन कब रिलीज़ करना चाहिए?",
+questionStaking: "स्टेकिंग का क्या मतलब है?",
+
+optionPrivateKey: "प्राइवेट की शेयर करें",
+optionUnknownLinks: "अनजान लिंक इस्तेमाल करें",
+optionProtectWallet: "वॉलेट की सुरक्षित रखें",
+
+optionBeforePayment: "भुगतान से पहले",
+optionAfterPayment: "भुगतान की पुष्टि के बाद",
+optionAnyTime: "कभी भी",
+
+optionLockTokens: "रिवॉर्ड के लिए टोकन लॉक करना",
+optionDeleteTokens: "टोकन हटाना",
+optionSendTokens: "टोकन भेज देना",
   },
 };
 
