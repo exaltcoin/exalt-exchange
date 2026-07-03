@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useI18n } from "../i18n";
 import "./P2P.css";
 
 function P2P() {
+  const { t } = useI18n();
+
   const API_BASE =
     import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
@@ -62,7 +65,7 @@ function P2P() {
   };
 
   const getTraderInfo = (order, index) => ({
-    name: order.traderName || order.sellerName || `Trader ${index + 1}`,
+    name: order.traderName || order.sellerName || `${t("trader")} ${index + 1}`,
     verified: order.verified ?? index % 2 === 0,
     online: order.online ?? index % 3 !== 0,
     rating: order.rating || "4.8",
@@ -72,7 +75,7 @@ function P2P() {
 
   const loadOrders = async () => {
     try {
-      const response = await fetch(`${API}/api/p2p/orders`);
+      const response = await fetch(`${API_BASE}/api/p2p/orders`);
       const data = await response.json();
       if (data.success) setOrders(data.orders || []);
     } catch (error) {
@@ -99,12 +102,12 @@ function P2P() {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-      if (!user?._id && !user?.id) return alert("Please login first");
+      if (!user?._id && !user?.id) return alert(t("pleaseLoginFirst"));
       if (!price || !amount || !paymentMethod || !walletAddress || !country) {
-        return alert("Fill all fields");
+        return alert(t("fillAllFields"));
       }
 
-      const response = await fetch(`${API}/api/p2p/create`, {
+      const response = await fetch(`${API_BASE}/api/p2p/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -123,7 +126,7 @@ function P2P() {
       const data = await response.json();
 
       if (data.success) {
-        alert("P2P order created");
+        alert(t("p2pOrderCreated"));
         window.dispatchEvent(new Event("walletUpdated"));
         setPrice("");
         setAmount("");
@@ -131,20 +134,20 @@ function P2P() {
         setWalletAddress("");
         loadOrders();
       } else {
-        alert(data.message || "Failed");
+        alert(data.message || t("failed"));
       }
     } catch (error) {
       console.log(error);
-      alert("Server error");
+      alert(t("serverError"));
     }
   };
 
   const acceptOrder = async (orderId) => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (!user?._id && !user?.id) return alert("Please login first");
+      if (!user?._id && !user?.id) return alert(t("pleaseLoginFirst"));
 
-      const response = await fetch(`${API}/api/p2p/${orderId}/accept`, {
+      const response = await fetch(`${API_BASE}/api/p2p/${orderId}/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId, buyerId: user._id || user.id }),
@@ -153,26 +156,26 @@ function P2P() {
       const data = await response.json();
 
       if (data.success) {
-        alert("Trade started successfully");
+        alert(t("tradeStartedSuccessfully"));
         window.dispatchEvent(new Event("walletUpdated"));
         loadOrders();
       } else {
-        alert(data.message || "Trade failed");
+        alert(data.message || t("tradeFailed"));
       }
     } catch (error) {
       console.log(error);
-      alert("Server error");
+      alert(t("serverError"));
     }
   };
 
   const markPaid = async (orderId) => {
     try {
-      if (!paymentProofFile) return alert("Please upload payment proof image");
+      if (!paymentProofFile) return alert(t("uploadPaymentProof"));
 
       const formData = new FormData();
       formData.append("proof", paymentProofFile);
 
-      const response = await fetch(`${API}/api/p2p/${orderId}/paid`, {
+      const response = await fetch(`${API_BASE}/api/p2p/${orderId}/paid`, {
         method: "POST",
         body: formData,
       });
@@ -180,22 +183,22 @@ function P2P() {
       const data = await response.json();
 
       if (data.success) {
-        alert("Payment submitted");
+        alert(t("paymentSubmitted"));
         window.dispatchEvent(new Event("walletUpdated"));
         setPaymentProofFile(null);
         loadOrders();
       } else {
-        alert(data.message || "Failed");
+        alert(data.message || t("failed"));
       }
     } catch (error) {
       console.log(error);
-      alert("Server error");
+      alert(t("serverError"));
     }
   };
 
   const releaseOrder = async (orderId) => {
     try {
-      const response = await fetch(`${API}/api/p2p/${orderId}/release`, {
+      const response = await fetch(`${API_BASE}/api/p2p/${orderId}/release`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -203,21 +206,21 @@ function P2P() {
       const data = await response.json();
 
       if (data.success) {
-        alert("Trade completed successfully");
+        alert(t("tradeCompletedSuccessfully"));
         window.dispatchEvent(new Event("walletUpdated"));
         loadOrders();
       } else {
-        alert(data.message || "Release failed");
+        alert(data.message || t("releaseFailed"));
       }
     } catch (error) {
       console.log(error);
-      alert("Server error");
+      alert(t("serverError"));
     }
   };
 
   const cancelOrder = async (orderId) => {
     try {
-      const response = await fetch(`${API}/api/p2p/${orderId}/cancel`, {
+      const response = await fetch(`${API_BASE}/api/p2p/${orderId}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -225,50 +228,50 @@ function P2P() {
       const data = await response.json();
 
       if (data.success) {
-        alert("Order cancelled and asset refunded");
+        alert(t("orderCancelledRefunded"));
         window.dispatchEvent(new Event("walletUpdated"));
         loadOrders();
       } else {
-        alert(data.message || "Cancel failed");
+        alert(data.message || t("cancelFailed"));
       }
     } catch (error) {
       console.log(error);
-      alert("Server error");
+      alert(t("serverError"));
     }
   };
 
   const statusText = (status) => {
-    if (status === "open") return "Open";
-    if (status === "matched") return "In Trade";
-    if (status === "paid") return "Payment Sent";
-    if (status === "released") return "Completed";
-    if (status === "cancelled") return "Cancelled";
-    return status || "Open";
+    if (status === "open") return t("open");
+    if (status === "matched") return t("inTrade");
+    if (status === "paid") return t("paymentSent");
+    if (status === "released") return t("completed");
+    if (status === "cancelled") return t("cancelled");
+    return status || t("open");
   };
 
   return (
     <div className="p2p-page">
       <div className="p2p-hero">
         <div>
-          <h1>Global P2P Trading</h1>
-          <p>Buy and sell crypto worldwide with secure escrow protection.</p>
+          <h1>{t("globalP2pTrading")}</h1>
+          <p>{t("p2pSubtitle")}</p>
         </div>
-        <div className="p2p-hero-badge">Escrow Ready</div>
+        <div className="p2p-hero-badge">{t("escrowReady")}</div>
       </div>
 
       <div className="p2p-stats">
-        <div><span>Total Orders</span><strong>{orders.length}</strong></div>
-        <div><span>Open Orders</span><strong>{orders.filter((o) => o.status === "open").length}</strong></div>
-        <div><span>In Escrow</span><strong>{orders.filter((o) => o.status === "matched" || o.status === "paid").length}</strong></div>
+        <div><span>{t("totalOrders")}</span><strong>{orders.length}</strong></div>
+        <div><span>{t("openOrders")}</span><strong>{orders.filter((o) => o.status === "open").length}</strong></div>
+        <div><span>{t("inEscrow")}</span><strong>{orders.filter((o) => o.status === "matched" || o.status === "paid").length}</strong></div>
       </div>
 
       <div className="p2p-card">
-        <h2>Create P2P Ad</h2>
+        <h2>{t("createP2pAd")}</h2>
 
         <div className="p2p-form">
           <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="sell">SELL</option>
-            <option value="buy">BUY</option>
+            <option value="sell">{t("sell").toUpperCase()}</option>
+            <option value="buy">{t("buy").toUpperCase()}</option>
           </select>
 
           <select value={asset} onChange={(e) => setAsset(e.target.value)}>
@@ -287,66 +290,66 @@ function P2P() {
             ))}
           </select>
 
-          <input placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
-          <input placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <input placeholder={t("price")} value={price} onChange={(e) => setPrice(e.target.value)} />
+          <input placeholder={t("amount")} value={amount} onChange={(e) => setAmount(e.target.value)} />
 
           <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-            <option value="">Select Payment Method</option>
+            <option value="">{t("selectPaymentMethod")}</option>
             {paymentMethods.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
 
           <input
-            placeholder="Wallet Address"
+            placeholder={t("walletAddress")}
             value={walletAddress}
             onChange={(e) => setWalletAddress(e.target.value)}
           />
 
           <button className="p2p-main-btn" onClick={createOrder}>
-            Create P2P Ad
+            {t("createP2pAd")}
           </button>
         </div>
       </div>
 
       <div className="p2p-card">
         <div className="p2p-section-head">
-          <h2>Live Global Ads</h2>
+          <h2>{t("liveGlobalAds")}</h2>
 
           <div className="p2p-filters">
             <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-              <option value="all">All Types</option>
-              <option value="buy">Buy</option>
-              <option value="sell">Sell</option>
+              <option value="all">{t("allTypes")}</option>
+              <option value="buy">{t("buy")}</option>
+              <option value="sell">{t("sell")}</option>
             </select>
 
             <select value={filterCountry} onChange={(e) => setFilterCountry(e.target.value)}>
-              <option value="all">All Countries</option>
+              <option value="all">{t("allCountries")}</option>
               {countries.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
 
             <select value={filterPayment} onChange={(e) => setFilterPayment(e.target.value)}>
-              <option value="all">All Payments</option>
+              <option value="all">{t("allPayments")}</option>
               {paymentMethods.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </div>
         </div>
 
         {filteredOrders.length === 0 ? (
-          <div className="p2p-empty">No P2P ads found.</div>
+          <div className="p2p-empty">{t("noP2pAdsFound")}</div>
         ) : (
           <div className="p2p-table-wrap">
             <table className="p2p-table">
               <thead>
                 <tr>
-                  <th>Trader</th>
-                  <th>Type</th>
-                  <th>Asset</th>
-                  <th>Country</th>
-                  <th>Price</th>
-                  <th>Amount</th>
-                  <th>Payment</th>
-                  <th>Escrow</th>
-                  <th>Status</th>
-                  <th>Action</th>
+                  <th>{t("trader")}</th>
+                  <th>{t("type")}</th>
+                  <th>{t("asset")}</th>
+                  <th>{t("country")}</th>
+                  <th>{t("price")}</th>
+                  <th>{t("amount")}</th>
+                  <th>{t("payment")}</th>
+                  <th>{t("escrow")}</th>
+                  <th>{t("status")}</th>
+                  <th>{t("action")}</th>
                 </tr>
               </thead>
 
@@ -371,16 +374,16 @@ function P2P() {
                             <div className="trader-meta">
                               <span className={trader.online ? "online-status" : "offline-status"}>
                                 <span className={trader.online ? "online-dot" : "offline-dot"}></span>
-                                {trader.online ? "Online" : "Offline"}
+                                {trader.online ? t("online") : t("offline")}
                               </span>
                               <span className="rating-badge">⭐ {trader.rating}</span>
                               <span className="completion-badge">{trader.completionRate}</span>
                             </div>
 
                             <div className="trader-orders">
-                              <span className="orders-badge">{trader.completedOrders} Orders</span>
+                              <span className="orders-badge">{trader.completedOrders} {t("orders")}</span>
                               {trader.verified && (
-                                <span className="merchant-badge">✔ Verified Merchant</span>
+                                <span className="merchant-badge">✔ {t("verifiedMerchant")}</span>
                               )}
                             </div>
                           </div>
@@ -389,7 +392,7 @@ function P2P() {
 
                       <td>
                         <span className={order.type === "sell" ? "sell-badge" : "buy-badge"}>
-                          {String(order.type || "sell").toUpperCase()}
+                          {order.type === "buy" ? t("buy").toUpperCase() : t("sell").toUpperCase()}
                         </span>
                       </td>
 
@@ -397,7 +400,7 @@ function P2P() {
 
                       <td>
                         <span className="country-badge">
-                          {countryFlags[order.country] || "🌍"} {order.country || "Global"}
+                          {countryFlags[order.country] || "🌍"} {order.country || t("global")}
                         </span>
                       </td>
 
@@ -407,7 +410,7 @@ function P2P() {
 
                       <td>
                         <span className={order.status === "open" ? "escrow-waiting-badge" : "escrow-active-badge"}>
-                          {order.status === "open" ? "Waiting Escrow" : "Escrow Active"}
+                          {order.status === "open" ? t("waitingEscrow") : t("escrowActive")}
                         </span>
                       </td>
 
@@ -421,10 +424,10 @@ function P2P() {
                         {order.status === "open" && (
                           <>
                             <button className="accept-btn" onClick={() => acceptOrder(order._id)}>
-                              Accept
+                              {t("accept")}
                             </button>
                             <button className="cancel-btn" onClick={() => cancelOrder(order._id)}>
-                              Cancel
+                              {t("cancel")}
                             </button>
                           </>
                         )}
@@ -439,23 +442,23 @@ function P2P() {
                               }}
                             />
                             <button className="paid-btn" onClick={() => markPaid(order._id)}>
-                              Mark Paid
+                              {t("markPaid")}
                             </button>
                           </>
                         )}
 
                         {order.status === "paid" && (
                           <button className="release-btn" onClick={() => releaseOrder(order._id)}>
-                            Release
+                            {t("release")}
                           </button>
                         )}
 
                         {order.status === "released" && (
-                          <span className="done-text">Completed</span>
+                          <span className="done-text">{t("completed")}</span>
                         )}
 
                         {order.status === "cancelled" && (
-                          <span className="done-text">Cancelled</span>
+                          <span className="done-text">{t("cancelled")}</span>
                         )}
                       </td>
                     </tr>
@@ -468,14 +471,14 @@ function P2P() {
       </div>
 
       <div className="p2p-card">
-        <h2>P2P Security</h2>
+        <h2>{t("p2pSecurity")}</h2>
         <div className="security-grid">
-          <p>✅ User-to-user trading</p>
-          <p>✅ Live database orders</p>
-          <p>✅ Escrow status tracking</p>
-          <p>✅ Payment proof upload</p>
-          <p>✅ Admin can review all</p>
-          <p>✅ Safe P2P status flow</p>
+          <p>{t("p2pSecurity1")}</p>
+          <p>{t("p2pSecurity2")}</p>
+          <p>{t("p2pSecurity3")}</p>
+          <p>{t("p2pSecurity4")}</p>
+          <p>{t("p2pSecurity5")}</p>
+          <p>{t("p2pSecurity6")}</p>
         </div>
       </div>
     </div>

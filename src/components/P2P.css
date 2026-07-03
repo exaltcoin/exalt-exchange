@@ -397,4 +397,36 @@
   .p2p-filters select {
     width: 100%;
   }
+}html[dir="rtl"] .p2p-page,
+body.rtl .p2p-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .p2p-hero,
+html[dir="rtl"] .p2p-section-head,
+body.rtl .p2p-hero,
+body.rtl .p2p-section-head {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .p2p-table th,
+html[dir="rtl"] .p2p-table td,
+body.rtl .p2p-table th,
+body.rtl .p2p-table td {
+  text-align: right;
+}
+
+html[dir="rtl"] .trader-box,
+body.rtl .trader-box {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .online-dot,
+html[dir="rtl"] .offline-dot,
+body.rtl .online-dot,
+body.rtl .offline-dot {
+  margin-right: 0;
+  margin-left: 5px;
 }
