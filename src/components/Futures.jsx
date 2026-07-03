@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useI18n } from "../i18n";
 import "./Futures.css";
 import { socket } from "../api";
 import {
@@ -9,6 +10,7 @@ import {
 } from "../api";
 
 function Futures({ setPage }) {
+  const { t } = useI18n();
   const candleSeriesRef = useRef(null);
   const lastCandleRef = useRef(null);
 
@@ -349,17 +351,17 @@ function Futures({ setPage }) {
         </div>
 
         <div className="bm-notice">
-          🔔 Important Notice: EXALT Futures Market Live
+       🔔 {t("importantNotice")}
           <span>×</span>
         </div>
 
         <div className="bm-pair-head">
           <div>
             <h2 onClick={() => setContractMenuOpen(!contractMenuOpen)}>
-              {selectedPair} <small>Perp</small> ▾
+              {selectedPair}<small>{t("perp")}</small>
             </h2>
             <p>
-              Live <span className="green-change">+0.11%</span>
+            {t("live")} <span className="green-change">+0.11%</span>
             </p>
           </div>
 
@@ -376,29 +378,29 @@ function Futures({ setPage }) {
                 className={side === "long" ? "active-buy" : ""}
                 onClick={() => setSide("long")}
               >
-                Buy
+               {t("buy")} 
               </button>
 
               <button
                 className={side === "short" ? "active-sell" : ""}
                 onClick={() => setSide("short")}
               >
-                Sell
+                {t("sell")}
               </button>
             </div>
 
             <div className="bm-mini-row">
               <select value={marginMode} onChange={(e) => setMarginMode(e.target.value)}>
-                <option>Cross</option>
-                <option>Isolated</option>
+               <option value="Cross">{t("cross")}</option>
+<option value="Isolated">{t("isolated")}</option>
               </select>
 
               <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
-                <option>5x</option>
-                <option>10x</option>
-                <option>20x</option>
-                <option>50x</option>
-                <option>100x</option>
+                <option value="5">5x</option>
+                <option value="10">10x</option>
+                <option value="20">20x</option>
+                <option value="50">50x</option>
+                <option value="100">100x</option>
               </select>
 
               <button>S</button>
@@ -409,24 +411,25 @@ function Futures({ setPage }) {
               value={orderType}
               onChange={(e) => setOrderType(e.target.value)}
             >
-              <option>Market</option>
-              <option>Limit</option>
+             <option value="Market">{t("market")}</option>
+             <option value="Limit">{t("limit")}</option>
             </select>
 
-            <div className="bm-amount-box">
-              <input
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Amount"
-              />
-              <span
-                onClick={() =>
-                  setQuoteCurrency(quoteCurrency === "USDT" ? "BUSD" : "USDT")
-                }
-              >
-                {quoteCurrency} ▾
-              </span>
-            </div>
+           <div className="bm-amount-box">
+  <input
+    value={amount}
+    onChange={(e) => setAmount(e.target.value)}
+    placeholder={t("amount")}
+  />
+
+  <span
+    onClick={() =>
+      setQuoteCurrency(quoteCurrency === "USDT" ? "BUSD" : "USDT")
+    }
+  >
+    {quoteCurrency} ▾
+  </span>
+</div>
 
             <div className="bm-slider">
               <span onClick={() => setAmount(String((balance * 0.25).toFixed(2)))}></span>
@@ -436,41 +439,42 @@ function Futures({ setPage }) {
             </div>
 
             <p className="bm-avbl">
-              Avbl <b>{balance} USDT</b> ⇆
+             {t("available")} <b>{balance} USDT</b> ⇆
             </p>
 
-            <label className="bm-check">
-              <input
-                type="checkbox"
-                checked={slippage}
-                onChange={(e) => setSlippage(e.target.checked)}
-              />
-              Slippage Tolerance
-            </label>
+           <label className="bm-check">
+  <input
+    type="checkbox"
+    checked={slippage}
+    onChange={(e) => setSlippage(e.target.checked)}
+  />
+  {t("slippageTolerance")}
+</label>
 
-            <label className="bm-check">
-              <input
-                type="checkbox"
-                checked={showTPSL}
-                onChange={(e) => setShowTPSL(e.target.checked)}
-              />
-              TP/SL
-            </label>
+<label className="bm-check">
+  <input
+    type="checkbox"
+    checked={showTPSL}
+    onChange={(e) => setShowTPSL(e.target.checked)}
+  />
+  {t("tpSl")}
+</label>
 
             {showTPSL && (
               <div className="bm-tpsl-mobile">
                 <input
-                  placeholder="Take Profit"
+                placeholder={t("takeProfit")}
                   value={tpPrice}
                   onChange={(e) => setTpPrice(e.target.value)}
                 />
                 <input
-                  placeholder="Stop Loss"
+                  placeholder={t("stopLoss")}
                   value={slPrice}
                   onChange={(e) => setSlPrice(e.target.value)}
                 />
               </div>
             )}
+                  
 
             <label className="bm-check">
               <input
@@ -478,7 +482,7 @@ function Futures({ setPage }) {
                 checked={reduceOnly}
                 onChange={(e) => setReduceOnly(e.target.checked)}
               />
-              Reduce Only
+              {t("reduceOnly")}
             </label>
 
             <div className="bm-cost-row">
@@ -498,7 +502,7 @@ function Futures({ setPage }) {
               className={side === "long" ? "bm-main-buy" : "bm-main-sell"}
               onClick={() => openPosition(side)}
             >
-              {side === "long" ? "Buy / Long" : "Sell / Short"}
+              {side === "long" ? t("buyLong") : t("sellShort")}
             </button>
           </div>
 
@@ -708,23 +712,22 @@ function Futures({ setPage }) {
 
       <div className="futures-header">
         <div>
-          <h1>EXALT Futures Trading</h1>
-          <p>Real-Time Futures Exchange Panel</p>
+          <h1>{t("futuresTitle")}</h1>
+          <p>{t("futuresSubtitle")}</p>
         </div>
 
         <div className="futures-badge">
           <span className="live-dot"></span>
-          Live Futures Market
+          {t("liveFuturesMarket")}
         </div>
       </div>
 
       <div className="futures-container">
         <div className="market-panel markets-list">
-          <h2>Markets</h2>
-
+       <h2>{t("markets")}</h2>
           <input
             className="futures-search"
-            placeholder="Search market..."
+          placeholder={t("searchMarket")}
             value={marketSearch}
             onChange={(e) => setMarketSearch(e.target.value)}
           />
@@ -774,21 +777,23 @@ function Futures({ setPage }) {
 
             <div className="candle-settings">
               <select value={candleStyle} onChange={(e) => setCandleStyle(e.target.value)}>
-                <option value="normal">Normal Candles</option>
-                <option value="smooth">Smooth Candles</option>
-                <option value="volatile">Volatile Candles</option>
+              <option value="normal">{t("normalCandles")}</option>
+
+<option value="smooth">{t("smoothCandles")}</option>
+
+<option value="volatile">{t("volatileCandles")}</option>
               </select>
 
               <select value={volatility} onChange={(e) => setVolatility(e.target.value)}>
-                <option value="low">Low Volatility</option>
-                <option value="normal">Normal Volatility</option>
-                <option value="high">High Volatility</option>
+                <option value="low">{t("lowVolatility")}</option>
+                <option value="normal">{t("normalVolatility")}</option>
+                <option value="high">{t("highVolatility")}</option>
               </select>
 
               <select value={chartZoom} onChange={(e) => setChartZoom(e.target.value)}>
-                <option value="small">Zoom Small</option>
-                <option value="medium">Zoom Medium</option>
-                <option value="large">Zoom Large</option>
+                <option value="small">{t("zoomSmall")}</option>
+                <option value="medium">{t("zoomMedium")}</option>
+                <option value="large">{t("zoomLarge")}</option>
               </select>
             </div>
           </div>
@@ -796,7 +801,7 @@ function Futures({ setPage }) {
           <div className="real-chart">
             <iframe
               key={`${tvSymbol}-${tvInterval}-${chartZoom}`}
-              title="TradingView Chart"
+             title={t("tradingViewChart")}
               src={tvChartUrl}
               style={{
                 width: "100%",
@@ -813,7 +818,7 @@ function Futures({ setPage }) {
             />
           </div>
 
-          <h3>Order Book</h3>
+          <h3>{t("orderBook")}</h3>
 
           {mobileOrderBook.map((order, index) => (
             <div key={index} className={`order-row ${order.type}`}>
@@ -823,10 +828,10 @@ function Futures({ setPage }) {
           ))}
 
           <div className="positions-panel">
-            <h3>Open Positions</h3>
+            <h3>{t("openPositions")}</h3>
 
             {positions.length === 0 ? (
-              <p className="no-position">No open positions</p>
+             <p className="no-position">{t("noOpenPositions")}</p>
             ) : (
               positions.map((position) => {
                 const mark = Number(
@@ -876,72 +881,71 @@ function Futures({ setPage }) {
         </div>
 
         <div className="trade-panel">
-          <h2>Trade</h2>
-
+         <h2>{t("trade")}</h2>
           <div className="trade-tabs">
             <button
               className={side === "long" ? "buy-btn active-side" : "buy-btn"}
               onClick={() => setSide("long")}
             >
-              Buy / Long
+            {t("buyLong")}
             </button>
 
             <button
               className={side === "short" ? "sell-btn active-side" : "sell-btn"}
               onClick={() => setSide("short")}
             >
-              Sell / Short
+              {t("sellShort")}
             </button>
           </div>
 
-          <label>Leverage</label>
+          <label>{t("leverage")}</label>
           <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
-            <option>5x</option>
-            <option>10x</option>
-            <option>20x</option>
-            <option>50x</option>
-            <option>100x</option>
+            <option value="5">5x</option>
+            <option value="10">10x</option>
+            <option value="20">20x</option>
+            <option value="50">50x</option>
+            <option value="100">100x</option>
           </select>
 
-          <label>Price</label>
+          <label>{t("price")}</label>
           <input
             type="text"
             value={Number.isFinite(Number(price)) ? price : ""}
             onChange={(e) => setPrice(e.target.value)}
           />
 
-          <label>Amount</label>
+          <label>{t("amount")}</label>
           <input
             type="text"
-            placeholder="Enter Amount"
+            placeholder={t("enterAmount")}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
 
           <div className="tpsl-box">
-            <label>Take Profit</label>
+            <label>{t("takeProfit")}</label>
             <input
               type="text"
-              placeholder="TP Price"
+              placeholder={t("enterTPPrice")}
               value={tpPrice}
               onChange={(e) => setTpPrice(e.target.value)}
             />
 
-            <label>Stop Loss</label>
+            <label>{t("stopLoss")}</label>
             <input
               type="text"
-              placeholder="SL Price"
+              placeholder={t("enterSLPrice")}
               value={slPrice}
               onChange={(e) => setSlPrice(e.target.value)}
             />
           </div>
 
           <button className="execute-buy" onClick={() => openPosition("long")}>
-            Open Long
+            {t("openLong")}
           </button>
 
           <button className="execute-sell" onClick={() => openPosition("short")}>
-            Open Short
+            {t("openShort")}
           </button>
 
           <div className="trade-info">
@@ -955,7 +959,7 @@ function Futures({ setPage }) {
         </div>
 
         <div className="history-panel">
-          <h3>Position History</h3>
+          <h3>{t("positionHistory")}</h3>
 
           {history.length === 0 ? (
             <p className="no-position">No closed positions</p>
