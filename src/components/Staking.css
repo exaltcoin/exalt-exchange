@@ -103,4 +103,15 @@
   .stake-buttons button {
     width: 100%;
   }
+}html[dir="rtl"] .staking-page,
+body.rtl .staking-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .stakes-table th,
+html[dir="rtl"] .stakes-table td,
+body.rtl .stakes-table th,
+body.rtl .stakes-table td {
+  text-align: right;
 }

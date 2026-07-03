@@ -293,6 +293,38 @@ tradeCompletedSuccessfully: "Trade completed successfully",
 releaseFailed: "Release failed",
 orderCancelledRefunded: "Order cancelled and asset refunded",
 cancelFailed: "Cancel failed",
+exaltStaking: "EXALT Staking",
+stakingSubtitle: "Stake EXALT and earn passive rewards",
+
+estimatedApr: "Estimated APR",
+stakeExalt: "Stake EXALT",
+
+enterExaltAmount: "Enter EXALT Amount",
+
+stake: "Stake",
+unstake: "Unstake",
+claimRewards: "Claim Rewards",
+
+activeStakes: "Active Stakes",
+
+apy: "APY",
+duration: "Duration",
+days: "Days",
+
+pendingReward: "Pending Reward",
+
+noActiveStakesYet: "No active stakes yet",
+
+enterValidExaltAmount: "Please enter a valid EXALT amount.",
+
+stakingStartedSuccessfully: "Staking started successfully.",
+stakingFailed: "Staking failed.",
+
+unstakedSuccessfully: "Unstaked successfully.",
+unstakeFailed: "Unstake failed.",
+
+rewardsClaimedSuccessfully: "Rewards claimed successfully.",
+claimRewardsFailed: "Claim rewards failed.",
   },
 
   ar: {
@@ -567,6 +599,38 @@ tradeCompletedSuccessfully: "اكتملت الصفقة بنجاح",
 releaseFailed: "فشل الإطلاق",
 orderCancelledRefunded: "تم إلغاء الأمر وإرجاع الأصل",
 cancelFailed: "فشل الإلغاء",
+exaltStaking: "تكديس EXALT",
+stakingSubtitle: "قم بتكديس EXALT واحصل على مكافآت مستمرة",
+
+estimatedApr: "معدل العائد المتوقع",
+stakeExalt: "تكديس EXALT",
+
+enterExaltAmount: "أدخل كمية EXALT",
+
+stake: "تكديس",
+unstake: "إلغاء التكديس",
+claimRewards: "استلام المكافآت",
+
+activeStakes: "عمليات التكديس النشطة",
+
+apy: "العائد السنوي",
+duration: "المدة",
+days: "يوم",
+
+pendingReward: "المكافأة المعلقة",
+
+noActiveStakesYet: "لا توجد عمليات تكديس نشطة",
+
+enterValidExaltAmount: "يرجى إدخال كمية EXALT صحيحة.",
+
+stakingStartedSuccessfully: "تم بدء التكديس بنجاح.",
+stakingFailed: "فشل التكديس.",
+
+unstakedSuccessfully: "تم إلغاء التكديس بنجاح.",
+unstakeFailed: "فشل إلغاء التكديس.",
+
+rewardsClaimedSuccessfully: "تم استلام المكافآت بنجاح.",
+claimRewardsFailed: "فشل استلام المكافآت.",
   },
 
   ur: {
@@ -853,6 +917,38 @@ tradeCompletedSuccessfully: "Trade کامیابی سے complete ہو گئی",
 releaseFailed: "Release failed",
 orderCancelledRefunded: "Order cancel ہو گیا اور asset refund ہو گیا",
 cancelFailed: "Cancel failed",
+exaltStaking: "ایگزالٹ اسٹیکنگ",
+stakingSubtitle: "EXALT اسٹیک کریں اور مستقل ریوارڈ حاصل کریں",
+
+estimatedApr: "متوقع APR",
+stakeExalt: "EXALT اسٹیک کریں",
+
+enterExaltAmount: "EXALT کی مقدار درج کریں",
+
+stake: "اسٹیک کریں",
+unstake: "اَن اسٹیک کریں",
+claimRewards: "ریوارڈ حاصل کریں",
+
+activeStakes: "فعال اسٹیکس",
+
+apy: "اے پی وائی",
+duration: "مدت",
+days: "دن",
+
+pendingReward: "زیر التواء ریوارڈ",
+
+noActiveStakesYet: "ابھی کوئی فعال اسٹیک موجود نہیں",
+
+enterValidExaltAmount: "براہ کرم EXALT کی درست مقدار درج کریں۔",
+
+stakingStartedSuccessfully: "اسٹیکنگ کامیابی سے شروع ہوگئی۔",
+stakingFailed: "اسٹیکنگ ناکام ہوگئی۔",
+
+unstakedSuccessfully: "اَن اسٹیک کامیابی سے ہوگیا۔",
+unstakeFailed: "اَن اسٹیک ناکام ہوگیا۔",
+
+rewardsClaimedSuccessfully: "ریوارڈ کامیابی سے حاصل ہوگیا۔",
+claimRewardsFailed: "ریوارڈ حاصل نہیں ہوسکا۔",
   },
 
   hi: {
@@ -1139,6 +1235,38 @@ tradeCompletedSuccessfully: "Trade successfully complete हो गई",
 releaseFailed: "Release failed",
 orderCancelledRefunded: "Order cancel हो गया और asset refund हो गया",
 cancelFailed: "Cancel failed",
+exaltStaking: "EXALT स्टेकिंग",
+stakingSubtitle: "EXALT स्टेक करें और नियमित रिवॉर्ड कमाएँ",
+
+estimatedApr: "अनुमानित APR",
+stakeExalt: "EXALT स्टेक करें",
+
+enterExaltAmount: "EXALT राशि दर्ज करें",
+
+stake: "स्टेक करें",
+unstake: "अनस्टेक करें",
+claimRewards: "रिवॉर्ड प्राप्त करें",
+
+activeStakes: "सक्रिय स्टेक्स",
+
+apy: "APY",
+duration: "अवधि",
+days: "दिन",
+
+pendingReward: "लंबित रिवॉर्ड",
+
+noActiveStakesYet: "अभी कोई सक्रिय स्टेक नहीं है",
+
+enterValidExaltAmount: "कृपया सही EXALT राशि दर्ज करें।",
+
+stakingStartedSuccessfully: "स्टेकिंग सफलतापूर्वक शुरू हो गई।",
+stakingFailed: "स्टेकिंग असफल रही।",
+
+unstakedSuccessfully: "अनस्टेक सफलतापूर्वक हो गया।",
+unstakeFailed: "अनस्टेक असफल रहा।",
+
+rewardsClaimedSuccessfully: "रिवॉर्ड सफलतापूर्वक प्राप्त हो गया।",
+claimRewardsFailed: "रिवॉर्ड प्राप्त करने में असफल।",
   },
 };
 
