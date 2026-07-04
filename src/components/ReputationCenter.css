@@ -189,3 +189,18 @@ button:disabled {
     align-items: flex-start;
   }
 }
+.reputation-top-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.reputation-top-action button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
