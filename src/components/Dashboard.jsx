@@ -148,7 +148,6 @@ const [rewardStats, setRewardStats] = useState({
     <>
       <div className="mobile-home-view">
         <div className="mobile-topbar">
-          <div className="mobile-avatar">E</div>
           <LanguageSwitcher />
 
           <div className="mobile-tabs">
