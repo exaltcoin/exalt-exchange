@@ -1,9 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { socket } from "../api";
+import PageShell from "./PageShell";
+import { useI18n } from "../i18n";
 
 function Orders() {
+  const { t } = useI18n();
+
   const API_BASE =
     import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+
+  const API = API_BASE.endsWith("/api") ? API_BASE.replace("/api", "") : API_BASE;
 
   const [orders, setOrders] = useState([]);
   const [activeTab, setActiveTab] = useState("OPEN");
@@ -32,7 +38,6 @@ function Orders() {
   const getFilled = (order) => {
     const filled = Number(order.filled || order.filledAmount || 0);
     const amount = getAmount(order);
-
     if (!amount) return 0;
     return Math.min(100, (filled / amount) * 100);
   };
@@ -47,7 +52,6 @@ function Orders() {
       setLoading(true);
 
       const token = localStorage.getItem("token");
-
       if (!token) {
         setOrders([]);
         return;
@@ -86,9 +90,9 @@ function Orders() {
 
   const cancelOrder = async (id) => {
     try {
-      if (!id) return alert("Order id missing");
+      if (!id) return alert(t("orderIdMissing"));
 
-      const confirmCancel = window.confirm("Are you sure you want to cancel this order?");
+      const confirmCancel = window.confirm(t("confirmCancelOrder"));
       if (!confirmCancel) return;
 
       const token = localStorage.getItem("token");
@@ -103,15 +107,15 @@ function Orders() {
       const data = await res.json();
 
       if (res.ok && data.success !== false) {
-        alert("Order cancelled successfully");
+        alert(t("orderCancelledSuccessfully"));
         loadOrders();
         socket.emit("orderCancelled", { id });
       } else {
-        alert(data.message || "Cancel failed");
+        alert(data.message || t("cancelFailed"));
       }
     } catch (error) {
       console.log("Cancel order error:", error);
-      alert("Cancel order failed");
+      alert(t("cancelOrderFailed"));
     }
   };
 
@@ -182,168 +186,165 @@ function Orders() {
   }, [orders]);
 
   return (
-    <div className="panel orders-page">
-      <div className="orders-header">
-        <div>
-          <h2>Orders</h2>
-          <p>Manage open orders, filled orders and trading history.</p>
-        </div>
-
-        <button className="action-btn yellow-btn" onClick={loadOrders}>
-          Refresh
-        </button>
-      </div>
-
-      <div className="orders-stats">
-        <div>
-          <strong>{stats.total}</strong>
-          <span>Total Orders</span>
-        </div>
-
-        <div>
-          <strong>{stats.open}</strong>
-          <span>Open</span>
-        </div>
-
-        <div>
-          <strong>{stats.filled}</strong>
-          <span>Filled</span>
-        </div>
-
-        <div>
-          <strong>{stats.cancelled}</strong>
-          <span>Cancelled</span>
-        </div>
-      </div>
-
-      <div className="orders-tabs">
-        {["OPEN", "HISTORY", "FILLED", "CANCELLED", "ALL"].map((tab) => (
-          <button
-            key={tab}
-            className={activeTab === tab ? "tab active-tab" : "tab"}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
+    <PageShell titleKey="orders" subtitleKey="ordersSubtitle">
+      <div className="panel orders-page">
+        <div className="orders-top-action">
+          <button className="action-btn yellow-btn" onClick={loadOrders}>
+            {t("refresh")}
           </button>
-        ))}
-      </div>
-
-      <div className="orders-tools">
-        <input
-          className="web3-input"
-          placeholder="Search pair, side or status..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <select
-          className="web3-input"
-          value={sideFilter}
-          onChange={(e) => setSideFilter(e.target.value)}
-        >
-          <option value="ALL">All Sides</option>
-          <option value="BUY">Buy</option>
-          <option value="SELL">Sell</option>
-        </select>
-      </div>
-
-      {loading ? (
-        <p>Loading orders...</p>
-      ) : filteredOrders.length === 0 ? (
-        <p>No orders found.</p>
-      ) : (
-        <div className="orders-table-wrapper">
-          <table className="orders-table">
-            <thead>
-              <tr>
-                <th>Pair</th>
-                <th>Side</th>
-                <th>Price</th>
-                <th>Amount</th>
-                <th>Filled</th>
-                <th>Status</th>
-                <th>Time</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredOrders.map((order, index) => {
-                const pair = getPair(order);
-                const side = getSide(order);
-                const status = getStatus(order);
-                const filled = getFilled(order);
-
-                const canCancel =
-                  status === "OPEN" ||
-                  status === "PENDING" ||
-                  status === "PARTIAL" ||
-                  status === "NEW";
-
-                return (
-                  <tr
-                    key={order._id || index}
-                    className={`order-book-row ${side === "BUY" ? "buy" : "sell"}`}
-                  >
-                    <td>
-                      <strong>{formatPair(pair)}</strong>
-                    </td>
-
-                    <td>
-                      <span className={side === "BUY" ? "order-side-buy" : "order-side-sell"}>
-                        {side}
-                      </span>
-                    </td>
-
-                    <td>${getPrice(order).toFixed(6)}</td>
-
-                    <td>{getAmount(order).toLocaleString()}</td>
-
-                    <td>
-                      <div className="order-filled-box">
-                        <div>
-                          <span style={{ width: `${filled}%` }} />
-                        </div>
-                        <small>{filled.toFixed(1)}%</small>
-                      </div>
-                    </td>
-
-                    <td>
-                      <span
-                        className={`order-status ${status
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}`}
-                      >
-                        {safeText(status)}
-                      </span>
-                    </td>
-
-                    <td>
-                      {order.createdAt
-                        ? new Date(order.createdAt).toLocaleString()
-                        : "N/A"}
-                    </td>
-
-                    <td>
-                      {canCancel ? (
-                        <button
-                          className="action-btn reject-btn"
-                          onClick={() => cancelOrder(order._id)}
-                        >
-                          Cancel
-                        </button>
-                      ) : (
-                        <span className="green-text">Done</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
         </div>
-      )}
-    </div>
+
+        <div className="orders-stats">
+          <div>
+            <strong>{stats.total}</strong>
+            <span>{t("totalOrders")}</span>
+          </div>
+
+          <div>
+            <strong>{stats.open}</strong>
+            <span>{t("open")}</span>
+          </div>
+
+          <div>
+            <strong>{stats.filled}</strong>
+            <span>{t("filled")}</span>
+          </div>
+
+          <div>
+            <strong>{stats.cancelled}</strong>
+            <span>{t("cancelled")}</span>
+          </div>
+        </div>
+
+        <div className="orders-tabs">
+          {["OPEN", "HISTORY", "FILLED", "CANCELLED", "ALL"].map((tab) => (
+            <button
+              key={tab}
+              className={activeTab === tab ? "tab active-tab" : "tab"}
+              onClick={() => setActiveTab(tab)}
+            >
+              {t(tab.toLowerCase()) || tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="orders-tools">
+          <input
+            className="web3-input"
+            placeholder={t("searchPairSideStatus")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <select
+            className="web3-input"
+            value={sideFilter}
+            onChange={(e) => setSideFilter(e.target.value)}
+          >
+            <option value="ALL">{t("allSides")}</option>
+            <option value="BUY">{t("buy")}</option>
+            <option value="SELL">{t("sell")}</option>
+          </select>
+        </div>
+
+        {loading ? (
+          <p>{t("loadingOrders")}</p>
+        ) : filteredOrders.length === 0 ? (
+          <p>{t("noOrdersFound")}</p>
+        ) : (
+          <div className="orders-table-wrapper">
+            <table className="orders-table">
+              <thead>
+                <tr>
+                  <th>{t("pair")}</th>
+                  <th>{t("side")}</th>
+                  <th>{t("price")}</th>
+                  <th>{t("amount")}</th>
+                  <th>{t("filled")}</th>
+                  <th>{t("status")}</th>
+                  <th>{t("time")}</th>
+                  <th>{t("action")}</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredOrders.map((order, index) => {
+                  const pair = getPair(order);
+                  const side = getSide(order);
+                  const status = getStatus(order);
+                  const filled = getFilled(order);
+
+                  const canCancel =
+                    status === "OPEN" ||
+                    status === "PENDING" ||
+                    status === "PARTIAL" ||
+                    status === "NEW";
+
+                  return (
+                    <tr
+                      key={order._id || index}
+                      className={`order-book-row ${side === "BUY" ? "buy" : "sell"}`}
+                    >
+                      <td>
+                        <strong>{formatPair(pair)}</strong>
+                      </td>
+
+                      <td>
+                        <span className={side === "BUY" ? "order-side-buy" : "order-side-sell"}>
+                          {side === "BUY" ? t("buy") : t("sell")}
+                        </span>
+                      </td>
+
+                      <td>${getPrice(order).toFixed(6)}</td>
+
+                      <td>{getAmount(order).toLocaleString()}</td>
+
+                      <td>
+                        <div className="order-filled-box">
+                          <div>
+                            <span style={{ width: `${filled}%` }} />
+                          </div>
+                          <small>{filled.toFixed(1)}%</small>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`order-status ${status
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}`}
+                        >
+                          {safeText(status)}
+                        </span>
+                      </td>
+
+                      <td>
+                        {order.createdAt
+                          ? new Date(order.createdAt).toLocaleString()
+                          : "N/A"}
+                      </td>
+
+                      <td>
+                        {canCancel ? (
+                          <button
+                            className="action-btn reject-btn"
+                            onClick={() => cancelOrder(order._id)}
+                          >
+                            {t("cancel")}
+                          </button>
+                        ) : (
+                          <span className="green-text">{t("done")}</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </PageShell>
   );
 }
 
