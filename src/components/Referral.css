@@ -303,3 +303,61 @@
     grid-template-columns: 1fr;
   }
 }
+.referral-page{
+  padding:24px;
+}
+
+.referral-top-action{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:14px;
+  margin-bottom:22px;
+}
+
+.referral-refresh{
+  background:#f0b90b;
+  color:#111827;
+  border:none;
+  border-radius:12px;
+  padding:10px 18px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.referral-rank{
+  padding:8px 16px;
+  border-radius:999px;
+  font-weight:800;
+}
+
+.referral-rank.bronze{
+  background:#8b5a2b33;
+  color:#d39b58;
+}
+
+.referral-rank.silver{
+  background:#c0c0c033;
+  color:#d6d6d6;
+}
+
+.referral-rank.gold{
+  background:#f0b90b33;
+  color:#f0b90b;
+}
+
+.referral-rank.platinum{
+  background:#3b82f633;
+  color:#60a5fa;
+}
+
+@media (max-width:768px){
+  .referral-page{
+    padding:14px;
+  }
+
+  .referral-top-action{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
