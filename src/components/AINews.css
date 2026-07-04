@@ -325,3 +325,69 @@ button:disabled {
     align-items: flex-start;
   }
 }
+html[dir="rtl"] .ai-news-page,
+body.rtl .ai-news-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .ai-news-top-action,
+html[dir="rtl"] .ai-news-tabs,
+html[dir="rtl"] .news-meta,
+html[dir="rtl"] .news-ai-row,
+html[dir="rtl"] .news-actions,
+html[dir="rtl"] .news-coins,
+body.rtl .ai-news-top-action,
+body.rtl .ai-news-tabs,
+body.rtl .news-meta,
+body.rtl .news-ai-row,
+body.rtl .news-actions,
+body.rtl .news-coins {
+  direction: rtl;
+}
+
+.ai-news-top-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.ai-news-stats div,
+.news-card,
+.news-side-panel,
+.submit-news-card,
+.pinned-news-item,
+.empty-news {
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+  transition: .25s ease;
+}
+
+.news-card:hover,
+.pinned-news-item:hover,
+.ai-news-stats div:hover {
+  transform: translateY(-3px);
+  border-color: #f0b90b;
+}
+
+.ai-news-top-action button,
+.ai-news-toolbar button,
+.news-actions button,
+.submit-news-card button {
+  transition: .25s ease;
+}
+
+.ai-news-top-action button:hover,
+.ai-news-toolbar button:hover,
+.news-actions button:hover,
+.submit-news-card button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(240,185,11,.3);
+}
+
+@media (max-width: 700px) {
+  .ai-news-top-action button,
+  .ai-news-toolbar button,
+  .submit-news-card button {
+    width: 100%;
+  }
+}
