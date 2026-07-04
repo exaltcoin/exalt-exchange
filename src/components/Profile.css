@@ -295,3 +295,50 @@
     width: 100%;
   }
 }
+html[dir="rtl"] .profile-page,
+body.rtl .profile-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .profile-hero,
+html[dir="rtl"] .profile-badge-row,
+body.rtl .profile-hero,
+body.rtl .profile-badge-row {
+  direction: rtl;
+}
+
+.twofa-badge {
+  color: #fff;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  display: inline-block;
+}
+
+.twofa-badge.enabled {
+  background: #00c853;
+}
+
+.twofa-badge.disabled {
+  background: #ff1744;
+}
+
+.profile-card,
+.profile-hero,
+.edit-profile-card {
+  box-shadow: 0 10px 28px rgba(0,0,0,.24);
+}
+
+html[dir="rtl"] .profile-phone-button,
+body.rtl .profile-phone-button {
+  border-radius: 0 12px 12px 0 !important;
+}
+
+@media (max-width: 850px) {
+  .twofa-badge,
+  .profile-badge {
+    width: fit-content;
+  }
+}

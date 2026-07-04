@@ -3,332 +3,314 @@ import Select from "react-select";
 import countryList from "react-select-country-list";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import PageShell from "./PageShell";
+import { useI18n } from "../i18n";
 import "./Profile.css";
+
 const SafePhoneInput = PhoneInput.default || PhoneInput;
+
 const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
-const API = API_BASE;
-function Profile({ setPage }) {
+function Profile() {
+  const { t } = useI18n();
+
   const [user, setUser] = useState({});
   const [kycStatus, setKycStatus] = useState("Not Verified");
- const [phone, setPhone] = useState("");
-const [country, setCountry] = useState("");
-const [telegram, setTelegram] = useState("");
-const [bio, setBio] = useState("");
-const [profileImage, setProfileImage] = useState(""); 
-const countryOptions = useMemo(() => countryList().getData(), []);
-const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-const [phoneCountry, setPhoneCountry] = useState("us");
-useEffect(() => {
-  const loadProfile = async () => {
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("");
+  const [telegram, setTelegram] = useState("");
+  const [bio, setBio] = useState("");
+  const [profileImage, setProfileImage] = useState("");
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [phoneCountry, setPhoneCountry] = useState("us");
+
+  const countryOptions = useMemo(() => countryList().getData(), []);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+        if (!token) {
+          setUser(savedUser);
+          setPhone(savedUser.phone || "");
+          setCountry(savedUser.country || "");
+          setTelegram(savedUser.telegram || "");
+          setBio(savedUser.bio || "");
+          setProfileImage(savedUser.profileImage || "");
+          return;
+        }
+
+        const res = await fetch(`${API_BASE}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        const profileUser = data.user || savedUser;
+
+        setTwoFactorEnabled(profileUser.twoFactorEnabled || false);
+        localStorage.setItem("user", JSON.stringify(profileUser));
+
+        setUser(profileUser);
+        setPhone(profileUser.phone || "");
+        setCountry(profileUser.country || "");
+        setTelegram(profileUser.telegram || "");
+        setBio(profileUser.bio || "");
+        setProfileImage(profileUser.profileImage || "");
+
+        try {
+          const kycRes = await fetch(
+            `${API_BASE}/api/kyc/user/${encodeURIComponent(profileUser.email)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          const kycData = await kycRes.json();
+
+          if (kycData.success) {
+            setKycStatus(kycData.status || "not_submitted");
+          }
+        } catch (err) {
+          console.log("KYC status load failed", err);
+        }
+
+        if (profileUser.country) {
+          const found = countryOptions.find(
+            (opt) => opt.label === profileUser.country
+          );
+          setPhoneCountry(found?.value?.toLowerCase() || "us");
+        }
+
+        if (profileUser.kycStatus) {
+          setKycStatus(profileUser.kycStatus);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    loadProfile();
+  }, [countryOptions]);
+
+  const connectedWallet =
+    localStorage.getItem("wallet") ||
+    localStorage.getItem("walletAddress") ||
+    user.wallet ||
+    "";
+
+  const shortWallet = connectedWallet
+    ? `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`
+    : t("notConnected");
+
+  const updateProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
       if (!token) {
-        setUser(savedUser);
-        setPhone(savedUser.phone || "");
-        setCountry(savedUser.country || "");
-        setTelegram(savedUser.telegram || "");
-        setBio(savedUser.bio || "");
-        setProfileImage(savedUser.profileImage || "");
+        alert(t("pleaseLoginFirst"));
         return;
       }
 
-      const res = await fetch(`${API}/api/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const formData = new FormData();
+
+      formData.append("name", user.name || "");
+      formData.append("phone", phone || "");
+      formData.append("country", country || "");
+      formData.append("telegram", telegram || "");
+      formData.append("bio", bio || "");
+
+      if (profileImage instanceof File) {
+        formData.append("profileImage", profileImage);
+      }
+
+      const res = await fetch(`${API_BASE}/api/auth/profile`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       });
 
       const data = await res.json();
-      const profileUser = data.user || savedUser;
-setTwoFactorEnabled(profileUser.twoFactorEnabled || false);
-      localStorage.setItem("user", JSON.stringify(profileUser));
 
-      setUser(profileUser);
-      setPhone(profileUser.phone || "");
-      setCountry(profileUser.country || "");
-      setTelegram(profileUser.telegram || "");
-      setBio(profileUser.bio || "");
-      setProfileImage(profileUser.profileImage || "");
-try {
-  const kycRes = await fetch(
-  `${API}/api/kyc/user/${encodeURIComponent(profileUser.email)}`,
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
-  const kycData = await kycRes.json();
-
-  if (kycData.success) {
-    setKycStatus(kycData.status || "not_submitted");
-  }
-} catch (err) {
-  console.log("KYC status load failed", err);
-}
-      if (profileUser.country) {
-        const found = countryOptions.find(
-          (opt) => opt.label === profileUser.country
-        );
-        setPhoneCountry(found?.value?.toLowerCase() || "us");
-      }
-
-      if (profileUser.kycStatus) {
-        setKycStatus(profileUser.kycStatus);
+      if (data.success) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        alert(t("profileUpdatedSuccessfully"));
+      } else {
+        alert(data.message || t("profileUpdateFailed"));
       }
     } catch (err) {
       console.log(err);
+      alert(t("updateFailed"));
     }
   };
 
-  loadProfile();
-}, [countryOptions]);
-const connectedWallet =
-  localStorage.getItem("wallet") ||
-  localStorage.getItem("walletAddress") ||
-  user.wallet ||
-  "";
- const shortWallet = connectedWallet
-  ? `${connectedWallet.slice(0, 6)}...${connectedWallet.slice(-4)}`
-  : "Not connected";
-  const updateProfile = async () => {
-  try {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
-
-    const formData = new FormData();
-
-formData.append("name", user.name || "");
-formData.append("phone", phone || "");
-formData.append("country", country || "");
-formData.append("telegram", telegram || "");
-formData.append("bio", bio || "");
-
-if (profileImage instanceof File) {
-  formData.append("profileImage", profileImage);
-}
-
-const res = await fetch(`${API}/api/auth/profile`, {
-  method: "PUT",
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-  body: formData,
-});
-
-    const data = await res.json();
-
-    if (data.success) {
-      localStorage.setItem("user", JSON.stringify(data.user));
-      setUser(data.user);
-      alert("Profile updated successfully");
-    } else {
-      alert(data.message || "Profile update failed");
-    }
-  } catch (err) {
-    console.log(err);
-    alert("Update failed");
-  }
-};
-  return (
-    <div className="profile-page">
-      <div className="profile-hero">
-    <div className="profile-avatar">
-  {profileImage && typeof profileImage === "string" ? (
-    <img
-      src={profileImage}
-      alt="Profile"
-      className="profile-avatar-img"
-    />
-  ) : (
-    (user.name || user.email || "U").charAt(0).toUpperCase()
-  )}
-</div>
-
-        <div>
-          <h2>{user.name || "User Profile"}</h2>
-          <p>{user.email || "No email connected"}</p>
-        </div>
-      <span
-  style={{
-    background: twoFactorEnabled ? "#00c853" : "#ff1744",
-    color: "#fff",
-    padding: "6px 12px",
-    borderRadius: "20px",
-    fontSize: "12px",
-    fontWeight: "bold",
-    display: "inline-block",
-    marginTop: "10px"
-  }}
->
-  {twoFactorEnabled ? "🟢 2FA Enabled" : "🔴 2FA Disabled"}
-</span>  
-<span
- className={
+  const kycLabel =
     kycStatus === "approved"
-      ? "profile-badge verified"
+      ? t("verified")
       : kycStatus === "rejected"
-      ? "profile-badge rejected"
-      : "profile-badge pending"
-  }
->
-        {kycStatus === "approved"
-  ? "✅ Verified"
-  : kycStatus === "rejected"
-  ? "❌ Rejected"
-  : kycStatus === "pending"
-  ? "⏳ Pending"
-  : "⚠️ Not Submitted"}
-        </span>
-      </div>
- <div className="profile-card edit-profile-card">
-  <div className="edit-profile-header">
-    <h3>Edit Profile</h3>
-    <p>Update your professional account information</p>
-  </div>
+      ? t("rejected")
+      : kycStatus === "pending"
+      ? t("pending")
+      : t("notSubmitted");
 
-  <div className="profile-form-grid">
-    <div className="profile-field">
-      <label>Phone Number</label>
-      <SafePhoneInput
-      country={phoneCountry}
-        value={phone}
-        onChange={(value) => setPhone(value)}
-        inputClass="profile-phone-input"
-        buttonClass="profile-phone-button"
-        dropdownClass="profile-phone-dropdown"
-        enableSearch={true}
-        placeholder="Enter phone number"
-      />
-    </div>
-
-    <div className="profile-field">
-      <label>Country</label>
-      <Select
-        className="profile-country-select"
-        classNamePrefix="profile-select"
-        options={countryOptions}
-        placeholder="🌍 Select Country"
-        value={countryOptions.find((option) => option.label === country) || null}
-     onChange={(selected) => {
-  setCountry(selected ? selected.label : "");
-  setPhoneCountry(
-    selected?.value ? selected.value.toLowerCase() : "us"
-  );  
-      }}      isSearchable={true}
-        menuPortalTarget={document.body}
-        formatOptionLabel={(option) => (
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span>
-              {String.fromCodePoint(
-                ...option.value
-                  .toUpperCase()
-                  .split("")
-                  .map((c) => 127397 + c.charCodeAt())
-              )}
-            </span>
-            <span>{option.label}</span>
+  return (
+    <PageShell titleKey="profile" subtitleKey="profileSubtitle">
+      <div className="profile-page">
+        <div className="profile-hero">
+          <div className="profile-avatar">
+            {profileImage && typeof profileImage === "string" ? (
+              <img src={profileImage} alt="Profile" className="profile-avatar-img" />
+            ) : (
+              (user.name || user.email || "U").charAt(0).toUpperCase()
+            )}
           </div>
-        )}
-      />
-    </div>
 
-    <div className="profile-field">
-      <label>Telegram Username</label>
-      <input
-        className="profile-input"
-        placeholder="@telegram_username"
-        value={telegram}
-        onChange={(e) => setTelegram(e.target.value)}
-      />
-    </div>
+          <div>
+            <h2>{user.name || t("userProfile")}</h2>
+            <p>{user.email || t("noEmailConnected")}</p>
+          </div>
 
-    <div className="profile-field">
-  <label>Profile Picture</label>
-  <input
-    type="file"
-    accept="image/*"
-    className="profile-input"
-   onChange={(e) => {
-  const file = e.target.files[0];
-  if (file) setProfileImage(file);
-}}
-  />
-</div>
-  </div>
+          <span className={twoFactorEnabled ? "twofa-badge enabled" : "twofa-badge disabled"}>
+            {twoFactorEnabled ? t("twoFaEnabled") : t("twoFaDisabled")}
+          </span>
 
-  <div className="profile-field">
-    <label>Professional Bio</label>
-    <textarea
-      className="profile-input profile-bio"
-      placeholder="Write a short professional bio about yourself"
-      value={bio}
-      onChange={(e) => setBio(e.target.value)}
-    />
-  </div>
-
-  <button className="save-profile-btn" onClick={updateProfile}>
-    Save Profile
-  </button>
-</div>
-      <div className="profile-grid">
-        <div className="profile-card">
-          <h3>Account Information</h3>
-          <p><b>Name:</b> {user.name || "Not available"}</p>
-          <p><b>Email:</b> {user.email || "Not available"}</p>
-          <p><b>User ID:</b> {user._id || user.id || "Not available"}</p>
-          <p><b>Role:</b> {user.role || "user"}</p>
+          <span
+            className={
+              kycStatus === "approved"
+                ? "profile-badge verified"
+                : kycStatus === "rejected"
+                ? "profile-badge rejected"
+                : "profile-badge pending"
+            }
+          >
+            {kycLabel}
+          </span>
         </div>
 
-        <div className="profile-card">
-          <h3>Wallet</h3>
-         <p><b>Status:</b> {connectedWallet ? "Connected" : "Not connected"}</p>
-         <p><b>Address:</b> {connectedWallet ? shortWallet : "Not connected"}</p>
-          <p><b>Network:</b> BNB Smart Chain</p>
+        <div className="profile-card edit-profile-card">
+          <div className="edit-profile-header">
+            <h3>{t("editProfile")}</h3>
+            <p>{t("updateProfessionalInfo")}</p>
+          </div>
+
+          <div className="profile-form-grid">
+            <div className="profile-field">
+              <label>{t("phoneNumber")}</label>
+              <SafePhoneInput
+                country={phoneCountry}
+                value={phone}
+                onChange={(value) => setPhone(value)}
+                inputClass="profile-phone-input"
+                buttonClass="profile-phone-button"
+                dropdownClass="profile-phone-dropdown"
+                enableSearch
+                placeholder={t("enterPhoneNumber")}
+              />
+            </div>
+
+            <div className="profile-field">
+              <label>{t("country")}</label>
+              <Select
+                className="profile-country-select"
+                classNamePrefix="profile-select"
+                options={countryOptions}
+                placeholder={t("selectCountry")}
+                value={countryOptions.find((option) => option.label === country) || null}
+                onChange={(selected) => {
+                  setCountry(selected ? selected.label : "");
+                  setPhoneCountry(selected?.value ? selected.value.toLowerCase() : "us");
+                }}
+                isSearchable
+                menuPortalTarget={document.body}
+                formatOptionLabel={(option) => (
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span>
+                      {String.fromCodePoint(
+                        ...option.value
+                          .toUpperCase()
+                          .split("")
+                          .map((c) => 127397 + c.charCodeAt())
+                      )}
+                    </span>
+                    <span>{option.label}</span>
+                  </div>
+                )}
+              />
+            </div>
+
+            <div className="profile-field">
+              <label>{t("telegramUsername")}</label>
+              <input
+                className="profile-input"
+                placeholder="@telegram_username"
+                value={telegram}
+                onChange={(e) => setTelegram(e.target.value)}
+              />
+            </div>
+
+            <div className="profile-field">
+              <label>{t("profilePicture")}</label>
+              <input
+                type="file"
+                accept="image/*"
+                className="profile-input"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) setProfileImage(file);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="profile-field">
+            <label>{t("professionalBio")}</label>
+            <textarea
+              className="profile-input profile-bio"
+              placeholder={t("writeProfessionalBio")}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+            />
+          </div>
+
+          <button className="save-profile-btn" onClick={updateProfile}>
+            {t("saveProfile")}
+          </button>
         </div>
 
-        <div className="profile-card">
-         <h3>KYC Status</h3>
+        <div className="profile-grid">
+          <div className="profile-card">
+            <h3>{t("accountInformation")}</h3>
+            <p><b>{t("name")}:</b> {user.name || t("notAvailable")}</p>
+            <p><b>{t("email")}:</b> {user.email || t("notAvailable")}</p>
+            <p><b>{t("userId")}:</b> {user._id || user.id || t("notAvailable")}</p>
+            <p><b>{t("role")}:</b> {user.role || "user"}</p>
+          </div>
 
-<p>
-  <b>Status:</b>{" "}
-  {kycStatus === "approved"
-    ? "✅ Verified"
-    : kycStatus === "pending"
-    ? "⏳ Under Review"
-    : kycStatus === "rejected"
-    ? "❌ Rejected"
-    : "⚠️ Not Submitted"}
-</p>
+          <div className="profile-card">
+            <h3>{t("wallet")}</h3>
+            <p><b>{t("status")}:</b> {connectedWallet ? t("connected") : t("notConnected")}</p>
+            <p><b>{t("address")}:</b> {connectedWallet ? shortWallet : t("notConnected")}</p>
+            <p><b>{t("network")}:</b> BNB Smart Chain</p>
+          </div>
 
-<p>
-  <b>Email Verification:</b>{" "}
-  {kycStatus === "approved" ? "✅ Verified" : "⏳ Pending"}
-</p>
+          <div className="profile-card">
+            <h3>{t("kycStatus")}</h3>
+            <p><b>{t("status")}:</b> {kycLabel}</p>
+            <p><b>{t("emailVerification")}:</b> {kycStatus === "approved" ? t("verified") : t("pending")}</p>
+            <p><b>{t("faceVerification")}:</b> {kycStatus === "approved" ? t("verified") : t("pending")}</p>
+          </div>
 
-<p>
-  <b>Face Verification:</b>{" "}
-  {kycStatus === "approved" ? "✅ Verified" : "⏳ Pending"}
-</p>
-        </div>
-
-        <div className="profile-card">
-          <h3>Exchange Activity</h3>
-          <p><b>Orders:</b> View from Orders panel</p>
-          <p><b>P2P:</b> View from P2P panel</p>
-          <p><b>Transactions:</b> View from Transactions panel</p>
-          <p><b>Rewards:</b> View from Rewards panel</p>
+          <div className="profile-card">
+            <h3>{t("exchangeActivity")}</h3>
+            <p><b>{t("orders")}:</b> {t("viewFromOrdersPanel")}</p>
+            <p><b>{t("p2p")}:</b> {t("viewFromP2pPanel")}</p>
+            <p><b>{t("transactions")}:</b> {t("viewFromTransactionsPanel")}</p>
+            <p><b>{t("rewards")}:</b> {t("viewFromRewardsPanel")}</p>
+          </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
 
