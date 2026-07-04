@@ -1,11 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
+import PageShell from "./PageShell";
+import { useI18n } from "../i18n";
 
 function Transactions() {
+  const { t } = useI18n();
+
   const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
-const API = API_BASE.endsWith("/api")
-  ? API_BASE.replace("/api", "")
-  : API_BASE;
+    import.meta.env.VITE_API_URL ||
+    "https://exalt-real-backend-6b6v.onrender.com";
+
+  const API = API_BASE.endsWith("/api")
+    ? API_BASE.replace("/api", "")
+    : API_BASE;
+
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const [transactions, setTransactions] = useState([]);
@@ -105,7 +112,15 @@ const API = API_BASE.endsWith("/api")
 
   const exportCSV = () => {
     const rows = [
-      ["Type", "Amount", "Coin", "Status", "Hash", "Note", "Date"],
+      [
+        t("type"),
+        t("amount"),
+        t("coin"),
+        t("status"),
+        t("hash"),
+        t("note"),
+        t("date"),
+      ],
       ...filteredTransactions.map((tx) => [
         normalizeType(tx),
         normalizeAmount(tx),
@@ -135,160 +150,168 @@ const API = API_BASE.endsWith("/api")
   };
 
   return (
-    <div className="panel transactions-page">
-      <div className="transactions-header">
-        <div>
-          <h2>Transaction History</h2>
-          <p>Track deposits, withdrawals, trades and Web3 activity.</p>
+    <PageShell
+      titleKey="transactions"
+      subtitleKey="transactionsSubtitle"
+    >
+      <div className="panel transactions-page">
+        <div className="transactions-top-action">
+          <button className="action-btn yellow-btn" onClick={loadTransactions}>
+            {t("refresh")}
+          </button>
         </div>
 
-        <button className="action-btn yellow-btn" onClick={loadTransactions}>
-          Refresh
-        </button>
-      </div>
+        <div className="transactions-tools">
+          <input
+            className="web3-input"
+            placeholder={t("searchTransactions")}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-      <div className="transactions-tools">
-        <input
-          className="web3-input"
-          placeholder="Search by type, coin, status, hash..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+          <select
+            className="web3-input"
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+          >
+            <option value="ALL">{t("allTypes")}</option>
+            <option value="DEPOSIT">{t("deposit")}</option>
+            <option value="WITHDRAW">{t("withdrawal")}</option>
+            <option value="TRADE">{t("trade")}</option>
+            <option value="REWARD">{t("reward")}</option>
+            <option value="SEND">{t("send")}</option>
+            <option value="RECEIVE">{t("receive")}</option>
+            <option value="SWAP">{t("swap")}</option>
+          </select>
 
-        <select
-          className="web3-input"
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-        >
-          <option value="ALL">All Types</option>
-          <option value="DEPOSIT">Deposit</option>
-          <option value="WITHDRAW">Withdrawal</option>
-          <option value="TRADE">Trade</option>
-          <option value="REWARD">Reward</option>
-          <option value="SEND">Send</option>
-          <option value="RECEIVE">Receive</option>
-          <option value="SWAP">Swap</option>
-        </select>
+          <select
+            className="web3-input"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="ALL">{t("allStatus")}</option>
+            <option value="PENDING">{t("pending")}</option>
+            <option value="APPROVED">{t("approved")}</option>
+            <option value="SUCCESS">{t("success")}</option>
+            <option value="COMPLETED">{t("completed")}</option>
+            <option value="REJECTED">{t("rejected")}</option>
+            <option value="FAILED">{t("failed")}</option>
+          </select>
 
-        <select
-          className="web3-input"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="ALL">All Status</option>
-          <option value="PENDING">Pending</option>
-          <option value="APPROVED">Approved</option>
-          <option value="SUCCESS">Success</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="REJECTED">Rejected</option>
-          <option value="FAILED">Failed</option>
-        </select>
-
-        <button className="action-btn blue-btn" onClick={exportCSV}>
-          Export CSV
-        </button>
-      </div>
-
-      <div className="transactions-summary">
-        <div>
-          <strong>{transactions.length}</strong>
-          <span>Total</span>
+          <button className="action-btn blue-btn" onClick={exportCSV}>
+            {t("exportCsv")}
+          </button>
         </div>
 
-        <div>
-          <strong>{filteredTransactions.length}</strong>
-          <span>Filtered</span>
+        <div className="transactions-summary">
+          <div>
+            <strong>{transactions.length}</strong>
+            <span>{t("total")}</span>
+          </div>
+
+          <div>
+            <strong>{filteredTransactions.length}</strong>
+            <span>{t("filtered")}</span>
+          </div>
+
+          <div>
+            <strong>
+              {
+                transactions.filter((tx) =>
+                  normalizeStatus(tx).toUpperCase().includes("PENDING")
+                ).length
+              }
+            </strong>
+            <span>{t("pending")}</span>
+          </div>
+
+          <div>
+            <strong>
+              {
+                transactions.filter((tx) => {
+                  const s = normalizeStatus(tx).toUpperCase();
+                  return (
+                    s.includes("SUCCESS") ||
+                    s.includes("APPROVED") ||
+                    s.includes("COMPLETED")
+                  );
+                }).length
+              }
+            </strong>
+            <span>{t("success")}</span>
+          </div>
         </div>
 
-        <div>
-          <strong>
-            {transactions.filter((tx) =>
-              normalizeStatus(tx).toUpperCase().includes("PENDING")
-            ).length}
-          </strong>
-          <span>Pending</span>
-        </div>
+        {loading ? (
+          <p>{t("loadingTransactions")}</p>
+        ) : filteredTransactions.length === 0 ? (
+          <p>{t("noTransactionsFound")}</p>
+        ) : (
+          <div className="transactions-list">
+            {filteredTransactions.map((tx, index) => {
+              const type = normalizeType(tx);
+              const status = normalizeStatus(tx);
+              const coin = normalizeCoin(tx);
+              const amount = normalizeAmount(tx);
+              const hash = tx.txHash || tx.transactionHash || tx.hash || "";
 
-        <div>
-          <strong>
-            {transactions.filter((tx) => {
-              const s = normalizeStatus(tx).toUpperCase();
-              return s.includes("SUCCESS") || s.includes("APPROVED") || s.includes("COMPLETED");
-            }).length}
-          </strong>
-          <span>Success</span>
-        </div>
-      </div>
+              return (
+                <div className="transaction-card-pro" key={tx._id || index}>
+                  <div className="transaction-main-row">
+                    <div>
+                      <h3>{safeText(type)}</h3>
+                      <p>
+                        {amount.toLocaleString()} {coin}
+                      </p>
+                    </div>
 
-      {loading ? (
-        <p>Loading transactions...</p>
-      ) : filteredTransactions.length === 0 ? (
-        <p>No transactions found.</p>
-      ) : (
-        <div className="transactions-list">
-          {filteredTransactions.map((tx, index) => {
-            const type = normalizeType(tx);
-            const status = normalizeStatus(tx);
-            const coin = normalizeCoin(tx);
-            const amount = normalizeAmount(tx);
-            const hash = tx.txHash || tx.transactionHash || tx.hash || "";
-
-            return (
-              <div className="transaction-card-pro" key={tx._id || index}>
-                <div className="transaction-main-row">
-                  <div>
-                    <h3>{safeText(type)}</h3>
-                    <p>
-                      {amount.toLocaleString()} {coin}
-                    </p>
+                    <span
+                      className={`tx-status ${status
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
+                      {safeText(status)}
+                    </span>
                   </div>
 
-                  <span
-                    className={`tx-status ${status
-                      .toLowerCase()
-                      .replace(/\s+/g, "-")}`}
-                  >
-                    {safeText(status)}
-                  </span>
+                  <div className="transaction-info-grid">
+                    <p>
+                      <b>{t("coin")}:</b> {safeText(coin)}
+                    </p>
+
+                    <p>
+                      <b>{t("note")}:</b> {safeText(tx.note || tx.description)}
+                    </p>
+
+                    <p>
+                      <b>{t("date")}:</b>{" "}
+                      {tx.createdAt
+                        ? new Date(tx.createdAt).toLocaleString()
+                        : "N/A"}
+                    </p>
+
+                    <p className="break-text">
+                      <b>{t("hash")}:</b>{" "}
+                      {hash ? (
+                        <a
+                          href={`https://bscscan.com/tx/${hash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {hash.slice(0, 10)}...{hash.slice(-8)}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </p>
+                  </div>
                 </div>
-
-                <div className="transaction-info-grid">
-                  <p>
-                    <b>Coin:</b> {safeText(coin)}
-                  </p>
-
-                  <p>
-                    <b>Note:</b> {safeText(tx.note || tx.description)}
-                  </p>
-
-                  <p>
-                    <b>Date:</b>{" "}
-                    {tx.createdAt
-                      ? new Date(tx.createdAt).toLocaleString()
-                      : "N/A"}
-                  </p>
-
-                  <p className="break-text">
-                    <b>Hash:</b>{" "}
-                    {hash ? (
-                      <a
-                        href={`https://bscscan.com/tx/${hash}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {hash.slice(0, 10)}...{hash.slice(-8)}
-                      </a>
-                    ) : (
-                      "N/A"
-                    )}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </PageShell>
   );
 }
 
