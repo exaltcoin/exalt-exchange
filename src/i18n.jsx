@@ -1125,6 +1125,108 @@ aiP2pHelp:
   "Never release crypto until payment is confirmed. Share order ID and payment proof.",
 aiDefaultHelp:
   "Please provide complete information including screenshots, wallet address, order ID or transaction hash.",
+  settingsSecurity: "Settings & Security",
+settingsSecuritySubtitle:
+  "Manage your account, language, security and authentication.",
+
+accountStatus: "Account Status",
+active: "Active",
+accountStatusText:
+  "Your Exalt Exchange account is active and secured.",
+
+kycStatus: "KYC Status",
+kycStatusText:
+  "Complete identity verification to unlock all exchange features.",
+goToKycVerification: "Go to KYC Verification",
+notVerified: "Not Verified",
+
+twoFactorSecurity: "Two-Factor Security",
+twoFactorSecurityText:
+  "Protect your account with Google Authenticator.",
+enabled: "Enabled",
+disabled: "Disabled",
+
+languagePreferences: "Language Preferences",
+languagePreferencesText:
+  "Choose your preferred language for Exalt Exchange.",
+
+accountInformation: "Account Information",
+accountInformationText:
+  "View your registered account details.",
+
+name: "Name",
+emailAddress: "Email Address",
+role: "Role",
+userId: "User ID",
+
+googleAuthenticator2fa: "Google Authenticator (2FA)",
+googleAuthenticator2faText:
+  "Secure your account with two-factor authentication.",
+
+setupGoogleAuthenticator: "Setup Google Authenticator",
+verifyAndEnable: "Verify & Enable",
+disable2fa: "Disable 2FA",
+
+enterSixDigitCode: "Enter 6-digit code",
+enterAuthenticatorCode: "Enter Google Authenticator code",
+enterAuthenticatorCodeFirst:
+  "Enter Google Authenticator code first",
+
+scanQrCodeAuthenticator:
+  "Scan this QR code using Google Authenticator.",
+
+googleAuthenticatorEnabled:
+  "Google Authenticator enabled successfully.",
+
+googleAuthenticatorDisabled:
+  "Google Authenticator disabled successfully.",
+
+regenerateBackupCodes: "Regenerate Backup Codes",
+newBackupCodesGenerated:
+  "New backup codes generated successfully.",
+
+backupCodeFailed: "Failed to regenerate backup codes",
+
+saveBackupCodes: "Save Your Backup Codes",
+
+backupCodesWarning:
+  "These codes are shown only once. Save them safely. Each code can be used once if you lose your authenticator.",
+
+notificationPreferences: "Notification Preferences",
+
+notificationPreferencesText:
+  "Manage security and account notifications.",
+
+securityAlerts: "Security Alerts",
+depositWithdrawalAlerts: "Deposit & Withdrawal Alerts",
+p2pOrderAlerts: "P2P Order Alerts",
+
+securityRules: "Security Rules",
+
+settingRuleKyc:
+  "KYC verification is required before using all exchange services.",
+
+settingRuleManualReview:
+  "Sensitive account actions are manually reviewed.",
+
+settingRuleWalletMatch:
+  "Wallet ownership verification protects your assets.",
+
+settingRuleBotProtection:
+  "Anti-bot and anti-fraud protection is enabled.",
+
+settingRuleDepositReview:
+  "Deposits and withdrawals are protected by security checks.",
+
+pleaseLoginFirst: "Please login first",
+
+twoFaSetupFailed: "2FA setup failed",
+
+invalidCode: "Invalid verification code",
+
+serverError: "Server error",
+
+loading: "Loading..."
 
   },
 
@@ -2229,6 +2331,110 @@ aiP2pHelp:
   "لا تُفرج عن العملات حتى يتم تأكيد الدفع.",
 aiDefaultHelp:
   "يرجى تقديم جميع التفاصيل مع لقطات الشاشة أو عنوان المحفظة أو معرف المعاملة.",
+  settingsSecurity: "الإعدادات والأمان",
+settingsSecuritySubtitle:
+  "إدارة الحساب واللغة والأمان والمصادقة.",
+
+accountStatus: "حالة الحساب",
+active: "نشط",
+accountStatusText:
+  "حسابك في Exalt Exchange نشط وآمن.",
+
+kycStatus: "حالة التحقق (KYC)",
+kycStatusText:
+  "أكمل التحقق من الهوية لفتح جميع ميزات المنصة.",
+goToKycVerification: "الانتقال إلى التحقق من الهوية",
+notVerified: "غير موثق",
+
+twoFactorSecurity: "المصادقة الثنائية",
+twoFactorSecurityText:
+  "قم بحماية حسابك باستخدام Google Authenticator.",
+enabled: "مفعل",
+disabled: "معطل",
+
+languagePreferences: "تفضيلات اللغة",
+languagePreferencesText:
+  "اختر لغتك المفضلة لمنصة Exalt Exchange.",
+
+accountInformation: "معلومات الحساب",
+accountInformationText:
+  "عرض تفاصيل حسابك المسجل.",
+
+name: "الاسم",
+emailAddress: "البريد الإلكتروني",
+role: "الدور",
+userId: "معرف المستخدم",
+
+googleAuthenticator2fa: "Google Authenticator (2FA)",
+googleAuthenticator2faText:
+  "قم بتأمين حسابك بالمصادقة الثنائية.",
+
+setupGoogleAuthenticator: "إعداد Google Authenticator",
+verifyAndEnable: "تأكيد وتفعيل",
+disable2fa: "تعطيل المصادقة الثنائية",
+
+enterSixDigitCode: "أدخل الرمز المكون من 6 أرقام",
+enterAuthenticatorCode: "أدخل رمز Google Authenticator",
+enterAuthenticatorCodeFirst:
+  "أدخل رمز Google Authenticator أولاً",
+
+scanQrCodeAuthenticator:
+  "امسح رمز QR باستخدام Google Authenticator.",
+
+googleAuthenticatorEnabled:
+  "تم تفعيل Google Authenticator بنجاح.",
+
+googleAuthenticatorDisabled:
+  "تم تعطيل Google Authenticator بنجاح.",
+
+regenerateBackupCodes: "إنشاء رموز احتياطية جديدة",
+newBackupCodesGenerated:
+  "تم إنشاء رموز احتياطية جديدة بنجاح.",
+
+backupCodeFailed:
+  "فشل في إنشاء الرموز الاحتياطية.",
+
+saveBackupCodes: "احفظ الرموز الاحتياطية",
+
+backupCodesWarning:
+  "سيتم عرض هذه الرموز مرة واحدة فقط. احتفظ بها في مكان آمن. يمكن استخدام كل رمز مرة واحدة فقط.",
+
+notificationPreferences: "إعدادات الإشعارات",
+
+notificationPreferencesText:
+  "إدارة إشعارات الأمان والحساب.",
+
+securityAlerts: "تنبيهات الأمان",
+depositWithdrawalAlerts: "تنبيهات الإيداع والسحب",
+p2pOrderAlerts: "تنبيهات تداول P2P",
+
+securityRules: "قواعد الأمان",
+
+settingRuleKyc:
+  "التحقق من الهوية مطلوب لاستخدام جميع خدمات المنصة.",
+
+settingRuleManualReview:
+  "تتم مراجعة العمليات الحساسة يدويًا.",
+
+settingRuleWalletMatch:
+  "التحقق من ملكية المحفظة يحمي أصولك.",
+
+settingRuleBotProtection:
+  "تم تفعيل الحماية ضد الاحتيال والروبوتات.",
+
+settingRuleDepositReview:
+  "الإيداعات والسحوبات محمية بفحوصات أمنية.",
+
+pleaseLoginFirst: "يرجى تسجيل الدخول أولاً.",
+
+twoFaSetupFailed:
+  "فشل إعداد المصادقة الثنائية.",
+
+invalidCode: "رمز التحقق غير صحيح.",
+
+serverError: "خطأ في الخادم.",
+
+loading: "جاري التحميل..."
 
   },
 
@@ -3331,6 +3537,148 @@ aiP2pHelp:
   "ادائیگی کی تصدیق سے پہلے کبھی بھی کرپٹو ریلیز نہ کریں۔",
 aiDefaultHelp:
   "براہ کرم مکمل معلومات، اسکرین شاٹس، والیٹ ایڈریس یا TX Hash فراہم کریں۔",
+  settingsSecurity: "سیٹنگز اور سیکیورٹی",
+
+settingsSecuritySubtitle:
+  "اپنا اکاؤنٹ، زبان، سیکیورٹی اور تصدیق کا انتظام کریں۔",
+
+accountStatus: "اکاؤنٹ کی حیثیت",
+
+active: "فعال",
+
+accountStatusText:
+  "آپ کا Exalt Exchange اکاؤنٹ فعال اور محفوظ ہے۔",
+
+kycStatus: "KYC کی حیثیت",
+
+kycStatusText:
+  "تمام ایکسچینج فیچرز استعمال کرنے کے لیے شناخت کی تصدیق مکمل کریں۔",
+
+goToKycVerification: "KYC ویریفکیشن پر جائیں",
+
+notVerified: "ویریفائی نہیں ہوا",
+
+twoFactorSecurity: "ٹو فیکٹر سیکیورٹی",
+
+twoFactorSecurityText:
+  "Google Authenticator کے ذریعے اپنے اکاؤنٹ کو محفوظ بنائیں۔",
+
+enabled: "فعال",
+
+disabled: "غیر فعال",
+
+languagePreferences: "زبان کی ترجیحات",
+
+languagePreferencesText:
+  "Exalt Exchange کے لیے اپنی پسندیدہ زبان منتخب کریں۔",
+
+accountInformation: "اکاؤنٹ کی معلومات",
+
+accountInformationText:
+  "اپنے رجسٹرڈ اکاؤنٹ کی معلومات دیکھیں۔",
+
+name: "نام",
+
+emailAddress: "ای میل ایڈریس",
+
+role: "رول",
+
+userId: "یوزر آئی ڈی",
+
+googleAuthenticator2fa: "گوگل آتھنٹیکیٹر (2FA)",
+
+googleAuthenticator2faText:
+  "ٹو فیکٹر تصدیق کے ذریعے اپنے اکاؤنٹ کو محفوظ کریں۔",
+
+setupGoogleAuthenticator:
+  "گوگل آتھنٹیکیٹر سیٹ اپ کریں",
+
+verifyAndEnable:
+  "تصدیق کریں اور فعال کریں",
+
+disable2fa:
+  "2FA بند کریں",
+
+enterSixDigitCode:
+  "6 ہندسوں کا کوڈ درج کریں",
+
+enterAuthenticatorCode:
+  "گوگل آتھنٹیکیٹر کا کوڈ درج کریں",
+
+enterAuthenticatorCodeFirst:
+  "پہلے گوگل آتھنٹیکیٹر کا کوڈ درج کریں",
+
+scanQrCodeAuthenticator:
+  "Google Authenticator سے QR کوڈ اسکین کریں۔",
+
+googleAuthenticatorEnabled:
+  "گوگل آتھنٹیکیٹر کامیابی سے فعال ہوگیا۔",
+
+googleAuthenticatorDisabled:
+  "گوگل آتھنٹیکیٹر کامیابی سے بند کردیا گیا۔",
+
+regenerateBackupCodes:
+  "نئے بیک اپ کوڈز بنائیں",
+
+newBackupCodesGenerated:
+  "نئے بیک اپ کوڈز کامیابی سے بن گئے۔",
+
+backupCodeFailed:
+  "بیک اپ کوڈز بنانے میں ناکامی۔",
+
+saveBackupCodes:
+  "اپنے بیک اپ کوڈز محفوظ کریں",
+
+backupCodesWarning:
+  "یہ کوڈز صرف ایک مرتبہ دکھائے جائیں گے۔ انہیں محفوظ جگہ پر رکھیں۔ ہر کوڈ صرف ایک مرتبہ استعمال کیا جا سکتا ہے۔",
+
+notificationPreferences:
+  "نوٹیفکیشن کی ترتیبات",
+
+notificationPreferencesText:
+  "سیکیورٹی اور اکاؤنٹ نوٹیفکیشنز کا انتظام کریں۔",
+
+securityAlerts:
+  "سیکیورٹی الرٹس",
+
+depositWithdrawalAlerts:
+  "ڈپازٹ اور وڈڈرال الرٹس",
+
+p2pOrderAlerts:
+  "P2P آرڈر الرٹس",
+
+securityRules:
+  "سیکیورٹی قوانین",
+
+settingRuleKyc:
+  "تمام ایکسچینج سروسز استعمال کرنے کے لیے KYC ضروری ہے۔",
+
+settingRuleManualReview:
+  "حساس اکاؤنٹ سرگرمیوں کا دستی جائزہ لیا جاتا ہے۔",
+
+settingRuleWalletMatch:
+  "والیٹ کی ملکیت کی تصدیق آپ کے اثاثوں کی حفاظت کرتی ہے۔",
+
+settingRuleBotProtection:
+  "اینٹی بوٹ اور اینٹی فراڈ سسٹم فعال ہے۔",
+
+settingRuleDepositReview:
+  "تمام ڈپازٹس اور وڈڈرال سیکیورٹی چیکس سے گزرتے ہیں۔",
+
+pleaseLoginFirst:
+  "براہ کرم پہلے لاگ اِن کریں۔",
+
+twoFaSetupFailed:
+  "2FA سیٹ اپ ناکام ہوگیا۔",
+
+invalidCode:
+  "غلط تصدیقی کوڈ۔",
+
+serverError:
+  "سرور میں خرابی۔",
+
+loading:
+  "لوڈ ہو رہا ہے..."
 
   },
 
@@ -4447,6 +4795,149 @@ aiP2pHelp:
   "Payment confirm होने से पहले Crypto release न करें।",
 aiDefaultHelp:
   "Screenshots, Wallet Address, Order ID या Transaction Hash जरूर दें।",
+  settingsSecurity: "सेटिंग्स और सुरक्षा",
+
+settingsSecuritySubtitle:
+  "अपने अकाउंट, भाषा, सुरक्षा और प्रमाणीकरण को प्रबंधित करें।",
+
+accountStatus: "अकाउंट स्थिति",
+
+active: "सक्रिय",
+
+accountStatusText:
+  "आपका Exalt Exchange अकाउंट सक्रिय और सुरक्षित है।",
+
+kycStatus: "KYC स्थिति",
+
+kycStatusText:
+  "सभी एक्सचेंज सुविधाओं का उपयोग करने के लिए अपनी पहचान सत्यापित करें।",
+
+goToKycVerification: "KYC सत्यापन पर जाएँ",
+
+notVerified: "सत्यापित नहीं",
+
+twoFactorSecurity: "टू-फैक्टर सुरक्षा",
+
+twoFactorSecurityText:
+  "Google Authenticator से अपने अकाउंट को सुरक्षित करें।",
+
+enabled: "सक्रिय",
+
+disabled: "अक्षम",
+
+languagePreferences: "भाषा प्राथमिकताएँ",
+
+languagePreferencesText:
+  "Exalt Exchange के लिए अपनी पसंदीदा भाषा चुनें।",
+
+accountInformation: "अकाउंट जानकारी",
+
+accountInformationText:
+  "अपने पंजीकृत अकाउंट की जानकारी देखें।",
+
+name: "नाम",
+
+emailAddress: "ईमेल पता",
+
+role: "भूमिका",
+
+userId: "यूज़र आईडी",
+
+googleAuthenticator2fa:
+  "Google Authenticator (2FA)",
+
+googleAuthenticator2faText:
+  "टू-फैक्टर प्रमाणीकरण के साथ अपने अकाउंट को सुरक्षित रखें।",
+
+setupGoogleAuthenticator:
+  "Google Authenticator सेटअप करें",
+
+verifyAndEnable:
+  "सत्यापित करें और सक्रिय करें",
+
+disable2fa:
+  "2FA बंद करें",
+
+enterSixDigitCode:
+  "6 अंकों का कोड दर्ज करें",
+
+enterAuthenticatorCode:
+  "Google Authenticator कोड दर्ज करें",
+
+enterAuthenticatorCodeFirst:
+  "पहले Google Authenticator कोड दर्ज करें",
+
+scanQrCodeAuthenticator:
+  "Google Authenticator से QR कोड स्कैन करें।",
+
+googleAuthenticatorEnabled:
+  "Google Authenticator सफलतापूर्वक सक्रिय हो गया।",
+
+googleAuthenticatorDisabled:
+  "Google Authenticator सफलतापूर्वक बंद कर दिया गया।",
+
+regenerateBackupCodes:
+  "नए बैकअप कोड बनाएँ",
+
+newBackupCodesGenerated:
+  "नए बैकअप कोड सफलतापूर्वक बना दिए गए।",
+
+backupCodeFailed:
+  "बैकअप कोड बनाने में विफल।",
+
+saveBackupCodes:
+  "अपने बैकअप कोड सुरक्षित रखें",
+
+backupCodesWarning:
+  "ये कोड केवल एक बार दिखाए जाएँगे। इन्हें सुरक्षित रखें। प्रत्येक कोड केवल एक बार उपयोग किया जा सकता है।",
+
+notificationPreferences:
+  "नोटिफिकेशन प्राथमिकताएँ",
+
+notificationPreferencesText:
+  "सुरक्षा और अकाउंट नोटिफिकेशन प्रबंधित करें।",
+
+securityAlerts:
+  "सुरक्षा अलर्ट",
+
+depositWithdrawalAlerts:
+  "डिपॉज़िट और निकासी अलर्ट",
+
+p2pOrderAlerts:
+  "P2P ऑर्डर अलर्ट",
+
+securityRules:
+  "सुरक्षा नियम",
+
+settingRuleKyc:
+  "सभी एक्सचेंज सेवाओं के उपयोग के लिए KYC आवश्यक है।",
+
+settingRuleManualReview:
+  "संवेदनशील अकाउंट गतिविधियों की मैन्युअल समीक्षा की जाती है।",
+
+settingRuleWalletMatch:
+  "वॉलेट स्वामित्व सत्यापन आपकी संपत्तियों की सुरक्षा करता है।",
+
+settingRuleBotProtection:
+  "एंटी-बॉट और एंटी-फ्रॉड सुरक्षा सक्रिय है।",
+
+settingRuleDepositReview:
+  "सभी डिपॉज़िट और निकासी सुरक्षा जांच से गुजरते हैं।",
+
+pleaseLoginFirst:
+  "कृपया पहले लॉगिन करें।",
+
+twoFaSetupFailed:
+  "2FA सेटअप विफल रहा।",
+
+invalidCode:
+  "अमान्य सत्यापन कोड।",
+
+serverError:
+  "सर्वर त्रुटि।",
+
+loading:
+  "लोड हो रहा है..."
 
   },
 };
