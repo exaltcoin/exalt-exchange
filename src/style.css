@@ -4606,3 +4606,32 @@ overflow-x:scroll;
   content: "● ";
   color: #22c55e;
 }
+.notification-card {
+  transition: all 0.25s ease;
+}
+
+.wallets-page {
+  direction: inherit;
+}
+
+html[dir="rtl"] .wallets-page,
+body.rtl .wallets-page {
+  direction: rtl;
+  text-align: right;
+}
+
+.wallet-box,
+.wallet-pro-card,
+.wallet-address-card,
+.bank-info-box,
+.wallet-security-box {
+  transition: 0.25s ease;
+}
+
+.wallet-box:hover,
+.wallet-pro-card:hover,
+.wallet-address-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(240,185,11,.35);
+  box-shadow: 0 10px 25px rgba(240,185,11,.12);
+}
