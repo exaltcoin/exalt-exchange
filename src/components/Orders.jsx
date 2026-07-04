@@ -187,12 +187,7 @@ function Orders() {
 
   return (
     <PageShell titleKey="orders" subtitleKey="ordersSubtitle">
-      <div className="panel orders-page">
-        <div className="orders-top-action">
-          <button className="action-btn yellow-btn" onClick={loadOrders}>
-            {t("refresh")}
-          </button>
-        </div>
+      
 
         <div className="orders-stats">
           <div>
@@ -343,7 +338,6 @@ function Orders() {
             </table>
           </div>
         )}
-      </div>
     </PageShell>
   );
 }
