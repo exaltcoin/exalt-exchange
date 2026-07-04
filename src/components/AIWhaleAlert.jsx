@@ -1,42 +1,46 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import PageShell from "./PageShell";
+import { useI18n } from "../i18n";
 import "./AIWhaleAlert.css";
+
 const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
-
 const formatMoney = (value) => `$${Number(value || 0).toLocaleString()}`;
 
-const defaultAlerts = [
-  {
-    _id: "local-btc",
-    symbol: "BTCUSDT",
-    title: "BTC Whale Accumulation",
-    alertType: "Buy Pressure",
-    amountUSD: 1250000,
-    priority: "High",
-    status: "Active",
-    signal: "Bullish",
-    confidence: 91,
-    message: "Large BTC whale buying pressure detected. Monitor breakout zone.",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: "local-eth",
-    symbol: "ETHUSDT",
-    title: "ETH Smart Money Movement",
-    alertType: "Wallet Movement",
-    amountUSD: 780000,
-    priority: "Medium",
-    status: "Watching",
-    signal: "Neutral",
-    confidence: 84,
-    message: "ETH whale wallets are moving funds. Wait for confirmation.",
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export default function AIWhaleAlert() {
+  const { t } = useI18n();
+
+  const defaultAlerts = [
+    {
+      _id: "local-btc",
+      symbol: "BTCUSDT",
+      title: "BTC Whale Accumulation",
+      alertType: "Buy Pressure",
+      amountUSD: 1250000,
+      priority: "High",
+      status: "Active",
+      signal: "Bullish",
+      confidence: 91,
+      message: "Large BTC whale buying pressure detected. Monitor breakout zone.",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      _id: "local-eth",
+      symbol: "ETHUSDT",
+      title: "ETH Smart Money Movement",
+      alertType: "Wallet Movement",
+      amountUSD: 780000,
+      priority: "Medium",
+      status: "Watching",
+      signal: "Neutral",
+      confidence: 84,
+      message: "ETH whale wallets are moving funds. Wait for confirmation.",
+      createdAt: new Date().toISOString(),
+    },
+  ];
+
   const [alerts, setAlerts] = useState([]);
   const [form, setForm] = useState({
     symbol: "BTCUSDT",
@@ -45,6 +49,7 @@ export default function AIWhaleAlert() {
     notifyTelegram: true,
     notifyEmail: false,
   });
+
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
@@ -52,7 +57,7 @@ export default function AIWhaleAlert() {
   const token = localStorage.getItem("token");
 
   const authHeaders = useMemo(
-    () => ({ headers: { Authorization: `Bearer ${token}` } }),
+    () => ({ headers: { Authorization: `Bearer ${token || ""}` } }),
     [token]
   );
 
@@ -65,7 +70,7 @@ export default function AIWhaleAlert() {
       setAlerts(res.data?.alerts || defaultAlerts);
     } catch {
       setAlerts(defaultAlerts);
-      setError("Backend not connected yet. Showing local preview alerts.");
+      setError(t("backendPreviewAlerts"));
     } finally {
       setLoading(false);
     }
@@ -77,6 +82,7 @@ export default function AIWhaleAlert() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -110,7 +116,7 @@ export default function AIWhaleAlert() {
         status: "Active",
         signal: "Bullish",
         confidence: 88,
-        message: `Whale alert created for ${form.symbol}. Backend will save after API connection.`,
+        message: `${t("whaleAlertCreatedFor")} ${form.symbol}. ${t("backendWillSaveAfterApi")}`,
         createdAt: new Date().toISOString(),
       };
 
@@ -128,130 +134,132 @@ export default function AIWhaleAlert() {
   };
 
   if (loading) {
-    return <div className="whale-alert-page">Loading AI Whale Alerts...</div>;
+    return (
+      <PageShell titleKey="aiWhaleAlert" subtitleKey="aiWhaleAlertSubtitle">
+        <div className="whale-alert-page">{t("loadingWhaleAlerts")}</div>
+      </PageShell>
+    );
   }
 
   return (
-    <div className="whale-alert-page">
-      <div className="whale-alert-header">
-        <div>
-          <h1>AI Whale Alert System</h1>
-          <p>
-            Create real-time whale alerts for large wallet movements, buy/sell pressure,
-            smart money activity and high-impact market signals.
-          </p>
+    <PageShell titleKey="aiWhaleAlert" subtitleKey="aiWhaleAlertSubtitle">
+      <div className="whale-alert-page">
+        <div className="whale-alert-top-action">
+          <button onClick={fetchAlerts}>{t("refresh")}</button>
         </div>
 
-        <button onClick={fetchAlerts}>Refresh</button>
-      </div>
+        {error && <div className="whale-alert-warning">{error}</div>}
 
-      {error && <div className="whale-alert-warning">{error}</div>}
+        <div className="whale-alert-stats">
+          <div><span>{t("totalAlerts")}</span><strong>{stats.total}</strong></div>
+          <div><span>{t("bullish")}</span><strong>{stats.bullish}</strong></div>
+          <div><span>{t("bearish")}</span><strong>{stats.bearish}</strong></div>
+          <div><span>{t("highPriority")}</span><strong>{stats.high}</strong></div>
+        </div>
 
-      <div className="whale-alert-stats">
-        <div><span>Total Alerts</span><strong>{stats.total}</strong></div>
-        <div><span>Bullish</span><strong>{stats.bullish}</strong></div>
-        <div><span>Bearish</span><strong>{stats.bearish}</strong></div>
-        <div><span>High Priority</span><strong>{stats.high}</strong></div>
-      </div>
+        <div className="whale-alert-layout">
+          <form className="whale-alert-form" onSubmit={createAlert}>
+            <h2>{t("createWhaleAlert")}</h2>
 
-      <div className="whale-alert-layout">
-        <form className="whale-alert-form" onSubmit={createAlert}>
-          <h2>Create Whale Alert</h2>
-
-          <label>
-            Symbol
-            <select name="symbol" value={form.symbol} onChange={handleChange}>
-              <option>BTCUSDT</option>
-              <option>ETHUSDT</option>
-              <option>BNBUSDT</option>
-              <option>SOLUSDT</option>
-              <option>XRPUSDT</option>
-            </select>
-          </label>
-
-          <label>
-            Alert Type
-            <select name="alertType" value={form.alertType} onChange={handleChange}>
-              <option>Buy Pressure</option>
-              <option>Sell Pressure</option>
-              <option>Wallet Movement</option>
-              <option>Extreme Heat Zone</option>
-              <option>Smart Money Entry</option>
-            </select>
-          </label>
-
-          <label>
-            Minimum Whale Amount USD
-            <input
-              name="minAmountUSD"
-              type="number"
-              value={form.minAmountUSD}
-              onChange={handleChange}
-            />
-          </label>
-
-          <div className="whale-alert-checks">
             <label>
-              <input
-                type="checkbox"
-                name="notifyTelegram"
-                checked={form.notifyTelegram}
-                onChange={handleChange}
-              />
-              Telegram Alert
+              {t("symbol")}
+              <select name="symbol" value={form.symbol} onChange={handleChange}>
+                <option>BTCUSDT</option>
+                <option>ETHUSDT</option>
+                <option>BNBUSDT</option>
+                <option>SOLUSDT</option>
+                <option>XRPUSDT</option>
+              </select>
             </label>
 
             <label>
+              {t("alertType")}
+              <select name="alertType" value={form.alertType} onChange={handleChange}>
+                <option>Buy Pressure</option>
+                <option>Sell Pressure</option>
+                <option>Wallet Movement</option>
+                <option>Extreme Heat Zone</option>
+                <option>Smart Money Entry</option>
+              </select>
+            </label>
+
+            <label>
+              {t("minimumWhaleAmountUsd")}
               <input
-                type="checkbox"
-                name="notifyEmail"
-                checked={form.notifyEmail}
+                name="minAmountUSD"
+                type="number"
+                value={form.minAmountUSD}
                 onChange={handleChange}
               />
-              Email Alert
             </label>
-          </div>
 
-          <button type="submit" disabled={creating}>
-            {creating ? "Creating..." : "Create AI Whale Alert"}
-          </button>
-        </form>
+            <div className="whale-alert-checks">
+              <label>
+                <input
+                  type="checkbox"
+                  name="notifyTelegram"
+                  checked={form.notifyTelegram}
+                  onChange={handleChange}
+                />
+                {t("telegramAlert")}
+              </label>
 
-        <div className="whale-alert-list">
-          <div className="whale-alert-list-head">
-            <h2>Live Whale Alerts</h2>
-            <span>{alerts.length} records</span>
-          </div>
-
-          {alerts.map((item) => (
-            <div className="whale-alert-card" key={item._id}>
-              <div className="whale-alert-card-top">
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.symbol} • {item.alertType}</p>
-                </div>
-
-                <span className={`alert-signal ${item.signal?.toLowerCase()}`}>
-                  {item.signal}
-                </span>
-              </div>
-
-              <div className="whale-alert-grid">
-                <span>Amount <b>{formatMoney(item.amountUSD)}</b></span>
-                <span>Priority <b>{item.priority}</b></span>
-                <span>Status <b>{item.status}</b></span>
-                <span>AI Confidence <b>{item.confidence}%</b></span>
-              </div>
-
-              <p className="whale-alert-message">{item.message}</p>
-
-              <small>
-                Created: {new Date(item.createdAt).toLocaleString()}
-              </small>
+              <label>
+                <input
+                  type="checkbox"
+                  name="notifyEmail"
+                  checked={form.notifyEmail}
+                  onChange={handleChange}
+                />
+                {t("emailAlert")}
+              </label>
             </div>
-          ))}
+
+            <button type="submit" disabled={creating}>
+              {creating ? t("creating") : t("createAiWhaleAlert")}
+            </button>
+          </form>
+
+          <div className="whale-alert-list">
+            <div className="whale-alert-list-head">
+              <h2>{t("liveWhaleAlerts")}</h2>
+              <span>{alerts.length} {t("records")}</span>
+            </div>
+
+            {alerts.length === 0 ? (
+              <div className="whale-alert-empty">{t("noAlertsFound")}</div>
+            ) : (
+              alerts.map((item) => (
+                <div className="whale-alert-card" key={item._id}>
+                  <div className="whale-alert-card-top">
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.symbol} • {item.alertType}</p>
+                    </div>
+
+                    <span className={`alert-signal ${item.signal?.toLowerCase()}`}>
+                      {item.signal}
+                    </span>
+                  </div>
+
+                  <div className="whale-alert-grid">
+                    <span>{t("amount")} <b>{formatMoney(item.amountUSD)}</b></span>
+                    <span>{t("priority")} <b>{item.priority}</b></span>
+                    <span>{t("status")} <b>{item.status}</b></span>
+                    <span>{t("aiConfidence")} <b>{item.confidence}%</b></span>
+                  </div>
+
+                  <p className="whale-alert-message">{item.message}</p>
+
+                  <small>
+                    {t("created")}: {new Date(item.createdAt).toLocaleString()}
+                  </small>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
