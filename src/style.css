@@ -4776,3 +4776,82 @@ body.rtl .wallets-page {
     width: 100% !important;
   }
 }
+.topbar-main-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  width:100%;
+}
+
+.topbar-brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.topbar-logo{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  object-fit:contain;
+  flex-shrink:0;
+}
+
+.topbar-profile-btn{
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  background:#151b2b;
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+.topbar-language-row{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin-top:12px;
+}
+
+@media(max-width:768px){
+  .topbar{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:0 !important;
+    padding:18px 14px !important;
+  }
+
+  .topbar-main-row{
+    display:flex !important;
+  }
+
+  .topbar-brand h2{
+    font-size:20px !important;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin:0;
+  }
+
+  .topbar-brand p{
+    font-size:12px !important;
+    margin:4px 0 0;
+  }
+
+  .topbar-logo{
+    width:42px !important;
+    height:42px !important;
+  }
+
+  .topbar-language-row .language-switcher,
+  .topbar-language-row select{
+    max-width:260px !important;
+    width:100% !important;
+  }
+}
