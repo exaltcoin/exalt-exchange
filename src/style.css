@@ -4635,3 +4635,144 @@ body.rtl .wallets-page {
   border-color: rgba(240,185,11,.35);
   box-shadow: 0 10px 25px rgba(240,185,11,.12);
 }
+/* ===== MOBILE GLOBAL LAYOUT FIX ===== */
+@media (max-width: 768px) {
+  body,
+  #root {
+    overflow-x: hidden;
+    background: #0b0f19;
+  }
+
+  .app,
+  .main-content,
+  .dashboard,
+  .dashboard-page,
+  .page,
+  .panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Header mobile structure */
+  .top-header,
+  .app-header,
+  .dashboard-header,
+  .mobile-header,
+  .header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    padding: 14px 14px 8px !important;
+    min-height: 64px !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+
+  /* Logo always visible */
+  .header-logo,
+  .logo,
+  .exchange-logo,
+  .top-logo,
+  .app-logo {
+    display: block !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    object-fit: contain !important;
+    border-radius: 50% !important;
+    z-index: 20 !important;
+  }
+
+  /* Title should not be hidden */
+  .header-title,
+  .app-title,
+  .exchange-title,
+  .dashboard-title,
+  .top-header h1,
+  .app-header h1,
+  .dashboard-header h1,
+  .mobile-header h1,
+  .header h1 {
+    display: block !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    z-index: 20 !important;
+  }
+
+  /* Profile button right side */
+  .profile-btn,
+  .user-icon,
+  .header-profile,
+  .account-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    z-index: 20 !important;
+  }
+
+  /* Language selector should go below header, not over logo */
+  .language-switcher,
+  .language-card,
+  .language-box,
+  .page-language {
+    position: static !important;
+    width: 100% !important;
+    max-width: 260px !important;
+    margin: 8px auto 16px !important;
+    transform: none !important;
+    z-index: 1 !important;
+  }
+
+  .language-switcher select,
+  .language-card select,
+  .language-box select,
+  .page-language select {
+    width: 100% !important;
+    max-width: 260px !important;
+    font-size: 14px !important;
+    padding: 10px 14px !important;
+  }
+
+  /* Dashboard cards mobile */
+  .stats-grid,
+  .dashboard-grid,
+  .feature-grid,
+  .quick-actions,
+  .wallet-pro-grid,
+  .settings-grid,
+  .settings-overview-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* If you want 3 small dashboard icons per row */
+  .dashboard-actions-grid,
+  .home-action-grid,
+  .menu-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .dashboard-actions-grid > *,
+  .home-action-grid > *,
+  .menu-grid > * {
+    min-height: 110px !important;
+    padding: 14px 8px !important;
+  }
+
+  /* Bottom nav mobile */
+  .bottom-nav {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+    width: 100% !important;
+  }
+}
