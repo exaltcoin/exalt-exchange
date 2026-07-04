@@ -3,10 +3,20 @@ import QRCode from "react-qr-code";
 import exaltLogo from "../assets/exalt-coin.png";
 import exchangeLogo from "../assets/exalt-exchange.png";
 import { ethers } from "ethers";
+import PageShell from "./PageShell";
+import { useI18n } from "../i18n";
 
 function Web3Wallet() {
+  const { t } = useI18n();
+
   const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+    import.meta.env.VITE_API_URL ||
+    "https://exalt-real-backend-6b6v.onrender.com";
+
+  const API = API_BASE.endsWith("/api")
+    ? API_BASE.replace("/api", "")
+    : API_BASE;
+
   const ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
   const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
   const EXALT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
@@ -96,7 +106,7 @@ function Web3Wallet() {
   const [message, setMessage] = useState("");
 
   const shortAddress = (address) => {
-    if (!address) return "Wallet not connected";
+    if (!address) return t("walletNotConnected");
     return `${address.slice(0, 8)}...${address.slice(-6)}`;
   };
 
@@ -112,20 +122,22 @@ function Web3Wallet() {
     if (live > 0) return live;
     return DEFAULT_TOKENS.find((x) => x.symbol === symbol)?.fallbackPrice || 0;
   };
-const getCoinLogo = (coin) => {
-  const symbol = String(coin?.symbol || "").toUpperCase();
 
-  if (symbol === "EXALT") return exaltLogo;
+  const getCoinLogo = (coin) => {
+    const symbol = String(coin?.symbol || "").toUpperCase();
 
-  return (
-    coin?.logo ||
-    coin?.image ||
-    coin?.icon ||
-    `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`
-  );
-};
+    if (symbol === "EXALT") return exaltLogo;
+
+    return (
+      coin?.logo ||
+      coin?.image ||
+      coin?.icon ||
+      `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`
+    );
+  };
+
   const switchToBSC = async () => {
-    if (!window.ethereum) throw new Error("Wallet not found");
+    if (!window.ethereum) throw new Error(t("walletNotFound"));
 
     const provider = new ethers.BrowserProvider(window.ethereum);
     const network = await provider.getNetwork();
@@ -266,7 +278,7 @@ const getCoinLogo = (coin) => {
               : value.toFixed(4);
 
           total += value * getTokenPrice(token.symbol);
-        } catch (error) {
+        } catch {
           newBalances[token.symbol] = "0.0000";
         }
       }
@@ -277,11 +289,10 @@ const getCoinLogo = (coin) => {
       console.log("Balance loading error:", error);
     }
   };
-
   const connectWeb3 = async () => {
     try {
       if (!window.ethereum) {
-        alert("Please install MetaMask or Trust Wallet");
+        alert(t("installWalletApp"));
         return;
       }
 
@@ -291,7 +302,7 @@ const getCoinLogo = (coin) => {
       const accounts = await provider.send("eth_requestAccounts", []);
 
       if (!accounts || !accounts.length) {
-        alert("No wallet account found");
+        alert(t("noWalletAccountFound"));
         return;
       }
 
@@ -304,10 +315,10 @@ const getCoinLogo = (coin) => {
       await loadBalances(address);
       await loadMongoHistory(address);
 
-      alert("Wallet connected successfully");
+      alert(t("walletConnectedSuccessfully"));
     } catch (error) {
       console.log(error);
-      alert("Wallet connection failed");
+      alert(t("walletConnectionFailed"));
     }
   };
 
@@ -317,19 +328,19 @@ const getCoinLogo = (coin) => {
     setBalances({});
     setTotalAssets("0.00");
     localStorage.removeItem("web3_wallet");
-    alert("Wallet disconnected");
+    alert(t("walletDisconnected"));
   };
 
   const copyAddress = () => {
-    if (!wallet) return alert("Wallet not connected");
+    if (!wallet) return alert(t("walletNotConnected"));
     navigator.clipboard.writeText(wallet);
-    alert("Wallet address copied");
+    alert(t("walletAddressCopied"));
   };
 
   const sendBNB = async () => {
     try {
-      if (!wallet) return alert("Connect wallet first");
-      if (!sendTo || !amount) return alert("Enter receiver address and amount");
+      if (!wallet) return alert(t("connectWalletFirst"));
+      if (!sendTo || !amount) return alert(t("enterReceiverAmount"));
 
       await switchToBSC();
 
@@ -341,10 +352,10 @@ const getCoinLogo = (coin) => {
       const sendAmount = ethers.parseEther(amount);
 
       if (balance < sendAmount + gasReserve) {
-        return alert("Insufficient BNB. Keep at least 0.01 BNB for gas fees.");
+        return alert(t("insufficientBnbGas"));
       }
 
-      setMessage("BNB transaction pending...");
+      setMessage(t("bnbTransactionPending"));
 
       const tx = await signer.sendTransaction({
         to: sendTo,
@@ -356,18 +367,18 @@ const getCoinLogo = (coin) => {
       await saveTx("Send BNB", tx.hash, amount, "BNB");
       await loadBalances(wallet);
 
-      setMessage(`✅ Transaction Confirmed: https://bscscan.com/tx/${tx.hash}`);
-      alert("BNB sent successfully");
+      setMessage(`✅ ${t("transactionConfirmed")}: https://bscscan.com/tx/${tx.hash}`);
+      alert(t("bnbSentSuccessfully"));
     } catch (error) {
       console.log(error);
-      alert("BNB send failed");
+      alert(t("bnbSendFailed"));
     }
   };
 
   const sendToken = async (coin) => {
     try {
-      if (!wallet) return alert("Connect wallet first");
-      if (!sendTo || !amount) return alert("Enter receiver address and amount");
+      if (!wallet) return alert(t("connectWalletFirst"));
+      if (!sendTo || !amount) return alert(t("enterReceiverAmount"));
 
       await switchToBSC();
 
@@ -377,7 +388,7 @@ const getCoinLogo = (coin) => {
       const token = new ethers.Contract(getTokenAddress(coin), TOKEN_ABI, signer);
       const decimals = await token.decimals();
 
-      setMessage(`${coin} transaction pending...`);
+      setMessage(`${coin} ${t("transactionPending")}`);
 
       const tx = await token.transfer(sendTo, ethers.parseUnits(amount, decimals));
       await tx.wait();
@@ -385,19 +396,19 @@ const getCoinLogo = (coin) => {
       await saveTx(`Send ${coin}`, tx.hash, amount, coin);
       await loadBalances(wallet);
 
-      setMessage(`✅ ${coin} Sent: https://bscscan.com/tx/${tx.hash}`);
-      alert(`${coin} sent successfully`);
+      setMessage(`✅ ${coin} ${t("sent")}: https://bscscan.com/tx/${tx.hash}`);
+      alert(`${coin} ${t("sentSuccessfully")}`);
     } catch (error) {
       console.log(error);
-      alert(`${coin} send failed`);
+      alert(`${coin} ${t("sendFailed")}`);
     }
   };
 
   const executeSwap = async () => {
     try {
-      if (!wallet) return alert("Connect wallet first");
-      if (!swapAmount) return alert("Enter swap amount");
-      if (fromCoin === toCoin) return alert("Select different coins");
+      if (!wallet) return alert(t("connectWalletFirst"));
+      if (!swapAmount) return alert(t("enterSwapAmount"));
+      if (fromCoin === toCoin) return alert(t("selectDifferentCoins"));
 
       await switchToBSC();
 
@@ -415,14 +426,14 @@ const getCoinLogo = (coin) => {
           { value: ethers.parseEther(swapAmount) }
         );
 
-        setMessage("Swap pending...");
+        setMessage(t("swapPending"));
         await tx.wait();
 
         await saveTx("SWAP", tx.hash, swapAmount, toCoin);
         await loadBalances(wallet);
 
-        setMessage(`✅ Swap Completed: https://bscscan.com/tx/${tx.hash}`);
-        alert("Swap completed");
+        setMessage(`✅ ${t("swapCompleted")}: https://bscscan.com/tx/${tx.hash}`);
+        alert(t("swapCompleted"));
         return;
       }
 
@@ -432,11 +443,11 @@ const getCoinLogo = (coin) => {
         const decimals = await token.decimals();
         const amountIn = ethers.parseUnits(swapAmount, decimals);
 
-        setMessage("Approval pending...");
+        setMessage(t("approvalPending"));
         const approveTx = await token.approve(ROUTER, amountIn);
         await approveTx.wait();
 
-        setMessage("Swap pending...");
+        setMessage(t("swapPending"));
         const tx = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
           amountIn,
           0,
@@ -450,15 +461,15 @@ const getCoinLogo = (coin) => {
         await saveTx("SWAP", tx.hash, swapAmount, toCoin);
         await loadBalances(wallet);
 
-        setMessage(`✅ Swap Completed: https://bscscan.com/tx/${tx.hash}`);
-        alert("Swap completed");
+        setMessage(`✅ ${t("swapCompleted")}: https://bscscan.com/tx/${tx.hash}`);
+        alert(t("swapCompleted"));
         return;
       }
 
-      alert("Token-to-token swap will be added through BNB route.");
+      alert(t("tokenSwapRouteSoon"));
     } catch (error) {
       console.log(error);
-      alert("Swap failed");
+      alert(t("swapFailed"));
     }
   };
 
@@ -484,7 +495,7 @@ const getCoinLogo = (coin) => {
   };
 
   const syncReceiveHistory = async () => {
-    if (!wallet) return alert("Connect wallet first");
+    if (!wallet) return alert(t("connectWalletFirst"));
 
     const latestTx = await getLatestReceiveTx(wallet, receiveCoin);
 
@@ -501,25 +512,21 @@ const getCoinLogo = (coin) => {
           latestTx.coin || receiveCoin
         );
 
-        alert("Receive transaction synced");
+        alert(t("receiveTransactionSynced"));
         return;
       }
     }
 
-    alert("No new receive transaction found");
+    alert(t("noNewReceiveTransaction"));
   };
 
   const clearHistory = () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to clear all transaction history?"
-    );
-
+    const confirmDelete = window.confirm(t("clearHistoryConfirm"));
     if (!confirmDelete) return;
 
     localStorage.removeItem("exalt_tx_history");
     setTxHistory([]);
   };
-
   const filteredHistory = txHistory.filter((tx) => {
     const matchFilter =
       historyFilter === "ALL" ||
@@ -560,344 +567,350 @@ const getCoinLogo = (coin) => {
   }, [wallet, livePrices]);
 
   return (
-    <div className="wallet-page">
-      <div className="panel">
-        <div className="web3-hero">
-          <img src={exchangeLogo} alt="Exalt Exchange" className="web3-logo" />
-          <div>
-            <h2>Exalt Exchange Web3 Wallet</h2>
-            <p>Secure MetaMask / Trust Wallet • BNB Smart Chain • EXALT Wallet</p>
-          </div>
-        </div>
-
-        <div className="stats-grid">
-          <div className="stat-card glow-yellow">
-            <h3>Total Assets</h3>
-            <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
-            <button onClick={connectWeb3} className="action-btn yellow-btn">
-              Connect Web3 Wallet
-            </button>
-            {wallet && (
-              <button onClick={disconnectWallet} className="action-btn red-btn">
-                Disconnect
-              </button>
-            )}
-          </div>
-
-          <div className="stat-card glow-blue">
-            <h3>Wallet Address</h3>
-            <p>{shortAddress(wallet)}</p>
-            <button onClick={copyAddress} className="action-btn blue-btn">
-              Copy Address / Receive
-            </button>
-          </div>
-
-          <div className="stat-card glow-green">
-            <h3>BNB Balance</h3>
-            <h1>{bnbBalance} BNB</h1>
-            <button
-              onClick={() => wallet && loadBalances(wallet)}
-              className="action-btn green-btn"
-            >
-              Refresh Balance
-            </button>
-          </div>
-        </div>
-
-        <div className="web3-tabs">
-          {[
-            { icon: "💼", label: "Assets", tab: "assets" },
-            { icon: "📤", label: "Send", tab: "send" },
-            { icon: "📥", label: "Receive", tab: "receive" },
-            { icon: "🔁", label: "Swap", tab: "swap" },
-            { icon: "📜", label: "History", tab: "history" },
-          ].map((item) => (
-            <button
-              key={item.tab}
-              onClick={() => setActiveTab(item.tab)}
-              className={
-                activeTab === item.tab
-                  ? "action-btn yellow-btn"
-                  : "action-btn blue-btn"
-              }
-            >
-              {item.icon} {item.label}
-            </button>
-          ))}
-        </div>
-
-        {message && <div className="web3-message">{message}</div>}
-
-        {activeTab === "assets" && (
-          <>
-            <div className="stats-grid">
-              {DEFAULT_TOKENS.map((token) => (
-                <div className="stat-card glow-blue" key={token.symbol}>
-              <img
-  src={getCoinLogo(token)}
-  alt={token.symbol}
-  className="web3-coin-logo"
-  onError={(e) => {
-    e.currentTarget.onerror = null;
-    e.currentTarget.style.display = "none";
-  }}
-/>
-                  <h3>{token.name}</h3>
-                  <h1>{balances[token.symbol] || "0.0000"}</h1>
-                  <p>{token.symbol}</p>
-                </div>
-              ))}
+    <PageShell titleKey="web3Wallet" subtitleKey="web3WalletSubtitle">
+      <div className="wallet-page">
+        <div className="panel">
+          <div className="web3-hero">
+            <img src={exchangeLogo} alt="Exalt Exchange" className="web3-logo" />
+            <div>
+              <h2>{t("web3Wallet")}</h2>
+              <p>{t("web3WalletSubtitle")}</p>
             </div>
+          </div>
 
+          <div className="stats-grid">
             <div className="stat-card glow-yellow">
-              <h3>All Web3 Coins</h3>
+              <h3>{t("totalAssets")}</h3>
+              <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
 
-              <input
-                type="text"
-                placeholder="Search Coin..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="web3-input"
-              />
+              <button onClick={connectWeb3} className="action-btn yellow-btn">
+                {t("connectWeb3Wallet")}
+              </button>
 
-             {(coins || [])
- .filter((coin) => {
-  const name = String(coin?.name || "");
-  const symbol = String(coin?.symbol || "");
-  const keyword = String(search || "").toLowerCase();
-
-  return (
-    name.toLowerCase().includes(keyword) ||
-    symbol.toLowerCase().includes(keyword)
-  );
-})
-.slice(0, 50)
-.map((coin, index) => (
-  <div
-    className="web3-coin-row"
-    key={index}
-    onClick={() => {
-      setFromCoin("BNB");
-      setToCoin(coin.symbol);
-      setActiveTab("swap");
-    }}
-  >
-    <img
-  src={getCoinLogo(coin)}
-  alt={coin.symbol || "coin"}
-  className="web3-coin-logo"
-  onError={(e) => {
-    e.currentTarget.onerror = null;
-    e.currentTarget.style.display = "none";
-  }}
-/>
-                    <div>
-                      <strong>{coin.symbol}</strong>
-                      <p>{coin.name}</p>
-                    </div>
-
-                    <div>
-                      <strong>
-                        $
-                        {Number(coin.priceUsd || 0).toLocaleString(undefined, {
-                          maximumFractionDigits: 6,
-                        })}
-                      </strong>
-                      <p>
-                        Liq: ${Number(coin.liquidityUsd || 0).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </>
-        )}
-
-        {activeTab === "receive" && (
-          <div className="stat-card glow-blue">
-            <h3>Receive Crypto</h3>
-
-            <select
-              className="web3-input"
-              value={receiveCoin}
-              onChange={(e) => setReceiveCoin(e.target.value)}
-            >
-              <option value="BNB">BNB</option>
-              <option value="USDT">USDT</option>
-              <option value="EXALT">EXALT</option>
-              <option value="BTCB">BTCB</option>
-              <option value="ETH">ETH</option>
-            </select>
-
-            <div className="web3-qr-box">
-              <QRCode value={wallet || "Connect wallet first"} size={180} />
-            </div>
-
-            <p className="web3-address">{wallet || "Wallet not connected"}</p>
-
-            <button onClick={copyAddress} className="action-btn blue-btn">
-              Copy Address
-            </button>
-          </div>
-        )}
-
-        {activeTab === "send" && (
-          <div className="stat-card glow-yellow">
-            <h3>Send Crypto</h3>
-
-            <select
-              className="web3-input"
-              value={sendCoin}
-              onChange={(e) => setSendCoin(e.target.value)}
-            >
-              <option value="BNB">BNB</option>
-              <option value="EXALT">EXALT</option>
-              <option value="USDT">USDT</option>
-            </select>
-
-            <input
-              className="web3-input"
-              placeholder="Receiver Address"
-              value={sendTo}
-              onChange={(e) => setSendTo(e.target.value)}
-            />
-
-            <input
-              className="web3-input"
-              placeholder={`Amount ${sendCoin}`}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-
-            <button
-              onClick={
-                sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)
-              }
-              className="action-btn yellow-btn"
-            >
-              Send Now
-            </button>
-          </div>
-        )}
-
-        {activeTab === "swap" && (
-          <div className="stat-card glow-yellow">
-            <h3>Swap / Trade</h3>
-
-            <label>From Coin</label>
-            <select
-              className="web3-input"
-              value={fromCoin}
-              onChange={(e) => setFromCoin(e.target.value)}
-            >
-              <option>BNB</option>
-              <option>USDT</option>
-              <option>EXALT</option>
-            </select>
-
-            <label>To Coin</label>
-            <select
-              className="web3-input"
-              value={toCoin}
-              onChange={(e) => setToCoin(e.target.value)}
-            >
-              <option>EXALT</option>
-              <option>USDT</option>
-              <option>BNB</option>
-            </select>
-
-            <input
-              className="web3-input"
-              placeholder="Enter Amount"
-              value={swapAmount}
-              onChange={(e) => setSwapAmount(e.target.value)}
-            />
-
-            <button className="action-btn yellow-btn" onClick={executeSwap}>
-              Swap Now
-            </button>
-          </div>
-        )}
-
-        {activeTab === "history" && (
-          <div className="stat-card glow-blue">
-            <h3>Transaction History ({filteredHistory.length})</h3>
-
-            <div className="web3-filter-row">
-              {["ALL", "RECEIVE", "SEND", "SWAP", "BNB", "USDT", "EXALT"].map(
-                (filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setHistoryFilter(filter)}
-                    className={
-                      historyFilter === filter
-                        ? "action-btn yellow-btn"
-                        : "action-btn blue-btn"
-                    }
-                  >
-                    {filter}
-                  </button>
-                )
+              {wallet && (
+                <button onClick={disconnectWallet} className="action-btn red-btn">
+                  {t("disconnect")}
+                </button>
               )}
             </div>
 
-            <input
-              type="text"
-              placeholder="Search transaction..."
-              value={searchTx}
-              onChange={(e) => setSearchTx(e.target.value)}
-              className="web3-input"
-            />
+            <div className="stat-card glow-blue">
+              <h3>{t("walletAddress")}</h3>
+              <p>{shortAddress(wallet)}</p>
 
-            <button
-              onClick={() => loadMongoHistory(wallet)}
-              className="action-btn blue-btn"
-            >
-              Sync History
-            </button>
+              <button onClick={copyAddress} className="action-btn blue-btn">
+                {t("copyAddressReceive")}
+              </button>
+            </div>
 
-            <button onClick={syncReceiveHistory} className="action-btn green-btn">
-              Sync Receive
-            </button>
+            <div className="stat-card glow-green">
+              <h3>{t("bnbBalance")}</h3>
+              <h1>{bnbBalance} BNB</h1>
 
-            <button onClick={clearHistory} className="action-btn red-btn">
-              Clear History
-            </button>
-
-            {filteredHistory.length === 0 ? (
-              <p>No transactions yet</p>
-            ) : (
-              filteredHistory.map((tx, index) => (
-                <div className="web3-history-row" key={index}>
-                  <div>
-                    <b>Type:</b> {tx.type}
-                  </div>
-                  <div>
-                    <b>Amount:</b> {tx.amount} {tx.coin}
-                  </div>
-                  <div>
-                    <b>Status:</b> {tx.status}
-                  </div>
-                  <div>
-                    <b>Time:</b> {tx.time}
-                  </div>
-
-                  {tx.hash && (
-                    <a
-                      href={`https://bscscan.com/tx/${tx.hash}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View on BscScan
-                    </a>
-                  )}
-                </div>
-              ))
-            )}
+              <button
+                onClick={() => wallet && loadBalances(wallet)}
+                className="action-btn green-btn"
+              >
+                {t("refreshBalance")}
+              </button>
+            </div>
           </div>
-        )}
+
+          <div className="web3-tabs">
+            {[
+              { icon: "💼", label: t("assets"), tab: "assets" },
+              { icon: "📤", label: t("send"), tab: "send" },
+              { icon: "📥", label: t("receive"), tab: "receive" },
+              { icon: "🔁", label: t("swap"), tab: "swap" },
+              { icon: "📜", label: t("history"), tab: "history" },
+            ].map((item) => (
+              <button
+                key={item.tab}
+                onClick={() => setActiveTab(item.tab)}
+                className={
+                  activeTab === item.tab
+                    ? "action-btn yellow-btn"
+                    : "action-btn blue-btn"
+                }
+              >
+                {item.icon} {item.label}
+              </button>
+            ))}
+          </div>
+
+          {message && <div className="web3-message">{message}</div>}
+
+          {activeTab === "assets" && (
+            <>
+              <div className="stats-grid">
+                {DEFAULT_TOKENS.map((token) => (
+                  <div className="stat-card glow-blue" key={token.symbol}>
+                    <img
+                      src={getCoinLogo(token)}
+                      alt={token.symbol}
+                      className="web3-coin-logo"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+
+                    <h3>{token.name}</h3>
+                    <h1>{balances[token.symbol] || "0.0000"}</h1>
+                    <p>{token.symbol}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="stat-card glow-yellow">
+                <h3>{t("allWeb3Coins")}</h3>
+
+                <input
+                  type="text"
+                  placeholder={t("searchCoin")}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="web3-input"
+                />
+
+                {(coins || [])
+                  .filter((coin) => {
+                    const name = String(coin?.name || "");
+                    const symbol = String(coin?.symbol || "");
+                    const keyword = String(search || "").toLowerCase();
+
+                    return (
+                      name.toLowerCase().includes(keyword) ||
+                      symbol.toLowerCase().includes(keyword)
+                    );
+                  })
+                  .slice(0, 50)
+                  .map((coin, index) => (
+                    <div
+                      className="web3-coin-row"
+                      key={index}
+                      onClick={() => {
+                        setFromCoin("BNB");
+                        setToCoin(coin.symbol);
+                        setActiveTab("swap");
+                      }}
+                    >
+                      <img
+                        src={getCoinLogo(coin)}
+                        alt={coin.symbol || "coin"}
+                        className="web3-coin-logo"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+
+                      <div>
+                        <strong>{coin.symbol}</strong>
+                        <p>{coin.name}</p>
+                      </div>
+
+                      <div>
+                        <strong>
+                          $
+                          {Number(coin.priceUsd || 0).toLocaleString(undefined, {
+                            maximumFractionDigits: 6,
+                          })}
+                        </strong>
+                        <p>
+                          Liq: ${Number(coin.liquidityUsd || 0).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </>
+          )}
+
+          {activeTab === "receive" && (
+            <div className="stat-card glow-blue">
+              <h3>{t("receiveCrypto")}</h3>
+
+              <select
+                className="web3-input"
+                value={receiveCoin}
+                onChange={(e) => setReceiveCoin(e.target.value)}
+              >
+                <option value="BNB">BNB</option>
+                <option value="USDT">USDT</option>
+                <option value="EXALT">EXALT</option>
+                <option value="BTCB">BTCB</option>
+                <option value="ETH">ETH</option>
+              </select>
+
+              <div className="web3-qr-box">
+                <QRCode value={wallet || t("connectWalletFirst")} size={180} />
+              </div>
+
+              <p className="web3-address">{wallet || t("walletNotConnected")}</p>
+
+              <button onClick={copyAddress} className="action-btn blue-btn">
+                {t("copyAddress")}
+              </button>
+            </div>
+          )}
+
+          {activeTab === "send" && (
+            <div className="stat-card glow-yellow">
+              <h3>{t("sendCrypto")}</h3>
+
+              <select
+                className="web3-input"
+                value={sendCoin}
+                onChange={(e) => setSendCoin(e.target.value)}
+              >
+                <option value="BNB">BNB</option>
+                <option value="EXALT">EXALT</option>
+                <option value="USDT">USDT</option>
+              </select>
+
+              <input
+                className="web3-input"
+                placeholder={t("receiverAddress")}
+                value={sendTo}
+                onChange={(e) => setSendTo(e.target.value)}
+              />
+
+              <input
+                className="web3-input"
+                placeholder={`${t("amount")} ${sendCoin}`}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+
+              <button
+                onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}
+                className="action-btn yellow-btn"
+              >
+                {t("sendNow")}
+              </button>
+            </div>
+          )}
+
+          {activeTab === "swap" && (
+            <div className="stat-card glow-yellow">
+              <h3>{t("swapTrade")}</h3>
+
+              <label>{t("fromCoin")}</label>
+              <select
+                className="web3-input"
+                value={fromCoin}
+                onChange={(e) => setFromCoin(e.target.value)}
+              >
+                <option>BNB</option>
+                <option>USDT</option>
+                <option>EXALT</option>
+              </select>
+
+              <label>{t("toCoin")}</label>
+              <select
+                className="web3-input"
+                value={toCoin}
+                onChange={(e) => setToCoin(e.target.value)}
+              >
+                <option>EXALT</option>
+                <option>USDT</option>
+                <option>BNB</option>
+              </select>
+
+              <input
+                className="web3-input"
+                placeholder={t("enterAmount")}
+                value={swapAmount}
+                onChange={(e) => setSwapAmount(e.target.value)}
+              />
+
+              <button className="action-btn yellow-btn" onClick={executeSwap}>
+                {t("swapNow")}
+              </button>
+            </div>
+          )}
+
+          {activeTab === "history" && (
+            <div className="stat-card glow-blue">
+              <h3>{t("transactionHistory")} ({filteredHistory.length})</h3>
+
+              <div className="web3-filter-row">
+                {["ALL", "RECEIVE", "SEND", "SWAP", "BNB", "USDT", "EXALT"].map(
+                  (filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setHistoryFilter(filter)}
+                      className={
+                        historyFilter === filter
+                          ? "action-btn yellow-btn"
+                          : "action-btn blue-btn"
+                      }
+                    >
+                      {filter}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <input
+                type="text"
+                placeholder={t("searchTransaction")}
+                value={searchTx}
+                onChange={(e) => setSearchTx(e.target.value)}
+                className="web3-input"
+              />
+
+              <button
+                onClick={() => loadMongoHistory(wallet)}
+                className="action-btn blue-btn"
+              >
+                {t("syncHistory")}
+              </button>
+
+              <button onClick={syncReceiveHistory} className="action-btn green-btn">
+                {t("syncReceive")}
+              </button>
+
+              <button onClick={clearHistory} className="action-btn red-btn">
+                {t("clearHistory")}
+              </button>
+
+              {filteredHistory.length === 0 ? (
+                <p>{t("noTransactionsYet")}</p>
+              ) : (
+                filteredHistory.map((tx, index) => (
+                  <div className="web3-history-row" key={index}>
+                    <div>
+                      <b>{t("type")}:</b> {tx.type}
+                    </div>
+                    <div>
+                      <b>{t("amount")}:</b> {tx.amount} {tx.coin}
+                    </div>
+                    <div>
+                      <b>{t("status")}:</b> {tx.status}
+                    </div>
+                    <div>
+                      <b>{t("time")}:</b> {tx.time}
+                    </div>
+
+                    {tx.hash && (
+                      <a
+                        href={`https://bscscan.com/tx/${tx.hash}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {t("viewOnBscScan")}
+                      </a>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
 
