@@ -176,3 +176,30 @@
     grid-template-columns: 1fr;
   }
 }
+/* PageShell Support */
+
+.achievement-top-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.achievement-top-action button {
+  background: #f0b90b;
+  color: #111827;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .25s;
+}
+
+.achievement-top-action button:hover {
+  transform: translateY(-2px);
+}
+
+.achievement-top-action button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
