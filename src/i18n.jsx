@@ -1092,6 +1092,39 @@ pendingValue: "Pending Value",
 noRewardClaimsYet: "No reward claims yet.",
 rewardClaim: "Reward claim",
 securityReview: "Security Review",
+supportCenter: "Support Center",
+supportCenterSubtitle: "Professional support for wallet, deposits, withdrawals, KYC, trading and security issues.",
+supportBadge: "24/7 AI + Human Support",
+
+aiSupportAssistant: "AI Support Assistant",
+aiSupportAssistantText:
+  "If our team is not immediately available, AI will guide you first. You can still submit a ticket for human review.",
+
+askAiSupport: "Ask AI Support",
+
+createSupportTicket: "Create Support Ticket",
+
+supportRequiredFields: "Please fill email, subject and message.",
+failedSubmitTicket: "Failed to submit ticket.",
+ticketSubmittedSuccessfully: "Support ticket submitted successfully.",
+serverError: "Server error.",
+
+walletOrderTxOptional: "Wallet Address / Order ID / TX Hash (Optional)",
+describeIssue: "Describe your issue in detail...",
+submitTicket: "Submit Ticket",
+
+aiWithdrawHelp:
+  "Please confirm coin, network, withdrawal address, amount and transaction ID. Support will review your withdrawal.",
+aiDepositHelp:
+  "Please share coin, network, deposit address, amount and transaction hash.",
+aiKycHelp:
+  "Upload a clear document and selfie. Make sure all details are readable.",
+aiLoginHelp:
+  "Try Forgot Password first. If 2FA is locked, submit an account recovery request.",
+aiP2pHelp:
+  "Never release crypto until payment is confirmed. Share order ID and payment proof.",
+aiDefaultHelp:
+  "Please provide complete information including screenshots, wallet address, order ID or transaction hash.",
 
   },
 
@@ -2163,7 +2196,39 @@ pendingValue: "القيمة المعلقة",
 noRewardClaimsYet: "لا توجد مطالبات مكافآت حتى الآن.",
 rewardClaim: "مطالبة مكافأة",
 securityReview: "مراجعة أمنية",
+supportCenter: "مركز الدعم",
+supportCenterSubtitle: "دعم احترافي للمحفظة والإيداع والسحب وKYC والتداول والأمان.",
+supportBadge: "دعم بشري + AI على مدار الساعة",
 
+aiSupportAssistant: "مساعد الدعم الذكي",
+aiSupportAssistantText:
+  "إذا لم يكن فريقنا متاحًا، فسيساعدك الذكاء الاصطناعي أولاً، ويمكنك أيضًا إرسال تذكرة.",
+
+askAiSupport: "اسأل الذكاء الاصطناعي",
+
+createSupportTicket: "إنشاء تذكرة دعم",
+
+supportRequiredFields: "يرجى إدخال البريد الإلكتروني والعنوان والرسالة.",
+failedSubmitTicket: "فشل إرسال التذكرة.",
+ticketSubmittedSuccessfully: "تم إرسال التذكرة بنجاح.",
+serverError: "خطأ في الخادم.",
+
+walletOrderTxOptional: "عنوان المحفظة / رقم الطلب / TX Hash (اختياري)",
+describeIssue: "اشرح مشكلتك بالتفصيل...",
+submitTicket: "إرسال التذكرة",
+
+aiWithdrawHelp:
+  "يرجى تأكيد العملة والشبكة والعنوان والمبلغ ومعرف العملية.",
+aiDepositHelp:
+  "يرجى إرسال العملة والشبكة والعنوان والمبلغ وهاش المعاملة.",
+aiKycHelp:
+  "قم برفع مستند واضح وصورة سيلفي.",
+aiLoginHelp:
+  "استخدم نسيت كلمة المرور أولاً، ثم اطلب استعادة الحساب إذا لزم الأمر.",
+aiP2pHelp:
+  "لا تُفرج عن العملات حتى يتم تأكيد الدفع.",
+aiDefaultHelp:
+  "يرجى تقديم جميع التفاصيل مع لقطات الشاشة أو عنوان المحفظة أو معرف المعاملة.",
 
   },
 
@@ -3233,6 +3298,39 @@ pendingValue: "زیر التواء رقم",
 noRewardClaimsYet: "ابھی کوئی ریوارڈ کلیم موجود نہیں۔",
 rewardClaim: "ریوارڈ کلیم",
 securityReview: "سیکیورٹی ریویو",
+supportCenter: "سپورٹ سینٹر",
+supportCenterSubtitle: "والیٹ، ڈپازٹ، ودڈرال، KYC، ٹریڈنگ اور سیکیورٹی کے لیے پروفیشنل سپورٹ۔",
+supportBadge: "24/7 AI + انسانی سپورٹ",
+
+aiSupportAssistant: "AI سپورٹ اسسٹنٹ",
+aiSupportAssistantText:
+  "اگر ہماری ٹیم فوری دستیاب نہ ہو تو AI پہلے آپ کی رہنمائی کرے گا۔ بعد میں آپ ٹکٹ بھی جمع کرا سکتے ہیں۔",
+
+askAiSupport: "AI سے پوچھیں",
+
+createSupportTicket: "سپورٹ ٹکٹ بنائیں",
+
+supportRequiredFields: "ای میل، سبجیکٹ اور میسج لازمی ہیں۔",
+failedSubmitTicket: "ٹکٹ جمع نہیں ہو سکا۔",
+ticketSubmittedSuccessfully: "سپورٹ ٹکٹ کامیابی سے جمع ہو گیا۔",
+serverError: "سرور ایرر۔",
+
+walletOrderTxOptional: "والیٹ ایڈریس / آرڈر آئی ڈی / TX Hash (اختیاری)",
+describeIssue: "اپنا مسئلہ تفصیل سے لکھیں...",
+submitTicket: "ٹکٹ جمع کریں",
+
+aiWithdrawHelp:
+  "کوائن، نیٹ ورک، ودڈرال ایڈریس، رقم اور ٹرانزیکشن آئی ڈی فراہم کریں۔",
+aiDepositHelp:
+  "کوائن، نیٹ ورک، ڈپازٹ ایڈریس، رقم اور ٹرانزیکشن ہیش فراہم کریں۔",
+aiKycHelp:
+  "واضح شناختی دستاویز اور سیلفی اپ لوڈ کریں۔",
+aiLoginHelp:
+  "پہلے Forgot Password استعمال کریں، پھر ضرورت ہو تو اکاؤنٹ ریکوری کریں۔",
+aiP2pHelp:
+  "ادائیگی کی تصدیق سے پہلے کبھی بھی کرپٹو ریلیز نہ کریں۔",
+aiDefaultHelp:
+  "براہ کرم مکمل معلومات، اسکرین شاٹس، والیٹ ایڈریس یا TX Hash فراہم کریں۔",
 
   },
 
@@ -4316,6 +4414,39 @@ pendingValue: "Pending Value",
 noRewardClaimsYet: "अभी कोई reward claim नहीं है।",
 rewardClaim: "Reward Claim",
 securityReview: "Security Review",
+supportCenter: "Support Center",
+supportCenterSubtitle: "Wallet, Deposit, Withdrawal, KYC, Trading और Security के लिए Professional Support।",
+supportBadge: "24/7 AI + Human Support",
+
+aiSupportAssistant: "AI Support Assistant",
+aiSupportAssistantText:
+  "अगर हमारी टीम उपलब्ध नहीं है तो AI पहले आपकी मदद करेगा। बाद में आप Ticket भी भेज सकते हैं।",
+
+askAiSupport: "AI Support पूछें",
+
+createSupportTicket: "Support Ticket बनाएं",
+
+supportRequiredFields: "Email, Subject और Message भरें।",
+failedSubmitTicket: "Ticket submit नहीं हुई।",
+ticketSubmittedSuccessfully: "Support Ticket सफलतापूर्वक submit हो गई।",
+serverError: "Server Error.",
+
+walletOrderTxOptional: "Wallet Address / Order ID / TX Hash (Optional)",
+describeIssue: "अपनी समस्या विस्तार से लिखें...",
+submitTicket: "Submit Ticket",
+
+aiWithdrawHelp:
+  "Coin, Network, Withdrawal Address, Amount और Transaction ID दें।",
+aiDepositHelp:
+  "Coin, Network, Deposit Address, Amount और Transaction Hash दें।",
+aiKycHelp:
+  "Clear document और selfie upload करें।",
+aiLoginHelp:
+  "पहले Forgot Password इस्तेमाल करें, फिर Account Recovery करें।",
+aiP2pHelp:
+  "Payment confirm होने से पहले Crypto release न करें।",
+aiDefaultHelp:
+  "Screenshots, Wallet Address, Order ID या Transaction Hash जरूर दें।",
 
   },
 };
