@@ -302,3 +302,37 @@
     width: 100%;
   }
 }
+.kyc-page{
+  padding:24px;
+}
+
+.kyc-card{
+  background:#121826;
+  border:1px solid rgba(240,185,11,.15);
+  border-radius:22px;
+  padding:24px;
+}
+
+.kyc-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+  margin-top:20px;
+}
+
+.kyc-grid input,
+.kyc-grid select{
+  width:100%;
+  background:#0b0f19;
+  color:#fff;
+  border:1px solid rgba(240,185,11,.15);
+  border-radius:12px;
+  padding:12px;
+  outline:none;
+}
+
+@media (max-width:900px){
+  .kyc-grid{
+    grid-template-columns:1fr;
+  }
+}
