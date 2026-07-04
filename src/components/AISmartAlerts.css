@@ -258,4 +258,58 @@ button:disabled {
     flex-direction: column;
     align-items: flex-start;
   }
+}html[dir="rtl"] .smart-page,
+body.rtl .smart-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .smart-top-action,
+html[dir="rtl"] .smart-list-head,
+body.rtl .smart-top-action,
+body.rtl .smart-list-head {
+  direction: rtl;
+}
+
+.smart-top-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.smart-form-card,
+.smart-result-card,
+.smart-list-card,
+.smart-main-result,
+.smart-main-grid div,
+.smart-row,
+.empty-smart {
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+  transition: .25s ease;
+}
+
+.smart-main-result:hover,
+.smart-main-grid div:hover,
+.smart-row:hover {
+  transform: translateY(-3px);
+  border-color: #f0b90b;
+}
+
+.smart-form-card button,
+.smart-row button,
+.smart-top-action button {
+  transition: .25s ease;
+}
+
+.smart-form-card button:hover,
+.smart-row button:hover,
+.smart-top-action button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(240,185,11,.3);
+}
+
+@media (max-width: 700px) {
+  .smart-top-action button {
+    width: 100%;
+  }
 }
