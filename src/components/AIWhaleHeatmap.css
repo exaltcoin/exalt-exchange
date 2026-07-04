@@ -275,3 +275,69 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+html[dir="rtl"] .heatmap-page,
+body.rtl .heatmap-page {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .heatmap-top-action,
+html[dir="rtl"] .heatmap-card-top,
+html[dir="rtl"] .heat-actions,
+body.rtl .heatmap-top-action,
+body.rtl .heatmap-card-top,
+body.rtl .heat-actions {
+  direction: rtl;
+}
+
+html[dir="rtl"] .heat-pressure b,
+body.rtl .heat-pressure b {
+  float: left;
+}
+
+.heatmap-top-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.empty-heatmap {
+  background: #121826;
+  border: 1px solid rgba(240,185,11,.15);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  color: #9ca3af;
+}
+
+.heatmap-card,
+.heat-score,
+.heat-recommendation,
+.heat-wallet-row,
+.empty-heatmap {
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+  transition: .25s ease;
+}
+
+.heatmap-card:hover,
+.heat-wallet-row:hover {
+  transform: translateY(-3px);
+  border-color: #f0b90b;
+}
+
+.heat-actions button,
+.heatmap-top-action button {
+  transition: .25s ease;
+}
+
+.heat-actions button:hover,
+.heatmap-top-action button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(240,185,11,.3);
+}
+
+@media (max-width: 700px) {
+  .heatmap-top-action button {
+    width: 100%;
+  }
+}
