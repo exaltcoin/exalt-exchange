@@ -566,30 +566,68 @@ if (!hasExalt) {
               <span onClick={() => setAmount("100")}></span>
             </div>
 
-            <p className="ms-balance">{t("available")}: 0.00 USDT</p>
+            <p className="ms-balance">
+  {t("available")}: {availableBalance.toFixed(4)}{" "}
+  {type === "buy" ? "USDT" : selectedSymbol}
+</p>
 
-            <button
-              disabled={loading}
-              onClick={
-               onClick={submitOrder}
-                  ? buyExalt
-                  : submitOrder
-              }
-              className={type === "buy" ? "ms-main-buy" : "ms-main-sell"}
-            >
-              {loading
-                ? t("processing")
-                : type === "buy"
-                ? `Buy ${selectedSymbol}`
-                : `Sell ${selectedSymbol}`}
-            </button>
+           <button
+  disabled={loading}
+  onClick={submitOrder}
+  className={type === "buy" ? "ms-main-buy" : "ms-main-sell"}
+>
+  {loading
+    ? t("processing")
+    : type === "buy"
+    ? `Buy ${selectedSymbol}`
+    : `Sell ${selectedSymbol}`}
+</button>
+              
           </div>
 
           <div className="ms-orderbook">
             <OrderBook coin={selectedCoin} />
           </div>
         </div>
+<div className="ms-live-section">
+  <h3>My Orders</h3>
+  {myOrders.length === 0 ? (
+    <p>No orders yet.</p>
+  ) : (
+    myOrders.slice(0, 5).map((order) => (
+      <div className="order-line" key={order._id}>
+        <div>
+          <strong>{order.side?.toUpperCase()} {order.pair}</strong>
+          <small>{order.status} • {Number(order.remaining || 0).toFixed(4)}</small>
+        </div>
+        <span>${formatPrice(order.price)}</span>
+        {["open", "partial"].includes(order.status) && (
+          <button className="cancel-order-btn" onClick={() => cancelOrder(order._id)}>
+            Cancel
+          </button>
+        )}
+      </div>
+    ))
+  )}
+</div>
 
+<div className="ms-live-section">
+  <h3>Trade History</h3>
+  {tradeHistory.length === 0 ? (
+    <p>No trades yet.</p>
+  ) : (
+    tradeHistory.slice(0, 5).map((trade) => (
+      <div className="trade-line" key={trade._id}>
+        <div>
+          <strong>{trade.pair}</strong>
+          <small>{new Date(trade.createdAt).toLocaleString()}</small>
+        </div>
+        <span>{Number(trade.amount || 0).toFixed(4)}</span>
+        <b>${formatPrice(trade.price)}</b>
+      </div>
+    ))
+  )}
+</div>
         <div className="ms-info-card">
           <h3>{t("coinInfo")}</h3>
           <p>
@@ -848,7 +886,45 @@ if (!hasExalt) {
                 </span>
               </div>
             </div>
+<div className="trade-live-section">
+  <h3>My Orders</h3>
+  {myOrders.length === 0 ? (
+    <p>No orders yet.</p>
+  ) : (
+    myOrders.slice(0, 8).map((order) => (
+      <div className="order-line" key={order._id}>
+        <div>
+          <strong>{order.side?.toUpperCase()} {order.pair}</strong>
+          <small>{order.status} • Remaining {Number(order.remaining || 0).toFixed(4)}</small>
+        </div>
+        <span>${formatPrice(order.price)}</span>
+        {["open", "partial"].includes(order.status) && (
+          <button className="cancel-order-btn" onClick={() => cancelOrder(order._id)}>
+            Cancel
+          </button>
+        )}
+      </div>
+    ))
+  )}
+</div>
 
+<div className="trade-live-section">
+  <h3>Trade History</h3>
+  {tradeHistory.length === 0 ? (
+    <p>No trades yet.</p>
+  ) : (
+    tradeHistory.slice(0, 8).map((trade) => (
+      <div className="trade-line" key={trade._id}>
+        <div>
+          <strong>{trade.pair}</strong>
+          <small>{new Date(trade.createdAt).toLocaleString()}</small>
+        </div>
+        <span>{Number(trade.amount || 0).toFixed(4)}</span>
+        <b>${formatPrice(trade.price)}</b>
+      </div>
+    ))
+  )}
+</div>
             {selectedCoin && (
               <div className="mobile-chart-box chart-panel">
                 <Tradingchart

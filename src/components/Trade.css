@@ -757,3 +757,60 @@
   cursor: pointer;
   font-size: 11px;
 }
+.trade-live-section,
+.ms-live-section {
+  margin-top: 18px;
+  background: #111827;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.trade-live-section h3,
+.ms-live-section h3 {
+  color: #f0b90b;
+  margin-bottom: 12px;
+}
+
+.order-line,
+.trade-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.order-line:last-child,
+.trade-line:last-child {
+  border-bottom: none;
+}
+
+.order-line strong,
+.trade-line strong {
+  color: #fff;
+}
+
+.order-line small,
+.trade-line small {
+  display: block;
+  color: #9ca3af;
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.cancel-order-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cancel-order-btn:hover {
+  background: #dc2626;
+}
