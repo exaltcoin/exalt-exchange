@@ -1,10 +1,19 @@
 import { useState } from "react";
 import axios from "axios";
+import PageShell from "./PageShell";
+import { useI18n } from "../i18n";
 import "./kycVerification.css";
 
-const API_BASE =
+const RAW_API =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+
+const API_BASE = RAW_API.endsWith("/api")
+  ? RAW_API.replace("/api", "")
+  : RAW_API;
+
 export default function KycVerification() {
+  const { t } = useI18n();
+
   const [loading, setLoading] = useState(false);
   const [emailOtp, setEmailOtp] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
@@ -37,28 +46,28 @@ export default function KycVerification() {
   };
 
   const sendEmailOtp = () => {
-    alert("Email OTP sent");
+    alert(t("emailOtpSent"));
   };
 
   const verifyEmail = () => {
     if (!emailOtp) {
-      alert("Enter OTP first");
+      alert(t("enterOtpFirst"));
       return;
     }
 
     setEmailVerified(true);
-    alert("Email verified successfully");
+    alert(t("emailVerifiedSuccessfully"));
   };
 
   const startFaceVerification = () => {
     setFaceVerified(true);
-    alert("Face verification completed");
+    alert(t("faceVerificationCompleted"));
   };
 
   const submitKyc = async () => {
     try {
       if (!token) {
-        alert("Please login first");
+        alert(t("pleaseLoginFirst"));
         return;
       }
 
@@ -69,22 +78,22 @@ export default function KycVerification() {
         !form.country ||
         !form.documentNumber
       ) {
-        alert("Please fill all required fields");
+        alert(t("fillAllRequiredFields"));
         return;
       }
 
       if (!files.cnicFront && !files.passport) {
-        alert("Please upload CNIC Front or Passport / National ID");
+        alert(t("uploadIdDocument"));
         return;
       }
 
       if (!emailVerified) {
-        alert("Please verify email first");
+        alert(t("verifyEmailFirst"));
         return;
       }
 
       if (!faceVerified) {
-        alert("Please complete face verification");
+        alert(t("completeFaceVerification"));
         return;
       }
 
@@ -103,7 +112,7 @@ export default function KycVerification() {
       if (files.passport) data.append("passportImage", files.passport);
       if (files.selfie) data.append("selfieImage", files.selfie);
 
-      const res = await axios.post(`${API}/api/kyc/submit`, data, {
+      const res = await axios.post(`${API_BASE}/api/kyc/submit`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -111,161 +120,160 @@ export default function KycVerification() {
       });
 
       if (res.data.success) {
-        alert("KYC submitted successfully");
+        alert(t("kycSubmittedSuccessfully"));
         setEmailOtp("");
         setEmailVerified(false);
         setFaceVerified(false);
       } else {
-        alert(res.data.message || "KYC submission failed");
+        alert(res.data.message || t("kycSubmissionFailed"));
       }
     } catch (err) {
       console.log(err);
-      alert(err.response?.data?.message || "Server error");
+      alert(err.response?.data?.message || t("serverError"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="kyc-page">
-      <div className="kyc-card">
-        <div className="kyc-header">
-          <div>
-            <h2>KYC Verification</h2>
-            <p>Complete your identity verification to unlock verified user status.</p>
+    <PageShell titleKey="kycVerification" subtitleKey="kycVerificationSubtitle">
+      <div className="kyc-page">
+        <div className="kyc-card">
+          <div className="kyc-grid">
+            <input
+              name="fullName"
+              value={form.fullName}
+              onChange={handleChange}
+              placeholder={t("fullLegalName")}
+            />
+
+            <input
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder={t("emailAddress")}
+            />
+
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder={t("mobileNumberCountryCode")}
+            />
+
+            <input
+              name="country"
+              value={form.country}
+              onChange={handleChange}
+              placeholder={t("country")}
+            />
+
+            <select
+              name="documentType"
+              value={form.documentType}
+              onChange={handleChange}
+            >
+              <option>CNIC</option>
+              <option>Passport</option>
+              <option>National ID</option>
+              <option>Driving License</option>
+            </select>
+
+            <input
+              name="documentNumber"
+              value={form.documentNumber}
+              onChange={handleChange}
+              placeholder={t("idNumber")}
+            />
           </div>
-        </div>
 
-        <div className="kyc-grid">
-          <input
-            name="fullName"
-            value={form.fullName}
-            onChange={handleChange}
-            placeholder="Full Legal Name"
-          />
+          <div className="kyc-upload-section">
+            <div className="kyc-upload-box">
+              <div className="upload-icon">⬆️</div>
+              <label>{t("cnicFront")}</label>
+              <span>{files.cnicFront ? files.cnicFront.name : t("uploadFrontSide")}</span>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => handleFile("cnicFront", e.target.files?.[0])}
+              />
+            </div>
 
-          <input
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email Address"
-          />
+            <div className="kyc-upload-box">
+              <div className="upload-icon">⬆️</div>
+              <label>{t("cnicBack")}</label>
+              <span>{files.cnicBack ? files.cnicBack.name : t("uploadBackSide")}</span>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => handleFile("cnicBack", e.target.files?.[0])}
+              />
+            </div>
 
-          <input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="Mobile Number with Country Code"
-          />
+            <div className="kyc-upload-box">
+              <div className="upload-icon">⬆️</div>
+              <label>{t("passportNationalId")}</label>
+              <span>{files.passport ? files.passport.name : t("uploadDocument")}</span>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => handleFile("passport", e.target.files?.[0])}
+              />
+            </div>
 
-          <input
-            name="country"
-            value={form.country}
-            onChange={handleChange}
-            placeholder="Country"
-          />
+            <div className="kyc-upload-box">
+              <div className="upload-icon">⬆️</div>
+              <label>{t("selfieVerification")}</label>
+              <span>{files.selfie ? files.selfie.name : t("uploadSelfie")}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFile("selfie", e.target.files?.[0])}
+              />
+            </div>
+          </div>
 
-          <select
-            name="documentType"
-            value={form.documentType}
-            onChange={handleChange}
+          <div className="verify-box">
+            <h3>
+              {t("emailVerification")} {emailVerified ? "✅" : "❌"}
+            </h3>
+
+            <div className="verify-row">
+              <button type="button" onClick={sendEmailOtp}>
+                {t("sendEmailOtp")}
+              </button>
+
+              <input
+                value={emailOtp}
+                onChange={(e) => setEmailOtp(e.target.value)}
+                placeholder={t("enterEmailOtp")}
+              />
+
+              <button type="button" onClick={verifyEmail}>
+                {t("verifyEmail")}
+              </button>
+            </div>
+          </div>
+
+          <div className="verify-box">
+            <h3>
+              {t("faceVerification")} {faceVerified ? "✅" : "❌"}
+            </h3>
+
+            <button className="face-btn" type="button" onClick={startFaceVerification}>
+              {t("startFaceVerification")}
+            </button>
+          </div>
+
+          <button
+            className="submit-kyc-btn"
+            onClick={submitKyc}
+            disabled={loading}
           >
-            <option>CNIC</option>
-            <option>Passport</option>
-            <option>National ID</option>
-            <option>Driving License</option>
-          </select>
-
-          <input
-            name="documentNumber"
-            value={form.documentNumber}
-            onChange={handleChange}
-            placeholder="ID Number"
-          />
-        </div>
-
-        <div className="kyc-upload-section">
-          <div className="kyc-upload-box">
-            <div className="upload-icon">⬆️</div>
-            <label>CNIC Front</label>
-            <span>{files.cnicFront ? files.cnicFront.name : "Upload front side"}</span>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFile("cnicFront", e.target.files?.[0])}
-            />
-          </div>
-
-          <div className="kyc-upload-box">
-            <div className="upload-icon">⬆️</div>
-            <label>CNIC Back</label>
-            <span>{files.cnicBack ? files.cnicBack.name : "Upload back side"}</span>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFile("cnicBack", e.target.files?.[0])}
-            />
-          </div>
-
-          <div className="kyc-upload-box">
-            <div className="upload-icon">⬆️</div>
-            <label>Passport / National ID</label>
-            <span>{files.passport ? files.passport.name : "Upload document"}</span>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFile("passport", e.target.files?.[0])}
-            />
-          </div>
-
-          <div className="kyc-upload-box">
-            <div className="upload-icon">⬆️</div>
-            <label>Selfie Verification</label>
-            <span>{files.selfie ? files.selfie.name : "Upload selfie"}</span>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleFile("selfie", e.target.files?.[0])}
-            />
-          </div>
-        </div>
-
-        <div className="verify-box">
-          <h3>Email Verification {emailVerified ? "✅" : "❌"}</h3>
-
-          <div className="verify-row">
-            <button type="button" onClick={sendEmailOtp}>
-              Send Email OTP
-            </button>
-
-            <input
-              value={emailOtp}
-              onChange={(e) => setEmailOtp(e.target.value)}
-              placeholder="Enter Email OTP"
-            />
-
-            <button type="button" onClick={verifyEmail}>
-              Verify Email
-            </button>
-          </div>
-        </div>
-
-        <div className="verify-box">
-          <h3>Face Verification {faceVerified ? "✅" : "❌"}</h3>
-
-          <button className="face-btn" type="button" onClick={startFaceVerification}>
-            Start Face Verification
+            {loading ? t("submittingKyc") : t("submitKyc")}
           </button>
         </div>
-
-        <button
-          className="submit-kyc-btn"
-          onClick={submitKyc}
-          disabled={loading}
-        >
-          {loading ? "Submitting KYC..." : "Submit KYC"}
-        </button>
       </div>
-    </div>
+    </PageShell>
   );
 }

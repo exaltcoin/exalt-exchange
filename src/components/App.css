@@ -151,3 +151,110 @@ iframe {
     font-size: 16px;
   }
 }
+@media (max-width: 768px) {
+
+  .header-logo img{
+    width:40px;
+    height:40px;
+  }
+
+  .header-title{
+    font-size:22px;
+    font-weight:700;
+  }
+
+  .language-switcher{
+    max-width:170px;
+    transform:scale(.90);
+  }
+
+}
+@media (max-width:768px){
+
+  .header-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-shrink:0;
+  }
+
+  .header-center{
+    flex:1;
+    overflow:hidden;
+  }
+
+}
+/* Mobile header fix: logo visible + language clean layout */
+@media (max-width: 768px) {
+  .mobile-header,
+  .dashboard-header,
+  .top-header,
+  .app-header {
+    position: relative;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 14px 8px;
+    overflow: visible !important;
+  }
+
+  .mobile-header .logo,
+  .dashboard-header .logo,
+  .top-header .logo,
+  .app-header .logo,
+  .header-logo {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    border-radius: 50%;
+    display: block !important;
+    object-fit: contain;
+    z-index: 5;
+  }
+
+  .mobile-header h1,
+  .dashboard-header h1,
+  .top-header h1,
+  .app-header h1,
+  .header-title {
+    font-size: 20px !important;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 !important;
+    z-index: 5;
+  }
+
+  .language-switcher,
+  .language-card,
+  .language-box,
+  .page-language {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 230px !important;
+    margin: 8px auto 12px !important;
+    transform: scale(0.86);
+    transform-origin: center;
+    z-index: 1 !important;
+  }
+
+  .language-switcher select,
+  .language-card select,
+  .language-box select,
+  .page-language select {
+    width: 100% !important;
+    font-size: 13px !important;
+    padding: 9px 12px !important;
+  }
+
+  .profile-btn,
+  .user-icon,
+  .header-profile {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    z-index: 5;
+  }
+}
