@@ -342,3 +342,68 @@ body.rtl .profile-phone-button {
     width: fit-content;
   }
 }
+.profile-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.profile-logout-mobile,
+.logout-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, #ff4d4d, #b80000);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.profile-hero.professional {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px;
+  border-radius: 24px;
+  background: rgba(10, 20, 45, 0.92);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+.profile-main-info h2 {
+  margin: 0;
+  font-size: 28px;
+  color: #ffc400;
+}
+
+.profile-main-info p {
+  margin: 6px 0 12px;
+  color: #d7defa;
+  word-break: break-word;
+}
+
+.profile-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.logout-btn {
+  width: 100%;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .profile-hero.professional {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-main-info h2 {
+    font-size: 24px;
+  }
+
+  .profile-badges-row {
+    justify-content: center;
+  }
+}

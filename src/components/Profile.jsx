@@ -16,7 +16,7 @@ function Profile() {
   const { t } = useI18n();
 
   const [user, setUser] = useState({});
-  const [kycStatus, setKycStatus] = useState("Not Verified");
+  const [kycStatus, setKycStatus] = useState("not_submitted");
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("");
   const [telegram, setTelegram] = useState("");
@@ -35,11 +35,6 @@ function Profile() {
 
         if (!token) {
           setUser(savedUser);
-          setPhone(savedUser.phone || "");
-          setCountry(savedUser.country || "");
-          setTelegram(savedUser.telegram || "");
-          setBio(savedUser.bio || "");
-          setProfileImage(savedUser.profileImage || "");
           return;
         }
 
@@ -50,7 +45,6 @@ function Profile() {
         const data = await res.json();
         const profileUser = data.user || savedUser;
 
-        setTwoFactorEnabled(profileUser.twoFactorEnabled || false);
         localStorage.setItem("user", JSON.stringify(profileUser));
 
         setUser(profileUser);
@@ -59,31 +53,24 @@ function Profile() {
         setTelegram(profileUser.telegram || "");
         setBio(profileUser.bio || "");
         setProfileImage(profileUser.profileImage || "");
+        setTwoFactorEnabled(profileUser.twoFactorEnabled || false);
+
+        if (profileUser.kycStatus) setKycStatus(profileUser.kycStatus);
+
+        if (profileUser.country) {
+          const found = countryOptions.find((opt) => opt.label === profileUser.country);
+          setPhoneCountry(found?.value?.toLowerCase() || "us");
+        }
 
         try {
           const kycRes = await fetch(
             `${API_BASE}/api/kyc/user/${encodeURIComponent(profileUser.email)}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-
           const kycData = await kycRes.json();
-
-          if (kycData.success) {
-            setKycStatus(kycData.status || "not_submitted");
-          }
+          if (kycData.success) setKycStatus(kycData.status || "not_submitted");
         } catch (err) {
           console.log("KYC status load failed", err);
-        }
-
-        if (profileUser.country) {
-          const found = countryOptions.find(
-            (opt) => opt.label === profileUser.country
-          );
-          setPhoneCountry(found?.value?.toLowerCase() || "us");
-        }
-
-        if (profileUser.kycStatus) {
-          setKycStatus(profileUser.kycStatus);
         }
       } catch (err) {
         console.log(err);
@@ -92,6 +79,17 @@ function Profile() {
 
     loadProfile();
   }, [countryOptions]);
+
+  const handleLogout = () => {
+    const ok = window.confirm("Are you sure you want to logout?");
+    if (!ok) return;
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("wallet");
+    localStorage.removeItem("walletAddress");
+    window.location.href = "/";
+  };
 
   const connectedWallet =
     localStorage.getItem("wallet") ||
@@ -113,7 +111,6 @@ function Profile() {
       }
 
       const formData = new FormData();
-
       formData.append("name", user.name || "");
       formData.append("phone", phone || "");
       formData.append("country", country || "");
@@ -155,9 +152,15 @@ function Profile() {
       : t("notSubmitted");
 
   return (
-    <PageShell titleKey="profile" subtitleKey="profileSubtitle">
+    <PageShell titleKey="profile" subtitleKey="manageAccountSecurity">
       <div className="profile-page">
-        <div className="profile-hero">
+        <div className="profile-top-actions">
+          <button className="profile-logout-mobile" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+
+        <div className="profile-hero professional">
           <div className="profile-avatar">
             {profileImage && typeof profileImage === "string" ? (
               <img src={profileImage} alt="Profile" className="profile-avatar-img" />
@@ -166,32 +169,57 @@ function Profile() {
             )}
           </div>
 
-          <div>
+          <div className="profile-main-info">
             <h2>{user.name || t("userProfile")}</h2>
             <p>{user.email || t("noEmailConnected")}</p>
+
+            <div className="profile-badges-row">
+              <span className={twoFactorEnabled ? "twofa-badge enabled" : "twofa-badge disabled"}>
+                {twoFactorEnabled ? t("twoFaEnabled") : t("twoFaDisabled")}
+              </span>
+
+              <span
+                className={
+                  kycStatus === "approved"
+                    ? "profile-badge verified"
+                    : kycStatus === "rejected"
+                    ? "profile-badge rejected"
+                    : "profile-badge pending"
+                }
+              >
+                {kycLabel}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="profile-grid">
+          <div className="profile-card">
+            <h3>Account Overview</h3>
+            <p><b>{t("name")}:</b> {user.name || t("notAvailable")}</p>
+            <p><b>{t("email")}:</b> {user.email || t("notAvailable")}</p>
+            <p><b>{t("role")}:</b> {user.role || "user"}</p>
           </div>
 
-          <span className={twoFactorEnabled ? "twofa-badge enabled" : "twofa-badge disabled"}>
-            {twoFactorEnabled ? t("twoFaEnabled") : t("twoFaDisabled")}
-          </span>
+          <div className="profile-card">
+            <h3>Security</h3>
+            <p><b>2FA:</b> {twoFactorEnabled ? "Enabled" : "Disabled"}</p>
+            <p><b>KYC:</b> {kycLabel}</p>
+            <p><b>Account:</b> Active</p>
+          </div>
 
-          <span
-            className={
-              kycStatus === "approved"
-                ? "profile-badge verified"
-                : kycStatus === "rejected"
-                ? "profile-badge rejected"
-                : "profile-badge pending"
-            }
-          >
-            {kycLabel}
-          </span>
+          <div className="profile-card">
+            <h3>{t("wallet")}</h3>
+            <p><b>{t("status")}:</b> {connectedWallet ? t("connected") : t("notConnected")}</p>
+            <p><b>{t("address")}:</b> {connectedWallet ? shortWallet : t("notConnected")}</p>
+            <p><b>{t("network")}:</b> BNB Smart Chain</p>
+          </div>
         </div>
 
         <div className="profile-card edit-profile-card">
           <div className="edit-profile-header">
             <h3>{t("editProfile")}</h3>
-            <p>{t("updateProfessionalInfo")}</p>
+            <p>Update your personal, security and verification details.</p>
           </div>
 
           <div className="profile-form-grid">
@@ -223,19 +251,6 @@ function Profile() {
                 }}
                 isSearchable
                 menuPortalTarget={document.body}
-                formatOptionLabel={(option) => (
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span>
-                      {String.fromCodePoint(
-                        ...option.value
-                          .toUpperCase()
-                          .split("")
-                          .map((c) => 127397 + c.charCodeAt())
-                      )}
-                    </span>
-                    <span>{option.label}</span>
-                  </div>
-                )}
               />
             </div>
 
@@ -276,38 +291,10 @@ function Profile() {
           <button className="save-profile-btn" onClick={updateProfile}>
             {t("saveProfile")}
           </button>
-        </div>
 
-        <div className="profile-grid">
-          <div className="profile-card">
-            <h3>{t("accountInformation")}</h3>
-            <p><b>{t("name")}:</b> {user.name || t("notAvailable")}</p>
-            <p><b>{t("email")}:</b> {user.email || t("notAvailable")}</p>
-            <p><b>{t("userId")}:</b> {user._id || user.id || t("notAvailable")}</p>
-            <p><b>{t("role")}:</b> {user.role || "user"}</p>
-          </div>
-
-          <div className="profile-card">
-            <h3>{t("wallet")}</h3>
-            <p><b>{t("status")}:</b> {connectedWallet ? t("connected") : t("notConnected")}</p>
-            <p><b>{t("address")}:</b> {connectedWallet ? shortWallet : t("notConnected")}</p>
-            <p><b>{t("network")}:</b> BNB Smart Chain</p>
-          </div>
-
-          <div className="profile-card">
-            <h3>{t("kycStatus")}</h3>
-            <p><b>{t("status")}:</b> {kycLabel}</p>
-            <p><b>{t("emailVerification")}:</b> {kycStatus === "approved" ? t("verified") : t("pending")}</p>
-            <p><b>{t("faceVerification")}:</b> {kycStatus === "approved" ? t("verified") : t("pending")}</p>
-          </div>
-
-          <div className="profile-card">
-            <h3>{t("exchangeActivity")}</h3>
-            <p><b>{t("orders")}:</b> {t("viewFromOrdersPanel")}</p>
-            <p><b>{t("p2p")}:</b> {t("viewFromP2pPanel")}</p>
-            <p><b>{t("transactions")}:</b> {t("viewFromTransactionsPanel")}</p>
-            <p><b>{t("rewards")}:</b> {t("viewFromRewardsPanel")}</p>
-          </div>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </div>
     </PageShell>
