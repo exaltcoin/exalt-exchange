@@ -388,11 +388,6 @@ body.rtl .profile-phone-button {
   gap: 8px;
 }
 
-.logout-btn {
-  width: 100%;
-  margin-top: 16px;
-}
-
 @media (max-width: 600px) {
   .profile-hero.professional {
     flex-direction: column;

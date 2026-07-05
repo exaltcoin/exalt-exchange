@@ -80,17 +80,6 @@ function Profile() {
     loadProfile();
   }, [countryOptions]);
 
-  const handleLogout = () => {
-    const ok = window.confirm("Are you sure you want to logout?");
-    if (!ok) return;
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("wallet");
-    localStorage.removeItem("walletAddress");
-    window.location.href = "/";
-  };
-
   const connectedWallet =
     localStorage.getItem("wallet") ||
     localStorage.getItem("walletAddress") ||
@@ -154,11 +143,6 @@ function Profile() {
   return (
     <PageShell titleKey="profile" subtitleKey="manageAccountSecurity">
       <div className="profile-page">
-        <div className="profile-top-actions">
-          <button className="profile-logout-mobile" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
 
         <div className="profile-hero professional">
           <div className="profile-avatar">
