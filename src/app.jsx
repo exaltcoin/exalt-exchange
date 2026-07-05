@@ -1,4 +1,4 @@
-import exchangeLogo from "./assets/exalt-exchange.png";
+import exchangeLogo from "./assets/exalt-exchange-logo.png";
 import { useState, useEffect } from "react";
 import { useI18n } from "./i18n";
 import LanguageSwitcher from "./components/LanguageSwitcher";
@@ -359,14 +359,6 @@ if (path.startsWith("/ref/")) {
       <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
         <img src={exchangeLogo} alt="Exalt Exchange" className="main-logo" />
 
-        <div className="user-profile sidebar-profile">
-          <div className="user-avatar">{userEmail.charAt(0).toUpperCase()}</div>
-          <div>
-            <strong>{userEmail}</strong>
-           <p>{wallet ? shortWallet : t("walletNotConnected")}</p>
-          </div>
-        </div>
-
         <div className="menu">
          {menuItems.map(([key, label]) => (
   <button
@@ -396,22 +388,37 @@ if (path.startsWith("/ref/")) {
       </aside>
 
       <main className="main">
-        <div className="topbar">
-          <div>
-           <h2>
-  {page === "trade"
-    ? t("spotTrading")
-    : t(page) || page.toUpperCase()}
-</h2>
-            <p>
-              {page === "trade"
-                ? "Professional Spot Trading Engine Powered by Exalt Exchange"
-                : "Secure • Fast • Global Digital Asset Exchange"}
-            </p>
-            {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
-          </div>
-            <LanguageSwitcher />
-        </div>
+       <div className="topbar">
+  <div className="topbar-main-row">
+    <div className="topbar-brand">
+      <img src={exchangeLogo} alt="Exalt Exchange" className="topbar-logo" />
+
+      <div>
+        <h2>
+          {page === "trade"
+            ? t("spotTrading")
+            : t(page) || page.toUpperCase()}
+        </h2>
+
+        <p>
+          {page === "trade"
+            ? "Professional Spot Trading Engine Powered by Exalt Exchange"
+            : "Secure • Fast • Global Digital Asset Exchange"}
+        </p>
+
+        {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
+      </div>
+    </div>
+
+    <button className="topbar-profile-btn" onClick={() => setPage("profile")}>
+      👤
+    </button>
+  </div>
+
+  <div className="topbar-language-row">
+    <LanguageSwitcher />
+  </div>
+</div>
 
        <button className="connect-btn" onClick={logout}>
   {t("logout")}
