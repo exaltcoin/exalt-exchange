@@ -1,13 +1,22 @@
-import { socket } from "../api";
 import { useEffect, useMemo, useState } from "react";
+import { socket } from "../api";
+import API_BASE_URL from "../api";
 
 function OrderBook({ coin }) {
-  const API_BASE = "https://exalt-real-backend-6b6v.onrender.com";
+  const API_BASE =
+    API_BASE_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
-  const [orders, setOrders] = useState([]);
+  const API = API_BASE.endsWith("/api")
+    ? API_BASE.replace("/api", "")
+    : API_BASE;
+
+  const [bids, setBids] = useState([]);
+  const [asks, setAsks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const selectedPair = `${coin?.baseToken?.symbol || "EXALT"}USDT`;
+  const selectedSymbol = coin?.baseToken?.symbol || "EXALT";
+  const selectedPair = `${selectedSymbol}/USDT`;
+  const encodedPair = encodeURIComponent(selectedPair);
   const marketPrice = Number(coin?.priceUsd || coin?.price || 0);
 
   const formatPrice = (value) => {
@@ -18,30 +27,39 @@ function OrderBook({ coin }) {
     return num.toFixed(6);
   };
 
-  const loadOrders = async () => {
+  const loadOrderBook = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE}/api/orders`);
+
+      const res = await fetch(`${API}/api/trades/orderbook/${encodedPair}`);
       const data = await res.json();
-      const list = Array.isArray(data) ? data : data.orders || [];
-      setOrders(list);
+
+      if (data.success) {
+        setBids(data.bids || []);
+        setAsks(data.asks || []);
+      } else {
+        setBids([]);
+        setAsks([]);
+      }
     } catch (error) {
       console.log("OrderBook load error:", error);
+      setBids([]);
+      setAsks([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadOrders();
+    loadOrderBook();
 
-    const refreshOrders = () => loadOrders();
+    const refreshOrders = () => loadOrderBook();
 
     socket.on("orderCreated", refreshOrders);
     socket.on("orderMatched", refreshOrders);
     socket.on("newOrder", refreshOrders);
 
-    const interval = setInterval(loadOrders, 15000);
+    const interval = setInterval(loadOrderBook, 15000);
 
     return () => {
       clearInterval(interval);
@@ -49,38 +67,32 @@ function OrderBook({ coin }) {
       socket.off("orderMatched", refreshOrders);
       socket.off("newOrder", refreshOrders);
     };
-  }, []);
-
-  const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      if (!order?.pair) return false;
-      return String(order.pair).toUpperCase() === selectedPair.toUpperCase();
-    });
-  }, [orders, selectedPair]);
-
-  const buyOrders = useMemo(() => {
-    return filteredOrders
-      .filter((order) =>String(order.side || order.type).toLowerCase() === "buy")
-      .sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
-      .slice(0, 10);
-  }, [filteredOrders]);
+  }, [encodedPair]);
 
   const sellOrders = useMemo(() => {
-    return filteredOrders
-      .filter((order) => String(order.side || order.type).toLowerCase() === "sell")
+    return [...asks]
       .sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
       .slice(0, 10);
-  }, [filteredOrders]);
+  }, [asks]);
+
+  const buyOrders = useMemo(() => {
+    return [...bids]
+      .sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
+      .slice(0, 10);
+  }, [bids]);
 
   const bestBid = Number(buyOrders[0]?.price || marketPrice);
   const bestAsk = Number(sellOrders[0]?.price || marketPrice);
   const spread = bestBid && bestAsk ? Math.abs(bestAsk - bestBid) : 0;
 
   const renderRow = (order, side) => (
-    <tr key={order._id || `${side}-${order.price}-${order.amount}`} className={`order-book-row ${side}`}>
+    <tr
+      key={order._id || `${side}-${order.price}-${order.amount}`}
+      className={`order-book-row ${side}`}
+    >
       <td>{side === "buy" ? "BUY" : "SELL"}</td>
       <td>${formatPrice(order.price)}</td>
-      <td>{Number(order.amount || 0).toFixed(4)}</td>
+      <td>{Number(order.remaining || order.amount || 0).toFixed(4)}</td>
       <td>{order.status || "open"}</td>
     </tr>
   );
@@ -111,8 +123,8 @@ function OrderBook({ coin }) {
 
       {loading && <p>Loading order book...</p>}
 
-      {!loading && filteredOrders.length === 0 ? (
-        <p>No live orders yet. Showing market reference price.</p>
+      {!loading && buyOrders.length === 0 && sellOrders.length === 0 ? (
+        <p>No live orders yet.</p>
       ) : (
         <table>
           <thead>

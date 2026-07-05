@@ -33,9 +33,18 @@ const API = API_BASE.endsWith("/api")
   const [moreOpen, setMoreOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
   const [binancePrices, setBinancePrices] = useState({});
+  const [walletData, setWalletData] = useState(null);
+const [myOrders, setMyOrders] = useState([]);
+const [tradeHistory, setTradeHistory] = useState([]);
+const [orderBookData, setOrderBookData] = useState({ bids: [], asks: [] });
 
   const selectedSymbol = selectedCoin?.baseToken?.symbol || "EXALT";
+const tradingPair = `${selectedSymbol}/USDT`;
 
+const availableBalance =
+  type === "buy"
+    ? Number(walletData?.balances?.USDT || 0)
+    : Number(walletData?.balances?.[selectedSymbol] || 0);
   const selectedPrice =
     binancePrices[`${selectedSymbol}USDT`] ||
     Number(selectedCoin?.priceUsd || selectedCoin?.price || 0);
@@ -148,75 +157,190 @@ const API = API_BASE.endsWith("/api")
     }
   };
 
-  const submitOrder = async () => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-      if (!selectedCoin) {
-        alert("Select coin first");
-        return;
-      }
-
-      if (!amount || Number(amount) <= 0) {
-        alert("Amount required");
-        return;
-      }
-
-      if (orderMode === "limit" && (!price || Number(price) <= 0)) {
-        alert("Limit price required");
-        return;
-      }
-
-      setLoading(true);
-
-      const finalPrice =
-        orderMode === "market" ? selectedPrice : Number(price || 0);
-
-      const pair = `${selectedSymbol}USDT`;
-
-      const payload = {
-        userId: user._id || user.id || "demo-user",
-        pair,
-        type,
-        orderMode,
-        price: finalPrice,
-        amount: Number(amount),
-      };
-
-      socket.emit("newOrder", payload);
-
-     const res = await fetch(`${API}/api/orders`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      socket.emit("orderCreated", data);
-
-      if (!data.success) {
-        alert(data.message || "Order failed");
-        return;
-      }
-
-      alert(`${type.toUpperCase()} order submitted successfully`);
-      setPrice("");
-      setAmount("");
-    } catch (error) {
-      console.log(error);
-      alert("Server error");
-    } finally {
-      setLoading(false);
+ const submitOrder = async () => {
+  try {
+    if (!selectedCoin) {
+      alert("Select coin first");
+      return;
     }
-  };
 
+    if (!amount || Number(amount) <= 0) {
+      alert("Amount required");
+      return;
+    }
+
+    const finalPrice =
+      orderMode === "market"
+        ? selectedPrice
+        : Number(price || 0);
+
+    if (orderMode === "limit" && finalPrice <= 0) {
+      alert("Limit price required");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
+    setLoading(true);
+
+    const payload = {
+      pair: tradingPair,
+      side: type,
+      type: orderMode,
+      price: finalPrice,
+      amount: Number(amount),
+    };
+
+    const res = await fetch(`${API}/api/trades/order`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message || "Order failed");
+      return;
+    }
+
+    socket.emit("orderCreated", data);
+
+    alert("Order submitted successfully");
+
+    setPrice("");
+    setAmount("");
+
+    loadWalletBalance();
+    loadOrderBook();
+    loadTradeHistory();
+    loadMyOrders();
+
+  } catch (err) {
+    console.log(err);
+    alert("Server error");
+  } finally {
+    setLoading(false);
+  }
+};
   const selectCoin = (coin) => {
     setSelectedCoin(coin);
     setMarketDrawerOpen(false);
   };
+  const loadWalletBalance = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const res = await fetch(`${API}/api/wallets/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+    if (data.success) setWalletData(data.wallet);
+  } catch (error) {
+    console.log("Wallet balance error:", error);
+  }
+};
+
+const loadOrderBook = async () => {
+  try {
+    const encodedPair = encodeURIComponent(tradingPair);
+
+    const res = await fetch(`${API}/api/trades/orderbook/${encodedPair}`);
+    const data = await res.json();
+
+    if (data.success) {
+      setOrderBookData({
+        bids: data.bids || [],
+        asks: data.asks || [],
+      });
+    }
+  } catch (error) {
+    console.log("Order book error:", error);
+  }
+};
+
+const loadTradeHistory = async () => {
+  try {
+    const encodedPair = encodeURIComponent(tradingPair);
+
+    const res = await fetch(`${API}/api/trades/history/${encodedPair}`);
+    const data = await res.json();
+
+    if (data.success) setTradeHistory(data.trades || []);
+  } catch (error) {
+    console.log("Trade history error:", error);
+  }
+};
+
+const loadMyOrders = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const res = await fetch(`${API}/api/trades/my-orders`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+    if (data.success) setMyOrders(data.orders || []);
+  } catch (error) {
+    console.log("My orders error:", error);
+  }
+};
+
+const cancelOrder = async (orderId) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Please login first.");
+
+    const res = await fetch(`${API}/api/trades/order/${orderId}/cancel`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.message || "Cancel failed");
+      return;
+    }
+
+    alert("Order cancelled");
+    loadWalletBalance();
+    loadMyOrders();
+    loadOrderBook();
+  } catch (error) {
+    console.log(error);
+    alert("Server error");
+  }
+};
+useEffect(() => {
+  if (!selectedCoin) return;
+
+  loadWalletBalance();
+  loadOrderBook();
+  loadTradeHistory();
+  loadMyOrders();
+
+  const interval = setInterval(() => {
+    loadWalletBalance();
+    loadOrderBook();
+    loadTradeHistory();
+    loadMyOrders();
+  }, 15000);
+
+  return () => clearInterval(interval);
+}, [tradingPair, selectedCoin]);
 useEffect(() => {
   const handleMarketUpdate = (data) => {
     if (!data?.symbol || !data?.price) return;
@@ -447,7 +571,7 @@ if (!hasExalt) {
             <button
               disabled={loading}
               onClick={
-                selectedSymbol === "EXALT" && type === "buy"
+               onClick={submitOrder}
                   ? buyExalt
                   : submitOrder
               }
