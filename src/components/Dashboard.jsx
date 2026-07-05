@@ -1,5 +1,5 @@
 import "./Dashboard.css";
-import exchangeLogo from "../assets/exalt-exchange.png";
+import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import LanguageSwitcher from "./LanguageSwitcher";
