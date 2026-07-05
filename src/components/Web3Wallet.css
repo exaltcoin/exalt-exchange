@@ -515,3 +515,34 @@
   color: #fff;
   font-weight: 800;
 }
+.ex-wallet-seed-box {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  margin: 12px 0;
+}
+
+.ex-wallet-seed-box strong {
+  color: #ffc233;
+}
+
+.ex-wallet-seed-box p {
+  color: #ffc233;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ex-wallet-manage-row {
+  grid-template-columns: 1fr auto auto auto;
+}
+
+.ex-wallet-manage-row strong {
+  color: #fff;
+  font-size: 13px;
+}
+
+.ex-modal-panel h3 {
+  color: #ffc233;
+  margin-top: 0;
+}
