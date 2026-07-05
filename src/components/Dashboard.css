@@ -600,3 +600,87 @@
     max-width: 235px !important;
   }
 }
+/* ===== Final Mobile Logo Fix 800x150 ===== */
+
+@media (max-width: 768px) {
+  .mobile-premium-header {
+    padding: 18px 16px 12px !important;
+    background: #0b0f19 !important;
+  }
+
+  .mobile-brand-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+  }
+
+  .mobile-brand {
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+  }
+
+  .mobile-brand-logo {
+    width: 185px !important;
+    height: auto !important;
+    max-height: 42px !important;
+    object-fit: contain !important;
+    flex-shrink: 1 !important;
+  }
+
+  .mobile-brand h2,
+  .mobile-brand p {
+    display: none !important;
+  }
+
+  .mobile-profile-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    border-radius: 14px !important;
+  }
+
+  .mobile-language-wrap {
+    margin: 16px auto 12px !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+
+  .mobile-language-wrap .language-box,
+  .mobile-language-wrap .language-switcher,
+  .mobile-language-wrap select {
+    width: 260px !important;
+    max-width: 260px !important;
+  }
+
+  .mobile-tabs {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 40px !important;
+    margin-top: 12px !important;
+  }
+
+  .mobile-tabs span {
+    font-size: 18px !important;
+    font-weight: 900 !important;
+  }
+
+  .mobile-tabs span.active {
+    color: #f0b90b !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .mobile-brand-logo {
+    width: 170px !important;
+    max-height: 38px !important;
+  }
+
+  .mobile-language-wrap .language-box,
+  .mobile-language-wrap .language-switcher,
+  .mobile-language-wrap select {
+    width: 235px !important;
+    max-width: 235px !important;
+  }
+}
