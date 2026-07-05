@@ -194,11 +194,11 @@ function Wallets() {
 
       const balances = data.wallet.balances || {};
 
-      setWallets((prev) => ({
-        USDT: Number(balances.USDT || 0),
-        EXALT: prev.EXALT || Number(balances.EXALT || 0),
-        BNB: Number(balances.BNB || 0),
-      }));
+      setWallets({
+  USDT: Number(balances.USDT || 0),
+  EXALT: Number(balances.EXALT || 0),
+  BNB: Number(balances.BNB || 0),
+});
 
       setUserId(data.wallet.userId || "");
 
@@ -210,7 +210,10 @@ function Wallets() {
         ...prev,
         totalPortfolioUsd: usdt + approvedExalt * 0.0003 + bnb * 600,
         availableBalance: usdt,
-        lockedBalance: Number(data.wallet.locked?.USDT || 0),
+        lockedBalance:
+  Number(data.wallet.locked?.USDT || 0) +
+  Number(data.wallet.locked?.BNB || 0) +
+  Number(data.wallet.locked?.EXALT || 0),
         walletStatus: t("verifiedActive"),
       }));
 
@@ -374,6 +377,9 @@ function Wallets() {
             <h3>{t("usdtWallet")}</h3>
             <h1>{wallets?.USDT || 0} USDT</h1>
             <p>{t("approvedBalance")}</p>
+            <small>
+  Locked: {Number(walletStats.lockedBalance || 0).toLocaleString()} USDT
+</small>
           </div>
 
           <div className="stat-card glow-blue">
