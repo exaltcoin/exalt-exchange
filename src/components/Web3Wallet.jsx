@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import QRCode from "react-qr-code";
 import exaltLogo from "../assets/exalt-coin.png";
-import exchangeLogo from "../assets/exalt-exchange.png";
+import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import { ethers } from "ethers";
 import PageShell from "./PageShell";
 import { useI18n } from "../i18n";

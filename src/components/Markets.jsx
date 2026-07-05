@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "../i18n";
-import exchangeLogo from "../assets/exalt-exchange.png";
+import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import exaltCoinLogo from "../assets/exalt-coin.png";
 import API_BASE_URL, { socket } from "../api";
 import "./Markets.css";
