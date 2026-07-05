@@ -5,6 +5,17 @@ import { ethers } from "ethers";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useI18n } from "../i18n";
 function Dashboard({ setPage }) {
+  const handleLogout = () => {
+    const ok = window.confirm("Are you sure you want to logout?");
+    if (!ok) return;
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("wallet");
+    localStorage.removeItem("walletAddress");
+
+    window.location.href = "/";
+  };
   const { t } = useI18n();
  const API_BASE = import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 const API = API_BASE.endsWith("/api")
@@ -163,9 +174,15 @@ const [rewardStats, setRewardStats] = useState({
       </div>
     </div>
 
-    <button className="mobile-profile-btn" onClick={() => setPage("profile")}>
-      👤
-    </button>
+   <div className="mobile-header-actions">
+  <button className="mobile-profile-btn" onClick={() => setPage("profile")}>
+    👤
+  </button>
+
+  <button className="mobile-logout-btn" onClick={handleLogout}>
+    ⏻
+  </button>
+</div>
   </div>
 
   <div className="mobile-language-wrap">
@@ -180,7 +197,9 @@ const [rewardStats, setRewardStats] = useState({
         <div className="mobile-balance-card">
           <p>{t("portfolioValue")} (USDT)</p>
           <h1>${formatUsd(portfolioValue, 2)}</h1>
-          <button onClick={() => setPage("wallets")}>{t("addFunds")}</button>
+          <button onClick={() => setPage("buy")}>
+  Buy Crypto
+</button>
         </div>
 
         <div className="mobile-action-grid">
@@ -226,7 +245,7 @@ const [rewardStats, setRewardStats] = useState({
   ].map(([icon, label, page]) => (
     <button key={page} onClick={() => setPage(page)}>
       {icon}
-     <span>{t(page)}</span>
+    <span>{t(page) || label}</span>
     </button>
   ))}
 </div>
@@ -279,7 +298,7 @@ const [rewardStats, setRewardStats] = useState({
         ].map(([icon, label, page]) => (
           <button key={page} onClick={() => setPage(page)}>
             {icon}
-           <span>{t(page)}</span>
+          <span>{t(page) || label}</span> 
           </button>
         ))}
       </div>

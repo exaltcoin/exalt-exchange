@@ -684,3 +684,21 @@
     max-width: 235px !important;
   }
 }
+.mobile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-logout-btn {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #ff6b6b;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
