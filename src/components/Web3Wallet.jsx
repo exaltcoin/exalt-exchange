@@ -530,62 +530,58 @@ function Web3Wallet({ setPage }) {
     if (wallet) loadBalances(wallet);
   }, [wallet, livePrices]);
 
-  return (
-    <div className="ex-web3-page">
-      <div className="ex-web3-phone">
-        {showWelcome && (
-          <div className="ex-welcome-overlay">
-            <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
-            <h3>Welcome To</h3>
-            <h1>Exalt Web3 Wallet</h1>
-            <p>Secure • Fast • Decentralized</p>
-          </div>
-        )}
+ return (
+  <div className="ex-web3-page">
+    <div className="ex-web3-phone">
+      {showWelcome && (
+        <div className="ex-welcome-overlay">
+          <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
+          <h3>Welcome To</h3>
+          <h1>Exalt Web3 Wallet</h1>
+          <p>Secure • Fast • Decentralized</p>
+        </div>
+      )}
 
-        <div className="ex-web3-topbar">
-          <button className="ex-icon-btn">☰</button>
+      <div className="ex-web3-topbar">
+        <button className="ex-icon-btn">☰</button>
+
+        <div className="ex-main-tabs">
           <button
-            className="ex-icon-btn"
-            onClick={() => (setPage ? setPage("support") : alert("Support"))}
+            className={mainTab === "exchange" ? "active" : ""}
+            onClick={() => setMainTab("exchange")}
           >
-            🎧
-          </button>
-
-          <div className="ex-main-tabs">
-            <button
-              className={mainTab === "exchange" ? "active" : ""}
-              onClick={() => setMainTab("exchange")}
-            >
-              Exchange
-            </button>
-            <button
-              className={mainTab === "wallet" ? "active" : ""}
-              onClick={() => setMainTab("wallet")}
-            >
-              Wallet
-            </button>
-          </div>
-
-          <button
-            className="ex-icon-btn"
-            onClick={() => alert("Scan / WalletConnect coming soon")}
-          >
-            ⌗
+            Exchange
           </button>
           <button
-            className="ex-icon-btn"
-            onClick={() => (setPage ? setPage("support") : alert("Support"))}
+            className={mainTab === "wallet" ? "active" : ""}
+            onClick={() => setMainTab("wallet")}
           >
-            💬
+            Wallet
           </button>
         </div>
 
-        <div className="ex-search">
-          <span>Hot Perps: BTCUSDT</span>
-          <button>⌕</button>
-        </div>
+        <button
+          className="ex-icon-btn"
+          onClick={() => alert("Scan / WalletConnect coming soon")}
+        >
+          ⌗
+        </button>
 
-        {mainTab === "exchange" && (
+        <button
+          className="ex-icon-btn"
+          onClick={() => (setPage ? setPage("support") : alert("Support"))}
+        >
+          💬
+        </button>
+      </div>
+
+      <div className="ex-search">
+        <span>Hot Perps: BTCUSDT</span>
+        <button>⌕</button>
+      </div>
+
+      {mainTab === "exchange" && (
+        <>
           <div className="ex-exchange-box">
             <h3>Welcome to Exalt Exchange</h3>
             <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
@@ -594,10 +590,65 @@ function Web3Wallet({ setPage }) {
               Open Markets
             </button>
           </div>
-        )}
 
-        {mainTab === "wallet" &&
-          (!wallet ? (
+          <div className="ex-mini-cards">
+            <div>
+              <h3>Top Gainers</h3>
+              <strong>BTC</strong>
+              <p>↗️ Live Market</p>
+            </div>
+            <div>
+              <h3>Top Losers</h3>
+              <strong>ETH</strong>
+              <p>Market Overview</p>
+            </div>
+          </div>
+
+          <div className="ex-asset-tabs">
+            <button className="active">Market Overview</button>
+            <button>Top Gainers</button>
+            <button>Trending</button>
+          </div>
+
+          <input
+            className="ex-web3-search-input"
+            placeholder="Search live markets"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <div className="ex-coin-list">
+            {trendingCoins.slice(0, 25).map((coin, index) => {
+              const symbol = String(coin.symbol || "COIN").toUpperCase();
+              const price = Number(coin.priceUsd || getTokenPrice(symbol) || 0);
+
+              return (
+                <div className="ex-coin-item" key={`${symbol}-${index}`}>
+                  <img
+                    src={getCoinLogo(coin)}
+                    alt={symbol}
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                  <div>
+                    <strong>{symbol}</strong>
+                    <p>{coin.name || symbol}</p>
+                  </div>
+                  <div>
+                    <strong>${price.toFixed(price > 1 ? 2 : 6)}</strong>
+                    <p>Live</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {mainTab === "wallet" && (
+        <>
+          {!wallet ? (
             <div className="ex-welcome-card">
               <img src={exchangeLogo} alt="Exalt Exchange" />
               <p>Welcome to</p>
@@ -612,10 +663,7 @@ function Web3Wallet({ setPage }) {
                 <div>
                   <div className="ex-wallet-name">
                     <span>💼</span>
-                    <select
-                      value={wallet}
-                      onChange={(e) => switchWallet(e.target.value)}
-                    >
+                    <select value={wallet} onChange={(e) => switchWallet(e.target.value)}>
                       {wallets.map((w) => (
                         <option key={w.id} value={w.address}>
                           {w.name}
@@ -632,10 +680,7 @@ function Web3Wallet({ setPage }) {
                   </button>
                 </div>
 
-                <button
-                  className="ex-receive-btn"
-                  onClick={() => setBottomTab("assets")}
-                >
+                <button className="ex-receive-btn" onClick={() => setBottomTab("assets")}>
                   Receive
                 </button>
               </div>
@@ -645,244 +690,204 @@ function Web3Wallet({ setPage }) {
                 <p>BNB Balance: {bnbBalance}</p>
               </div>
             </>
-          ))}
+          )}
 
-        <div className="ex-action-row">
-          {[
-            ["Alpha", "🗓️"],
-            ["Securities", "📈"],
-            ["DeFi", "🔒"],
-            ["Referral", "👥"],
-            ["More", "🔳"],
-          ].map(([label, icon]) => (
-            <button key={label}>
-              <span>{icon}</span>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div className="ex-promo-card">
-          <div>
-            <h3>Make your first trade on Exalt Web3</h3>
-            <p>Explore BSC assets, DeFi and EXALT ecosystem.</p>
-            <span>Register Now ›</span>
-          </div>
-          <img src={exaltLogo} alt="EXALT" />
-        </div>
-
-        <div className="ex-mini-cards">
-          <div>
-            <h3>Meme Rush</h3>
-            <strong>315</strong>
-            <p>↗️ 10x in 24h</p>
-          </div>
-          <div>
-            <h3>EXALT Cup</h3>
-            <strong>BNB</strong>
-            <p>Live on BSC</p>
-          </div>
-        </div>
-
-        {wallet && wallets.length > 0 && (
-          <div className="ex-wallet-manage">
-            {wallets.map((w) => (
-              <div className="ex-wallet-manage-row" key={w.id}>
-                <span>{w.name}</span>
-                <small>{shortAddress(w.address)}</small>
-                <button onClick={() => renameWallet(w.address)}>Rename</button>
-                <button onClick={() => removeWallet(w.address)}>Remove</button>
-              </div>
+          <div className="ex-action-row">
+            {[
+              ["Receive", "⬇️"],
+              ["Send", "⬆️"],
+              ["Swap", "⇄"],
+              ["History", "▧"],
+              ["More", "🔳"],
+            ].map(([label, icon]) => (
+              <button
+                key={label}
+                onClick={() => {
+                  if (label === "Receive") setBottomTab("assets");
+                  if (label === "Send") setBottomTab("discover");
+                  if (label === "Swap") setBottomTab("trade");
+                  if (label === "History") setBottomTab("market");
+                }}
+              >
+                <span>{icon}</span>
+                {label}
+              </button>
             ))}
           </div>
-        )}
 
-        <div className="ex-asset-tabs">
-          {["holdings", "trending", "perps", "securities"].map((tab) => (
-            <button
-              key={tab}
-              className={assetTab === tab ? "active" : ""}
-              onClick={() => setAssetTab(tab)}
-            >
-              {tab === "holdings"
-                ? "★ Holdings"
-                : tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        <div className="ex-chain-tabs">
-          {["All", "BSC", "Solana", "Ethereum", "Base", "1h"].map((x) => (
-            <button key={x}>{x}</button>
-          ))}
-        </div>
-
-        <input
-          className="ex-web3-search-input"
-          placeholder="Search coins"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <div className="ex-coin-list">
-          {visibleCoins.slice(0, 25).map((coin, index) => {
-            const symbol = String(coin.symbol || "COIN").toUpperCase();
-            const balance = balances[symbol] || "0.0000";
-            const price = Number(coin.priceUsd || getTokenPrice(symbol) || 0);
-
-            return (
-              <div className="ex-coin-item" key={`${symbol}-${index}`}>
-                <img
-                  src={getCoinLogo(coin)}
-                  alt={symbol}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-                <div>
-                  <strong>{symbol}</strong>
-                  <p>{coin.name || symbol}</p>
-                </div>
-                <div>
-                  <strong>
-                    {assetTab === "holdings"
-                      ? balance
-                      : `$${price.toFixed(price > 1 ? 2 : 6)}`}
-                  </strong>
-                  <p>BSC</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {bottomTab === "assets" && wallet && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>
-              ×
-            </button>
-            <h3>Receive {receiveCoin}</h3>
-            <select
-              value={receiveCoin}
-              onChange={(e) => setReceiveCoin(e.target.value)}
-            >
-              {DEFAULT_TOKENS.map((x) => (
-                <option key={x.symbol}>{x.symbol}</option>
-              ))}
-            </select>
-            <div className="ex-qr">
-              <QRCode value={wallet} size={170} />
+          <div className="ex-promo-card">
+            <div>
+              <h3>Make your first trade on Exalt Web3</h3>
+              <p>Explore BSC assets, DeFi and EXALT ecosystem.</p>
+              <span>Register Now ›</span>
             </div>
-            <p>{wallet}</p>
-            <button onClick={copyAddress}>Copy Address</button>
+            <img src={exaltLogo} alt="EXALT" />
           </div>
-        )}
 
-        {bottomTab === "trade" && wallet && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>
-              ×
-            </button>
-            <h3>Swap</h3>
-            <select value={fromCoin} onChange={(e) => setFromCoin(e.target.value)}>
-              <option>BNB</option>
-              <option>USDT</option>
-              <option>EXALT</option>
-            </select>
-            <select value={toCoin} onChange={(e) => setToCoin(e.target.value)}>
-              <option>EXALT</option>
-              <option>USDT</option>
-              <option>BNB</option>
-            </select>
-            <input
-              placeholder="Amount"
-              value={swapAmount}
-              onChange={(e) => setSwapAmount(e.target.value)}
-            />
-            <button onClick={executeSwap}>Swap Now</button>
+          <div className="ex-asset-tabs">
+            {["holdings", "trending", "perps", "securities"].map((tab) => (
+              <button
+                key={tab}
+                className={assetTab === tab ? "active" : ""}
+                onClick={() => setAssetTab(tab)}
+              >
+                {tab === "holdings"
+                  ? "★ Holdings"
+                  : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
           </div>
-        )}
 
-        {bottomTab === "discover" && wallet && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>
-              ×
-            </button>
-            <h3>Send Crypto</h3>
-            <select value={sendCoin} onChange={(e) => setSendCoin(e.target.value)}>
-              <option>BNB</option>
-              <option>EXALT</option>
-              <option>USDT</option>
-            </select>
-            <input
-              placeholder="Receiver address"
-              value={sendTo}
-              onChange={(e) => setSendTo(e.target.value)}
-            />
-            <input
-              placeholder={`Amount ${sendCoin}`}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-            <button onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}>
-              Send Now
-            </button>
-          </div>
-        )}
+          <input
+            className="ex-web3-search-input"
+            placeholder="Search coins"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        {bottomTab === "market" && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>
-              ×
-            </button>
-            <h3>Transaction History</h3>
-            {txHistory.length === 0 ? (
-              <p>No transactions yet.</p>
-            ) : (
-              txHistory.map((tx, i) => (
-                <div className="ex-history-item" key={`${tx.hash || i}`}>
-                  <strong>
-                    {tx.type} {tx.coin}
-                  </strong>
-                  <span>{tx.amount}</span>
-                  {tx.hash && (
-                    <a
-                      href={`https://bscscan.com/tx/${tx.hash}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      BscScan
-                    </a>
-                  )}
+          <div className="ex-coin-list">
+            {visibleCoins.slice(0, 25).map((coin, index) => {
+              const symbol = String(coin.symbol || "COIN").toUpperCase();
+              const balance = balances[symbol] || "0.0000";
+              const price = Number(coin.priceUsd || getTokenPrice(symbol) || 0);
+
+              return (
+                <div className="ex-coin-item" key={`${symbol}-${index}`}>
+                  <img
+                    src={getCoinLogo(coin)}
+                    alt={symbol}
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                  <div>
+                    <strong>{symbol}</strong>
+                    <p>{coin.name || symbol}</p>
+                  </div>
+                  <div>
+                    <strong>
+                      {assetTab === "holdings"
+                        ? balance
+                        : `$${price.toFixed(price > 1 ? 2 : 6)}`}
+                    </strong>
+                    <p>BSC</p>
+                  </div>
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
-        )}
+        </>
+      )}
 
-        {message && <div className="ex-web3-toast">{message}</div>}
-
-        <div className="ex-bottom-nav">
-          {[
-            ["home", "Home", "⌂"],
-            ["market", "Markets", "▧"],
-            ["trade", "Trade", "⇄"],
-            ["discover", "Discover", "◉"],
-            ["assets", "Assets", "▣"],
-          ].map(([key, label, icon]) => (
-            <button
-              key={key}
-              className={bottomTab === key ? "active" : ""}
-              onClick={() => setBottomTab(key)}
-            >
-              <span>{icon}</span>
-              {label}
-            </button>
-          ))}
+      {bottomTab === "assets" && wallet && (
+        <div className="ex-modal-panel">
+          <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+          <h3>Receive {receiveCoin}</h3>
+          <select value={receiveCoin} onChange={(e) => setReceiveCoin(e.target.value)}>
+            {DEFAULT_TOKENS.map((x) => (
+              <option key={x.symbol}>{x.symbol}</option>
+            ))}
+          </select>
+          <div className="ex-qr">
+            <QRCode value={wallet} size={170} />
+          </div>
+          <p>{wallet}</p>
+          <button onClick={copyAddress}>Copy Address</button>
         </div>
+      )}
+
+      {bottomTab === "trade" && wallet && (
+        <div className="ex-modal-panel">
+          <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+          <h3>Swap</h3>
+          <select value={fromCoin} onChange={(e) => setFromCoin(e.target.value)}>
+            <option>BNB</option>
+            <option>USDT</option>
+            <option>EXALT</option>
+          </select>
+          <select value={toCoin} onChange={(e) => setToCoin(e.target.value)}>
+            <option>EXALT</option>
+            <option>USDT</option>
+            <option>BNB</option>
+          </select>
+          <input
+            placeholder="Amount"
+            value={swapAmount}
+            onChange={(e) => setSwapAmount(e.target.value)}
+          />
+          <button onClick={executeSwap}>Swap Now</button>
+        </div>
+      )}
+
+      {bottomTab === "discover" && wallet && (
+        <div className="ex-modal-panel">
+          <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+          <h3>Send Crypto</h3>
+          <select value={sendCoin} onChange={(e) => setSendCoin(e.target.value)}>
+            <option>BNB</option>
+            <option>EXALT</option>
+            <option>USDT</option>
+          </select>
+          <input
+            placeholder="Receiver address"
+            value={sendTo}
+            onChange={(e) => setSendTo(e.target.value)}
+          />
+          <input
+            placeholder={`Amount ${sendCoin}`}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <button onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}>
+            Send Now
+          </button>
+        </div>
+      )}
+
+      {bottomTab === "market" && (
+        <div className="ex-modal-panel">
+          <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+          <h3>Transaction History</h3>
+          {txHistory.length === 0 ? (
+            <p>No transactions yet.</p>
+          ) : (
+            txHistory.map((tx, i) => (
+              <div className="ex-history-item" key={`${tx.hash || i}`}>
+                <strong>{tx.type} {tx.coin}</strong>
+                <span>{tx.amount}</span>
+                {tx.hash && (
+                  <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noreferrer">
+                    BscScan
+                  </a>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {message && <div className="ex-web3-toast">{message}</div>}
+
+      <div className="ex-bottom-nav">
+        {[
+          ["home", "Home", "⌂"],
+          ["market", "Markets", "▧"],
+          ["trade", "Trade", "⇄"],
+          ["discover", "Discover", "◉"],
+          ["assets", "Assets", "▣"],
+        ].map(([key, label, icon]) => (
+          <button
+            key={key}
+            className={bottomTab === key ? "active" : ""}
+            onClick={() => setBottomTab(key)}
+          >
+            <span>{icon}</span>
+            {label}
+          </button>
+        ))}
       </div>
     </div>
-  );
+  </div>
+);
 }
-
 export default Web3Wallet;
