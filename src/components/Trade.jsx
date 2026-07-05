@@ -835,22 +835,18 @@ if (!hasExalt) {
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                   />
-
-                  <button
-                    disabled={loading}
-                    onClick={
-                      selectedSymbol === "EXALT" && type === "buy"
-                        ? buyExalt
-                        : submitOrder
-                    }
-                    className={type === "buy" ? "execute-buy" : "execute-sell"}
-                  >
-                    {loading
-                      ? t("processing")
-                      : type === "buy"
-                      ? ` ${selectedSymbol}`
-                      : ` ${selectedSymbol}`}
-                  </button>
+<button
+  disabled={loading}
+  onClick={submitOrder}
+  className={type === "buy" ? "execute-buy" : "execute-sell"}
+>
+  {loading
+    ? t("processing")
+    : type === "buy"
+    ? `Buy ${selectedSymbol}`
+    : `Sell ${selectedSymbol}`}
+</button>
+                  
                 </div>
               </div>
 
