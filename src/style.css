@@ -4043,3 +4043,40 @@ overflow-x:scroll;
   color:#cbd5e1;
   font-size:13px;
 }
+/* ===== GLOBAL LOGO SIZE FIX ===== */
+.main-logo,
+.topbar-logo,
+.mobile-brand-logo,
+.web3-logo,
+.exchange-logo,
+img[src*="exalt-exchange-logo"] {
+  width: auto !important;
+  height: 46px !important;
+  max-width: 180px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* Sidebar logo */
+.sidebar .main-logo {
+  height: 54px !important;
+  max-width: 160px !important;
+  margin: 0 auto 18px !important;
+}
+
+/* Mobile/dashboard logo */
+.mobile-brand-logo {
+  height: 42px !important;
+  max-width: 120px !important;
+}
+
+/* Stop any logo from covering screen */
+img {
+  max-width: 100%;
+}
+
+.logo-bg,
+.brand-bg,
+.hero-logo-bg {
+  pointer-events: none !important;
+}
