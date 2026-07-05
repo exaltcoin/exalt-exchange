@@ -57,20 +57,11 @@ function Transactions() {
       });
 
       const data = await res.json();
+const allTransactions =
+  data.transactions || data.data || data.requests || data || [];
 
-      const allTransactions =
-        data.transactions || data.data || data.requests || data || [];
-
-      const userTx = Array.isArray(allTransactions)
-        ? allTransactions.filter((tx) => {
-            const txUserId =
-              tx.userId?._id || tx.userId || tx.user?._id || tx.user;
-
-            return String(txUserId) === String(user?._id || user?.id);
-          })
-        : [];
-
-      setTransactions(userTx);
+setTransactions(Array.isArray(allTransactions) ? allTransactions : []);
+      
     } catch (error) {
       console.log("Transactions load error:", error);
       setTransactions([]);
