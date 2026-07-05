@@ -1,4 +1,5 @@
 import "./Dashboard.css";
+import exchangeLogo from "../assets/exalt-exchange.png";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -147,17 +148,35 @@ const [rewardStats, setRewardStats] = useState({
   return (
     <>
       <div className="mobile-home-view">
-        <div className="mobile-topbar">
-          <LanguageSwitcher />
+       <div className="mobile-premium-header">
+  <div className="mobile-brand-row">
+    <div className="mobile-brand">
+      <img
+        src={exchangeLogo}
+        alt="Exalt Exchange"
+        className="mobile-brand-logo"
+      />
 
-          <div className="mobile-tabs">
-            <span className="active">Exchange</span>
-            <span onClick={() => setPage("web3wallet")}>Web3</span>
-          </div>
+      <div>
+        <h2>Exalt Exchange</h2>
+        <p>Secure • Fast • Global</p>
+      </div>
+    </div>
 
-          <button onClick={() => setPage("profile")}>👤</button>
-        </div>
+    <button className="mobile-profile-btn" onClick={() => setPage("profile")}>
+      👤
+    </button>
+  </div>
 
+  <div className="mobile-language-wrap">
+    <LanguageSwitcher />
+  </div>
+
+  <div className="mobile-tabs">
+    <span className="active">Exchange</span>
+    <span onClick={() => setPage("web3wallet")}>Web3</span>
+  </div>
+</div>
         <div className="mobile-balance-card">
           <p>{t("portfolioValue")} (USDT)</p>
           <h1>${formatUsd(portfolioValue, 2)}</h1>
@@ -269,6 +288,7 @@ const [rewardStats, setRewardStats] = useState({
         <div className="dashboard-page">
           <div className="hero-banner">
             <div>
+              <img src={exchangeLogo} alt="Exchange Logo" className="exchange-logo" />
               <h1>{t("exchangeName")}</h1>
 <p>{t("heroSubtitle")}</p>
 <span className="live-status">
