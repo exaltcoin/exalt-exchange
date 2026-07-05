@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "react-qr-code";
+import { ethers } from "ethers";
 import exaltLogo from "../assets/exalt-coin.png";
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
-import { ethers } from "ethers";
 import "./Web3Wallet.css";
 
 function Web3Wallet({ setPage }) {
   const API_BASE =
     import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
-  const API = API_BASE.endsWith("/api") ? API_BASE.replace("/api", "") : API_BASE;
+  const API = API_BASE.endsWith("/api")
+    ? API_BASE.replace("/api", "")
+    : API_BASE;
 
   const ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
   const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
@@ -28,12 +30,48 @@ function Web3Wallet({ setPage }) {
   ];
 
   const DEFAULT_TOKENS = [
-    { symbol: "BNB", name: "BNB", address: WBNB, fallbackPrice: 650, logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png" },
-    { symbol: "USDT", name: "Tether USD", address: USDT, fallbackPrice: 1, logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" },
-    { symbol: "EXALT", name: "Exalt Coin", address: EXALT, fallbackPrice: 0, logo: exaltLogo },
-    { symbol: "BTCB", name: "Bitcoin BEP20", address: "0x7130d2A12B9BCbF4fF2634d864A1Ee1Ce3Ead9c", fallbackPrice: 103000, logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" },
-    { symbol: "ETH", name: "Ethereum BEP20", address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8", fallbackPrice: 2400, logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png" },
-    { symbol: "CAKE", name: "PancakeSwap", address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82", fallbackPrice: 2.5, logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/7186.png" },
+    {
+      symbol: "BNB",
+      name: "BNB",
+      address: WBNB,
+      fallbackPrice: 650,
+      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png",
+    },
+    {
+      symbol: "USDT",
+      name: "Tether USD",
+      address: USDT,
+      fallbackPrice: 1,
+      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png",
+    },
+    {
+      symbol: "EXALT",
+      name: "Exalt Coin",
+      address: EXALT,
+      fallbackPrice: 0,
+      logo: exaltLogo,
+    },
+    {
+      symbol: "BTCB",
+      name: "Bitcoin BEP20",
+      address: "0x7130d2A12B9BCbF4fF2634d864A1Ee1Ce3Ead9c",
+      fallbackPrice: 103000,
+      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png",
+    },
+    {
+      symbol: "ETH",
+      name: "Ethereum BEP20",
+      address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+      fallbackPrice: 2400,
+      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
+    },
+    {
+      symbol: "CAKE",
+      name: "PancakeSwap",
+      address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+      fallbackPrice: 2.5,
+      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/7186.png",
+    },
   ];
 
   const [wallet, setWallet] = useState("");
@@ -56,7 +94,6 @@ function Web3Wallet({ setPage }) {
   const [fromCoin, setFromCoin] = useState("BNB");
   const [toCoin, setToCoin] = useState("EXALT");
   const [swapAmount, setSwapAmount] = useState("");
-
   const [txHistory, setTxHistory] = useState([]);
 
   const shortAddress = (address) =>
@@ -78,7 +115,12 @@ function Web3Wallet({ setPage }) {
   const getCoinLogo = (coin) => {
     const symbol = String(coin?.symbol || "").toUpperCase();
     if (symbol === "EXALT") return exaltLogo;
-    return coin?.logo || coin?.image || coin?.icon || `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`;
+    return (
+      coin?.logo ||
+      coin?.image ||
+      coin?.icon ||
+      `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`
+    );
   };
 
   const switchToBSC = async () => {
@@ -152,7 +194,10 @@ function Web3Wallet({ setPage }) {
           const raw = await contract.balanceOf(walletAddress);
           const decimals = await contract.decimals();
           const value = Number(ethers.formatUnits(raw, decimals));
-          newBalances[token.symbol] = value > 0 && value < 0.0001 ? value.toFixed(8) : value.toFixed(4);
+
+          newBalances[token.symbol] =
+            value > 0 && value < 0.0001 ? value.toFixed(8) : value.toFixed(4);
+
           total += value * getTokenPrice(token.symbol);
         } catch {
           newBalances[token.symbol] = "0.0000";
@@ -179,7 +224,9 @@ function Web3Wallet({ setPage }) {
           amount: tx.amount,
           coin: tx.coin,
           status: tx.status || "success",
-          time: tx.createdAt ? new Date(tx.createdAt).toLocaleString() : new Date().toLocaleString(),
+          time: tx.createdAt
+            ? new Date(tx.createdAt).toLocaleString()
+            : new Date().toLocaleString(),
         }));
 
         setTxHistory(formatted);
@@ -210,7 +257,11 @@ function Web3Wallet({ setPage }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wallet: wallet?.toLowerCase(),
-          type: type.includes("Send") ? "Send" : type.includes("Receive") ? "Receive" : "Swap",
+          type: type.includes("Send")
+            ? "Send"
+            : type.includes("Receive")
+            ? "Receive"
+            : "Swap",
           coin,
           amount: Number(amountValue),
           hash,
@@ -232,14 +283,20 @@ function Web3Wallet({ setPage }) {
       }
 
       await switchToBSC();
+
       const provider = new ethers.BrowserProvider(window.ethereum);
       const accounts = await provider.send("eth_requestAccounts", []);
 
-      if (!accounts?.length) return alert("No wallet account found.");
+      if (!accounts?.length) {
+        alert("No wallet account found.");
+        return;
+      }
 
       const address = accounts[0];
       const savedWallets = JSON.parse(localStorage.getItem("exalt_web3_wallets") || "[]");
-      const exists = savedWallets.some((w) => w.address.toLowerCase() === address.toLowerCase());
+      const exists = savedWallets.some(
+        (w) => w.address.toLowerCase() === address.toLowerCase()
+      );
 
       const nextWallets = exists
         ? savedWallets
@@ -274,7 +331,10 @@ function Web3Wallet({ setPage }) {
   };
 
   const removeWallet = (address) => {
-    const next = wallets.filter((w) => w.address.toLowerCase() !== address.toLowerCase());
+    const next = wallets.filter(
+      (w) => w.address.toLowerCase() !== address.toLowerCase()
+    );
+
     setWallets(next);
     localStorage.setItem("exalt_web3_wallets", JSON.stringify(next));
 
@@ -283,6 +343,20 @@ function Web3Wallet({ setPage }) {
       setWallet(first);
       localStorage.setItem("web3_wallet", first);
     }
+  };
+
+  const renameWallet = (address) => {
+    const newName = prompt("Enter wallet name");
+    if (!newName) return;
+
+    const next = wallets.map((w) =>
+      w.address.toLowerCase() === address.toLowerCase()
+        ? { ...w, name: newName }
+        : w
+    );
+
+    setWallets(next);
+    localStorage.setItem("exalt_web3_wallets", JSON.stringify(next));
   };
 
   const copyAddress = () => {
@@ -300,6 +374,7 @@ function Web3Wallet({ setPage }) {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
+
       const tx = await signer.sendTransaction({
         to: sendTo,
         value: ethers.parseEther(amount),
@@ -330,6 +405,7 @@ function Web3Wallet({ setPage }) {
       const decimals = await token.decimals();
 
       setMessage(`${coin} transaction pending...`);
+
       const tx = await token.transfer(sendTo, ethers.parseUnits(amount, decimals));
       await tx.wait();
 
@@ -405,25 +481,32 @@ function Web3Wallet({ setPage }) {
   };
 
   const activeWalletName = useMemo(() => {
-    return wallets.find((w) => w.address?.toLowerCase() === wallet?.toLowerCase())?.name || "My Wallet";
+    return (
+      wallets.find((w) => w.address?.toLowerCase() === wallet?.toLowerCase())
+        ?.name || "My Wallet"
+    );
   }, [wallets, wallet]);
 
   const trendingCoins = (coins || []).slice(0, 20);
 
-  const visibleCoins = (assetTab === "holdings" ? DEFAULT_TOKENS : trendingCoins).filter((coin) => {
+  const visibleCoins = (
+    assetTab === "holdings" ? DEFAULT_TOKENS : trendingCoins
+  ).filter((coin) => {
     const keyword = search.toLowerCase();
     return (
       String(coin.symbol || "").toLowerCase().includes(keyword) ||
       String(coin.name || "").toLowerCase().includes(keyword)
     );
   });
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setShowWelcome(false);
-  }, 2200);
 
-  return () => clearTimeout(timer);
-}, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 2200);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     const savedWallet = localStorage.getItem("web3_wallet");
     const savedWallets = JSON.parse(localStorage.getItem("exalt_web3_wallets") || "[]");
@@ -451,28 +534,50 @@ useEffect(() => {
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
         {showWelcome && (
-  <div className="ex-welcome-overlay">
-    <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
-    <h3>Welcome To</h3>
-    <h1>Exalt Web3 Wallet</h1>
-    <p>Secure • Fast • Decentralized</p>
-  </div>
-)}
+          <div className="ex-welcome-overlay">
+            <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
+            <h3>Welcome To</h3>
+            <h1>Exalt Web3 Wallet</h1>
+            <p>Secure • Fast • Decentralized</p>
+          </div>
+        )}
+
         <div className="ex-web3-topbar">
           <button className="ex-icon-btn">☰</button>
-          <button className="ex-icon-btn">🎧</button>
+          <button
+            className="ex-icon-btn"
+            onClick={() => (setPage ? setPage("support") : alert("Support"))}
+          >
+            🎧
+          </button>
 
           <div className="ex-main-tabs">
-            <button className={mainTab === "exchange" ? "active" : ""} onClick={() => setPage ? setPage("dashboard") : setMainTab("exchange")}>
+            <button
+              className={mainTab === "exchange" ? "active" : ""}
+              onClick={() => setMainTab("exchange")}
+            >
               Exchange
             </button>
-            <button className={mainTab === "wallet" ? "active" : ""} onClick={() => setMainTab("wallet")}>
+            <button
+              className={mainTab === "wallet" ? "active" : ""}
+              onClick={() => setMainTab("wallet")}
+            >
               Wallet
             </button>
           </div>
 
-          <button className="ex-icon-btn" onClick={() => alert("Scan / WalletConnect coming soon")}>⌗</button>
-          <button className="ex-icon-btn" onClick={() => setPage ? setPage("support") : alert("Support")}>💬</button>
+          <button
+            className="ex-icon-btn"
+            onClick={() => alert("Scan / WalletConnect coming soon")}
+          >
+            ⌗
+          </button>
+          <button
+            className="ex-icon-btn"
+            onClick={() => (setPage ? setPage("support") : alert("Support"))}
+          >
+            💬
+          </button>
         </div>
 
         <div className="ex-search">
@@ -480,42 +585,67 @@ useEffect(() => {
           <button>⌕</button>
         </div>
 
-        {!wallet ? (
-          <div className="ex-welcome-card">
-            <img src={exchangeLogo} alt="Exalt Exchange" />
-            <p>Welcome to</p>
-            <h1>Exalt Exchange <span>Web3 Wallet</span></h1>
-            <button onClick={connectWeb3}>Connect Web3 Wallet</button>
+        {mainTab === "exchange" && (
+          <div className="ex-exchange-box">
+            <h3>Welcome to Exalt Exchange</h3>
+            <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
+            <p>Portfolio Value (USDT)</p>
+            <button onClick={() => (setPage ? setPage("markets") : alert("Markets"))}>
+              Open Markets
+            </button>
           </div>
-        ) : (
-          <>
-            <div className="ex-wallet-head">
-              <div>
-                <div className="ex-wallet-name">
-                  <span>💼</span>
-                  <select value={wallet} onChange={(e) => switchWallet(e.target.value)}>
-                    {wallets.map((w) => (
-                      <option key={w.id} value={w.address}>{w.name}</option>
-                    ))}
-                  </select>
-                  <button onClick={connectWeb3}>＋</button>
+        )}
+
+        {mainTab === "wallet" &&
+          (!wallet ? (
+            <div className="ex-welcome-card">
+              <img src={exchangeLogo} alt="Exalt Exchange" />
+              <p>Welcome to</p>
+              <h1>
+                Exalt Exchange <span>Web3 Wallet</span>
+              </h1>
+              <button onClick={connectWeb3}>Connect Web3 Wallet</button>
+            </div>
+          ) : (
+            <>
+              <div className="ex-wallet-head">
+                <div>
+                  <div className="ex-wallet-name">
+                    <span>💼</span>
+                    <select
+                      value={wallet}
+                      onChange={(e) => switchWallet(e.target.value)}
+                    >
+                      {wallets.map((w) => (
+                        <option key={w.id} value={w.address}>
+                          {w.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button onClick={connectWeb3}>＋</button>
+                  </div>
+
+                  <p className="ex-active-wallet-name">{activeWalletName}</p>
+
+                  <button className="ex-address-btn" onClick={copyAddress}>
+                    {shortAddress(wallet)} 📋
+                  </button>
                 </div>
-                <button className="ex-address-btn" onClick={copyAddress}>
-                  {shortAddress(wallet)} 📋
+
+                <button
+                  className="ex-receive-btn"
+                  onClick={() => setBottomTab("assets")}
+                >
+                  Receive
                 </button>
               </div>
 
-              <button className="ex-receive-btn" onClick={() => setBottomTab("assets")}>
-                Receive
-              </button>
-            </div>
-
-            <div className="ex-balance-card">
-              <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
-              <p>1D +$0.00 (0.00%)⌄</p>
-            </div>
-          </>
-        )}
+              <div className="ex-balance-card">
+                <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
+                <p>BNB Balance: {bnbBalance}</p>
+              </div>
+            </>
+          ))}
 
         <div className="ex-action-row">
           {[
@@ -545,7 +675,7 @@ useEffect(() => {
           <div>
             <h3>Meme Rush</h3>
             <strong>315</strong>
-            <p>↗ 10x in 24h</p>
+            <p>↗️ 10x in 24h</p>
           </div>
           <div>
             <h3>EXALT Cup</h3>
@@ -554,10 +684,29 @@ useEffect(() => {
           </div>
         </div>
 
+        {wallet && wallets.length > 0 && (
+          <div className="ex-wallet-manage">
+            {wallets.map((w) => (
+              <div className="ex-wallet-manage-row" key={w.id}>
+                <span>{w.name}</span>
+                <small>{shortAddress(w.address)}</small>
+                <button onClick={() => renameWallet(w.address)}>Rename</button>
+                <button onClick={() => removeWallet(w.address)}>Remove</button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="ex-asset-tabs">
           {["holdings", "trending", "perps", "securities"].map((tab) => (
-            <button key={tab} className={assetTab === tab ? "active" : ""} onClick={() => setAssetTab(tab)}>
-              {tab === "holdings" ? "★ Holdings" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+            <button
+              key={tab}
+              className={assetTab === tab ? "active" : ""}
+              onClick={() => setAssetTab(tab)}
+            >
+              {tab === "holdings"
+                ? "★ Holdings"
+                : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
@@ -583,13 +732,23 @@ useEffect(() => {
 
             return (
               <div className="ex-coin-item" key={`${symbol}-${index}`}>
-                <img src={getCoinLogo(coin)} alt={symbol} onError={(e) => (e.currentTarget.style.display = "none")} />
+                <img
+                  src={getCoinLogo(coin)}
+                  alt={symbol}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
                 <div>
                   <strong>{symbol}</strong>
                   <p>{coin.name || symbol}</p>
                 </div>
                 <div>
-                  <strong>{assetTab === "holdings" ? balance : `$${price.toFixed(price > 1 ? 2 : 6)}`}</strong>
+                  <strong>
+                    {assetTab === "holdings"
+                      ? balance
+                      : `$${price.toFixed(price > 1 ? 2 : 6)}`}
+                  </strong>
                   <p>BSC</p>
                 </div>
               </div>
@@ -599,10 +758,17 @@ useEffect(() => {
 
         {bottomTab === "assets" && wallet && (
           <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
             <h3>Receive {receiveCoin}</h3>
-            <select value={receiveCoin} onChange={(e) => setReceiveCoin(e.target.value)}>
-              {DEFAULT_TOKENS.map((x) => <option key={x.symbol}>{x.symbol}</option>)}
+            <select
+              value={receiveCoin}
+              onChange={(e) => setReceiveCoin(e.target.value)}
+            >
+              {DEFAULT_TOKENS.map((x) => (
+                <option key={x.symbol}>{x.symbol}</option>
+              ))}
             </select>
             <div className="ex-qr">
               <QRCode value={wallet} size={170} />
@@ -614,43 +780,83 @@ useEffect(() => {
 
         {bottomTab === "trade" && wallet && (
           <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
             <h3>Swap</h3>
             <select value={fromCoin} onChange={(e) => setFromCoin(e.target.value)}>
-              <option>BNB</option><option>USDT</option><option>EXALT</option>
+              <option>BNB</option>
+              <option>USDT</option>
+              <option>EXALT</option>
             </select>
             <select value={toCoin} onChange={(e) => setToCoin(e.target.value)}>
-              <option>EXALT</option><option>USDT</option><option>BNB</option>
+              <option>EXALT</option>
+              <option>USDT</option>
+              <option>BNB</option>
             </select>
-            <input placeholder="Amount" value={swapAmount} onChange={(e) => setSwapAmount(e.target.value)} />
+            <input
+              placeholder="Amount"
+              value={swapAmount}
+              onChange={(e) => setSwapAmount(e.target.value)}
+            />
             <button onClick={executeSwap}>Swap Now</button>
           </div>
         )}
 
         {bottomTab === "discover" && wallet && (
           <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
             <h3>Send Crypto</h3>
             <select value={sendCoin} onChange={(e) => setSendCoin(e.target.value)}>
-              <option>BNB</option><option>EXALT</option><option>USDT</option>
+              <option>BNB</option>
+              <option>EXALT</option>
+              <option>USDT</option>
             </select>
-            <input placeholder="Receiver address" value={sendTo} onChange={(e) => setSendTo(e.target.value)} />
-            <input placeholder={`Amount ${sendCoin}`} value={amount} onChange={(e) => setAmount(e.target.value)} />
-            <button onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}>Send Now</button>
+            <input
+              placeholder="Receiver address"
+              value={sendTo}
+              onChange={(e) => setSendTo(e.target.value)}
+            />
+            <input
+              placeholder={`Amount ${sendCoin}`}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <button onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}>
+              Send Now
+            </button>
           </div>
         )}
 
         {bottomTab === "market" && (
           <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
             <h3>Transaction History</h3>
-            {txHistory.length === 0 ? <p>No transactions yet.</p> : txHistory.map((tx, i) => (
-              <div className="ex-history-item" key={i}>
-                <strong>{tx.type} {tx.coin}</strong>
-                <span>{tx.amount}</span>
-                {tx.hash && <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noreferrer">BscScan</a>}
-              </div>
-            ))}
+            {txHistory.length === 0 ? (
+              <p>No transactions yet.</p>
+            ) : (
+              txHistory.map((tx, i) => (
+                <div className="ex-history-item" key={`${tx.hash || i}`}>
+                  <strong>
+                    {tx.type} {tx.coin}
+                  </strong>
+                  <span>{tx.amount}</span>
+                  {tx.hash && (
+                    <a
+                      href={`https://bscscan.com/tx/${tx.hash}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      BscScan
+                    </a>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         )}
 
@@ -664,7 +870,11 @@ useEffect(() => {
             ["discover", "Discover", "◉"],
             ["assets", "Assets", "▣"],
           ].map(([key, label, icon]) => (
-            <button key={key} className={bottomTab === key ? "active" : ""} onClick={() => setBottomTab(key)}>
+            <button
+              key={key}
+              className={bottomTab === key ? "active" : ""}
+              onClick={() => setBottomTab(key)}
+            >
               <span>{icon}</span>
               {label}
             </button>

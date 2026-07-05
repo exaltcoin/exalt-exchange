@@ -480,4 +480,38 @@
   0% { opacity: 1; }
   78% { opacity: 1; }
   100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}.ex-active-wallet-name {
+  margin: 4px 0 0;
+  color: #8f9bc4;
+  font-size: 12px;
+}
+
+.ex-wallet-manage {
+  margin: 14px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.ex-wallet-manage-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+}
+
+.ex-wallet-manage-row small {
+  grid-column: 1 / -1;
+  color: #8f9bc4;
+}
+
+.ex-wallet-manage-row button {
+  border: 0;
+  border-radius: 10px;
+  padding: 7px 9px;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-weight: 800;
 }
