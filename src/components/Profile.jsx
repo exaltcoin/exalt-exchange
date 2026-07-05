@@ -275,10 +275,6 @@ function Profile() {
           <button className="save-profile-btn" onClick={updateProfile}>
             {t("saveProfile")}
           </button>
-
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
         </div>
       </div>
     </PageShell>
