@@ -433,3 +433,51 @@
     box-shadow: 0 30px 90px rgba(0,0,0,.45);
   }
 }
+.ex-welcome-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(248, 196, 0, 0.18), transparent 35%),
+    linear-gradient(180deg, #07101f 0%, #111b35 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  border-radius: inherit;
+  animation: exWelcomeFade 2.2s ease forwards;
+}
+
+.ex-welcome-overlay .welcome-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 0 35px rgba(248, 196, 0, 0.35);
+}
+
+.ex-welcome-overlay h3 {
+  margin: 0;
+  color: #aeb7d8;
+  font-size: 16px;
+}
+
+.ex-welcome-overlay h1 {
+  margin: 8px 0;
+  color: #f8c400;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.ex-welcome-overlay p {
+  color: #cbd5ff;
+  font-size: 13px;
+}
+
+@keyframes exWelcomeFade {
+  0% { opacity: 1; }
+  78% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}

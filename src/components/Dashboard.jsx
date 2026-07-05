@@ -33,6 +33,7 @@ const API = API_BASE.endsWith("/api")
   const [marketCap, setMarketCap] = useState(0);
   const [liquidity, setLiquidity] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showExchangeWelcome, setShowExchangeWelcome] = useState(true);
 const [rewardStats, setRewardStats] = useState({
   approvedAmount: 0,
   pendingAmount: 0,
@@ -149,16 +150,29 @@ const [rewardStats, setRewardStats] = useState({
       setLoading(false);
     }
   };
-
+const timer = setTimeout(() => {
+  setShowExchangeWelcome(false);
+}, 2200);
   useEffect(() => {
     loadDashboard();
     const interval = setInterval(loadDashboard, 30000);
-    return () => clearInterval(interval);
+    return () => {
+  clearTimeout(timer);
+  clearInterval(interval);
+};
   }, [API]);
 
   return (
     <>
       <div className="mobile-home-view">
+        {showExchangeWelcome && (
+  <div className="exchange-welcome-overlay">
+    <img src={exchangeLogo} alt="Exalt Exchange" className="exchange-welcome-logo" />
+    <h3>Welcome To</h3>
+    <h1>Exalt Exchange</h1>
+    <p>Secure • Fast • Global Trading</p>
+  </div>
+)}
        <div className="mobile-premium-header">
   <div className="mobile-brand-row">
     <div className="mobile-brand">

@@ -702,3 +702,67 @@
   font-weight: 900;
   cursor: pointer;
 }
+.exchange-welcome-overlay{
+    position:fixed;
+    inset:0;
+    background:#050816;
+    z-index:999999;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    animation:fadeOut 2.2s forwards;
+}
+
+.exchange-welcome-logo{
+    width:95px;
+    height:95px;
+    border-radius:22px;
+    margin-bottom:20px;
+    animation:logoPop .7s ease;
+}
+
+.exchange-welcome-overlay h3{
+    color:#ffffff;
+    font-size:18px;
+    margin:0;
+    font-weight:500;
+}
+
+.exchange-welcome-overlay h1{
+    color:#f6b33d;
+    font-size:34px;
+    margin:10px 0;
+    font-weight:800;
+}
+
+.exchange-welcome-overlay p{
+    color:#8b96b3;
+    font-size:15px;
+    margin-top:6px;
+}
+
+@keyframes logoPop{
+    from{
+        transform:scale(.6);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+@keyframes fadeOut{
+    0%{
+        opacity:1;
+        visibility:visible;
+    }
+    85%{
+        opacity:1;
+    }
+    100%{
+        opacity:0;
+        visibility:hidden;
+    }
+}

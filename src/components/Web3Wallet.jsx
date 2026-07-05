@@ -48,7 +48,7 @@ function Web3Wallet({ setPage }) {
   const [assetTab, setAssetTab] = useState("holdings");
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
-
+  const [showWelcome, setShowWelcome] = useState(true);
   const [sendTo, setSendTo] = useState("");
   const [amount, setAmount] = useState("");
   const [sendCoin, setSendCoin] = useState("BNB");
@@ -417,7 +417,13 @@ function Web3Wallet({ setPage }) {
       String(coin.name || "").toLowerCase().includes(keyword)
     );
   });
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowWelcome(false);
+  }, 2200);
 
+  return () => clearTimeout(timer);
+}, []);
   useEffect(() => {
     const savedWallet = localStorage.getItem("web3_wallet");
     const savedWallets = JSON.parse(localStorage.getItem("exalt_web3_wallets") || "[]");
@@ -444,6 +450,14 @@ function Web3Wallet({ setPage }) {
   return (
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
+        {showWelcome && (
+  <div className="ex-welcome-overlay">
+    <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
+    <h3>Welcome To</h3>
+    <h1>Exalt Web3 Wallet</h1>
+    <p>Secure • Fast • Decentralized</p>
+  </div>
+)}
         <div className="ex-web3-topbar">
           <button className="ex-icon-btn">☰</button>
           <button className="ex-icon-btn">🎧</button>
