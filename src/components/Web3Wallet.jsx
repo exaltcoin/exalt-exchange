@@ -653,7 +653,11 @@ if (selectedCoinDetails) {
         selectedCoinDetails.fallbackPrice ||
         0
       }
-      onBack={() => setSelectedCoinDetails(null)}
+     onBack={() => {
+  setSelectedCoinDetails(null);
+  setShowWelcome(true);
+  setTimeout(() => setShowWelcome(false), 1800);
+}}
       onSend={() => {
         setSendTokenId(selectedCoinDetails.id);
         setBottomTab("discover");
