@@ -5,7 +5,11 @@ import exaltLogo from "../assets/exalt-coin.png";
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import "./Web3Wallet.css";
 
-import { DEFAULT_TOKENS, BSC_CHAIN } from "../web3/web3Config";
+import {
+  DEFAULT_CHAIN_KEY,
+  getChain,
+  getChainList,
+} from "../web3/web3Config";
 
 import {
   getSavedWallets,
@@ -24,8 +28,9 @@ import {
 import {
   getAllBalances,
   sendToken,
-  swapBnbToToken,
-  swapTokenToBnb,
+  swapNativeToToken,
+  swapTokenToNative,
+  getSignerFromPrivateKey,
 } from "../web3/transactionService";
 
 import {
@@ -44,12 +49,21 @@ import {
 } from "../web3/qrScannerService";
 
 import {
+  getAllTokens,
+  getWalletTokenList,
   getTokenBySymbol,
   getReceiveAddressForToken,
   getTokenWarning,
+  getTokenLogo,
+  getTokenBalanceKey,
+  getImportableChains,
+  importCustomToken,
+  removeCustomToken,
   formatTokenAmount,
   formatTokenPrice,
   searchTokens,
+  sortTokensByValue,
+  buildTokenDisplayName,
 } from "../web3/tokens";
 
 import {
@@ -76,6 +90,10 @@ function Web3Wallet({ setPage }) {
   const [prices, setPrices] = useState({});
   const [totalAssets, setTotalAssets] = useState(0);
 
+  const [activeChain, setActiveChain] = useState(
+    localStorage.getItem("exalt_active_chain") || DEFAULT_CHAIN_KEY
+  );
+
   const [assetTab, setAssetTab] = useState("holdings");
   const [bottomTab, setBottomTab] = useState("home");
   const [search, setSearch] = useState("");
@@ -89,20 +107,28 @@ function Web3Wallet({ setPage }) {
   const [showPhrase, setShowPhrase] = useState("");
   const [showSupport, setShowSupport] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [showImportToken, setShowImportToken] = useState(false);
 
   const [sendTo, setSendTo] = useState("");
   const [amount, setAmount] = useState("");
-  const [sendCoin, setSendCoin] = useState("BNB");
+  const [sendTokenId, setSendTokenId] = useState("");
 
-  const [receiveCoin, setReceiveCoin] = useState("BNB");
+  const [receiveTokenId, setReceiveTokenId] = useState("");
 
-  const [fromCoin, setFromCoin] = useState("BNB");
-  const [toCoin, setToCoin] = useState("EXALT");
+  const [fromTokenId, setFromTokenId] = useState("");
+  const [toTokenId, setToTokenId] = useState("");
   const [swapAmount, setSwapAmount] = useState("");
 
   const [txHistory, setTxHistory] = useState([]);
   const [importValue, setImportValue] = useState("");
   const [supportMsg, setSupportMsg] = useState("");
+
+  const [customTokenAddress, setCustomTokenAddress] = useState("");
+  const [customTokenChain, setCustomTokenChain] = useState(activeChain);
+  const [tokenImporting, setTokenImporting] = useState(false);
+
+  const chain = getChain(activeChain);
+  const chains = getChainList();
 
   const activeWallet = useMemo(
     () => findWallet(wallets, wallet),
@@ -111,18 +137,62 @@ function Web3Wallet({ setPage }) {
 
   const activeWalletName = activeWallet?.name || "Exalt Wallet";
 
-  const selectedReceiveToken = useMemo(
-    () => getTokenBySymbol(receiveCoin),
-    [receiveCoin]
-  );
+  const walletTokens = useMemo(() => {
+    const list = getWalletTokenList({
+      chainKey: activeChain,
+      includeHidden: false,
+      includeSpam: false,
+      query: search,
+    });
 
-  const visibleTokens = useMemo(() => {
-    return searchTokens(DEFAULT_TOKENS, search);
-  }, [search]);
+    return sortTokensByValue(list, balances, prices);
+  }, [activeChain, search, balances, prices]);
+
+  const allChainTokens = useMemo(() => {
+    return getAllTokens().filter((token) => token.chainKey === activeChain);
+  }, [activeChain, showImportToken]);
+
+  const selectedSendToken = useMemo(() => {
+    return (
+      getAllTokens().find((token) => token.id === sendTokenId) ||
+      walletTokens[0] ||
+      getTokenBySymbol(chain.symbol, activeChain)
+    );
+  }, [sendTokenId, walletTokens, activeChain]);
+
+  const selectedReceiveToken = useMemo(() => {
+    return (
+      getAllTokens().find((token) => token.id === receiveTokenId) ||
+      walletTokens[0] ||
+      getTokenBySymbol(chain.symbol, activeChain)
+    );
+  }, [receiveTokenId, walletTokens, activeChain]);
+
+  const selectedFromToken = useMemo(() => {
+    return (
+      getAllTokens().find((token) => token.id === fromTokenId) ||
+      walletTokens[0] ||
+      getTokenBySymbol(chain.symbol, activeChain)
+    );
+  }, [fromTokenId, walletTokens, activeChain]);
+
+  const selectedToToken = useMemo(() => {
+    return (
+      getAllTokens().find((token) => token.id === toTokenId) ||
+      walletTokens.find((token) => !token.native) ||
+      walletTokens[1] ||
+      walletTokens[0]
+    );
+  }, [toTokenId, walletTokens]);
 
   const portfolioValue = useMemo(() => {
-    return calculatePortfolio(DEFAULT_TOKENS, balances, prices);
-  }, [balances, prices]);
+    return calculatePortfolio(walletTokens, balances, prices);
+  }, [walletTokens, balances, prices]);
+
+  const receiveAddress = getReceiveAddressForToken(
+    selectedReceiveToken?.symbol,
+    wallet
+  );
 
   const showToast = (text) => {
     setMessage(text);
@@ -139,14 +209,32 @@ function Web3Wallet({ setPage }) {
     }
   };
 
-  const loadBalances = async (address = wallet) => {
+  const changeChain = async (chainKey) => {
+    setActiveChain(chainKey);
+    localStorage.setItem("exalt_active_chain", chainKey);
+    setSearch("");
+    setSendTokenId("");
+    setReceiveTokenId("");
+    setFromTokenId("");
+    setToTokenId("");
+
+    if (wallet) {
+      await loadBalances(wallet, chainKey);
+    }
+  };const loadBalances = async (address = wallet, chainKey = activeChain) => {
     try {
       if (!address) return;
 
-      const result = await getAllBalances(address);
-      setBalances(result);
+      const result = await getAllBalances(address, chainKey);
+      setBalances((prev) => ({ ...prev, ...result }));
 
-      const total = calculatePortfolio(DEFAULT_TOKENS, result, prices);
+      const tokens = getWalletTokenList({
+        chainKey,
+        includeHidden: false,
+        includeSpam: false,
+      });
+
+      const total = calculatePortfolio(tokens, result, prices);
       setTotalAssets(total);
     } catch (err) {
       console.log("Web3 balance error:", err);
@@ -196,7 +284,8 @@ function Web3Wallet({ setPage }) {
       setShowPhrase(result.phrase);
       setShowAddWallet(false);
 
-      await loadBalances(result.wallet.address);
+      await loadBalances(result.wallet.address, activeChain);
+      await loadHistory(result.wallet.address);
 
       showToast("Exalt Wallet created. Save your recovery phrase.");
     } catch (err) {
@@ -211,11 +300,11 @@ function Web3Wallet({ setPage }) {
       const nextWallets = addWallet(wallets, imported);
 
       syncWalletState(nextWallets, imported.address);
-
       setImportValue("");
       setShowAddWallet(false);
 
-      await loadBalances(imported.address);
+      await loadBalances(imported.address, activeChain);
+      await loadHistory(imported.address);
 
       showToast("Exalt Wallet imported.");
     } catch (err) {
@@ -223,9 +312,10 @@ function Web3Wallet({ setPage }) {
       alert(err.message || "Import failed.");
     }
   };
+
   const switchWallet = async (address) => {
     syncWalletState(wallets, address);
-    await loadBalances(address);
+    await loadBalances(address, activeChain);
     await loadHistory(address);
     setShowMyWallets(false);
   };
@@ -250,7 +340,7 @@ function Web3Wallet({ setPage }) {
     syncWalletState(nextWallets, nextActive);
 
     if (nextActive) {
-      loadBalances(nextActive);
+      loadBalances(nextActive, activeChain);
       loadHistory(nextActive);
     } else {
       setBalances({});
@@ -259,9 +349,9 @@ function Web3Wallet({ setPage }) {
     }
   };
 
-  const copyAddress = () => {
+  const copyAddress = async () => {
     if (!wallet) return alert("Create or import Exalt Wallet first.");
-    copyToClipboard(wallet);
+    await copyToClipboard(wallet);
     showToast("Wallet address copied.");
   };
 
@@ -330,56 +420,59 @@ function Web3Wallet({ setPage }) {
     setShowScanner(false);
   };
 
-  const getActiveSigner = async () => {
+  const getActiveSigner = async (chainKey = activeChain) => {
     if (!activeWallet?.privateKey) {
       throw new Error("Please create or import Exalt Wallet first.");
     }
 
-    const provider = new ethers.JsonRpcProvider(BSC_CHAIN.rpc);
-    return new ethers.Wallet(activeWallet.privateKey, provider);
+    return getSignerFromPrivateKey(activeWallet.privateKey, chainKey);
   };
 
   const handleSend = async () => {
     try {
       if (!wallet) return alert("Create or import Exalt Wallet first.");
-      if (!isValidAddress(sendTo)) return alert("Invalid BSC address.");
+      if (!isValidAddress(sendTo)) return alert("Invalid wallet address.");
       if (!amount || Number(amount) <= 0) return alert("Enter valid amount.");
 
-      const activeSigner = await getActiveSigner();
+      const activeSigner = await getActiveSigner(selectedSendToken.chainKey);
 
-      const tx = await sendToken({
+      const result = await sendToken({
         signer: activeSigner,
-        tokenSymbol: sendCoin,
+        token: selectedSendToken,
         to: sendTo,
         amount,
+        chainKey: selectedSendToken.chainKey,
       });
 
       setTxHistory(
         addLocalTx({
           type: "Send",
-          hash: tx.hash,
+          hash: result.hash,
           amount,
-          coin: sendCoin,
+          coin: selectedSendToken.symbol,
           status: "pending",
           wallet,
+          chainKey: selectedSendToken.chainKey,
         })
       );
 
       showToast("Transaction pending...");
-      await tx.wait();
+      await result.tx.wait();
 
-      updateLocalTxStatus(tx.hash, "success");
+      updateLocalTxStatus(result.hash, "success");
 
       await saveWeb3TxToBackend(API, {
         type: "Send",
-        hash: tx.hash,
+        hash: result.hash,
         amount,
-        coin: sendCoin,
+        coin: selectedSendToken.symbol,
         status: "success",
         wallet,
+        chain: selectedSendToken.network,
+        chainKey: selectedSendToken.chainKey,
       });
 
-      await loadBalances(wallet);
+      await loadBalances(wallet, selectedSendToken.chainKey);
       await loadHistory(wallet);
 
       setSendTo("");
@@ -390,62 +483,74 @@ function Web3Wallet({ setPage }) {
       alert(err.message || "Send failed.");
     }
   };
-
   const handleSwap = async () => {
     try {
       if (!wallet) return alert("Create or import Exalt Wallet first.");
       if (!swapAmount || Number(swapAmount) <= 0) return alert("Enter valid amount.");
-      if (fromCoin === toCoin) return alert("Select different coins.");
+      if (!selectedFromToken || !selectedToToken) return alert("Select tokens first.");
+      if (selectedFromToken.id === selectedToToken.id) {
+        return alert("Select different tokens.");
+      }
 
-      const activeSigner = await getActiveSigner();
+      if (selectedFromToken.chainKey !== selectedToToken.chainKey) {
+        return alert("Cross-chain swap is not enabled yet.");
+      }
 
-      let tx;
+      const swapChainKey = selectedFromToken.chainKey;
+      const activeSigner = await getActiveSigner(swapChainKey);
 
-      if (fromCoin === "BNB") {
-        tx = await swapBnbToToken({
+      let result;
+
+      if (selectedFromToken.native && !selectedToToken.native) {
+        result = await swapNativeToToken({
           signer: activeSigner,
-          tokenOutSymbol: toCoin,
+          tokenOut: selectedToToken,
           walletAddress: wallet,
           amount: swapAmount,
+          chainKey: swapChainKey,
         });
-      } else if (toCoin === "BNB") {
-        tx = await swapTokenToBnb({
+      } else if (!selectedFromToken.native && selectedToToken.native) {
+        result = await swapTokenToNative({
           signer: activeSigner,
-          tokenInSymbol: fromCoin,
+          tokenIn: selectedFromToken,
           walletAddress: wallet,
           amount: swapAmount,
+          chainKey: swapChainKey,
         });
       } else {
-        alert("Token-to-token swap coming soon.");
+        alert("Token-to-token swap is coming next.");
         return;
       }
 
       setTxHistory(
         addLocalTx({
           type: "Swap",
-          hash: tx.hash,
+          hash: result.hash,
           amount: swapAmount,
-          coin: `${fromCoin}/${toCoin}`,
+          coin: `${selectedFromToken.symbol}/${selectedToToken.symbol}`,
           status: "pending",
           wallet,
+          chainKey: swapChainKey,
         })
       );
 
       showToast("Swap pending...");
-      await tx.wait();
+      await result.tx.wait();
 
-      updateLocalTxStatus(tx.hash, "success");
+      updateLocalTxStatus(result.hash, "success");
 
       await saveWeb3TxToBackend(API, {
         type: "Swap",
-        hash: tx.hash,
+        hash: result.hash,
         amount: swapAmount,
-        coin: toCoin,
+        coin: `${selectedFromToken.symbol}/${selectedToToken.symbol}`,
         status: "success",
         wallet,
+        chain: selectedFromToken.network,
+        chainKey: swapChainKey,
       });
 
-      await loadBalances(wallet);
+      await loadBalances(wallet, swapChainKey);
       await loadHistory(wallet);
 
       setSwapAmount("");
@@ -456,7 +561,48 @@ function Web3Wallet({ setPage }) {
     }
   };
 
-  const receiveAddress = getReceiveAddressForToken(receiveCoin, wallet);
+  const handleImportCustomToken = async () => {
+    try {
+      if (!customTokenAddress) return alert("Enter token contract address.");
+
+      setTokenImporting(true);
+
+      const token = await importCustomToken({
+        address: customTokenAddress,
+        chainKey: customTokenChain,
+      });
+
+      setCustomTokenAddress("");
+      setShowImportToken(false);
+      setActiveChain(token.chainKey);
+      localStorage.setItem("exalt_active_chain", token.chainKey);
+
+      await loadBalances(wallet, token.chainKey);
+
+      showToast(`${token.symbol} imported successfully.`);
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Token import failed.");
+    } finally {
+      setTokenImporting(false);
+    }
+  };
+
+  const handleRemoveCustomToken = async (token) => {
+    try {
+      if (!token?.custom) return alert("Default token cannot be removed.");
+
+      if (!window.confirm(`Remove ${token.symbol} from wallet?`)) return;
+
+      removeCustomToken(token.id);
+      await loadBalances(wallet, activeChain);
+
+      showToast(`${token.symbol} removed.`);
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Remove token failed.");
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => setShowWelcome(false), 1800);
@@ -473,7 +619,7 @@ function Web3Wallet({ setPage }) {
     loadMarketPrices();
 
     if (active) {
-      loadBalances(active);
+      loadBalances(active, activeChain);
       loadHistory(active);
     }
   }, []);
@@ -481,6 +627,7 @@ function Web3Wallet({ setPage }) {
   useEffect(() => {
     setTotalAssets(portfolioValue);
   }, [portfolioValue]);
+
   return (
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
@@ -489,7 +636,7 @@ function Web3Wallet({ setPage }) {
             <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
             <h3>Welcome To</h3>
             <h1>Exalt Wallet</h1>
-            <p>Secure • Private • Exalt Internal Wallet</p>
+            <p>Multi-Chain • Private • Exalt Internal Wallet</p>
           </div>
         )}
 
@@ -507,8 +654,20 @@ function Web3Wallet({ setPage }) {
         </div>
 
         <div className="ex-search">
-          <span>BNB Smart Chain • Exalt Wallet</span>
-          <button>⌕</button>
+          <span>{chain.name} • Exalt Multi-Chain Wallet</span>
+          <button onClick={() => setShowImportToken(true)}>＋</button>
+        </div>
+
+        <div className="ex-chain-tabs">
+          {chains.map((item) => (
+            <button
+              key={item.key}
+              className={activeChain === item.key ? "active" : ""}
+              onClick={() => changeChain(item.key)}
+            >
+              {item.shortName || item.symbol}
+            </button>
+          ))}
         </div>
 
         {!wallet ? (
@@ -549,7 +708,7 @@ function Web3Wallet({ setPage }) {
 
             <div className="ex-balance-card">
               <h1>{formatUsd(totalAssets)}</h1>
-              <p>{BSC_CHAIN.name}</p>
+              <p>{chain.name}</p>
             </div>
           </>
         )}
@@ -585,13 +744,12 @@ function Web3Wallet({ setPage }) {
 
         <div className="ex-promo-card">
           <div>
-            <h3>Exalt Wallet</h3>
-            <p>Create your own wallet, backup phrase, receive, send and swap BSC assets.</p>
-            <span onClick={goExchange}>Open Exchange ›</span>
+            <h3>Exalt Multi-Chain Wallet</h3>
+            <p>Create wallet, import custom tokens, receive, send and swap supported assets.</p>
+            <span onClick={() => setShowImportToken(true)}>Import Token ›</span>
           </div>
           <img src={exaltLogo} alt="EXALT" />
         </div>
-
         <div className="ex-asset-tabs">
           {["holdings", "tokens", "history", "security"].map((tab) => (
             <button
@@ -600,6 +758,7 @@ function Web3Wallet({ setPage }) {
               onClick={() => {
                 setAssetTab(tab);
                 if (tab === "history") setBottomTab("market");
+                if (tab === "tokens") setShowImportToken(true);
               }}
             >
               {tab === "holdings"
@@ -611,54 +770,104 @@ function Web3Wallet({ setPage }) {
 
         <input
           className="ex-web3-search-input"
-          placeholder="Search coins"
+          placeholder={`Search ${chain.name} tokens`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
 
         <div className="ex-coin-list">
-          {visibleTokens.slice(0, 25).map((coin, index) => {
-            const symbol = String(coin.symbol || "COIN").toUpperCase();
-            const balance = balances[symbol] || 0;
-            const price = Number(prices[symbol] || coin.fallbackPrice || 0);
+          {walletTokens.slice(0, 40).map((coin, index) => {
+            const key = getTokenBalanceKey(coin);
+            const balance =
+              balances[key] ??
+              balances[`${coin.chainKey}:${coin.symbol}`] ??
+              balances[coin.symbol] ??
+              0;
+
+            const price =
+              prices[key] ??
+              prices[`${coin.chainKey}:${coin.symbol}`] ??
+              prices[coin.symbol] ??
+              coin.fallbackPrice ??
+              0;
 
             return (
-              <div className="ex-coin-item" key={`${symbol}-${index}`}>
+              <div className="ex-coin-item" key={`${coin.id}-${index}`}>
                 <img
-                  src={coin.logoType === "local-exalt" ? exaltLogo : coin.logo}
-                  alt={symbol}
+                  src={getTokenLogo(coin, exaltLogo)}
+                  alt={coin.symbol}
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}
                 />
 
                 <div>
-                  <strong>{symbol}</strong>
-                  <p>{coin.name || symbol}</p>
+                  <strong>{coin.symbol}</strong>
+                  <p>{buildTokenDisplayName(coin)}</p>
                 </div>
 
                 <div>
                   <strong>{formatTokenAmount(balance)}</strong>
                   <p>${formatTokenPrice(price)}</p>
+                  {coin.custom && (
+                    <button
+                      className="ex-token-mini-btn"
+                      onClick={() => handleRemoveCustomToken(coin)}
+                    >
+                      Remove
+                    </button>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
 
+        {showImportToken && (
+          <div className="ex-modal-panel">
+            <button className="ex-close" onClick={() => setShowImportToken(false)}>×</button>
+            <h3>Import Custom Token</h3>
+            <p>Add any supported EVM token by contract address.</p>
+
+            <select
+              value={customTokenChain}
+              onChange={(e) => setCustomTokenChain(e.target.value)}
+            >
+              {getImportableChains().map((item) => (
+                <option key={item.key} value={item.key}>
+                  {item.name} - {item.network}
+                </option>
+              ))}
+            </select>
+
+            <input
+              placeholder="Token contract address"
+              value={customTokenAddress}
+              onChange={(e) => setCustomTokenAddress(e.target.value)}
+            />
+
+            <button disabled={tokenImporting} onClick={handleImportCustomToken}>
+              {tokenImporting ? "Importing..." : "Import Token"}
+            </button>
+          </div>
+        )}
+
         {bottomTab === "assets" && wallet && (
           <div className="ex-modal-panel">
             <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
-            <h3>Receive {receiveCoin}</h3>
+            <h3>Receive {selectedReceiveToken?.symbol}</h3>
 
             <p className="ex-network-warning">
-              {getTokenWarning(receiveCoin)}
+              {getTokenWarning(selectedReceiveToken?.symbol, selectedReceiveToken?.chainKey)}
             </p>
 
-            <select value={receiveCoin} onChange={(e) => setReceiveCoin(e.target.value)}>
-              {DEFAULT_TOKENS.map((x) => (
-                <option key={x.symbol} value={x.symbol}>
-                  {x.symbol} - {x.chain?.toUpperCase?.() || "BSC"}
+            <select
+              value={selectedReceiveToken?.id || ""}
+              onChange={(e) => setReceiveTokenId(e.target.value)}
+            >
+              {walletTokens.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.symbol} - {x.network}
                 </option>
               ))}
             </select>
@@ -680,20 +889,25 @@ function Web3Wallet({ setPage }) {
             <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
             <h3>Send Crypto</h3>
 
-            <select value={sendCoin} onChange={(e) => setSendCoin(e.target.value)}>
-              {DEFAULT_TOKENS.map((x) => (
-                <option key={x.symbol} value={x.symbol}>{x.symbol}</option>
+            <select
+              value={selectedSendToken?.id || ""}
+              onChange={(e) => setSendTokenId(e.target.value)}
+            >
+              {walletTokens.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.symbol} - {x.network}
+                </option>
               ))}
             </select>
 
             <input
-              placeholder="Receiver BSC address"
+              placeholder="Receiver wallet address"
               value={sendTo}
               onChange={(e) => setSendTo(e.target.value)}
             />
 
             <input
-              placeholder={`Amount ${sendCoin}`}
+              placeholder={`Amount ${selectedSendToken?.symbol || ""}`}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
@@ -707,16 +921,26 @@ function Web3Wallet({ setPage }) {
             <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
             <h3>Swap</h3>
 
-            <select value={fromCoin} onChange={(e) => setFromCoin(e.target.value)}>
-              <option>BNB</option>
-              <option>USDT</option>
-              <option>EXALT</option>
+            <select
+              value={selectedFromToken?.id || ""}
+              onChange={(e) => setFromTokenId(e.target.value)}
+            >
+              {walletTokens.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.symbol} - {x.network}
+                </option>
+              ))}
             </select>
 
-            <select value={toCoin} onChange={(e) => setToCoin(e.target.value)}>
-              <option>EXALT</option>
-              <option>USDT</option>
-              <option>BNB</option>
+            <select
+              value={selectedToToken?.id || ""}
+              onChange={(e) => setToTokenId(e.target.value)}
+            >
+              {walletTokens.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.symbol} - {x.network}
+                </option>
+              ))}
             </select>
 
             <input
@@ -743,7 +967,7 @@ function Web3Wallet({ setPage }) {
                   <span>{tx.amount}</span>
                   {tx.hash && (
                     <a href={tx.explorer} target="_blank" rel="noreferrer">
-                      BscScan
+                      Explorer
                     </a>
                   )}
                 </div>
@@ -757,6 +981,7 @@ function Web3Wallet({ setPage }) {
             <button className="ex-close" onClick={() => setShowMenu(false)}>×</button>
             <h3>Menu</h3>
             <button onClick={() => setShowMyWallets(true)}>My Exalt Wallets</button>
+            <button onClick={() => setShowImportToken(true)}>Import Token</button>
             <button onClick={openSupport}>Support Center</button>
             <button onClick={() => setBottomTab("market")}>Transactions</button>
             <button onClick={goExchange}>Go to Exchange</button>
@@ -769,6 +994,7 @@ function Web3Wallet({ setPage }) {
             <h3>More</h3>
             <button onClick={() => setShowMyWallets(true)}>My Exalt Wallets</button>
             <button onClick={() => setShowAddWallet(true)}>Create / Import Wallet</button>
+            <button onClick={() => setShowImportToken(true)}>Import Custom Token</button>
             <button onClick={startScanner}>Scan QR</button>
             <button onClick={openSupport}>Support</button>
           </div>
@@ -778,7 +1004,7 @@ function Web3Wallet({ setPage }) {
           <div className="ex-modal-panel">
             <button className="ex-close" onClick={() => setShowSupport(false)}>×</button>
             <h3>Support Center</h3>
-            <p>Need help with Exalt Wallet, receive, send, swap, or transaction?</p>
+            <p>Need help with Exalt Wallet, token import, receive, send, swap, or transaction?</p>
 
             <textarea
               className="ex-support-textarea"
