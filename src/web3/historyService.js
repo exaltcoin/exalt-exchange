@@ -2,8 +2,11 @@ import { STORAGE_KEYS } from "./web3Config";
 import { safeJsonParse } from "./walletStore";
 import { buildExplorerTx } from "./transactionService";
 
+const MAX_HISTORY = 500;
+
 export function getLocalHistory() {
-  return safeJsonParse(localStorage.getItem(STORAGE_KEYS.TX_HISTORY), []);
+  const history = safeJsonParse(localStorage.getItem(STORAGE_KEYS.TX_HISTORY), []);
+  return Array.isArray(history) ? history : [];
 }
 
 export function saveLocalHistory(history = []) {
@@ -12,30 +15,43 @@ export function saveLocalHistory(history = []) {
   return cleanHistory;
 }
 
-export function addLocalTx(tx) {
-  const history = getLocalHistory();
+export function normalizeTx(tx = {}) {
+  const hash = tx.hash || tx.txHash || "";
 
-  const item = {
-    id: tx.id || `${Date.now()}-${Math.floor(Math.random() * 9999)}`,
+  return {
+    id: tx.id || tx._id || hash || `${Date.now()}-${Math.floor(Math.random() * 9999)}`,
     type: tx.type || "Transaction",
-    hash: tx.hash || "",
+    hash,
     amount: tx.amount || 0,
     coin: tx.coin || "BNB",
     status: tx.status || "pending",
-    wallet: tx.wallet || "",
+    wallet: String(tx.wallet || "").toLowerCase(),
     chain: tx.chain || "BSC",
-    note: tx.note || "",
-    explorer: tx.hash ? buildExplorerTx(tx.hash) : "",
+    note: tx.note || tx.notes || "",
+    source: tx.source || "exalt-wallet",
+    explorer: hash ? buildExplorerTx(hash) : "",
     createdAt: tx.createdAt || new Date().toISOString(),
+    updatedAt: tx.updatedAt || "",
   };
+}
 
-  const updated = [item, ...history].slice(0, 300);
+export function addLocalTx(tx) {
+  const history = getLocalHistory();
+  const item = normalizeTx(tx);
+
+  const withoutDuplicate = history.filter(
+    (oldTx) => !item.hash || oldTx.hash !== item.hash
+  );
+
+  const updated = [item, ...withoutDuplicate].slice(0, MAX_HISTORY);
   saveLocalHistory(updated);
 
   return updated;
 }
 
 export function updateLocalTxStatus(hash, status = "success") {
+  if (!hash) return getLocalHistory();
+
   const history = getLocalHistory();
 
   const updated = history.map((tx) =>
@@ -54,25 +70,29 @@ export function updateLocalTxStatus(hash, status = "success") {
 
 export async function saveWeb3TxToBackend(API, tx) {
   try {
+    if (!API) return { success: false, message: "API missing" };
+
+    const item = normalizeTx(tx);
+
     const res = await fetch(`${API}/api/web3-transactions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        wallet: String(tx.wallet || "").toLowerCase(),
-        type: tx.type || "Send",
-        coin: tx.coin || "BNB",
-        amount: Number(tx.amount || 0),
-        hash: tx.hash || "",
-        status: tx.status || "success",
-        chain: tx.chain || "BSC",
-        source: "web3-wallet",
-        notes: tx.note || "",
+        wallet: item.wallet,
+        type: item.type,
+        coin: item.coin,
+        amount: Number(item.amount || 0),
+        hash: item.hash,
+        status: item.status,
+        chain: item.chain,
+        source: "exalt-wallet",
+        notes: item.note,
       }),
     });
 
     return await res.json();
   } catch (error) {
-    console.log("Save Web3 tx backend error:", error);
+    console.log("Save Exalt Wallet tx backend error:", error);
     return { success: false, message: error.message };
   }
 }
@@ -81,43 +101,56 @@ export async function loadWeb3HistoryFromBackend(API, walletAddress) {
   try {
     if (!walletAddress) return [];
 
+    const localHistory = getLocalHistory().filter(
+      (tx) => String(tx.wallet || "").toLowerCase() === String(walletAddress).toLowerCase()
+    );
+
+    if (!API) return localHistory;
+
     const res = await fetch(`${API}/api/web3-transactions/${walletAddress}`);
     const data = await res.json();
 
     if (!data.success || !Array.isArray(data.transactions)) {
-      return getLocalHistory();
+      return localHistory;
     }
 
-    const formatted = data.transactions.map((tx) => ({
-      id: tx._id || tx.hash,
-      type: tx.type,
-      hash: tx.hash,
-      amount: tx.amount,
-      coin: tx.coin,
-      status: tx.status || "success",
-      wallet: tx.wallet,
-      chain: tx.chain || "BSC",
-      note: tx.notes || "",
-      explorer: tx.hash ? buildExplorerTx(tx.hash) : "",
-      createdAt: tx.createdAt || new Date().toISOString(),
-    }));
+    const backendHistory = data.transactions.map((tx) =>
+      normalizeTx({
+        id: tx._id || tx.id,
+        type: tx.type,
+        hash: tx.hash,
+        amount: tx.amount,
+        coin: tx.coin,
+        status: tx.status || "success",
+        wallet: tx.wallet || walletAddress,
+        chain: tx.chain || "BSC",
+        note: tx.notes || tx.note || "",
+        source: tx.source || "exalt-wallet",
+        createdAt: tx.createdAt || new Date().toISOString(),
+      })
+    );
 
-    saveLocalHistory(formatted);
-    return formatted;
+    const mergedMap = new Map();
+
+    [...backendHistory, ...localHistory].forEach((tx) => {
+      const key = tx.hash || tx.id;
+      if (!mergedMap.has(key)) mergedMap.set(key, tx);
+    });
+
+    const merged = Array.from(mergedMap.values())
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, MAX_HISTORY);
+
+    saveLocalHistory(merged);
+    return merged;
   } catch (error) {
-    console.log("Load Web3 history backend error:", error);
+    console.log("Load Exalt Wallet history backend error:", error);
     return getLocalHistory();
   }
 }
 
 export function filterHistory(history = [], filters = {}) {
-  const {
-    coin = "ALL",
-    type = "ALL",
-    status = "ALL",
-    search = "",
-  } = filters;
-
+  const { coin = "ALL", type = "ALL", status = "ALL", search = "" } = filters;
   const q = String(search || "").toLowerCase();
 
   return history.filter((tx) => {
@@ -128,8 +161,7 @@ export function filterHistory(history = [], filters = {}) {
       type === "ALL" || String(tx.type || "").toUpperCase().includes(type.toUpperCase());
 
     const matchStatus =
-      status === "ALL" ||
-      String(tx.status || "").toUpperCase().includes(status.toUpperCase());
+      status === "ALL" || String(tx.status || "").toUpperCase().includes(status.toUpperCase());
 
     const matchSearch =
       !q ||

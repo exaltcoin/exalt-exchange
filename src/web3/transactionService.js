@@ -11,32 +11,46 @@ export function getBscProvider() {
   return new ethers.JsonRpcProvider(BSC_CHAIN.rpc);
 }
 
+export function isValidBscAddress(address = "") {
+  return ethers.isAddress(address);
+}
+
 export function getToken(symbol = "BNB") {
+  const target = String(symbol || "BNB").toUpperCase();
+
   return (
-    DEFAULT_TOKENS.find(
-      (token) => token.symbol.toUpperCase() === String(symbol).toUpperCase()
-    ) || DEFAULT_TOKENS[0]
+    DEFAULT_TOKENS.find((token) => token.symbol.toUpperCase() === target) ||
+    DEFAULT_TOKENS[0]
   );
+}
+
+export function getTokenAddress(symbol = "BNB") {
+  return getToken(symbol)?.address || "";
 }
 
 export function getReadContract(tokenSymbol) {
   const token = getToken(tokenSymbol);
-
   if (token.native) return null;
+
+  if (!token.address) {
+    throw new Error(`${token.symbol} contract address missing.`);
+  }
 
   return new ethers.Contract(token.address, TOKEN_ABI, getBscProvider());
 }
 
 export function getWriteContract(tokenSymbol, signer) {
   const token = getToken(tokenSymbol);
-
   if (token.native) return null;
+
+  if (!signer) throw new Error("Signer is required.");
+  if (!token.address) throw new Error(`${token.symbol} contract address missing.`);
 
   return new ethers.Contract(token.address, TOKEN_ABI, signer);
 }
 
 export async function getNativeBalance(address) {
-  if (!address) return 0;
+  if (!isValidBscAddress(address)) return 0;
 
   const provider = getBscProvider();
   const raw = await provider.getBalance(address);
@@ -45,7 +59,7 @@ export async function getNativeBalance(address) {
 }
 
 export async function getTokenBalance(address, tokenSymbol) {
-  if (!address) return 0;
+  if (!isValidBscAddress(address)) return 0;
 
   const token = getToken(tokenSymbol);
 
@@ -53,43 +67,42 @@ export async function getTokenBalance(address, tokenSymbol) {
     return getNativeBalance(address);
   }
 
-  const contract = getReadContract(tokenSymbol);
-  const raw = await contract.balanceOf(address);
-  const decimals = token.decimals || (await contract.decimals());
+  try {
+    const contract = getReadContract(tokenSymbol);
+    const raw = await contract.balanceOf(address);
+    const decimals = token.decimals || (await contract.decimals());
 
-  return Number(ethers.formatUnits(raw, decimals));
+    return Number(ethers.formatUnits(raw, decimals));
+  } catch (error) {
+    console.log(`${token.symbol} balance error:`, error);
+    return 0;
+  }
 }
 
 export async function getAllBalances(address) {
   const balances = {};
 
   for (const token of DEFAULT_TOKENS) {
-    try {
-      balances[token.symbol] = await getTokenBalance(address, token.symbol);
-    } catch {
-      balances[token.symbol] = 0;
-    }
+    balances[token.symbol] = await getTokenBalance(address, token.symbol);
   }
 
   return balances;
 }
 
 export async function sendNative({ signer, to, amount }) {
-  if (!signer) throw new Error("Signer is required.");
-  if (!ethers.isAddress(to)) throw new Error("Invalid receiver address.");
+  if (!signer) throw new Error("Exalt Wallet signer is required.");
+  if (!isValidBscAddress(to)) throw new Error("Invalid receiver address.");
   if (!amount || Number(amount) <= 0) throw new Error("Invalid amount.");
 
-  const tx = await signer.sendTransaction({
+  return signer.sendTransaction({
     to,
     value: ethers.parseEther(String(amount)),
   });
-
-  return tx;
 }
 
 export async function sendToken({ signer, tokenSymbol, to, amount }) {
-  if (!signer) throw new Error("Signer is required.");
-  if (!ethers.isAddress(to)) throw new Error("Invalid receiver address.");
+  if (!signer) throw new Error("Exalt Wallet signer is required.");
+  if (!isValidBscAddress(to)) throw new Error("Invalid receiver address.");
   if (!amount || Number(amount) <= 0) throw new Error("Invalid amount.");
 
   const token = getToken(tokenSymbol);
@@ -98,23 +111,31 @@ export async function sendToken({ signer, tokenSymbol, to, amount }) {
     return sendNative({ signer, to, amount });
   }
 
-  const contract = getWriteContract(tokenSymbol, signer);
+  const contract = getWriteContract(token.symbol, signer);
   const decimals = token.decimals || (await contract.decimals());
+  const parsedAmount = ethers.parseUnits(String(amount), decimals);
 
-  const tx = await contract.transfer(to, ethers.parseUnits(String(amount), decimals));
-
-  return tx;
+  return contract.transfer(to, parsedAmount);
 }
 
-export async function swapBnbToToken({ signer, tokenOutSymbol, walletAddress, amount }) {
-  if (!signer) throw new Error("Signer is required.");
-  if (!walletAddress) throw new Error("Wallet address is required.");
+export async function swapBnbToToken({
+  signer,
+  tokenOutSymbol,
+  walletAddress,
+  amount,
+}) {
+  if (!signer) throw new Error("Exalt Wallet signer is required.");
+  if (!isValidBscAddress(walletAddress)) throw new Error("Invalid wallet address.");
   if (!amount || Number(amount) <= 0) throw new Error("Invalid amount.");
 
   const tokenOut = getToken(tokenOutSymbol);
 
   if (tokenOut.native) {
     throw new Error("BNB to BNB swap is not allowed.");
+  }
+
+  if (!tokenOut.address) {
+    throw new Error(`${tokenOut.symbol} contract address missing.`);
   }
 
   const router = new ethers.Contract(PANCAKE_ROUTER, ROUTER_ABI, signer);
@@ -129,9 +150,14 @@ export async function swapBnbToToken({ signer, tokenOutSymbol, walletAddress, am
   );
 }
 
-export async function swapTokenToBnb({ signer, tokenInSymbol, walletAddress, amount }) {
-  if (!signer) throw new Error("Signer is required.");
-  if (!walletAddress) throw new Error("Wallet address is required.");
+export async function swapTokenToBnb({
+  signer,
+  tokenInSymbol,
+  walletAddress,
+  amount,
+}) {
+  if (!signer) throw new Error("Exalt Wallet signer is required.");
+  if (!isValidBscAddress(walletAddress)) throw new Error("Invalid wallet address.");
   if (!amount || Number(amount) <= 0) throw new Error("Invalid amount.");
 
   const tokenIn = getToken(tokenInSymbol);
@@ -140,7 +166,11 @@ export async function swapTokenToBnb({ signer, tokenInSymbol, walletAddress, amo
     throw new Error("Token input cannot be native BNB.");
   }
 
-  const tokenContract = getWriteContract(tokenInSymbol, signer);
+  if (!tokenIn.address) {
+    throw new Error(`${tokenIn.symbol} contract address missing.`);
+  }
+
+  const tokenContract = getWriteContract(tokenIn.symbol, signer);
   const decimals = tokenIn.decimals || (await tokenContract.decimals());
   const amountIn = ethers.parseUnits(String(amount), decimals);
 
@@ -161,11 +191,15 @@ export async function swapTokenToBnb({ signer, tokenInSymbol, walletAddress, amo
 
 export async function waitForTransaction(tx) {
   if (!tx?.wait) throw new Error("Invalid transaction.");
-
   return tx.wait();
 }
 
 export function buildExplorerTx(hash) {
   if (!hash) return BSC_CHAIN.explorer;
   return `${BSC_CHAIN.explorer}/tx/${hash}`;
+}
+
+export function buildExplorerAddress(address) {
+  if (!address) return BSC_CHAIN.explorer;
+  return `${BSC_CHAIN.explorer}/address/${address}`;
 }

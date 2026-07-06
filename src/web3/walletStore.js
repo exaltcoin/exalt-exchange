@@ -1,6 +1,8 @@
 import { ethers } from "ethers";
 import { STORAGE_KEYS } from "./web3Config";
 
+const WALLET_VERSION = "EXALT_WALLET_V1";
+
 export function safeJsonParse(value, fallback) {
   try {
     return value ? JSON.parse(value) : fallback;
@@ -9,24 +11,38 @@ export function safeJsonParse(value, fallback) {
   }
 }
 
+export function normalizeAddress(address = "") {
+  return String(address || "").trim().toLowerCase();
+}
+
+export function shortAddress(address = "") {
+  return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Create Wallet";
+}
+
+export function isValidPrivateKey(value = "") {
+  try {
+    return /^0x[a-fA-F0-9]{64}$/.test(String(value).trim());
+  } catch {
+    return false;
+  }
+}
+
+export function isValidPhrase(value = "") {
+  try {
+    const words = String(value || "").trim().split(/\s+/);
+    return words.length === 12 || words.length === 24;
+  } catch {
+    return false;
+  }
+}
+
 export function getSavedWallets() {
-  return safeJsonParse(localStorage.getItem(STORAGE_KEYS.WALLETS), []);
+  const wallets = safeJsonParse(localStorage.getItem(STORAGE_KEYS.WALLETS), []);
+  return Array.isArray(wallets) ? wallets : [];
 }
 
 export function getActiveWalletAddress() {
   return localStorage.getItem(STORAGE_KEYS.ACTIVE_WALLET) || "";
-}
-
-export function saveWallets(wallets, activeAddress = "") {
-  const cleanWallets = Array.isArray(wallets) ? wallets : [];
-
-  localStorage.setItem(STORAGE_KEYS.WALLETS, JSON.stringify(cleanWallets));
-
-  if (activeAddress) {
-    localStorage.setItem(STORAGE_KEYS.ACTIVE_WALLET, activeAddress);
-  }
-
-  return cleanWallets;
 }
 
 export function setActiveWallet(address) {
@@ -39,43 +55,55 @@ export function setActiveWallet(address) {
   return address;
 }
 
-export function shortAddress(address) {
-  return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connect Wallet";
+export function saveWallets(wallets = [], activeAddress = "") {
+  const cleanWallets = Array.isArray(wallets) ? wallets : [];
+  localStorage.setItem(STORAGE_KEYS.WALLETS, JSON.stringify(cleanWallets));
+
+  if (activeAddress) {
+    setActiveWallet(activeAddress);
+  }
+
+  return cleanWallets;
 }
 
-export function normalizeAddress(address) {
-  return String(address || "").trim().toLowerCase();
-}
-
-export function walletExists(wallets, address) {
+export function walletExists(wallets = [], address = "") {
   const target = normalizeAddress(address);
   return wallets.some((wallet) => normalizeAddress(wallet.address) === target);
 }
 
+export function findWallet(wallets = [], address = "") {
+  const target = normalizeAddress(address);
+  return wallets.find((wallet) => normalizeAddress(wallet.address) === target) || null;
+}
+
 export function createWalletRecord({
-  name,
-  address,
-  type = "External",
+  name = "",
+  address = "",
+  type = "Exalt Wallet",
   privateKey = "",
   mnemonic = "",
   chainKey = "bsc",
-  keyless = true,
+  backedUp = false,
 }) {
+  if (!address) throw new Error("Wallet address is required.");
+
   return {
-    id: Date.now() + Math.floor(Math.random() * 9999),
-    name: name || "My Wallet",
+    id: `${Date.now()}-${Math.floor(Math.random() * 999999)}`,
+    version: WALLET_VERSION,
+    name: name || "Exalt Wallet",
     address,
     type,
     privateKey,
     mnemonic,
     chainKey,
-    keyless,
+    backedUp,
+    source: "EXALT_INTERNAL",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 }
 
-export function addWallet(wallets, walletRecord, maxWallets = 50) {
+export function addWallet(wallets = [], walletRecord, maxWallets = 50) {
   if (!walletRecord?.address) {
     throw new Error("Wallet address is required.");
   }
@@ -87,46 +115,51 @@ export function addWallet(wallets, walletRecord, maxWallets = 50) {
   return [...wallets, walletRecord].slice(0, maxWallets);
 }
 
-export function renameWallet(wallets, address, newName) {
+export function renameWallet(wallets = [], address = "", newName = "") {
   const target = normalizeAddress(address);
+  const cleanName = String(newName || "").trim();
+
+  if (!cleanName) throw new Error("Wallet name is required.");
 
   return wallets.map((wallet) =>
     normalizeAddress(wallet.address) === target
-      ? {
-          ...wallet,
-          name: newName,
-          updatedAt: new Date().toISOString(),
-        }
+      ? { ...wallet, name: cleanName, updatedAt: new Date().toISOString() }
       : wallet
   );
 }
 
-export function removeWallet(wallets, address) {
+export function removeWallet(wallets = [], address = "") {
   const target = normalizeAddress(address);
   return wallets.filter((wallet) => normalizeAddress(wallet.address) !== target);
 }
 
-export function findWallet(wallets, address) {
+export function markWalletBackedUp(wallets = [], address = "") {
   const target = normalizeAddress(address);
-  return wallets.find((wallet) => normalizeAddress(wallet.address) === target) || null;
+
+  return wallets.map((wallet) =>
+    normalizeAddress(wallet.address) === target
+      ? { ...wallet, backedUp: true, updatedAt: new Date().toISOString() }
+      : wallet
+  );
 }
 
 export function createLocalWallet(wallets = []) {
   const created = ethers.Wallet.createRandom();
+  const phrase = created.mnemonic?.phrase || "";
 
   const record = createWalletRecord({
-    name: `My Wallet ${wallets.length + 1}`,
+    name: `Exalt Wallet ${wallets.length + 1}`,
     address: created.address,
-    type: "Keyless",
+    type: "Exalt Wallet",
     privateKey: created.privateKey,
-    mnemonic: created.mnemonic?.phrase || "",
+    mnemonic: phrase,
     chainKey: "bsc",
-    keyless: false,
+    backedUp: false,
   });
 
   return {
     wallet: record,
-    phrase: created.mnemonic?.phrase || "",
+    phrase,
   };
 }
 
@@ -134,29 +167,46 @@ export function importWalletFromValue(value, wallets = []) {
   const cleanValue = String(value || "").trim();
 
   if (!cleanValue) {
-    throw new Error("Enter recovery phrase or private key.");
+    throw new Error("Enter 12-word recovery phrase or private key.");
   }
 
-  const imported =
-    cleanValue.split(" ").length >= 12
-      ? ethers.Wallet.fromPhrase(cleanValue)
-      : new ethers.Wallet(cleanValue);
+  let imported;
+
+  if (isValidPhrase(cleanValue)) {
+    imported = ethers.Wallet.fromPhrase(cleanValue);
+  } else if (isValidPrivateKey(cleanValue)) {
+    imported = new ethers.Wallet(cleanValue);
+  } else {
+    throw new Error("Invalid recovery phrase or private key.");
+  }
 
   if (walletExists(wallets, imported.address)) {
     throw new Error("Wallet already exists.");
   }
 
-  const record = createWalletRecord({
-    name: `Imported Wallet ${wallets.length + 1}`,
+  return createWalletRecord({
+    name: `Imported Exalt Wallet ${wallets.length + 1}`,
     address: imported.address,
-    type: "Imported",
+    type: "Imported Exalt Wallet",
     privateKey: imported.privateKey,
-    mnemonic: cleanValue.split(" ").length >= 12 ? cleanValue : "",
+    mnemonic: isValidPhrase(cleanValue) ? cleanValue : "",
     chainKey: "bsc",
-    keyless: false,
+    backedUp: true,
   });
+}
 
-  return record;
+export function exportWalletBackup(wallets = [], address = "") {
+  const wallet = findWallet(wallets, address);
+  if (!wallet) throw new Error("Wallet not found.");
+
+  return {
+    name: wallet.name,
+    address: wallet.address,
+    type: wallet.type,
+    mnemonic: wallet.mnemonic || "",
+    privateKey: wallet.privateKey || "",
+    createdAt: wallet.createdAt,
+  };
 }
 
 export function clearWeb3WalletData() {
