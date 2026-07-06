@@ -199,7 +199,18 @@ const [selectedCoinDetails, setSelectedCoinDetails] = useState(null);
     setMessage(text);
     setTimeout(() => setMessage(""), 3500);
   };
+const replayWelcome = () => {
+  setShowWelcome(false);
 
+  setTimeout(() => {
+    setWelcomeKey((prev) => prev + 1);
+    setShowWelcome(true);
+
+    setTimeout(() => {
+      setShowWelcome(false);
+    }, 1800);
+  }, 50);
+};
   const syncWalletState = (nextWallets, activeAddress = "") => {
     const saved = saveWallets(nextWallets, activeAddress);
     setWallets(saved);
@@ -656,12 +667,7 @@ if (selectedCoinDetails) {
 onBack={() => {
   setSelectedCoinDetails(null);
   setBottomTab("home");
-  setShowWelcome(true);
-  setWelcomeKey((prev) => prev + 1);
-
-  setTimeout(() => {
-    setShowWelcome(false);
-  }, 1800);
+  replayWelcome();
 }}
       onSend={() => {
         setSendTokenId(selectedCoinDetails.id);
