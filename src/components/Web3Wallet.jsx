@@ -571,7 +571,7 @@ function Web3Wallet({ setPage }) {
         address: customTokenAddress,
         chainKey: customTokenChain,
       });
-
+      setTokenPreview(token);
       setCustomTokenAddress("");
       setShowImportToken(false);
       setActiveChain(token.chainKey);
@@ -829,13 +829,14 @@ function Web3Wallet({ setPage }) {
             <h3>Import Custom Token</h3>
             <p>Add any supported EVM token by contract address.</p>
 
-            <select
-              value={customTokenChain}
-            onChange={(e) => {
-  setCustomTokenAddress(e.target.value);
-  setTokenPreview(null);
-}}
-            >
+           <select
+  value={customTokenChain}
+  onChange={(e) => {
+    setCustomTokenChain(e.target.value);
+    setTokenPreview(null);
+  }}
+>
+            
               {getImportableChains().map((item) => (
                 <option key={item.key} value={item.key}>
                   {item.name} - {item.network}
@@ -846,7 +847,10 @@ function Web3Wallet({ setPage }) {
             <input
               placeholder="Token contract address"
               value={customTokenAddress}
-              onChange={(e) => setCustomTokenAddress(e.target.value)}
+             onChange={(e) => {
+  setCustomTokenAddress(e.target.value);
+  setTokenPreview(null);
+}}
             />
 {tokenPreview && (
   <div className="ex-token-preview">
