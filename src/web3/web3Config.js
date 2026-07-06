@@ -1,5 +1,5 @@
 export const APP_NAME = "Exalt Wallet";
-export const WALLET_VERSION = "EXALT_WALLET_MULTI_CHAIN_V1";
+export const WALLET_VERSION = "EXALT_WALLET_MULTI_CHAIN_V2";
 
 export const EVM_CHAINS = {
   bsc: {
@@ -11,7 +11,7 @@ export const EVM_CHAINS = {
     symbol: "BNB",
     nativeName: "BNB",
     network: "BEP20",
-    rpc: "https://bsc-dataseed.binance.org/",
+    rpc: "https://bsc-rpc.publicnode.com",
     explorer: "https://bscscan.com",
     router: "0x10ED43C718714eb63d5aA57B78B54704E256024E",
     wrappedNative: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
@@ -27,7 +27,7 @@ export const EVM_CHAINS = {
     symbol: "ETH",
     nativeName: "Ethereum",
     network: "ERC20",
-    rpc: "https://ethereum.publicnode.com",
+    rpc: "https://ethereum-rpc.publicnode.com",
     explorer: "https://etherscan.io",
     router: "",
     wrappedNative: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
@@ -43,7 +43,7 @@ export const EVM_CHAINS = {
     symbol: "POL",
     nativeName: "Polygon",
     network: "Polygon",
-    rpc: "https://polygon-rpc.com",
+    rpc: "https://polygon-bor-rpc.publicnode.com",
     explorer: "https://polygonscan.com",
     router: "",
     wrappedNative: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
@@ -59,7 +59,7 @@ export const EVM_CHAINS = {
     symbol: "ETH",
     nativeName: "Ethereum",
     network: "Arbitrum",
-    rpc: "https://arb1.arbitrum.io/rpc",
+    rpc: "https://arbitrum-one-rpc.publicnode.com",
     explorer: "https://arbiscan.io",
     router: "",
     wrappedNative: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
@@ -75,7 +75,7 @@ export const EVM_CHAINS = {
     symbol: "ETH",
     nativeName: "Ethereum",
     network: "Optimism",
-    rpc: "https://mainnet.optimism.io",
+    rpc: "https://optimism-rpc.publicnode.com",
     explorer: "https://optimistic.etherscan.io",
     router: "",
     wrappedNative: "0x4200000000000000000000000000000000000006",
@@ -91,7 +91,7 @@ export const EVM_CHAINS = {
     symbol: "ETH",
     nativeName: "Ethereum",
     network: "Base",
-    rpc: "https://mainnet.base.org",
+    rpc: "https://base-rpc.publicnode.com",
     explorer: "https://basescan.org",
     router: "",
     wrappedNative: "0x4200000000000000000000000000000000000006",
@@ -107,7 +107,7 @@ export const EVM_CHAINS = {
     symbol: "AVAX",
     nativeName: "Avalanche",
     network: "Avalanche",
-    rpc: "https://api.avax.network/ext/bc/C/rpc",
+    rpc: "https://avalanche-c-chain-rpc.publicnode.com",
     explorer: "https://snowtrace.io",
     router: "",
     wrappedNative: "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
@@ -123,7 +123,7 @@ export const EVM_CHAINS = {
     symbol: "FTM",
     nativeName: "Fantom",
     network: "Fantom",
-    rpc: "https://rpc.ftm.tools",
+    rpc: "https://fantom-rpc.publicnode.com",
     explorer: "https://ftmscan.com",
     router: "",
     wrappedNative: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83",
@@ -139,7 +139,7 @@ export const EVM_CHAINS = {
     symbol: "CRO",
     nativeName: "Cronos",
     network: "Cronos",
-    rpc: "https://evm.cronos.org",
+    rpc: "https://cronos-evm-rpc.publicnode.com",
     explorer: "https://cronoscan.com",
     router: "",
     wrappedNative: "0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23",
@@ -147,9 +147,9 @@ export const EVM_CHAINS = {
   },
 };
 
+export const DEFAULT_CHAIN_KEY = "bsc";
 export const BSC_CHAIN = EVM_CHAINS.bsc;
 export const DEFAULT_NETWORK = BSC_CHAIN;
-export const DEFAULT_CHAIN_KEY = "bsc";
 
 export const STORAGE_KEYS = {
   WALLETS: "exalt_web3_wallets",
@@ -181,6 +181,14 @@ export const BTCB_ADDRESS =
 
 export const ETH_BEP20_ADDRESS =
   "0x2170Ed0880ac9A755fd29B2688956BD959F933F8";
+
+export function getChain(chainKey = DEFAULT_CHAIN_KEY) {
+  return EVM_CHAINS[chainKey] || EVM_CHAINS[DEFAULT_CHAIN_KEY];
+}
+
+export function getChainList() {
+  return Object.values(EVM_CHAINS);
+}
 
 export const DEFAULT_TOKENS = [
   {
@@ -356,16 +364,9 @@ export const DEFAULT_TOKENS = [
 
 export const WALLET_TYPES = ["Exalt Wallet", "Imported Exalt Wallet"];
 
-export function getChain(chainKey = DEFAULT_CHAIN_KEY) {
-  return EVM_CHAINS[chainKey] || EVM_CHAINS[DEFAULT_CHAIN_KEY];
-}
-
-export function getChainList() {
-  return Object.values(EVM_CHAINS);
-}
-
 export const EXPLORER = {
-  tx: (hash, chainKey = DEFAULT_CHAIN_KEY) => `${getChain(chainKey).explorer}/tx/${hash}`,
+  tx: (hash, chainKey = DEFAULT_CHAIN_KEY) =>
+    `${getChain(chainKey).explorer}/tx/${hash}`,
   address: (address, chainKey = DEFAULT_CHAIN_KEY) =>
     `${getChain(chainKey).explorer}/address/${address}`,
   token: (address, chainKey = DEFAULT_CHAIN_KEY) =>
