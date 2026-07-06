@@ -6,6 +6,7 @@ import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import "./Web3Wallet.css";
 
 import { DEFAULT_TOKENS, BSC_CHAIN } from "../web3/web3Config";
+
 import {
   getSavedWallets,
   getActiveWalletAddress,
@@ -18,13 +19,7 @@ import {
   removeWallet as removeWalletStore,
   findWallet,
   addWallet,
-  createWalletRecord,
 } from "../web3/walletStore";
-
-import {
-  connectInjectedWallet,
-  connectWalletConnect,
-} from "../web3/walletConnect";
 
 import {
   getAllBalances,
@@ -73,8 +68,6 @@ function Web3Wallet({ setPage }) {
     ? API_BASE.replace("/api", "")
     : API_BASE;
 
-  const WC_PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
-
   const videoRef = useRef(null);
 
   const [wallet, setWallet] = useState("");
@@ -116,7 +109,7 @@ function Web3Wallet({ setPage }) {
     [wallets, wallet]
   );
 
-  const activeWalletName = activeWallet?.name || "My Wallet";
+  const activeWalletName = activeWallet?.name || "Exalt Wallet";
 
   const selectedReceiveToken = useMemo(
     () => getTokenBySymbol(receiveCoin),
@@ -124,8 +117,7 @@ function Web3Wallet({ setPage }) {
   );
 
   const visibleTokens = useMemo(() => {
-    const baseTokens = DEFAULT_TOKENS;
-    return searchTokens(baseTokens, search);
+    return searchTokens(DEFAULT_TOKENS, search);
   }, [search]);
 
   const portfolioValue = useMemo(() => {
@@ -164,6 +156,7 @@ function Web3Wallet({ setPage }) {
   const loadHistory = async (address = wallet) => {
     try {
       if (!address) return;
+
       const history = await loadWeb3HistoryFromBackend(API, address);
       setTxHistory(history);
     } catch (err) {
@@ -178,42 +171,19 @@ function Web3Wallet({ setPage }) {
       const list = Array.isArray(data.coins) ? data.coins : [];
 
       const nextPrices = {};
+
       list.forEach((coin) => {
         const symbol = String(coin.symbol || "").toUpperCase();
         const price = Number(coin.priceUsd || coin.price || 0);
-        if (symbol && price > 0) nextPrices[symbol] = price;
+
+        if (symbol && price > 0) {
+          nextPrices[symbol] = price;
+        }
       });
 
       setPrices(nextPrices);
     } catch (err) {
       console.log("Price load error:", err);
-    }
-  };
-  const connectExternal = async () => {
-    try {
-      const result = await connectInjectedWallet();
-      syncWalletState(result.wallets, result.address);
-      await loadBalances(result.address);
-      await loadHistory(result.address);
-      setShowAddWallet(false);
-      showToast("External wallet connected.");
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "Wallet connection failed.");
-    }
-  };
-
-  const connectWC = async () => {
-    try {
-      const result = await connectWalletConnect(WC_PROJECT_ID);
-      syncWalletState(result.wallets, result.address);
-      await loadBalances(result.address);
-      await loadHistory(result.address);
-      setShowAddWallet(false);
-      showToast("WalletConnect connected.");
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "WalletConnect failed.");
     }
   };
 
@@ -227,7 +197,8 @@ function Web3Wallet({ setPage }) {
       setShowAddWallet(false);
 
       await loadBalances(result.wallet.address);
-      showToast("Wallet created. Save your recovery phrase.");
+
+      showToast("Exalt Wallet created. Save your recovery phrase.");
     } catch (err) {
       console.log(err);
       alert(err.message || "Wallet creation failed.");
@@ -240,17 +211,18 @@ function Web3Wallet({ setPage }) {
       const nextWallets = addWallet(wallets, imported);
 
       syncWalletState(nextWallets, imported.address);
+
       setImportValue("");
       setShowAddWallet(false);
 
       await loadBalances(imported.address);
-      showToast("Wallet imported.");
+
+      showToast("Exalt Wallet imported.");
     } catch (err) {
       console.log(err);
       alert(err.message || "Import failed.");
     }
   };
-
   const switchWallet = async (address) => {
     syncWalletState(wallets, address);
     await loadBalances(address);
@@ -267,7 +239,7 @@ function Web3Wallet({ setPage }) {
   };
 
   const removeWallet = (address) => {
-    if (!window.confirm("Remove this wallet from this device?")) return;
+    if (!window.confirm("Remove this Exalt Wallet from this device?")) return;
 
     const nextWallets = removeWalletStore(wallets, address);
     const nextActive =
@@ -288,7 +260,7 @@ function Web3Wallet({ setPage }) {
   };
 
   const copyAddress = () => {
-    if (!wallet) return alert("Wallet not connected.");
+    if (!wallet) return alert("Create or import Exalt Wallet first.");
     copyToClipboard(wallet);
     showToast("Wallet address copied.");
   };
@@ -310,7 +282,7 @@ function Web3Wallet({ setPage }) {
       const result = await submitWeb3SupportTicket({
         API,
         token,
-        subject: "Web3 Wallet Support",
+        subject: "Exalt Wallet Support",
         message: supportMsg,
         wallet,
         category: "WEB3",
@@ -358,26 +330,22 @@ function Web3Wallet({ setPage }) {
     setShowScanner(false);
   };
 
+  const getActiveSigner = async () => {
+    if (!activeWallet?.privateKey) {
+      throw new Error("Please create or import Exalt Wallet first.");
+    }
+
+    const provider = new ethers.JsonRpcProvider(BSC_CHAIN.rpc);
+    return new ethers.Wallet(activeWallet.privateKey, provider);
+  };
+
   const handleSend = async () => {
     try {
-      if (!wallet) return alert("Connect wallet first.");
+      if (!wallet) return alert("Create or import Exalt Wallet first.");
       if (!isValidAddress(sendTo)) return alert("Invalid BSC address.");
       if (!amount || Number(amount) <= 0) return alert("Enter valid amount.");
 
-      const signer =
-        activeWallet?.privateKey
-          ? new (await import("ethers")).ethers.Wallet(
-              activeWallet.privateKey,
-              (await import("ethers")).ethers.JsonRpcProvider
-            )
-          : null;
-
-      let activeSigner = signer;
-
-      if (!activeSigner) {
-        const { getInjectedSigner } = await import("../web3/walletConnect");
-        activeSigner = await getInjectedSigner();
-      }
+      const activeSigner = await getActiveSigner();
 
       const tx = await sendToken({
         signer: activeSigner,
@@ -386,18 +354,18 @@ function Web3Wallet({ setPage }) {
         amount,
       });
 
-      const localHistory = addLocalTx({
-        type: "Send",
-        hash: tx.hash,
-        amount,
-        coin: sendCoin,
-        status: "pending",
-        wallet,
-      });
+      setTxHistory(
+        addLocalTx({
+          type: "Send",
+          hash: tx.hash,
+          amount,
+          coin: sendCoin,
+          status: "pending",
+          wallet,
+        })
+      );
 
-      setTxHistory(localHistory);
       showToast("Transaction pending...");
-
       await tx.wait();
 
       updateLocalTxStatus(tx.hash, "success");
@@ -422,19 +390,10 @@ function Web3Wallet({ setPage }) {
       alert(err.message || "Send failed.");
     }
   };
-const getActiveSigner = async () => {
-    if (activeWallet?.privateKey) {
-      const provider = new ethers.JsonRpcProvider(BSC_CHAIN.rpc);
-      return new ethers.Wallet(activeWallet.privateKey, provider);
-    }
-
-    const { getInjectedSigner } = await import("../web3/walletConnect");
-    return getInjectedSigner();
-  };
 
   const handleSwap = async () => {
     try {
-      if (!wallet) return alert("Connect wallet first.");
+      if (!wallet) return alert("Create or import Exalt Wallet first.");
       if (!swapAmount || Number(swapAmount) <= 0) return alert("Enter valid amount.");
       if (fromCoin === toCoin) return alert("Select different coins.");
 
@@ -522,7 +481,6 @@ const getActiveSigner = async () => {
   useEffect(() => {
     setTotalAssets(portfolioValue);
   }, [portfolioValue]);
-
   return (
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
@@ -530,8 +488,8 @@ const getActiveSigner = async () => {
           <div className="ex-welcome-overlay">
             <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
             <h3>Welcome To</h3>
-            <h1>Exalt Web3 Wallet</h1>
-            <p>Secure • Fast • Decentralized</p>
+            <h1>Exalt Wallet</h1>
+            <p>Secure • Private • Exalt Internal Wallet</p>
           </div>
         )}
 
@@ -549,7 +507,7 @@ const getActiveSigner = async () => {
         </div>
 
         <div className="ex-search">
-          <span>BNB Smart Chain • Web3 Wallet</span>
+          <span>BNB Smart Chain • Exalt Wallet</span>
           <button>⌕</button>
         </div>
 
@@ -557,8 +515,12 @@ const getActiveSigner = async () => {
           <div className="ex-welcome-card">
             <img src={exchangeLogo} alt="Exalt Exchange" />
             <p>Welcome to</p>
-            <h1>Exalt Exchange <span>Web3 Wallet</span></h1>
-            <button onClick={() => setShowAddWallet(true)}>Add Wallet</button>
+            <h1>
+              Exalt Exchange <span>Wallet</span>
+            </h1>
+            <button onClick={() => setShowAddWallet(true)}>
+              Create Exalt Wallet
+            </button>
           </div>
         ) : (
           <>
@@ -566,13 +528,16 @@ const getActiveSigner = async () => {
               <div>
                 <div className="ex-wallet-name">
                   <span>💼</span>
-                  <button className="ex-wallet-select-btn" onClick={() => setShowMyWallets(true)}>
+                  <button
+                    className="ex-wallet-select-btn"
+                    onClick={() => setShowMyWallets(true)}
+                  >
                     {activeWalletName}⌄
                   </button>
                   <button onClick={() => setShowAddWallet(true)}>＋</button>
                 </div>
 
-                <button className="ex-address-btn" onClick={() => copyToClipboard(wallet)}>
+                <button className="ex-address-btn" onClick={copyAddress}>
                   {shortAddress(wallet)} 📋
                 </button>
               </div>
@@ -588,7 +553,8 @@ const getActiveSigner = async () => {
             </div>
           </>
         )}
-<div className="ex-action-row">
+
+        <div className="ex-action-row">
           {[
             ["Receive", "⬇️"],
             ["Send", "⬆️"],
@@ -599,6 +565,11 @@ const getActiveSigner = async () => {
             <button
               key={label}
               onClick={() => {
+                if (!wallet && label !== "More") {
+                  setShowAddWallet(true);
+                  return;
+                }
+
                 if (label === "Receive") setBottomTab("assets");
                 if (label === "Send") setBottomTab("discover");
                 if (label === "Swap") setBottomTab("trade");
@@ -614,8 +585,8 @@ const getActiveSigner = async () => {
 
         <div className="ex-promo-card">
           <div>
-            <h3>Exalt Web3 Wallet</h3>
-            <p>Multi-wallet, BSC assets, swap, scan, support and history.</p>
+            <h3>Exalt Wallet</h3>
+            <p>Create your own wallet, backup phrase, receive, send and swap BSC assets.</p>
             <span onClick={goExchange}>Open Exchange ›</span>
           </div>
           <img src={exaltLogo} alt="EXALT" />
@@ -785,7 +756,7 @@ const getActiveSigner = async () => {
           <div className="ex-modal-panel ex-menu-panel">
             <button className="ex-close" onClick={() => setShowMenu(false)}>×</button>
             <h3>Menu</h3>
-            <button onClick={() => setShowMyWallets(true)}>My Wallets</button>
+            <button onClick={() => setShowMyWallets(true)}>My Exalt Wallets</button>
             <button onClick={openSupport}>Support Center</button>
             <button onClick={() => setBottomTab("market")}>Transactions</button>
             <button onClick={goExchange}>Go to Exchange</button>
@@ -796,8 +767,8 @@ const getActiveSigner = async () => {
           <div className="ex-modal-panel ex-menu-panel">
             <button className="ex-close" onClick={() => setShowMore(false)}>×</button>
             <h3>More</h3>
-            <button onClick={() => setShowMyWallets(true)}>My Wallets</button>
-            <button onClick={() => setShowAddWallet(true)}>Add Wallet</button>
+            <button onClick={() => setShowMyWallets(true)}>My Exalt Wallets</button>
+            <button onClick={() => setShowAddWallet(true)}>Create / Import Wallet</button>
             <button onClick={startScanner}>Scan QR</button>
             <button onClick={openSupport}>Support</button>
           </div>
@@ -807,7 +778,7 @@ const getActiveSigner = async () => {
           <div className="ex-modal-panel">
             <button className="ex-close" onClick={() => setShowSupport(false)}>×</button>
             <h3>Support Center</h3>
-            <p>Need help with Web3 wallet, receive, send, swap, or transaction?</p>
+            <p>Need help with Exalt Wallet, receive, send, swap, or transaction?</p>
 
             <textarea
               className="ex-support-textarea"
@@ -839,7 +810,7 @@ const getActiveSigner = async () => {
           <div className="ex-wallets-screen">
             <div className="ex-wallets-top">
               <button onClick={() => setShowMyWallets(false)}>‹</button>
-              <h3>My Wallets</h3>
+              <h3>My Exalt Wallets</h3>
               <button onClick={() => setShowAddWallet(true)}>Manage</button>
             </div>
 
@@ -848,7 +819,7 @@ const getActiveSigner = async () => {
               <h1>{formatUsd(totalAssets)}</h1>
             </div>
 
-            <h4>Keyless</h4>
+            <h4>Exalt Wallets</h4>
 
             {wallets.length === 0 ? (
               <p>No wallets added yet.</p>
@@ -863,7 +834,7 @@ const getActiveSigner = async () => {
                   <div onClick={() => switchWallet(w.address)}>
                     <strong>{w.name}</strong>
                     <p>{shortAddress(w.address)}</p>
-                    <small>{w.type || "Wallet"}</small>
+                    <small>{w.type || "Exalt Wallet"}</small>
                   </div>
 
                   <span>✓</span>
@@ -875,7 +846,7 @@ const getActiveSigner = async () => {
             )}
 
             <button className="ex-add-wallet-main" onClick={() => setShowAddWallet(true)}>
-              Add Wallet
+              Create / Import Wallet
             </button>
           </div>
         )}
@@ -884,33 +855,21 @@ const getActiveSigner = async () => {
           <div className="ex-wallets-screen">
             <div className="ex-wallets-top">
               <button onClick={() => setShowAddWallet(false)}>‹</button>
-              <h3>Add Wallet</h3>
+              <h3>Exalt Wallet Setup</h3>
               <span />
             </div>
 
             <div className="ex-add-wallet-card">
-              <h3>Connect Existing Wallet</h3>
-              <p>MetaMask, Trust Wallet, Binance Wallet browser.</p>
-              <button onClick={connectExternal}>Connect External Wallet</button>
+              <h3>Create Exalt Wallet</h3>
+              <p>Create your own secure Exalt Wallet with a 12-word recovery phrase.</p>
+              <button onClick={createWallet}>Create Exalt Wallet</button>
             </div>
 
             <div className="ex-add-wallet-card">
-              <h3>WalletConnect</h3>
-              <p>Connect SafePal, Trust Wallet, MetaMask, OKX and more.</p>
-              <button onClick={connectWC}>Connect WalletConnect</button>
-            </div>
-
-            <div className="ex-add-wallet-card">
-              <h3>Create New Wallet</h3>
-              <p>Create a local Web3 wallet. Save the recovery phrase safely.</p>
-              <button onClick={createWallet}>Create Wallet</button>
-            </div>
-
-            <div className="ex-add-wallet-card">
-              <h3>Import Wallet</h3>
-              <p>Import using recovery phrase or private key.</p>
+              <h3>Import Exalt Wallet</h3>
+              <p>Import using 12-word recovery phrase or private key.</p>
               <textarea
-                placeholder="Recovery phrase or private key"
+                placeholder="12-word recovery phrase or private key"
                 value={importValue}
                 onChange={(e) => setImportValue(e.target.value)}
               />
@@ -942,7 +901,14 @@ const getActiveSigner = async () => {
             <button
               key={key}
               className={bottomTab === key ? "active" : ""}
-              onClick={() => setBottomTab(key)}
+              onClick={() => {
+                if (!wallet && key !== "home") {
+                  setShowAddWallet(true);
+                  return;
+                }
+
+                setBottomTab(key);
+              }}
             >
               <span>{icon}</span>
               {label}
