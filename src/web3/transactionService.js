@@ -90,6 +90,7 @@ export async function getNativeBalance(address, chainKey = DEFAULT_CHAIN_KEY) {
 export async function getTokenBalance(address, token) {
   try {
     if (!isValidAddress(address) || !token) return 0;
+    if (token.marketOnly || token.watchOnly) return 0;
 
     const chainKey = normalizeChainKey(
       token.chainKey || token.chain || DEFAULT_CHAIN_KEY
@@ -123,12 +124,14 @@ export async function getAllBalances(address, chainKey = "") {
   if (!isValidAddress(address)) return balances;
 
   const selectedChain = chainKey ? normalizeChainKey(chainKey) : "";
+const tokens = getAllTokens().filter((token) => {
+  if (token.marketOnly || token.watchOnly) return false;
 
-  const tokens = getAllTokens().filter((token) => {
-    if (!selectedChain) return true;
-    return normalizeChainKey(token.chainKey || token.chain) === selectedChain;
-  });
+  if (!selectedChain) return true;
 
+  return normalizeChainKey(token.chainKey || token.chain) === selectedChain;
+});
+  
   const results = await Promise.allSettled(
     tokens.map(async (token) => {
       const balance = await getTokenBalance(address, token);
@@ -196,6 +199,9 @@ export async function sendToken({
 
   const finalChainKey = normalizeChainKey(finalToken.chainKey || chainKey);
 
+if (finalToken.marketOnly || finalToken.watchOnly) {
+  throw new Error("This coin is market/watchlist only. Import the real contract token first.");
+}
   if (finalToken.native) {
     return sendNative({ signer, to, amount, chainKey: finalChainKey });
   }
@@ -307,6 +313,9 @@ export async function swapNativeToToken({
   if (!routerAddress) {
     throw new Error("Swap router is not enabled on this network yet.");
   }
+if (tokenOut.marketOnly || tokenOut.watchOnly) {
+  throw new Error("Market/watchlist coins cannot be swapped.");
+}
 
   if (!tokenOut?.address || tokenOut.native) {
     throw new Error("Invalid output token.");
@@ -344,6 +353,9 @@ export async function swapTokenToNative({
   if (!routerAddress) {
     throw new Error("Swap router is not enabled on this network yet.");
   }
+if (tokenIn.marketOnly || tokenIn.watchOnly) {
+  throw new Error("Market/watchlist coins cannot be swapped.");
+}
 
   if (!tokenIn?.address || tokenIn.native) {
     throw new Error("Invalid input token.");
