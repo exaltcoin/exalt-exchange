@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "react-qr-code";
+import CoinDetails from "./CoinDetails";
 import { ethers } from "ethers";
 import exaltLogo from "../assets/exalt-coin.png";
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
@@ -108,7 +109,7 @@ function Web3Wallet({ setPage }) {
   const [showSupport, setShowSupport] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showImportToken, setShowImportToken] = useState(false);
-
+const [selectedCoinDetails, setSelectedCoinDetails] = useState(null);
   const [sendTo, setSendTo] = useState("");
   const [amount, setAmount] = useState("");
   const [sendTokenId, setSendTokenId] = useState("");
@@ -640,7 +641,43 @@ if (
   useEffect(() => {
     setTotalAssets(portfolioValue);
   }, [portfolioValue]);
-
+if (selectedCoinDetails) {
+  return (
+    <CoinDetails
+      coin={selectedCoinDetails}
+      balance={
+        balances[getTokenBalanceKey(selectedCoinDetails)] || 0
+      }
+      price={
+        prices[selectedCoinDetails.symbol] ||
+        selectedCoinDetails.fallbackPrice ||
+        0
+      }
+      onBack={() => setSelectedCoinDetails(null)}
+      onSend={() => {
+        setSendTokenId(selectedCoinDetails.id);
+        setBottomTab("discover");
+        setSelectedCoinDetails(null);
+      }}
+      onReceive={() => {
+        setReceiveTokenId(selectedCoinDetails.id);
+        setBottomTab("assets");
+        setSelectedCoinDetails(null);
+      }}
+      onSwap={() => {
+        setFromTokenId(selectedCoinDetails.id);
+        setBottomTab("trade");
+        setSelectedCoinDetails(null);
+      }}
+      onImport={() => {
+        setShowImportToken(true);
+        setSelectedCoinDetails(null);
+      }}
+      onFavorite={() => {}}
+      onHide={() => {}}
+    />
+  );
+}
   return (
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
@@ -804,8 +841,11 @@ if (
               coin.fallbackPrice ??
               0;
 
-            return (
-              <div className="ex-coin-item" key={`${coin.id}-${index}`}>
+           return (
+  <div
+    className={`ex-coin-item ${coin.marketOnly ? "market-only" : ""}`}
+    onClick={() => setSelectedCoinDetails(coin)}
+  >
                 <img
                   src={getTokenLogo(coin, exaltLogo)}
                   alt={coin.symbol}
