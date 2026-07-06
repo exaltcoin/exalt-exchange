@@ -340,7 +340,7 @@ function Wallets() {
     try {
       const items = [];
 
-      const depositRes = await fetch(`${API}/api/wallets/deposits/me`, {
+      const depositRes = await fetch(`${API}/api/deposit-request/me`, {
         headers: { Authorization: `Bearer ${token}` },
       }).catch(() => null);
 
@@ -361,7 +361,7 @@ function Wallets() {
         }
       }
 
-      const withdrawRes = await fetch(`${API}/api/wallets/withdrawals/me`, {
+      const withdrawRes = await fetch(`${API}/api/withdrawals/me`, {
         headers: { Authorization: `Bearer ${token}` },
       }).catch(() => null);
 
