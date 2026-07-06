@@ -100,7 +100,7 @@ function Web3Wallet({ setPage }) {
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
   const [showWelcome, setShowWelcome] = useState(true);
-
+const [welcomeKey, setWelcomeKey] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [showMyWallets, setShowMyWallets] = useState(false);
@@ -653,9 +653,15 @@ if (selectedCoinDetails) {
         selectedCoinDetails.fallbackPrice ||
         0
       }
-   onBack={() => {
+onBack={() => {
   setSelectedCoinDetails(null);
+  setBottomTab("home");
   setShowWelcome(true);
+  setWelcomeKey((prev) => prev + 1);
+
+  setTimeout(() => {
+    setShowWelcome(false);
+  }, 1800);
 }}
       onSend={() => {
         setSendTokenId(selectedCoinDetails.id);
@@ -685,7 +691,7 @@ if (selectedCoinDetails) {
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
         {showWelcome && (
-          <div className="ex-welcome-overlay">
+        <div key={welcomeKey} className="ex-welcome-overlay">
             <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
             <h3>Welcome To</h3>
             <h1>Exalt Wallet</h1>
