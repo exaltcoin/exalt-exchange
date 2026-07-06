@@ -788,3 +788,27 @@
   word-break: break-all;
   margin-top: 6px;
 }
+.ex-network-warning {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 170, 0, 0.12);
+  border: 1px solid rgba(255, 170, 0, 0.35);
+  color: #ffb84d;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.ex-network-warning strong {
+  color: #ffd166;
+}.ex-market-warning {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.35);
+  color: #ff6b6b;
+  font-size: 13px;
+  font-weight: 600;
+}

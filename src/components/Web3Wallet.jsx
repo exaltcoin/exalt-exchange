@@ -433,7 +433,11 @@ function Web3Wallet({ setPage }) {
       if (!wallet) return alert("Create or import Exalt Wallet first.");
       if (!isValidAddress(sendTo)) return alert("Invalid wallet address.");
       if (!amount || Number(amount) <= 0) return alert("Enter valid amount.");
-
+if (selectedSendToken.marketOnly || selectedSendToken.watchOnly) {
+  return alert(
+    "This coin is market/watchlist only. Import its real contract token before sending."
+  );
+}
       const activeSigner = await getActiveSigner(selectedSendToken.chainKey);
 
       const result = await sendToken({
@@ -491,7 +495,16 @@ function Web3Wallet({ setPage }) {
       if (selectedFromToken.id === selectedToToken.id) {
         return alert("Select different tokens.");
       }
-
+if (
+  selectedFromToken.marketOnly ||
+  selectedFromToken.watchOnly ||
+  selectedToToken.marketOnly ||
+  selectedToToken.watchOnly
+) {
+  return alert(
+    "Market/Watchlist coins cannot be swapped. Import the real contract token first."
+  );
+}
       if (selectedFromToken.chainKey !== selectedToToken.chainKey) {
         return alert("Cross-chain swap is not enabled yet.");
       }
@@ -875,7 +888,11 @@ function Web3Wallet({ setPage }) {
             <p className="ex-network-warning">
               {getTokenWarning(selectedReceiveToken?.symbol, selectedReceiveToken?.chainKey)}
             </p>
-
+{selectedReceiveToken?.marketOnly && (
+  <p className="ex-network-warning">
+    This is a market/watchlist coin. Import the real contract token before receiving.
+  </p>
+)}
             <select
               value={selectedReceiveToken?.id || ""}
               onChange={(e) => setReceiveTokenId(e.target.value)}
