@@ -629,21 +629,16 @@
 }
 
 .ex-welcome-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 999;
-  background:
-    radial-gradient(circle at 50% 20%,
-      rgba(248,196,0,.18),
-      transparent 35%),
-    linear-gradient(180deg,#07101f 0%,#111b35 100%);
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  background: linear-gradient(180deg, #070b17, #111827);
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  flex-direction: column;
   color: #fff;
   text-align: center;
-  animation: exWelcomeFade 2s ease forwards;
 }
 
 .welcome-logo {
