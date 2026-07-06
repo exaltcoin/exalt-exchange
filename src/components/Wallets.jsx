@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import exaltLogo from "../assets/exalt-coin.png";
 import { QRCodeCanvas } from "qrcode.react";
 import PageShell from "./PageShell";
 import { useI18n } from "../i18n";
@@ -11,7 +12,7 @@ const COIN_LOGOS = {
   ETH: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
   USDT: "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png",
   BNB: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png",
-  EXALT: "/exalt.png",
+  EXALT: exaltLogo,
   SOL: "https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png",
   XRP: "https://s2.coinmarketcap.com/static/img/coins/64x64/52.png",
   DOGE: "https://s2.coinmarketcap.com/static/img/coins/64x64/74.png",
