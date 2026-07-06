@@ -44,12 +44,18 @@ function Web3Wallet({ setPage }) {
   const [totalAssets, setTotalAssets] = useState("0.00");
   const [coins, setCoins] = useState([]);
   const [livePrices, setLivePrices] = useState({});
-  const [mainTab, setMainTab] = useState("wallet");
-  const [bottomTab, setBottomTab] = useState("home");
   const [assetTab, setAssetTab] = useState("holdings");
+  const [bottomTab, setBottomTab] = useState("home");
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
   const [showWelcome, setShowWelcome] = useState(true);
+
+  const [showMenu, setShowMenu] = useState(false);
+  const [showMore, setShowMore] = useState(false);
+  const [showMyWallets, setShowMyWallets] = useState(false);
+  const [showAddWallet, setShowAddWallet] = useState(false);
+  const [showPhrase, setShowPhrase] = useState("");
+
   const [sendTo, setSendTo] = useState("");
   const [amount, setAmount] = useState("");
   const [sendCoin, setSendCoin] = useState("BNB");
@@ -58,38 +64,33 @@ function Web3Wallet({ setPage }) {
   const [toCoin, setToCoin] = useState("EXALT");
   const [swapAmount, setSwapAmount] = useState("");
   const [txHistory, setTxHistory] = useState([]);
-
-  const [showMenu, setShowMenu] = useState(false);
-  const [showMore, setShowMore] = useState(false);
-  const [showWalletManager, setShowWalletManager] = useState(false);
-  const [newPhrase, setNewPhrase] = useState("");
-  const [importKey, setImportKey] = useState("");
+  const [importValue, setImportValue] = useState("");
 
   const shortAddress = (address) =>
     address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connect Wallet";
 
-  const activeWalletObj = useMemo(() => {
-    return wallets.find((w) => w.address?.toLowerCase() === wallet?.toLowerCase());
-  }, [wallets, wallet]);
+  const activeWallet = useMemo(
+    () => wallets.find((w) => w.address?.toLowerCase() === wallet?.toLowerCase()),
+    [wallets, wallet]
+  );
 
-  const activeWalletName = useMemo(() => {
-    return activeWalletObj?.name || "My Wallet";
-  }, [activeWalletObj]);
+  const activeWalletName = activeWallet?.name || "My Wallet";
 
-  const getReadProvider = () => new ethers.JsonRpcProvider(BSC_RPC);
+  const provider = useMemo(() => new ethers.JsonRpcProvider(BSC_RPC), []);
 
   const getSigner = async () => {
-    if (activeWalletObj?.privateKey) {
-      return new ethers.Wallet(activeWalletObj.privateKey, getReadProvider());
+    if (activeWallet?.privateKey) {
+      return new ethers.Wallet(activeWallet.privateKey, provider);
     }
 
     if (!window.ethereum) throw new Error("Wallet not found");
+
     await switchToBSC();
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    return provider.getSigner();
+    const browserProvider = new ethers.BrowserProvider(window.ethereum);
+    return browserProvider.getSigner();
   };
 
-  const saveWalletList = (nextWallets, activeAddress = wallet) => {
+  const saveWallets = (nextWallets, activeAddress = wallet) => {
     setWallets(nextWallets);
     localStorage.setItem("exalt_web3_wallets", JSON.stringify(nextWallets));
 
@@ -170,7 +171,6 @@ function Web3Wallet({ setPage }) {
     try {
       if (!walletAddress) return;
 
-      const provider = getReadProvider();
       const newBalances = {};
       let total = 0;
 
@@ -207,6 +207,7 @@ function Web3Wallet({ setPage }) {
   const loadMongoHistory = async (walletAddress) => {
     try {
       if (!walletAddress) return;
+
       const res = await fetch(`${API}/api/web3-transactions/${walletAddress}`);
       const data = await res.json();
 
@@ -227,7 +228,6 @@ function Web3Wallet({ setPage }) {
       console.log("History error:", error);
     }
   };
-
   const saveTx = async (type, hash, amountValue, coin) => {
     const txItem = {
       type,
@@ -248,7 +248,11 @@ function Web3Wallet({ setPage }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wallet: wallet?.toLowerCase(),
-          type: type.includes("Send") ? "Send" : type.includes("Receive") ? "Receive" : "Swap",
+          type: type.includes("Send")
+            ? "Send"
+            : type.includes("Receive")
+            ? "Receive"
+            : "Swap",
           coin,
           amount: Number(amountValue),
           hash,
@@ -262,7 +266,7 @@ function Web3Wallet({ setPage }) {
     }
   };
 
-  const connectWeb3 = async () => {
+  const connectExternalWallet = async () => {
     try {
       if (!window.ethereum) {
         alert("Please open inside Binance Wallet, Trust Wallet, MetaMask, or wallet browser.");
@@ -271,69 +275,76 @@ function Web3Wallet({ setPage }) {
 
       await switchToBSC();
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
+      const browserProvider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await browserProvider.send("eth_requestAccounts", []);
 
       if (!accounts?.length) return alert("No wallet account found.");
 
       const address = accounts[0];
-      const savedWallets = JSON.parse(localStorage.getItem("exalt_web3_wallets") || "[]");
-      const exists = savedWallets.some((w) => w.address.toLowerCase() === address.toLowerCase());
+
+      const exists = wallets.some(
+        (w) => w.address.toLowerCase() === address.toLowerCase()
+      );
 
       const nextWallets = exists
-        ? savedWallets
+        ? wallets
         : [
-            ...savedWallets,
+            ...wallets,
             {
               id: Date.now(),
-              name: `External Wallet ${savedWallets.length + 1}`,
+              name: `External Wallet ${wallets.length + 1}`,
               address,
-              type: "external",
+              type: "External",
+              keyless: true,
             },
           ].slice(0, 12);
 
-      saveWalletList(nextWallets, address);
-      await loadCoins();
+      saveWallets(nextWallets, address);
       await loadBalances(address);
       await loadMongoHistory(address);
+      setShowAddWallet(false);
     } catch (error) {
       console.log(error);
       alert("Wallet connection failed.");
     }
   };
 
-  const createNewWallet = async () => {
-    const newWallet = ethers.Wallet.createRandom();
+  const createLocalWallet = async () => {
+    const created = ethers.Wallet.createRandom();
 
     const nextWallets = [
       ...wallets,
       {
         id: Date.now(),
-        name: `Web3 Wallet ${wallets.length + 1}`,
-        address: newWallet.address,
-        type: "created",
-        privateKey: newWallet.privateKey,
+        name: `My Wallet ${wallets.length + 1}`,
+        address: created.address,
+        type: "Keyless",
+        privateKey: created.privateKey,
+        keyless: false,
       },
     ].slice(0, 12);
 
-    setNewPhrase(newWallet.mnemonic?.phrase || "");
-    saveWalletList(nextWallets, newWallet.address);
-    await loadBalances(newWallet.address);
-    alert("New wallet created. Save your recovery phrase safely.");
+    setShowPhrase(created.mnemonic?.phrase || "");
+    saveWallets(nextWallets, created.address);
+    await loadBalances(created.address);
+    setShowAddWallet(false);
+    setShowMyWallets(true);
   };
 
   const importWallet = async () => {
     try {
-      if (!importKey.trim()) return alert("Enter private key or recovery phrase.");
+      const value = importValue.trim();
+      if (!value) return alert("Enter recovery phrase or private key.");
 
-      let imported;
-      if (importKey.trim().split(" ").length >= 12) {
-        imported = ethers.Wallet.fromPhrase(importKey.trim());
-      } else {
-        imported = new ethers.Wallet(importKey.trim());
-      }
+      const imported =
+        value.split(" ").length >= 12
+          ? ethers.Wallet.fromPhrase(value)
+          : new ethers.Wallet(value);
 
-      const exists = wallets.some((w) => w.address.toLowerCase() === imported.address.toLowerCase());
+      const exists = wallets.some(
+        (w) => w.address.toLowerCase() === imported.address.toLowerCase()
+      );
+
       if (exists) return alert("Wallet already exists.");
 
       const nextWallets = [
@@ -342,18 +353,20 @@ function Web3Wallet({ setPage }) {
           id: Date.now(),
           name: `Imported Wallet ${wallets.length + 1}`,
           address: imported.address,
-          type: "imported",
+          type: "Imported",
           privateKey: imported.privateKey,
+          keyless: false,
         },
       ].slice(0, 12);
 
-      setImportKey("");
-      saveWalletList(nextWallets, imported.address);
+      setImportValue("");
+      saveWallets(nextWallets, imported.address);
       await loadBalances(imported.address);
-      alert("Wallet imported successfully.");
+      setShowAddWallet(false);
+      setShowMyWallets(true);
     } catch (error) {
       console.log(error);
-      alert("Invalid private key or recovery phrase.");
+      alert("Invalid phrase or private key.");
     }
   };
 
@@ -362,19 +375,7 @@ function Web3Wallet({ setPage }) {
     localStorage.setItem("web3_wallet", address);
     await loadBalances(address);
     await loadMongoHistory(address);
-  };
-
-  const removeWallet = (address) => {
-    const next = wallets.filter((w) => w.address.toLowerCase() !== address.toLowerCase());
-    setWallets(next);
-    localStorage.setItem("exalt_web3_wallets", JSON.stringify(next));
-
-    if (wallet.toLowerCase() === address.toLowerCase()) {
-      const first = next[0]?.address || "";
-      setWallet(first);
-      localStorage.setItem("web3_wallet", first);
-      if (first) loadBalances(first);
-    }
+    setShowMyWallets(false);
   };
 
   const renameWallet = (address) => {
@@ -382,11 +383,32 @@ function Web3Wallet({ setPage }) {
     if (!newName) return;
 
     const next = wallets.map((w) =>
-      w.address.toLowerCase() === address.toLowerCase() ? { ...w, name: newName } : w
+      w.address.toLowerCase() === address.toLowerCase()
+        ? { ...w, name: newName }
+        : w
     );
 
-    setWallets(next);
-    localStorage.setItem("exalt_web3_wallets", JSON.stringify(next));
+    saveWallets(next, wallet);
+  };
+
+  const removeWallet = (address) => {
+    if (!window.confirm("Remove this wallet from this device?")) return;
+
+    const next = wallets.filter(
+      (w) => w.address.toLowerCase() !== address.toLowerCase()
+    );
+
+    const nextActive =
+      wallet.toLowerCase() === address.toLowerCase()
+        ? next[0]?.address || ""
+        : wallet;
+
+    saveWallets(next, nextActive);
+
+    if (nextActive) {
+      loadBalances(nextActive);
+      loadMongoHistory(nextActive);
+    }
   };
 
   const copyAddress = () => {
@@ -400,11 +422,6 @@ function Web3Wallet({ setPage }) {
     else alert("Support page not found.");
   };
 
-  const openMessages = () => {
-    if (setPage) setPage("support");
-    else alert("Messages / Support coming soon.");
-  };
-
   const openScanner = () => {
     alert("QR Scanner / WalletConnect will be added in final mobile build.");
   };
@@ -415,6 +432,7 @@ function Web3Wallet({ setPage }) {
       if (!sendTo || !amount) return alert("Enter receiver address and amount.");
 
       const signer = await getSigner();
+
       const tx = await signer.sendTransaction({
         to: sendTo,
         value: ethers.parseEther(amount),
@@ -442,6 +460,7 @@ function Web3Wallet({ setPage }) {
       const decimals = await token.decimals();
 
       setMessage(`${coin} transaction pending...`);
+
       const tx = await token.transfer(sendTo, ethers.parseUnits(amount, decimals));
       await tx.wait();
 
@@ -515,16 +534,22 @@ function Web3Wallet({ setPage }) {
 
   const trendingCoins = (coins || []).slice(0, 20);
 
-  const visibleCoins = (assetTab === "holdings" ? DEFAULT_TOKENS : trendingCoins).filter((coin) => {
-    const keyword = search.toLowerCase();
-    return (
-      String(coin.symbol || "").toLowerCase().includes(keyword) ||
-      String(coin.name || "").toLowerCase().includes(keyword)
-    );
-  });
+  const visibleCoins = (assetTab === "holdings" ? DEFAULT_TOKENS : trendingCoins).filter(
+    (coin) => {
+      const keyword = search.toLowerCase();
+      return (
+        String(coin.symbol || "").toLowerCase().includes(keyword) ||
+        String(coin.name || "").toLowerCase().includes(keyword)
+      );
+    }
+  );
+
+  const goExchange = () => {
+    if (setPage) setPage("trade");
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowWelcome(false), 2200);
+    const timer = setTimeout(() => setShowWelcome(false), 1800);
     return () => clearTimeout(timer);
   }, []);
 
@@ -550,7 +575,6 @@ function Web3Wallet({ setPage }) {
   useEffect(() => {
     if (wallet) loadBalances(wallet);
   }, [wallet, livePrices]);
-
   return (
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
@@ -564,231 +588,269 @@ function Web3Wallet({ setPage }) {
         )}
 
         <div className="ex-web3-topbar">
-          <button className="ex-icon-btn" onClick={() => setShowMenu(true)}>☰</button>
+          <button className="ex-icon-btn" onClick={() => setShowMenu(true)}>
+            ☰
+          </button>
+
+          <button className="ex-icon-btn" onClick={openSupport}>
+            🎧
+          </button>
 
           <div className="ex-main-tabs">
-            <button className={mainTab === "exchange" ? "active" : ""} onClick={() => setMainTab("exchange")}>
-              Exchange
-            </button>
-            <button className={mainTab === "wallet" ? "active" : ""} onClick={() => setMainTab("wallet")}>
-              Wallet
-            </button>
+            <button onClick={goExchange}>Exchange</button>
+            <button className="active">Wallet</button>
           </div>
 
-          <button className="ex-icon-btn" onClick={openScanner}>⌗</button>
-          <button className="ex-icon-btn" onClick={openMessages}>💬</button>
+          <button className="ex-icon-btn" onClick={openScanner}>
+            ⌗
+          </button>
+
+          <button className="ex-icon-btn" onClick={openSupport}>
+            💬
+          </button>
         </div>
 
         <div className="ex-search">
-          <span>Hot Perps: BTCUSDT</span>
+          <span>Search</span>
           <button>⌕</button>
         </div>
 
-        {mainTab === "exchange" && (
+        {!wallet ? (
+          <div className="ex-welcome-card">
+            <img src={exchangeLogo} alt="Exalt Exchange" />
+            <p>Welcome to</p>
+            <h1>
+              Exalt Exchange <span>Web3 Wallet</span>
+            </h1>
+            <button onClick={() => setShowAddWallet(true)}>Add Wallet</button>
+          </div>
+        ) : (
           <>
-            <div className="ex-exchange-box">
-              <h3>Welcome to Exalt Exchange</h3>
-              <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
-              <p>Portfolio Value (USDT)</p>
-              <button onClick={() => (setPage ? setPage("markets") : alert("Markets"))}>
-                Open Markets
+            <div className="ex-wallet-head">
+              <div>
+                <div className="ex-wallet-name">
+                  <span>⚙️</span>
+                  <button
+                    className="ex-wallet-select-btn"
+                    onClick={() => setShowMyWallets(true)}
+                  >
+                    {activeWalletName}⌄
+                  </button>
+                  <button onClick={() => setShowAddWallet(true)}>＋</button>
+                </div>
+
+                <button className="ex-address-btn" onClick={copyAddress}>
+                  {shortAddress(wallet)} 📋
+                </button>
+              </div>
+
+              <button className="ex-receive-btn" onClick={() => setBottomTab("assets")}>
+                Receive
               </button>
             </div>
 
-            <div className="ex-mini-cards">
-              <div>
-                <h3>Top Gainers</h3>
-                <strong>BTC</strong>
-                <p>↗️ Live Market</p>
-              </div>
-              <div>
-                <h3>Top Losers</h3>
-                <strong>ETH</strong>
-                <p>Market Overview</p>
-              </div>
+            <div className="ex-balance-card">
+              <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
+              <p>BNB Balance: {bnbBalance}</p>
             </div>
           </>
         )}
 
-        {mainTab === "wallet" && (
-          <>
-            {!wallet ? (
-              <div className="ex-welcome-card">
-                <img src={exchangeLogo} alt="Exalt Exchange" />
-                <p>Welcome to</p>
-                <h1>Exalt Exchange <span>Web3 Wallet</span></h1>
-                <button onClick={() => setShowWalletManager(true)}>Create / Connect Wallet</button>
-              </div>
-            ) : (
-              <>
-                <div className="ex-wallet-head">
-                  <div>
-                    <div className="ex-wallet-name">
-                      <span>💼</span>
-                      <select value={wallet} onChange={(e) => switchWallet(e.target.value)}>
-                        {wallets.map((w) => (
-                          <option key={w.id || w.address} value={w.address}>
-                            {w.name}
-                          </option>
-                        ))}
-                      </select>
-                      <button onClick={() => setShowWalletManager(true)}>＋</button>
-                    </div>
+        <div className="ex-action-row">
+          {[
+            ["Receive", "⬇️"],
+            ["Send", "⬆️"],
+            ["Swap", "⇄"],
+            ["History", "▧"],
+            ["More", "🔳"],
+          ].map(([label, icon]) => (
+            <button
+              key={label}
+              onClick={() => {
+                if (label === "Receive") setBottomTab("assets");
+                if (label === "Send") setBottomTab("discover");
+                if (label === "Swap") setBottomTab("trade");
+                if (label === "History") setBottomTab("market");
+                if (label === "More") setShowMore(true);
+              }}
+            >
+              <span>{icon}</span>
+              {label}
+            </button>
+          ))}
+        </div>
 
-                    <p className="ex-active-wallet-name">
-                      {activeWalletName} • {activeWalletObj?.type || "external"}
-                    </p>
+        <div className="ex-promo-card">
+          <div>
+            <h3>Make your first trade on Exalt Web3</h3>
+            <p>Explore BSC assets, DeFi and EXALT ecosystem.</p>
+            <span>Register Now ›</span>
+          </div>
+          <img src={exaltLogo} alt="EXALT" />
+        </div>
 
-                    <button className="ex-address-btn" onClick={copyAddress}>
-                      {shortAddress(wallet)} 📋
-                    </button>
-                  </div>
+        <div className="ex-asset-tabs">
+          {["holdings", "trending", "perps", "securities"].map((tab) => (
+            <button
+              key={tab}
+              className={assetTab === tab ? "active" : ""}
+              onClick={() => setAssetTab(tab)}
+            >
+              {tab === "holdings"
+                ? "★ Holdings"
+                : tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
 
-                  <button className="ex-receive-btn" onClick={() => setBottomTab("assets")}>
-                    Receive
-                  </button>
-                </div>
+        <input
+          className="ex-web3-search-input"
+          placeholder="Search coins"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
 
-                <div className="ex-balance-card">
-                  <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
-                  <p>BNB Balance: {bnbBalance}</p>
-                </div>
-              </>
-            )}
+        <div className="ex-coin-list">
+          {visibleCoins.slice(0, 25).map((coin, index) => {
+            const symbol = String(coin.symbol || "COIN").toUpperCase();
+            const balance = balances[symbol] || "0.0000";
+            const price = Number(coin.priceUsd || getTokenPrice(symbol) || 0);
 
-            <div className="ex-action-row">
-              {[
-                ["Receive", "⬇️"],
-                ["Send", "⬆️"],
-                ["Swap", "⇄"],
-                ["History", "▧"],
-                ["More", "🔳"],
-              ].map(([label, icon]) => (
-                <button
-                  key={label}
-                  onClick={() => {
-                    if (label === "Receive") setBottomTab("assets");
-                    if (label === "Send") setBottomTab("discover");
-                    if (label === "Swap") setBottomTab("trade");
-                    if (label === "History") setBottomTab("market");
-                    if (label === "More") setShowMore(true);
+            return (
+              <div className="ex-coin-item" key={`${symbol}-${index}`}>
+                <img
+                  src={getCoinLogo(coin)}
+                  alt={symbol}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
                   }}
-                >
-                  <span>{icon}</span>
-                  {label}
-                </button>
-              ))}
-            </div>
+                />
 
-            <div className="ex-promo-card">
-              <div>
-                <h3>Make your first trade on Exalt Web3</h3>
-                <p>Explore BSC assets, DeFi and EXALT ecosystem.</p>
-                <span>Register Now ›</span>
+                <div>
+                  <strong>{symbol}</strong>
+                  <p>{coin.name || symbol}</p>
+                </div>
+
+                <div>
+                  <strong>
+                    {assetTab === "holdings"
+                      ? balance
+                      : `$${price.toFixed(price > 1 ? 2 : 6)}`}
+                  </strong>
+                  <p>BSC</p>
+                </div>
               </div>
-              <img src={exaltLogo} alt="EXALT" />
-            </div>
-
-            <div className="ex-asset-tabs">
-              {["holdings", "trending", "perps", "securities"].map((tab) => (
-                <button key={tab} className={assetTab === tab ? "active" : ""} onClick={() => setAssetTab(tab)}>
-                  {tab === "holdings" ? "★ Holdings" : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
-            </div>
-
-            <input
-              className="ex-web3-search-input"
-              placeholder="Search coins"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <div className="ex-coin-list">
-              {visibleCoins.slice(0, 25).map((coin, index) => {
-                const symbol = String(coin.symbol || "COIN").toUpperCase();
-                const balance = balances[symbol] || "0.0000";
-                const price = Number(coin.priceUsd || getTokenPrice(symbol) || 0);
-
-                return (
-                  <div className="ex-coin-item" key={`${symbol}-${index}`}>
-                    <img src={getCoinLogo(coin)} alt={symbol} onError={(e) => (e.currentTarget.style.display = "none")} />
-                    <div>
-                      <strong>{symbol}</strong>
-                      <p>{coin.name || symbol}</p>
-                    </div>
-                    <div>
-                      <strong>{assetTab === "holdings" ? balance : `$${price.toFixed(price > 1 ? 2 : 6)}`}</strong>
-                      <p>BSC</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
+            );
+          })}
+        </div>
 
         {bottomTab === "assets" && wallet && (
           <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
             <h3>Receive {receiveCoin}</h3>
+
             <select value={receiveCoin} onChange={(e) => setReceiveCoin(e.target.value)}>
-              {DEFAULT_TOKENS.map((x) => <option key={x.symbol}>{x.symbol}</option>)}
+              {DEFAULT_TOKENS.map((x) => (
+                <option key={x.symbol}>{x.symbol}</option>
+              ))}
             </select>
+
             <div className="ex-qr">
               <QRCode value={wallet} size={170} />
             </div>
+
             <p>{wallet}</p>
             <button onClick={copyAddress}>Copy Address</button>
           </div>
         )}
 
-        {bottomTab === "trade" && wallet && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
-            <h3>Swap</h3>
-            <select value={fromCoin} onChange={(e) => setFromCoin(e.target.value)}>
-              <option>BNB</option>
-              <option>USDT</option>
-              <option>EXALT</option>
-            </select>
-            <select value={toCoin} onChange={(e) => setToCoin(e.target.value)}>
-              <option>EXALT</option>
-              <option>USDT</option>
-              <option>BNB</option>
-            </select>
-            <input placeholder="Amount" value={swapAmount} onChange={(e) => setSwapAmount(e.target.value)} />
-            <button onClick={executeSwap}>Swap Now</button>
-          </div>
-        )}
-
         {bottomTab === "discover" && wallet && (
           <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
             <h3>Send Crypto</h3>
+
             <select value={sendCoin} onChange={(e) => setSendCoin(e.target.value)}>
               <option>BNB</option>
               <option>EXALT</option>
               <option>USDT</option>
             </select>
-            <input placeholder="Receiver address" value={sendTo} onChange={(e) => setSendTo(e.target.value)} />
-            <input placeholder={`Amount ${sendCoin}`} value={amount} onChange={(e) => setAmount(e.target.value)} />
-            <button onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}>Send Now</button>
+
+            <input
+              placeholder="Receiver address"
+              value={sendTo}
+              onChange={(e) => setSendTo(e.target.value)}
+            />
+
+            <input
+              placeholder={`Amount ${sendCoin}`}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+
+            <button onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}>
+              Send Now
+            </button>
+          </div>
+        )}
+
+        {bottomTab === "trade" && wallet && (
+          <div className="ex-modal-panel">
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
+            <h3>Swap</h3>
+
+            <select value={fromCoin} onChange={(e) => setFromCoin(e.target.value)}>
+              <option>BNB</option>
+              <option>USDT</option>
+              <option>EXALT</option>
+            </select>
+
+            <select value={toCoin} onChange={(e) => setToCoin(e.target.value)}>
+              <option>EXALT</option>
+              <option>USDT</option>
+              <option>BNB</option>
+            </select>
+
+            <input
+              placeholder="Amount"
+              value={swapAmount}
+              onChange={(e) => setSwapAmount(e.target.value)}
+            />
+
+            <button onClick={executeSwap}>Swap Now</button>
           </div>
         )}
 
         {bottomTab === "market" && (
           <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+            <button className="ex-close" onClick={() => setBottomTab("home")}>
+              ×
+            </button>
             <h3>Transaction History</h3>
+
             {txHistory.length === 0 ? (
               <p>No transactions yet.</p>
             ) : (
               txHistory.map((tx, i) => (
                 <div className="ex-history-item" key={`${tx.hash || i}`}>
-                  <strong>{tx.type} {tx.coin}</strong>
+                  <strong>
+                    {tx.type} {tx.coin}
+                  </strong>
                   <span>{tx.amount}</span>
-                  {tx.hash && <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noreferrer">BscScan</a>}
+                  {tx.hash && (
+                    <a
+                      href={`https://bscscan.com/tx/${tx.hash}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      BscScan
+                    </a>
+                  )}
                 </div>
               ))
             )}
@@ -796,67 +858,122 @@ function Web3Wallet({ setPage }) {
         )}
 
         {showMenu && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setShowMenu(false)}>×</button>
-            <h3>Web3 Menu</h3>
-            <button onClick={() => setShowWalletManager(true)}>Manage Wallets</button>
-            <button onClick={connectWeb3}>Connect External Wallet</button>
+          <div className="ex-modal-panel ex-menu-panel">
+            <button className="ex-close" onClick={() => setShowMenu(false)}>
+              ×
+            </button>
+            <h3>Menu</h3>
+            <button onClick={() => setShowMyWallets(true)}>My Wallets</button>
             <button onClick={openSupport}>Support Center</button>
-            <button onClick={() => setBottomTab("market")}>Transaction History</button>
-            <button onClick={() => setMainTab("exchange")}>Open Exchange</button>
+            <button onClick={() => setBottomTab("market")}>Transactions</button>
+            <button onClick={goExchange}>Go to Exchange</button>
           </div>
         )}
 
         {showMore && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setShowMore(false)}>×</button>
-            <h3>More Options</h3>
-            <button onClick={() => setShowWalletManager(true)}>Wallet Manager</button>
+          <div className="ex-modal-panel ex-menu-panel">
+            <button className="ex-close" onClick={() => setShowMore(false)}>
+              ×
+            </button>
+            <h3>More</h3>
+            <button onClick={() => setShowMyWallets(true)}>My Wallets</button>
+            <button onClick={() => setShowAddWallet(true)}>Add Wallet</button>
             <button onClick={openScanner}>Scan / WalletConnect</button>
             <button onClick={openSupport}>Support</button>
-            <button onClick={() => setBottomTab("market")}>History</button>
-            <button onClick={() => (setPage ? setPage("markets") : setMainTab("exchange"))}>Markets</button>
           </div>
         )}
 
-        {showWalletManager && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setShowWalletManager(false)}>×</button>
-            <h3>Wallet Manager</h3>
+        {showMyWallets && (
+          <div className="ex-wallets-screen">
+            <div className="ex-wallets-top">
+              <button onClick={() => setShowMyWallets(false)}>‹</button>
+              <h3>My Wallets</h3>
+              <button onClick={() => setShowAddWallet(true)}>Manage</button>
+            </div>
 
-            <button onClick={connectWeb3}>Connect MetaMask / Trust Wallet</button>
-            <button onClick={createNewWallet}>Create New Wallet</button>
+            <div className="ex-wallets-portfolio">
+              <span>Portfolio ›</span>
+              <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
+            </div>
 
-            {newPhrase && (
-              <div className="ex-wallet-seed-box">
-                <strong>Recovery Phrase</strong>
-                <p>{newPhrase}</p>
-                <button onClick={() => navigator.clipboard.writeText(newPhrase)}>Copy Phrase</button>
-              </div>
+            <h4>Keyless</h4>
+
+            {wallets.length === 0 ? (
+              <p>No wallets added yet.</p>
+            ) : (
+              wallets.map((w) => (
+                <div
+                  key={w.id || w.address}
+                  className={`ex-wallet-list-row ${
+                    wallet?.toLowerCase() === w.address?.toLowerCase() ? "active" : ""
+                  }`}
+                >
+                  <div onClick={() => switchWallet(w.address)}>
+                    <strong>{w.name}</strong>
+                    <p>{shortAddress(w.address)}</p>
+                    <small>{w.type || "Wallet"}</small>
+                  </div>
+
+                  <span>✓</span>
+
+                  <button onClick={() => renameWallet(w.address)}>Rename</button>
+                  <button onClick={() => removeWallet(w.address)}>Remove</button>
+                </div>
+              ))
             )}
 
-            <input
-              placeholder="Import private key or recovery phrase"
-              value={importKey}
-              onChange={(e) => setImportKey(e.target.value)}
-            />
-            <button onClick={importWallet}>Import Wallet</button>
+            <button className="ex-add-wallet-main" onClick={() => setShowAddWallet(true)}>
+              Add Wallet
+            </button>
+          </div>
+        )}
 
-            <div className="ex-wallet-manage">
-              {wallets.length === 0 ? (
-                <p>No wallets added yet.</p>
-              ) : (
-                wallets.map((w) => (
-                  <div className="ex-wallet-manage-row" key={w.id || w.address}>
-                    <strong>{w.name || "Wallet"}</strong>
-                    <small>{shortAddress(w.address)} • {w.type || "external"}</small>
-                    <button onClick={() => switchWallet(w.address)}>Use</button>
-                    <button onClick={() => renameWallet(w.address)}>Rename</button>
-                    <button onClick={() => removeWallet(w.address)}>Remove</button>
-                  </div>
-                ))
-              )}
+        {showAddWallet && (
+          <div className="ex-wallets-screen">
+            <div className="ex-wallets-top">
+              <button onClick={() => setShowAddWallet(false)}>‹</button>
+              <h3>Add Wallet</h3>
+              <span />
             </div>
+
+            <div className="ex-add-wallet-card">
+              <h3>Connect Existing Wallet</h3>
+              <p>MetaMask, Trust Wallet, Binance Wallet browser.</p>
+              <button onClick={connectExternalWallet}>Connect External Wallet</button>
+            </div>
+
+            <div className="ex-add-wallet-card">
+              <h3>Create New Wallet</h3>
+              <p>Create a local Web3 wallet. Save the recovery phrase safely.</p>
+              <button onClick={createLocalWallet}>Create Wallet</button>
+            </div>
+
+            <div className="ex-add-wallet-card">
+              <h3>Import Wallet</h3>
+              <p>Import using recovery phrase or private key.</p>
+              <textarea
+                placeholder="Recovery phrase or private key"
+                value={importValue}
+                onChange={(e) => setImportValue(e.target.value)}
+              />
+              <button onClick={importWallet}>Import Wallet</button>
+            </div>
+          </div>
+        )}
+
+        {showPhrase && (
+          <div className="ex-modal-panel ex-seed-warning">
+            <button className="ex-close" onClick={() => setShowPhrase("")}>
+              ×
+            </button>
+            <h3>Recovery Phrase</h3>
+            <p>
+              Save these 12 words safely. Anyone with this phrase can access the wallet.
+            </p>
+            <div className="ex-seed-box">{showPhrase}</div>
+            <button onClick={() => navigator.clipboard.writeText(showPhrase)}>
+              Copy Phrase
+            </button>
           </div>
         )}
 
@@ -870,7 +987,11 @@ function Web3Wallet({ setPage }) {
             ["discover", "Discover", "◉"],
             ["assets", "Assets", "▣"],
           ].map(([key, label, icon]) => (
-            <button key={key} className={bottomTab === key ? "active" : ""} onClick={() => setBottomTab(key)}>
+            <button
+              key={key}
+              className={bottomTab === key ? "active" : ""}
+              onClick={() => setBottomTab(key)}
+            >
               <span>{icon}</span>
               {label}
             </button>

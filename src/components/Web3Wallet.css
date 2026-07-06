@@ -546,3 +546,153 @@
   color: #ffc233;
   margin-top: 0;
 }
+.ex-wallet-select-btn {
+  border: 0;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-weight: 900;
+}
+
+.ex-wallets-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  width: min(100vw, 430px);
+  margin: 0 auto;
+  background: #07101f;
+  color: #fff;
+  padding: 16px 14px 92px;
+  overflow-y: auto;
+}
+
+.ex-wallets-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.ex-wallets-top button {
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  padding: 9px 12px;
+  font-weight: 900;
+}
+
+.ex-wallets-top h3 {
+  margin: 0;
+  color: #fff;
+}
+
+.ex-wallets-portfolio {
+  padding: 18px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(248,196,0,.16), rgba(37,99,235,.18));
+  border: 1px solid rgba(255,255,255,.08);
+  margin-bottom: 18px;
+}
+
+.ex-wallets-portfolio span {
+  color: #aeb7d8;
+}
+
+.ex-wallets-portfolio h1 {
+  margin: 8px 0 0;
+  font-size: 34px;
+}
+
+.ex-wallet-list-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.06);
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+}
+
+.ex-wallet-list-row.active {
+  border-color: #f8c400;
+}
+
+.ex-wallet-list-row strong {
+  display: block;
+}
+
+.ex-wallet-list-row p,
+.ex-wallet-list-row small {
+  margin: 3px 0 0;
+  color: #8f9bc4;
+}
+
+.ex-wallet-list-row button,
+.ex-add-wallet-main,
+.ex-add-wallet-card button {
+  border: 0;
+  border-radius: 12px;
+  padding: 9px 11px;
+  background: linear-gradient(135deg, #f8c400, #ff9f1a);
+  color: #1a1200;
+  font-weight: 900;
+}
+
+.ex-add-wallet-main {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+}
+
+.ex-add-wallet-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  margin-bottom: 12px;
+}
+
+.ex-add-wallet-card h3 {
+  color: #ffc233;
+  margin: 0 0 8px;
+}
+
+.ex-add-wallet-card p {
+  color: #aeb7d8;
+}
+
+.ex-add-wallet-card textarea {
+  width: 100%;
+  min-height: 86px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  padding: 12px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.ex-seed-warning {
+  z-index: 100;
+}
+
+.ex-seed-box {
+  background: rgba(255,193,7,.12);
+  border: 1px solid rgba(255,193,7,.35);
+  color: #ffc233;
+  padding: 14px;
+  border-radius: 14px;
+  line-height: 1.6;
+  margin: 12px 0;
+  word-break: break-word;
+}
+
+.ex-menu-panel button {
+  width: 100%;
+  margin: 7px 0;
+}
