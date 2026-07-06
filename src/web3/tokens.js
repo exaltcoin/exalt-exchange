@@ -61,13 +61,16 @@ export function normalizeToken(token = {}) {
     importedAt: token.importedAt || "",
     verified: Boolean(token.verified),
     spam: Boolean(token.spam),
+    watchOnly: Boolean(token.watchOnly),
+marketOnly: Boolean(token.marketOnly),
+rank: Number(token.rank || 9999),
   };
 
   normalized.id = makeTokenId(normalized);
   return normalized;
 }
 
-export const TOKENS = DEFAULT_TOKENS.map((token) =>
+export const TOKENS = DEFAULT_TOKENS.map((token) => 
   normalizeToken({
     ...token,
     visible: true,
@@ -76,7 +79,62 @@ export const TOKENS = DEFAULT_TOKENS.map((token) =>
     verified: true,
   })
 );
-
+export const MARKET_TOKENS = [
+  ["BTC","Bitcoin",1,103000,1],["ETH","Ethereum",1027,2400,2],["USDT","Tether USD",825,1,3],
+  ["BNB","BNB",1839,650,4],["SOL","Solana",5426,150,5],["XRP","XRP",52,0.55,6],
+  ["USDC","USD Coin",3408,1,7],["DOGE","Dogecoin",74,0.12,8],["ADA","Cardano",2010,0.45,9],
+  ["TRX","TRON",1958,0.13,10],["AVAX","Avalanche",5805,25,11],["SHIB","Shiba Inu",5994,0.00002,12],
+  ["TON","Toncoin",11419,5.5,13],["DOT","Polkadot",6636,6,14],["LINK","Chainlink",1975,14,15],
+  ["MATIC","Polygon",3890,0.4,16],["BCH","Bitcoin Cash",1831,430,17],["LTC","Litecoin",2,80,18],
+  ["NEAR","NEAR Protocol",6535,5,19],["UNI","Uniswap",7083,8,20],["ICP","Internet Computer",8916,9,21],
+  ["APT","Aptos",21794,7,22],["ETC","Ethereum Classic",1321,25,23],["XLM","Stellar",512,0.1,24],
+  ["ATOM","Cosmos",3794,7,25],["FIL","Filecoin",2280,5,26],["HBAR","Hedera",4642,0.08,27],
+  ["ARB","Arbitrum",11841,1.1,28],["OP","Optimism",11840,2,29],["VET","VeChain",3077,0.03,30],
+  ["INJ","Injective",7226,25,31],["IMX","Immutable",10603,1.5,32],["SUI","Sui",20947,1.2,33],
+  ["TAO","Bittensor",22974,300,34],["GRT","The Graph",6719,0.2,35],["AAVE","Aave",7278,100,36],
+  ["MKR","Maker",1518,2400,37],["RUNE","THORChain",4157,5,38],["ALGO","Algorand",4030,0.18,39],
+  ["EGLD","MultiversX",6892,35,40],["FLOW","Flow",4558,0.7,41],["SAND","The Sandbox",6210,0.35,42],
+  ["MANA","Decentraland",1966,0.35,43],["AXS","Axie Infinity",6783,6,44],["CHZ","Chiliz",4066,0.07,45],
+  ["XTZ","Tezos",2011,0.9,46],["EOS","EOS",1765,0.7,47],["KAS","Kaspa",20396,0.15,48],
+  ["QNT","Quant",3155,90,49],["STX","Stacks",4847,1.8,50],["THETA","Theta Network",2416,1.4,51],
+  ["FTM","Fantom",3513,0.4,52],["KAVA","Kava",4846,0.5,53],["ZEC","Zcash",1437,30,54],
+  ["DASH","Dash",131,28,55],["MINA","Mina",8646,0.6,56],["ROSE","Oasis Network",7653,0.08,57],
+  ["CFX","Conflux",7334,0.18,58],["SNX","Synthetix",2586,2,59],["CRV","Curve DAO",6538,0.35,60],
+  ["LDO","Lido DAO",8000,2,61],["DYDX","dYdX",11156,1.4,62],["COMP","Compound",5692,55,63],
+  ["1INCH","1inch",8104,0.4,64],["ENJ","Enjin Coin",2130,0.2,65],["BAT","Basic Attention Token",1697,0.2,66],
+  ["ZIL","Zilliqa",2469,0.02,67],["ANKR","Ankr",3783,0.03,68],["HOT","Holo",2682,0.002,69],
+  ["GALA","Gala",7080,0.03,70],["PEPE","Pepe",24478,0.00001,71],["FLOKI","FLOKI",10804,0.00018,72],
+  ["BONK","Bonk",23095,0.000025,73],["WIF","dogwifhat",28752,2,74],["SEI","Sei",23149,0.35,75],
+  ["TIA","Celestia",22861,6,76],["JUP","Jupiter",29210,0.9,77],["PYTH","Pyth Network",28177,0.4,78],
+  ["RNDR","Render",5690,7,79],["FET","Artificial Superintelligence",3773,1.3,80],["OCEAN","Ocean Protocol",3911,0.7,81],
+  ["AGIX","SingularityNET",2424,0.7,82],["IOTA","IOTA",1720,0.18,83],["KSM","Kusama",5034,28,84],
+  ["WLD","Worldcoin",13502,2.5,85],["AR","Arweave",5632,30,86],["GMT","STEPN",18069,0.18,87],
+  ["LUNC","Terra Classic",4172,0.0001,88],["XEC","eCash",10791,0.00004,89],["RVN","Ravencoin",2577,0.02,90],
+  ["CELO","Celo",5567,0.6,91],["GLMR","Moonbeam",6836,0.25,92],["ONE","Harmony",3945,0.02,93],
+  ["SKL","SKALE",5691,0.06,94],["ICX","ICON",2099,0.18,95],["QTUM","Qtum",1684,3,96],
+  ["ONT","Ontology",2566,0.2,97],["WAVES","Waves",1274,2,98],["SXP","Solar",4279,0.3,99],
+  ["EXALT","Exalt Coin",0,0,100],
+].map(([symbol, name, cmcId, fallbackPrice, rank]) =>
+  normalizeToken({
+    symbol,
+    name,
+    chainKey: "bsc",
+    chain: "bsc",
+    network: "Market",
+    decimals: 18,
+    native: false,
+    address: "",
+    fallbackPrice,
+    logo: cmcId
+      ? `https://s2.coinmarketcap.com/static/img/coins/64x64/${cmcId}.png`
+      : "",
+    watchOnly: true,
+    marketOnly: true,
+    visible: true,
+    verified: true,
+    rank,
+  })
+);
 export function getCustomTokens() {
   const list = safeJsonParse(localStorage.getItem(STORAGE_KEYS.CUSTOM_TOKENS), []);
   return Array.isArray(list) ? list.map(normalizeToken) : [];
@@ -94,7 +152,7 @@ export function saveCustomTokens(tokens = []) {
 export function getAllTokens() {
   const map = new Map();
 
-  [...TOKENS, ...getCustomTokens()].forEach((token) => {
+ [...TOKENS, ...MARKET_TOKENS, ...getCustomTokens()].forEach((token) => {
     const normalized = normalizeToken(token);
     map.set(normalized.id, normalized);
   });
