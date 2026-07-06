@@ -807,3 +807,56 @@
   font-size: 13px;
   font-weight: 600;
 }
+/* Coin Token Actions */
+
+.ex-token-mini-btn{
+  margin-top:8px;
+  padding:5px 10px;
+  border:none;
+  border-radius:8px;
+  background:#232323;
+  color:#fff;
+  font-size:12px;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.ex-token-mini-btn:hover{
+  background:#3d3d3d;
+}
+
+.market-only{
+  opacity:.88;
+  border:1px solid rgba(255,180,0,.25);
+}
+
+.market-only:hover{
+  border-color:#ffb000;
+}
+
+.ex-token-preview{
+  margin-top:15px;
+  padding:14px;
+  border-radius:12px;
+  background:#181818;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.ex-token-preview strong{
+  display:block;
+  font-size:16px;
+  color:#fff;
+}
+
+.ex-token-preview p{
+  margin:4px 0;
+  color:#bbb;
+  font-size:13px;
+}
+
+.ex-token-preview small{
+  display:block;
+  margin-top:8px;
+  color:#777;
+  word-break:break-all;
+}

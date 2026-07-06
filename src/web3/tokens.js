@@ -8,6 +8,9 @@ import {
 } from "./web3Config";
 
 const CUSTOM_TOKEN_LIMIT = 1000;
+const FAVORITE_TOKENS_KEY = "exalt_favorite_tokens";
+const HIDDEN_TOKENS_KEY = "exalt_hidden_tokens";
+const WATCHLIST_TOKENS_KEY = "exalt_watchlist_tokens";
 
 export function safeJsonParse(value, fallback) {
   try {
@@ -56,7 +59,19 @@ export function normalizeToken(token = {}) {
     logoType: token.logoType || "",
     fallbackPrice: Number(token.fallbackPrice || 0),
     visible: token.visible !== false,
-    favorite: Boolean(token.favorite),
+   favorite:
+  Boolean(token.favorite) ||
+  getFavoriteTokenIds().includes(
+    token.id || makeTokenId({ ...token, chainKey })
+  ),
+
+hidden: getHiddenTokenIds().includes(
+  token.id || makeTokenId({ ...token, chainKey })
+),
+
+watchlisted: getWatchlistTokenIds().includes(
+  token.id || makeTokenId({ ...token, chainKey })
+),
     custom: Boolean(token.custom),
     importedAt: token.importedAt || "",
     verified: Boolean(token.verified),
@@ -135,6 +150,62 @@ export const MARKET_TOKENS = [
     rank,
   })
 );
+export function getFavoriteTokenIds() {
+  return safeJsonParse(localStorage.getItem(FAVORITE_TOKENS_KEY), []);
+}
+
+export function saveFavoriteTokenIds(ids = []) {
+  const clean = Array.from(new Set(Array.isArray(ids) ? ids : []));
+  localStorage.setItem(FAVORITE_TOKENS_KEY, JSON.stringify(clean));
+  return clean;
+}
+
+export function toggleFavoriteToken(tokenId) {
+  const ids = getFavoriteTokenIds();
+  const updated = ids.includes(tokenId)
+    ? ids.filter((id) => id !== tokenId)
+    : [tokenId, ...ids];
+
+  return saveFavoriteTokenIds(updated);
+}
+
+export function getHiddenTokenIds() {
+  return safeJsonParse(localStorage.getItem(HIDDEN_TOKENS_KEY), []);
+}
+
+export function saveHiddenTokenIds(ids = []) {
+  const clean = Array.from(new Set(Array.isArray(ids) ? ids : []));
+  localStorage.setItem(HIDDEN_TOKENS_KEY, JSON.stringify(clean));
+  return clean;
+}
+
+export function hideTokenById(tokenId) {
+  return saveHiddenTokenIds([tokenId, ...getHiddenTokenIds()]);
+}
+
+export function unhideTokenById(tokenId) {
+  return saveHiddenTokenIds(getHiddenTokenIds().filter((id) => id !== tokenId));
+}
+
+export function getWatchlistTokenIds() {
+  return safeJsonParse(localStorage.getItem(WATCHLIST_TOKENS_KEY), []);
+}
+
+export function saveWatchlistTokenIds(ids = []) {
+  const clean = Array.from(new Set(Array.isArray(ids) ? ids : []));
+  localStorage.setItem(WATCHLIST_TOKENS_KEY, JSON.stringify(clean));
+  return clean;
+}
+
+export function toggleWatchlistToken(tokenId) {
+  const ids = getWatchlistTokenIds();
+  const updated = ids.includes(tokenId)
+    ? ids.filter((id) => id !== tokenId)
+    : [tokenId, ...ids];
+
+  return saveWatchlistTokenIds(updated);
+}
+
 export function getCustomTokens() {
   const list = safeJsonParse(localStorage.getItem(STORAGE_KEYS.CUSTOM_TOKENS), []);
   return Array.isArray(list) ? list.map(normalizeToken) : [];
@@ -514,7 +585,9 @@ export function getWalletTokenList({
   query = "",
 } = {}) {
   let tokens = getTokensByChain(chainKey, includeHidden);
-
+if (!includeHidden) {
+  tokens = tokens.filter((token) => !token.hidden);
+}
   if (!includeSpam) {
     tokens = filterSpamTokens(tokens);
   }
@@ -536,6 +609,18 @@ export default {
   getCustomTokens,
   saveCustomTokens,
   getAllTokens,
+  getFavoriteTokenIds,
+  saveFavoriteTokenIds,
+  toggleFavoriteToken,
+
+  getHiddenTokenIds,
+  saveHiddenTokenIds,
+  hideTokenById,
+  unhideTokenById,
+
+  getWatchlistTokenIds,
+  saveWatchlistTokenIds,
+  toggleWatchlistToken,
   getTokensByChain,
   getTokenBySymbol,
   getTokenByAddress,

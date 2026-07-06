@@ -22,6 +22,7 @@ function CoinDetails({
   onSwap,
   onImport,
   onFavorite,
+  onWatchlist,
   onHide,
 }) {
   const token = coin || {};
@@ -225,14 +226,20 @@ function CoinDetails({
           <h3>Manage Coin</h3>
 
           <button onClick={copySymbol}>Copy Symbol</button>
+<button onClick={copySymbol}>Copy Symbol</button>
 
-          <button onClick={() => onFavorite?.(token)}>
-            Add / Remove Favorite
-          </button>
+<button onClick={() => onFavorite?.(token)}>
+  {token.favorite ? "★ Remove Favorite" : "☆ Add Favorite"}
+</button>
 
-          <button className="danger" onClick={() => onHide?.(token)}>
-            Hide Coin
-          </button>
+<button onClick={() => onWatchlist?.(token)}>
+  {token.watchlisted ? "👁 Remove Watchlist" : "👁 Add Watchlist"}
+</button>
+
+<button className="danger" onClick={() => onHide?.(token)}>
+  Hide Coin
+</button>
+         
         </div>
       </div>
     </div>

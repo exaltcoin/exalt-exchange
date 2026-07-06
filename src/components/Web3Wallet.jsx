@@ -64,7 +64,10 @@ import {
   formatTokenPrice,
   searchTokens,
   sortTokensByValue,
-  buildTokenDisplayName,
+ toggleFavoriteToken,
+  hideTokenById,
+  toggleWatchlistToken,
+ buildTokenDisplayName,
 } from "../web3/tokens";
 
 import {
@@ -628,7 +631,37 @@ if (
       alert(err.message || "Remove token failed.");
     }
   };
+const handleFavoriteToken = (token) => {
+  if (!token?.id) return;
 
+  toggleFavoriteToken(token.id);
+  showToast(`${token.symbol} favorite updated.`);
+  setSelectedCoinDetails(null);
+
+  setTimeout(() => {
+    setSelectedCoinDetails({
+      ...token,
+      favorite: !token.favorite,
+    });
+  }, 50);
+};
+
+const handleHideToken = (token) => {
+  if (!token?.id) return;
+
+  if (!window.confirm(`Hide ${token.symbol} from wallet list?`)) return;
+
+  hideTokenById(token.id);
+  setSelectedCoinDetails(null);
+  showToast(`${token.symbol} hidden from wallet.`);
+};
+
+const handleWatchlistToken = (token) => {
+  if (!token?.id) return;
+
+  toggleWatchlistToken(token.id);
+  showToast(`${token.symbol} watchlist updated.`);
+};
   useEffect(() => {
     const timer = setTimeout(() => setShowWelcome(false), 1800);
     return () => clearTimeout(timer);
@@ -688,8 +721,9 @@ onBack={() => {
         setShowImportToken(true);
         setSelectedCoinDetails(null);
       }}
-      onFavorite={() => {}}
-      onHide={() => {}}
+      onFavorite={() => handleFavoriteToken(selectedCoinDetails)}
+      onWatchlist={() => handleWatchlistToken(selectedCoinDetails)}
+      onHide={() => handleHideToken(selectedCoinDetails)}
     />
   );
 }
