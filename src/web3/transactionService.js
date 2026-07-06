@@ -1,8 +1,6 @@
 import { ethers } from "ethers";
 import {
   DEFAULT_CHAIN_KEY,
-  EVM_CHAINS,
-  PANCAKE_ROUTER,
   ROUTER_ABI,
   TOKEN_ABI,
   getChain,
@@ -11,16 +9,37 @@ import {
 import {
   getAllTokens,
   getTokenBySymbol,
-  getTokenByAddress,
   getNativeToken,
   getTokenBalanceKey,
   normalizeChainKey,
   normalizeSymbol,
 } from "./tokens";
 
+const REQUEST_TIMEOUT = 12000;
+
+function withTimeout(promise, ms = REQUEST_TIMEOUT) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("RPC request timeout")), ms)
+    ),
+  ]);
+}
+
 export function getProvider(chainKey = DEFAULT_CHAIN_KEY) {
   const chain = getChain(chainKey);
-  return new ethers.JsonRpcProvider(chain.rpc);
+
+  return new ethers.JsonRpcProvider(
+    chain.rpc,
+    {
+      chainId: chain.chainId,
+      name: chain.key,
+    },
+    {
+      staticNetwork: true,
+      batchMaxCount: 1,
+    }
+  );
 }
 
 export function isValidAddress(address = "") {
@@ -29,25 +48,21 @@ export function isValidAddress(address = "") {
 
 export function getSignerFromPrivateKey(privateKey, chainKey = DEFAULT_CHAIN_KEY) {
   if (!privateKey) throw new Error("Private key missing.");
-  const provider = getProvider(chainKey);
-  return new ethers.Wallet(privateKey, provider);
+  return new ethers.Wallet(privateKey, getProvider(chainKey));
 }
 
 export function getChainRouter(chainKey = DEFAULT_CHAIN_KEY) {
-  const chain = getChain(chainKey);
-  return chain.router || "";
+  return getChain(chainKey).router || "";
 }
 
 export function getExplorerTx(hash, chainKey = DEFAULT_CHAIN_KEY) {
   const chain = getChain(chainKey);
-  if (!hash) return chain.explorer;
-  return `${chain.explorer}/tx/${hash}`;
+  return hash ? `${chain.explorer}/tx/${hash}` : chain.explorer;
 }
 
 export function getExplorerAddress(address, chainKey = DEFAULT_CHAIN_KEY) {
   const chain = getChain(chainKey);
-  if (!address) return chain.explorer;
-  return `${chain.explorer}/address/${address}`;
+  return address ? `${chain.explorer}/address/${address}` : chain.explorer;
 }
 
 export function getTokenContract(token, providerOrSigner) {
@@ -59,32 +74,45 @@ export function getTokenContract(token, providerOrSigner) {
 }
 
 export async function getNativeBalance(address, chainKey = DEFAULT_CHAIN_KEY) {
-  if (!isValidAddress(address)) return 0;
+  try {
+    if (!isValidAddress(address)) return 0;
 
-  const provider = getProvider(chainKey);
-  const raw = await provider.getBalance(address);
+    const provider = getProvider(chainKey);
+    const raw = await withTimeout(provider.getBalance(address));
 
-  return Number(ethers.formatEther(raw));
+    return Number(ethers.formatEther(raw));
+  } catch (error) {
+    console.warn(`${chainKey} native balance error:`, error.message);
+    return 0;
+  }
 }
 
 export async function getTokenBalance(address, token) {
-  if (!isValidAddress(address)) return 0;
-
-  const chainKey = normalizeChainKey(token.chainKey || token.chain || DEFAULT_CHAIN_KEY);
-
   try {
+    if (!isValidAddress(address) || !token) return 0;
+
+    const chainKey = normalizeChainKey(
+      token.chainKey || token.chain || DEFAULT_CHAIN_KEY
+    );
+
     if (token.native) {
       return await getNativeBalance(address, chainKey);
     }
 
+    if (!isValidAddress(token.address)) return 0;
+
     const provider = getProvider(chainKey);
     const contract = getTokenContract(token, provider);
-    const raw = await contract.balanceOf(address);
+
+    const raw = await withTimeout(contract.balanceOf(address));
     const decimals = Number(token.decimals || 18);
 
     return Number(ethers.formatUnits(raw, decimals));
   } catch (error) {
-    console.log(`${token.symbol} balance error:`, error);
+    console.warn(
+      `${token?.symbol || "TOKEN"} ${token?.chainKey || ""} balance error:`,
+      error.message
+    );
     return 0;
   }
 }
@@ -92,31 +120,43 @@ export async function getTokenBalance(address, token) {
 export async function getAllBalances(address, chainKey = "") {
   const balances = {};
 
-  const tokens = chainKey
-    ? getAllTokens().filter(
-        (token) => normalizeChainKey(token.chainKey) === normalizeChainKey(chainKey)
-      )
-    : getAllTokens();
+  if (!isValidAddress(address)) return balances;
 
-  for (const token of tokens) {
-    try {
-      const key = getTokenBalanceKey(token);
+  const selectedChain = chainKey ? normalizeChainKey(chainKey) : "";
+
+  const tokens = getAllTokens().filter((token) => {
+    if (!selectedChain) return true;
+    return normalizeChainKey(token.chainKey || token.chain) === selectedChain;
+  });
+
+  const results = await Promise.allSettled(
+    tokens.map(async (token) => {
       const balance = await getTokenBalance(address, token);
+      return { token, balance };
+    })
+  );
 
-      balances[key] = balance;
-      balances[`${token.chainKey}:${token.symbol}`] = balance;
+  results.forEach((result) => {
+    if (result.status !== "fulfilled") return;
 
-      if (token.chainKey === DEFAULT_CHAIN_KEY) {
-        balances[token.symbol] = balance;
-      }
-    } catch {
-      const key = getTokenBalanceKey(token);
-      balances[key] = 0;
+    const { token, balance } = result.value;
+    const key = getTokenBalanceKey(token);
+    const chainSymbolKey = `${token.chainKey}:${token.symbol}`;
+    const addressKey = `${token.chainKey}:${String(token.address || "").toLowerCase()}`;
+
+    balances[key] = balance;
+    balances[token.id] = balance;
+    balances[chainSymbolKey] = balance;
+    balances[addressKey] = balance;
+
+    if (token.chainKey === DEFAULT_CHAIN_KEY) {
+      balances[token.symbol] = balance;
     }
-  }
+  });
 
   return balances;
 }
+
 export async function sendNative({
   signer,
   to,
@@ -132,11 +172,7 @@ export async function sendNative({
     value: ethers.parseEther(String(amount)),
   });
 
-  return {
-    tx,
-    chainKey,
-    hash: tx.hash,
-  };
+  return { tx, chainKey, hash: tx.hash };
 }
 
 export async function sendToken({
@@ -161,34 +197,23 @@ export async function sendToken({
   const finalChainKey = normalizeChainKey(finalToken.chainKey || chainKey);
 
   if (finalToken.native) {
-    return sendNative({
-      signer,
-      to,
-      amount,
-      chainKey: finalChainKey,
-    });
+    return sendNative({ signer, to, amount, chainKey: finalChainKey });
   }
 
   const contract = getTokenContract(finalToken, signer);
-  const decimals = Number(finalToken.decimals || 18);
-  const parsedAmount = ethers.parseUnits(String(amount), decimals);
+  const parsedAmount = ethers.parseUnits(
+    String(amount),
+    Number(finalToken.decimals || 18)
+  );
 
   const tx = await contract.transfer(to, parsedAmount);
 
-  return {
-    tx,
-    chainKey: finalChainKey,
-    hash: tx.hash,
-  };
+  return { tx, chainKey: finalChainKey, hash: tx.hash };
 }
 
 export async function waitForTransaction(txOrResult) {
   const tx = txOrResult?.tx || txOrResult;
-
-  if (!tx?.wait) {
-    throw new Error("Invalid transaction.");
-  }
-
+  if (!tx?.wait) throw new Error("Invalid transaction.");
   return tx.wait();
 }
 
@@ -197,13 +222,14 @@ export async function readTokenMetadata(address, chainKey = DEFAULT_CHAIN_KEY) {
     throw new Error("Invalid token contract address.");
   }
 
-  const provider = getProvider(chainKey);
+  const finalChainKey = normalizeChainKey(chainKey);
+  const provider = getProvider(finalChainKey);
   const contract = new ethers.Contract(address, TOKEN_ABI, provider);
 
   const [name, symbol, decimals] = await Promise.all([
-    contract.name().catch(() => "Unknown Token"),
-    contract.symbol().catch(() => "TOKEN"),
-    contract.decimals().catch(() => 18),
+    withTimeout(contract.name()).catch(() => "Unknown Token"),
+    withTimeout(contract.symbol()).catch(() => "TOKEN"),
+    withTimeout(contract.decimals()).catch(() => 18),
   ]);
 
   return {
@@ -211,20 +237,15 @@ export async function readTokenMetadata(address, chainKey = DEFAULT_CHAIN_KEY) {
     symbol: normalizeSymbol(symbol),
     decimals: Number(decimals || 18),
     address,
-    chainKey: normalizeChainKey(chainKey),
+    chainKey: finalChainKey,
     native: false,
   };
 }
 
-export async function estimateNativeGas({
-  signer,
-  to,
-  amount,
-}) {
-  if (!signer) return null;
-  if (!isValidAddress(to)) return null;
-
+export async function estimateNativeGas({ signer, to, amount }) {
   try {
+    if (!signer || !isValidAddress(to)) return null;
+
     return await signer.estimateGas({
       to,
       value: ethers.parseEther(String(amount || 0)),
@@ -240,13 +261,13 @@ export async function getTokenAllowance({
   spender,
   chainKey = DEFAULT_CHAIN_KEY,
 }) {
-  if (!token || token.native) return 0;
-  if (!isValidAddress(owner) || !isValidAddress(spender)) return 0;
-
   try {
+    if (!token || token.native) return 0;
+    if (!isValidAddress(owner) || !isValidAddress(spender)) return 0;
+
     const provider = getProvider(chainKey);
     const contract = getTokenContract(token, provider);
-    const raw = await contract.allowance(owner, spender);
+    const raw = await withTimeout(contract.allowance(owner, spender));
 
     return Number(ethers.formatUnits(raw, Number(token.decimals || 18)));
   } catch {
@@ -254,23 +275,21 @@ export async function getTokenAllowance({
   }
 }
 
-export async function approveToken({
-  signer,
-  token,
-  spender,
-  amount,
-}) {
+export async function approveToken({ signer, token, spender, amount }) {
   if (!signer) throw new Error("Exalt Wallet signer is required.");
   if (!token || token.native) throw new Error("Token approval not required.");
   if (!isValidAddress(spender)) throw new Error("Invalid spender address.");
   if (!amount || Number(amount) <= 0) throw new Error("Invalid approval amount.");
 
   const contract = getTokenContract(token, signer);
-  const decimals = Number(token.decimals || 18);
-  const parsedAmount = ethers.parseUnits(String(amount), decimals);
+  const parsedAmount = ethers.parseUnits(
+    String(amount),
+    Number(token.decimals || 18)
+  );
 
   return contract.approve(spender, parsedAmount);
 }
+
 export async function swapNativeToToken({
   signer,
   tokenOut,
@@ -305,11 +324,7 @@ export async function swapNativeToToken({
     { value: ethers.parseEther(String(amount)) }
   );
 
-  return {
-    tx,
-    hash: tx.hash,
-    chainKey: finalChainKey,
-  };
+  return { tx, hash: tx.hash, chainKey: finalChainKey };
 }
 
 export async function swapTokenToNative({
@@ -353,11 +368,7 @@ export async function swapTokenToNative({
     deadline
   );
 
-  return {
-    tx,
-    hash: tx.hash,
-    chainKey: finalChainKey,
-  };
+  return { tx, hash: tx.hash, chainKey: finalChainKey };
 }
 
 export async function swapBnbToToken({
@@ -419,7 +430,7 @@ export function buildTransactionPayload({
     type,
     hash,
     amount,
-    coin: token?.symbol || "BNB",
+    coin: token?.symbol || getChain(chainKey).symbol || "BNB",
     status,
     wallet,
     chain: getChain(chainKey).network || chainKey,
