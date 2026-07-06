@@ -764,3 +764,27 @@
   font-size: 10px;
   font-weight: 900;
 }
+.ex-token-preview {
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.ex-token-preview strong {
+  color: #ffc233;
+}
+
+.ex-token-preview p {
+  margin: 5px 0;
+  color: #c8d0ef;
+  font-size: 12px;
+}
+
+.ex-token-preview small {
+  display: block;
+  color: #8f9bc4;
+  word-break: break-all;
+  margin-top: 6px;
+}

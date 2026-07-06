@@ -126,7 +126,7 @@ function Web3Wallet({ setPage }) {
   const [customTokenAddress, setCustomTokenAddress] = useState("");
   const [customTokenChain, setCustomTokenChain] = useState(activeChain);
   const [tokenImporting, setTokenImporting] = useState(false);
-
+  const [tokenPreview, setTokenPreview] = useState(null);
   const chain = getChain(activeChain);
   const chains = getChainList();
 
@@ -831,7 +831,10 @@ function Web3Wallet({ setPage }) {
 
             <select
               value={customTokenChain}
-              onChange={(e) => setCustomTokenChain(e.target.value)}
+            onChange={(e) => {
+  setCustomTokenAddress(e.target.value);
+  setTokenPreview(null);
+}}
             >
               {getImportableChains().map((item) => (
                 <option key={item.key} value={item.key}>
@@ -845,7 +848,15 @@ function Web3Wallet({ setPage }) {
               value={customTokenAddress}
               onChange={(e) => setCustomTokenAddress(e.target.value)}
             />
-
+{tokenPreview && (
+  <div className="ex-token-preview">
+    <strong>{tokenPreview.name}</strong>
+    <p>Symbol: {tokenPreview.symbol}</p>
+    <p>Decimals: {tokenPreview.decimals}</p>
+    <p>Network: {tokenPreview.network}</p>
+    <small>{tokenPreview.address}</small>
+  </div>
+)}
             <button disabled={tokenImporting} onClick={handleImportCustomToken}>
               {tokenImporting ? "Importing..." : "Import Token"}
             </button>
