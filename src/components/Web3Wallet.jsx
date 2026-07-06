@@ -1,9 +1,68 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import QRCode from "react-qr-code";
 import { ethers } from "ethers";
 import exaltLogo from "../assets/exalt-coin.png";
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import "./Web3Wallet.css";
+
+import { DEFAULT_TOKENS, BSC_CHAIN } from "../web3/web3Config";
+import {
+  getSavedWallets,
+  getActiveWalletAddress,
+  saveWallets,
+  setActiveWallet,
+  shortAddress,
+  createLocalWallet,
+  importWalletFromValue,
+  renameWallet as renameWalletStore,
+  removeWallet as removeWalletStore,
+  findWallet,
+  addWallet,
+  createWalletRecord,
+} from "../web3/walletStore";
+
+import {
+  connectInjectedWallet,
+  connectWalletConnect,
+} from "../web3/walletConnect";
+
+import {
+  getAllBalances,
+  sendToken,
+  swapBnbToToken,
+  swapTokenToBnb,
+} from "../web3/transactionService";
+
+import {
+  addLocalTx,
+  updateLocalTxStatus,
+  loadWeb3HistoryFromBackend,
+  saveWeb3TxToBackend,
+} from "../web3/historyService";
+
+import { submitWeb3SupportTicket } from "../web3/supportService";
+
+import {
+  startQRScanner,
+  stopQRScanner,
+  parseQRCode,
+} from "../web3/qrScannerService";
+
+import {
+  getTokenBySymbol,
+  getReceiveAddressForToken,
+  getTokenWarning,
+  formatTokenAmount,
+  formatTokenPrice,
+  searchTokens,
+} from "../web3/tokens";
+
+import {
+  formatUsd,
+  calculatePortfolio,
+  copyToClipboard,
+  isValidAddress,
+} from "../web3/utils";
 
 function Web3Wallet({ setPage }) {
   const API_BASE =
@@ -14,82 +73,16 @@ function Web3Wallet({ setPage }) {
     ? API_BASE.replace("/api", "")
     : API_BASE;
 
-  const BSC_RPC = "https://bsc-dataseed.binance.org/";
-  const ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
-  const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-  const EXALT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
-  const USDT = "0x55d398326f99059fF775485246999027B3197955";
+  const WC_PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
 
-  const TOKEN_ABI = [
-    "function approve(address spender,uint256 amount) external returns(bool)",
-    "function decimals() view returns(uint8)",
-    "function transfer(address to,uint256 amount) external returns(bool)",
-    "function balanceOf(address account) view returns(uint256)",
-  ];
-
-  const ROUTER_ABI = [
-    "function swapExactETHForTokensSupportingFeeOnTransferTokens(uint amountOutMin,address[] calldata path,address to,uint deadline) external payable",
-    "function swapExactTokensForETHSupportingFeeOnTransferTokens(uint amountIn,uint amountOutMin,address[] calldata path,address to,uint deadline) external",
-  ];
-
-  const DEFAULT_TOKENS = [
-    {
-      symbol: "BNB",
-      name: "BNB",
-      network: "BEP20",
-      address: WBNB,
-      fallbackPrice: 650,
-      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png",
-    },
-    {
-      symbol: "USDT",
-      name: "Tether USD",
-      network: "BEP20",
-      address: USDT,
-      fallbackPrice: 1,
-      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png",
-    },
-    {
-      symbol: "EXALT",
-      name: "Exalt Coin",
-      network: "BEP20",
-      address: EXALT,
-      fallbackPrice: 0,
-      logo: exaltLogo,
-    },
-    {
-      symbol: "BTCB",
-      name: "Bitcoin BEP20 - BSC Only",
-      network: "BEP20",
-      address: "0x7130d2A12B9BCbF4fF2634d864A1Ee1Ce3Ead9c",
-      fallbackPrice: 103000,
-      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png",
-    },
-    {
-      symbol: "ETH",
-      name: "Ethereum BEP20",
-      network: "BEP20",
-      address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
-      fallbackPrice: 2400,
-      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
-    },
-    {
-      symbol: "CAKE",
-      name: "PancakeSwap",
-      network: "BEP20",
-      address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
-      fallbackPrice: 2.5,
-      logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/7186.png",
-    },
-  ];
+  const videoRef = useRef(null);
 
   const [wallet, setWallet] = useState("");
   const [wallets, setWallets] = useState([]);
   const [balances, setBalances] = useState({});
-  const [bnbBalance, setBnbBalance] = useState("0.0000");
-  const [totalAssets, setTotalAssets] = useState("0.00");
-  const [coins, setCoins] = useState([]);
-  const [livePrices, setLivePrices] = useState({});
+  const [prices, setPrices] = useState({});
+  const [totalAssets, setTotalAssets] = useState(0);
+
   const [assetTab, setAssetTab] = useState("holdings");
   const [bottomTab, setBottomTab] = useState("home");
   const [search, setSearch] = useState("");
@@ -102,345 +95,166 @@ function Web3Wallet({ setPage }) {
   const [showAddWallet, setShowAddWallet] = useState(false);
   const [showPhrase, setShowPhrase] = useState("");
   const [showSupport, setShowSupport] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   const [sendTo, setSendTo] = useState("");
   const [amount, setAmount] = useState("");
   const [sendCoin, setSendCoin] = useState("BNB");
+
   const [receiveCoin, setReceiveCoin] = useState("BNB");
+
   const [fromCoin, setFromCoin] = useState("BNB");
   const [toCoin, setToCoin] = useState("EXALT");
   const [swapAmount, setSwapAmount] = useState("");
+
   const [txHistory, setTxHistory] = useState([]);
   const [importValue, setImportValue] = useState("");
   const [supportMsg, setSupportMsg] = useState("");
 
-  const provider = useMemo(() => new ethers.JsonRpcProvider(BSC_RPC), []);
-
-  const shortAddress = (address) =>
-    address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connect Wallet";
-
   const activeWallet = useMemo(
-    () => wallets.find((w) => w.address?.toLowerCase() === wallet?.toLowerCase()),
+    () => findWallet(wallets, wallet),
     [wallets, wallet]
   );
 
   const activeWalletName = activeWallet?.name || "My Wallet";
 
-  const selectedReceiveToken =
-    DEFAULT_TOKENS.find((x) => x.symbol === receiveCoin) || DEFAULT_TOKENS[0];
+  const selectedReceiveToken = useMemo(
+    () => getTokenBySymbol(receiveCoin),
+    [receiveCoin]
+  );
 
-  const getTokenAddress = (symbol) => {
-    if (symbol === "BNB") return WBNB;
-    if (symbol === "USDT") return USDT;
-    if (symbol === "EXALT") return EXALT;
-    return DEFAULT_TOKENS.find((x) => x.symbol === symbol)?.address || EXALT;
+  const visibleTokens = useMemo(() => {
+    const baseTokens = DEFAULT_TOKENS;
+    return searchTokens(baseTokens, search);
+  }, [search]);
+
+  const portfolioValue = useMemo(() => {
+    return calculatePortfolio(DEFAULT_TOKENS, balances, prices);
+  }, [balances, prices]);
+
+  const showToast = (text) => {
+    setMessage(text);
+    setTimeout(() => setMessage(""), 3500);
   };
 
-  const getTokenPrice = (symbol) => {
-    const live = Number(livePrices[symbol] || 0);
-    if (live > 0) return live;
-    return DEFAULT_TOKENS.find((x) => x.symbol === symbol)?.fallbackPrice || 0;
-  };
-
-  const getCoinLogo = (coin) => {
-    const symbol = String(coin?.symbol || "").toUpperCase();
-    if (symbol === "EXALT") return exaltLogo;
-
-    return (
-      coin?.logo ||
-      coin?.image ||
-      coin?.icon ||
-      `https://assets.coincap.io/assets/icons/${symbol.toLowerCase()}@2x.png`
-    );
-  };
-
-  const saveWallets = (nextWallets, activeAddress = wallet) => {
-    setWallets(nextWallets);
-    localStorage.setItem("exalt_web3_wallets", JSON.stringify(nextWallets));
+  const syncWalletState = (nextWallets, activeAddress = "") => {
+    const saved = saveWallets(nextWallets, activeAddress);
+    setWallets(saved);
 
     if (activeAddress) {
       setWallet(activeAddress);
-      localStorage.setItem("web3_wallet", activeAddress);
+      setActiveWallet(activeAddress);
     }
   };
 
-  const switchToBSC = async () => {
-    if (!window.ethereum) throw new Error("Wallet not found");
-
+  const loadBalances = async (address = wallet) => {
     try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x38" }],
-      });
+      if (!address) return;
+
+      const result = await getAllBalances(address);
+      setBalances(result);
+
+      const total = calculatePortfolio(DEFAULT_TOKENS, result, prices);
+      setTotalAssets(total);
     } catch (err) {
-      if (err.code === 4902) {
-        await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: "0x38",
-              chainName: "BNB Smart Chain",
-              nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
-              rpcUrls: [BSC_RPC],
-              blockExplorerUrls: ["https://bscscan.com"],
-            },
-          ],
-        });
-      } else {
-        throw err;
-      }
+      console.log("Web3 balance error:", err);
     }
   };
 
-  const getSigner = async () => {
-    if (activeWallet?.privateKey) {
-      return new ethers.Wallet(activeWallet.privateKey, provider);
+  const loadHistory = async (address = wallet) => {
+    try {
+      if (!address) return;
+      const history = await loadWeb3HistoryFromBackend(API, address);
+      setTxHistory(history);
+    } catch (err) {
+      console.log("History error:", err);
     }
-
-    if (!window.ethereum) throw new Error("Wallet not found");
-
-    await switchToBSC();
-    const browserProvider = new ethers.BrowserProvider(window.ethereum);
-    return browserProvider.getSigner();
   };
-  const loadCoins = async () => {
+
+  const loadMarketPrices = async () => {
     try {
       const res = await fetch(`${API}/api/coins/all-market`);
       const data = await res.json();
       const list = Array.isArray(data.coins) ? data.coins : [];
-      setCoins(list);
 
-      const prices = {};
+      const nextPrices = {};
       list.forEach((coin) => {
         const symbol = String(coin.symbol || "").toUpperCase();
-        const price = Number(coin.priceUsd || 0);
-        if (symbol && price > 0) prices[symbol] = price;
+        const price = Number(coin.priceUsd || coin.price || 0);
+        if (symbol && price > 0) nextPrices[symbol] = price;
       });
 
-      setLivePrices((prev) => ({ ...prev, ...prices }));
-    } catch (error) {
-      console.log("Coins load error:", error);
+      setPrices(nextPrices);
+    } catch (err) {
+      console.log("Price load error:", err);
     }
   };
-
-  const loadBalances = async (walletAddress) => {
+  const connectExternal = async () => {
     try {
-      if (!walletAddress) return;
-
-      const newBalances = {};
-      let total = 0;
-
-      for (const token of DEFAULT_TOKENS) {
-        try {
-          if (token.symbol === "BNB") {
-            const raw = await provider.getBalance(walletAddress);
-            const value = Number(ethers.formatEther(raw));
-
-            newBalances.BNB = value.toFixed(4);
-            setBnbBalance(value.toFixed(5));
-            total += value * getTokenPrice("BNB");
-            continue;
-          }
-
-          const contract = new ethers.Contract(token.address, TOKEN_ABI, provider);
-          const raw = await contract.balanceOf(walletAddress);
-          const decimals = await contract.decimals();
-          const value = Number(ethers.formatUnits(raw, decimals));
-
-          newBalances[token.symbol] =
-            value > 0 && value < 0.0001 ? value.toFixed(8) : value.toFixed(4);
-
-          total += value * getTokenPrice(token.symbol);
-        } catch {
-          newBalances[token.symbol] = "0.0000";
-        }
-      }
-
-      setBalances(newBalances);
-      setTotalAssets(total.toFixed(2));
-    } catch (error) {
-      console.log("Balance error:", error);
-    }
-  };
-
-  const loadMongoHistory = async (walletAddress) => {
-    try {
-      if (!walletAddress) return;
-
-      const res = await fetch(`${API}/api/web3-transactions/${walletAddress}`);
-      const data = await res.json();
-
-      if (data.success && Array.isArray(data.transactions)) {
-        const formatted = data.transactions.map((tx) => ({
-          type: tx.type,
-          hash: tx.hash,
-          amount: tx.amount,
-          coin: tx.coin,
-          status: tx.status || "success",
-          time: tx.createdAt
-            ? new Date(tx.createdAt).toLocaleString()
-            : new Date().toLocaleString(),
-        }));
-
-        setTxHistory(formatted);
-        localStorage.setItem("exalt_tx_history", JSON.stringify(formatted));
-      }
-    } catch (error) {
-      console.log("History error:", error);
-    }
-  };
-
-  const saveTx = async (type, hash, amountValue, coin) => {
-    const txItem = {
-      type,
-      hash,
-      amount: amountValue,
-      coin,
-      status: "success",
-      time: new Date().toLocaleString(),
-    };
-
-    const updated = [txItem, ...txHistory];
-    setTxHistory(updated);
-    localStorage.setItem("exalt_tx_history", JSON.stringify(updated));
-
-    try {
-      await fetch(`${API}/api/web3-transactions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          wallet: wallet?.toLowerCase(),
-          type: type.includes("Send")
-            ? "Send"
-            : type.includes("Receive")
-            ? "Receive"
-            : "Swap",
-          coin,
-          amount: Number(amountValue),
-          hash,
-          status: "success",
-          chain: "BSC",
-          source: "web3-wallet",
-        }),
-      });
-    } catch (error) {
-      console.log("Save tx error:", error);
-    }
-  };
-
-  const connectExternalWallet = async () => {
-    try {
-      if (!window.ethereum) {
-        alert("Please open inside Binance Wallet, Trust Wallet, MetaMask, or wallet browser.");
-        return;
-      }
-
-      await switchToBSC();
-
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await browserProvider.send("eth_requestAccounts", []);
-
-      if (!accounts?.length) return alert("No wallet account found.");
-
-      const address = accounts[0];
-
-      const exists = wallets.some(
-        (w) => w.address.toLowerCase() === address.toLowerCase()
-      );
-
-      const nextWallets = exists
-        ? wallets
-        : [
-            ...wallets,
-            {
-              id: Date.now(),
-              name: `External Wallet ${wallets.length + 1}`,
-              address,
-              type: "External",
-              keyless: true,
-            },
-          ].slice(0, 12);
-
-      saveWallets(nextWallets, address);
-      await loadBalances(address);
-      await loadMongoHistory(address);
-
+      const result = await connectInjectedWallet();
+      syncWalletState(result.wallets, result.address);
+      await loadBalances(result.address);
+      await loadHistory(result.address);
       setShowAddWallet(false);
-      setShowMyWallets(false);
-    } catch (error) {
-      console.log(error);
-      alert("Wallet connection failed.");
+      showToast("External wallet connected.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Wallet connection failed.");
     }
   };
 
-  const createLocalWallet = async () => {
-    const created = ethers.Wallet.createRandom();
+  const connectWC = async () => {
+    try {
+      const result = await connectWalletConnect(WC_PROJECT_ID);
+      syncWalletState(result.wallets, result.address);
+      await loadBalances(result.address);
+      await loadHistory(result.address);
+      setShowAddWallet(false);
+      showToast("WalletConnect connected.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "WalletConnect failed.");
+    }
+  };
 
-    const nextWallets = [
-      ...wallets,
-      {
-        id: Date.now(),
-        name: `My Wallet ${wallets.length + 1}`,
-        address: created.address,
-        type: "Keyless",
-        privateKey: created.privateKey,
-        keyless: false,
-      },
-    ].slice(0, 12);
+  const createWallet = async () => {
+    try {
+      const result = createLocalWallet(wallets);
+      const nextWallets = addWallet(wallets, result.wallet);
 
-    setShowPhrase(created.mnemonic?.phrase || "");
-    saveWallets(nextWallets, created.address);
-    await loadBalances(created.address);
+      syncWalletState(nextWallets, result.wallet.address);
+      setShowPhrase(result.phrase);
+      setShowAddWallet(false);
 
-    setShowAddWallet(false);
-    setShowMyWallets(true);
+      await loadBalances(result.wallet.address);
+      showToast("Wallet created. Save your recovery phrase.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Wallet creation failed.");
+    }
   };
 
   const importWallet = async () => {
     try {
-      const value = importValue.trim();
-      if (!value) return alert("Enter recovery phrase or private key.");
+      const imported = importWalletFromValue(importValue, wallets);
+      const nextWallets = addWallet(wallets, imported);
 
-      const imported =
-        value.split(" ").length >= 12
-          ? ethers.Wallet.fromPhrase(value)
-          : new ethers.Wallet(value);
-
-      const exists = wallets.some(
-        (w) => w.address.toLowerCase() === imported.address.toLowerCase()
-      );
-
-      if (exists) return alert("Wallet already exists.");
-
-      const nextWallets = [
-        ...wallets,
-        {
-          id: Date.now(),
-          name: `Imported Wallet ${wallets.length + 1}`,
-          address: imported.address,
-          type: "Imported",
-          privateKey: imported.privateKey,
-          keyless: false,
-        },
-      ].slice(0, 12);
-
+      syncWalletState(nextWallets, imported.address);
       setImportValue("");
-      saveWallets(nextWallets, imported.address);
-      await loadBalances(imported.address);
-
       setShowAddWallet(false);
-      setShowMyWallets(true);
-    } catch (error) {
-      console.log(error);
-      alert("Invalid phrase or private key.");
+
+      await loadBalances(imported.address);
+      showToast("Wallet imported.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Import failed.");
     }
   };
 
   const switchWallet = async (address) => {
-    setWallet(address);
-    localStorage.setItem("web3_wallet", address);
+    syncWalletState(wallets, address);
     await loadBalances(address);
-    await loadMongoHistory(address);
+    await loadHistory(address);
     setShowMyWallets(false);
   };
 
@@ -448,43 +262,39 @@ function Web3Wallet({ setPage }) {
     const newName = prompt("Enter wallet name");
     if (!newName) return;
 
-    const next = wallets.map((w) =>
-      w.address.toLowerCase() === address.toLowerCase()
-        ? { ...w, name: newName }
-        : w
-    );
-
-    saveWallets(next, wallet);
+    const nextWallets = renameWalletStore(wallets, address, newName);
+    syncWalletState(nextWallets, wallet);
   };
 
   const removeWallet = (address) => {
     if (!window.confirm("Remove this wallet from this device?")) return;
 
-    const next = wallets.filter(
-      (w) => w.address.toLowerCase() !== address.toLowerCase()
-    );
-
+    const nextWallets = removeWalletStore(wallets, address);
     const nextActive =
-      wallet.toLowerCase() === address.toLowerCase()
-        ? next[0]?.address || ""
+      wallet?.toLowerCase() === address?.toLowerCase()
+        ? nextWallets[0]?.address || ""
         : wallet;
 
-    saveWallets(next, nextActive);
+    syncWalletState(nextWallets, nextActive);
 
     if (nextActive) {
       loadBalances(nextActive);
-      loadMongoHistory(nextActive);
+      loadHistory(nextActive);
     } else {
       setBalances({});
-      setTotalAssets("0.00");
-      setBnbBalance("0.0000");
+      setTotalAssets(0);
+      setWallet("");
     }
   };
 
   const copyAddress = () => {
     if (!wallet) return alert("Wallet not connected.");
-    navigator.clipboard.writeText(wallet);
-    alert("Wallet address copied.");
+    copyToClipboard(wallet);
+    showToast("Wallet address copied.");
+  };
+
+  const goExchange = () => {
+    if (setPage) setPage("trade");
   };
 
   const openSupport = () => {
@@ -493,170 +303,201 @@ function Web3Wallet({ setPage }) {
     setShowMore(false);
   };
 
-  const openScanner = () => {
-    setMessage("QR Scanner / WalletConnect will be added in final mobile build.");
-    setTimeout(() => setMessage(""), 3500);
-  };
-
-  const goExchange = () => {
-    if (setPage) setPage("trade");
-  };
-
   const submitSupport = async () => {
-    if (!supportMsg.trim()) return alert("Please write your issue.");
-
     try {
       const token = localStorage.getItem("token") || "";
 
-      const res = await fetch(`${API}/api/support-ticket`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          subject: "Web3 Wallet Support",
-          message: supportMsg,
-          category: "WEB3",
-          wallet,
-        }),
+      const result = await submitWeb3SupportTicket({
+        API,
+        token,
+        subject: "Web3 Wallet Support",
+        message: supportMsg,
+        wallet,
+        category: "WEB3",
       });
 
-      const data = await res.json().catch(() => ({}));
+      setSupportMsg("");
+      setShowSupport(false);
+      showToast(result.message || "Support request submitted.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Support request failed.");
+    }
+  };
 
-      if (res.ok || data.success) {
-        alert("Support request submitted.");
-      } else {
-        alert(data.message || "Support request submitted for admin review.");
+  const startScanner = async () => {
+    setShowScanner(true);
+
+    setTimeout(async () => {
+      if (!videoRef.current) return;
+
+      await startQRScanner(
+        videoRef.current,
+        (text) => {
+          const parsed = parseQRCode(text);
+
+          if (parsed.type === "wallet" && parsed.address) {
+            setSendTo(parsed.address);
+            setBottomTab("discover");
+            setShowScanner(false);
+            stopQRScanner();
+            showToast("Wallet address scanned.");
+          } else {
+            showToast("QR scanned but no wallet address found.");
+          }
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    }, 300);
+  };
+
+  const stopScanner = () => {
+    stopQRScanner();
+    setShowScanner(false);
+  };
+
+  const handleSend = async () => {
+    try {
+      if (!wallet) return alert("Connect wallet first.");
+      if (!isValidAddress(sendTo)) return alert("Invalid BSC address.");
+      if (!amount || Number(amount) <= 0) return alert("Enter valid amount.");
+
+      const signer =
+        activeWallet?.privateKey
+          ? new (await import("ethers")).ethers.Wallet(
+              activeWallet.privateKey,
+              (await import("ethers")).ethers.JsonRpcProvider
+            )
+          : null;
+
+      let activeSigner = signer;
+
+      if (!activeSigner) {
+        const { getInjectedSigner } = await import("../web3/walletConnect");
+        activeSigner = await getInjectedSigner();
       }
 
-      setSupportMsg("");
-      setShowSupport(false);
-    } catch (error) {
-      console.log(error);
-      alert("Support request saved. Admin will review.");
-      setSupportMsg("");
-      setShowSupport(false);
-    }
-  };
-
-  const sendBNB = async () => {
-    try {
-      if (!wallet) return alert("Connect wallet first.");
-      if (!sendTo || !amount) return alert("Enter receiver address and amount.");
-
-      const signer = await getSigner();
-
-      const tx = await signer.sendTransaction({
+      const tx = await sendToken({
+        signer: activeSigner,
+        tokenSymbol: sendCoin,
         to: sendTo,
-        value: ethers.parseEther(amount),
+        amount,
       });
 
-      setMessage("Transaction pending...");
+      const localHistory = addLocalTx({
+        type: "Send",
+        hash: tx.hash,
+        amount,
+        coin: sendCoin,
+        status: "pending",
+        wallet,
+      });
+
+      setTxHistory(localHistory);
+      showToast("Transaction pending...");
+
       await tx.wait();
 
-      await saveTx("Send BNB", tx.hash, amount, "BNB");
+      updateLocalTxStatus(tx.hash, "success");
+
+      await saveWeb3TxToBackend(API, {
+        type: "Send",
+        hash: tx.hash,
+        amount,
+        coin: sendCoin,
+        status: "success",
+        wallet,
+      });
+
       await loadBalances(wallet);
-      setMessage(`Confirmed: https://bscscan.com/tx/${tx.hash}`);
-    } catch (error) {
-      console.log(error);
-      alert("BNB send failed.");
+      await loadHistory(wallet);
+
+      setSendTo("");
+      setAmount("");
+      showToast("Transaction confirmed.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Send failed.");
     }
   };
-
-  const sendToken = async (coin) => {
-    try {
-      if (!wallet) return alert("Connect wallet first.");
-      if (!sendTo || !amount) return alert("Enter receiver address and amount.");
-
-      const signer = await getSigner();
-      const token = new ethers.Contract(getTokenAddress(coin), TOKEN_ABI, signer);
-      const decimals = await token.decimals();
-
-      setMessage(`${coin} transaction pending...`);
-
-      const tx = await token.transfer(sendTo, ethers.parseUnits(amount, decimals));
-      await tx.wait();
-
-      await saveTx(`Send ${coin}`, tx.hash, amount, coin);
-      await loadBalances(wallet);
-      setMessage(`Confirmed: https://bscscan.com/tx/${tx.hash}`);
-    } catch (error) {
-      console.log(error);
-      alert(`${coin} send failed.`);
+const getActiveSigner = async () => {
+    if (activeWallet?.privateKey) {
+      const provider = new ethers.JsonRpcProvider(BSC_CHAIN.rpc);
+      return new ethers.Wallet(activeWallet.privateKey, provider);
     }
+
+    const { getInjectedSigner } = await import("../web3/walletConnect");
+    return getInjectedSigner();
   };
 
-  const executeSwap = async () => {
+  const handleSwap = async () => {
     try {
       if (!wallet) return alert("Connect wallet first.");
-      if (!swapAmount) return alert("Enter swap amount.");
+      if (!swapAmount || Number(swapAmount) <= 0) return alert("Enter valid amount.");
       if (fromCoin === toCoin) return alert("Select different coins.");
 
-      const signer = await getSigner();
-      const router = new ethers.Contract(ROUTER, ROUTER_ABI, signer);
-      const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+      const activeSigner = await getActiveSigner();
 
-      setMessage("Swap pending...");
+      let tx;
 
       if (fromCoin === "BNB") {
-        const tx = await router.swapExactETHForTokensSupportingFeeOnTransferTokens(
-          0,
-          [WBNB, getTokenAddress(toCoin)],
-          wallet,
-          deadline,
-          { value: ethers.parseEther(swapAmount) }
-        );
-
-        await tx.wait();
-        await saveTx("Swap", tx.hash, swapAmount, toCoin);
-        await loadBalances(wallet);
-        setMessage(`Swap completed: https://bscscan.com/tx/${tx.hash}`);
+        tx = await swapBnbToToken({
+          signer: activeSigner,
+          tokenOutSymbol: toCoin,
+          walletAddress: wallet,
+          amount: swapAmount,
+        });
+      } else if (toCoin === "BNB") {
+        tx = await swapTokenToBnb({
+          signer: activeSigner,
+          tokenInSymbol: fromCoin,
+          walletAddress: wallet,
+          amount: swapAmount,
+        });
+      } else {
+        alert("Token-to-token swap coming soon.");
         return;
       }
 
-      if (toCoin === "BNB") {
-        const tokenAddress = getTokenAddress(fromCoin);
-        const token = new ethers.Contract(tokenAddress, TOKEN_ABI, signer);
-        const decimals = await token.decimals();
-        const amountIn = ethers.parseUnits(swapAmount, decimals);
-
-        const approveTx = await token.approve(ROUTER, amountIn);
-        await approveTx.wait();
-
-        const tx = await router.swapExactTokensForETHSupportingFeeOnTransferTokens(
-          amountIn,
-          0,
-          [tokenAddress, WBNB],
+      setTxHistory(
+        addLocalTx({
+          type: "Swap",
+          hash: tx.hash,
+          amount: swapAmount,
+          coin: `${fromCoin}/${toCoin}`,
+          status: "pending",
           wallet,
-          deadline
-        );
+        })
+      );
 
-        await tx.wait();
-        await saveTx("Swap", tx.hash, swapAmount, toCoin);
-        await loadBalances(wallet);
-        setMessage(`Swap completed: https://bscscan.com/tx/${tx.hash}`);
-        return;
-      }
+      showToast("Swap pending...");
+      await tx.wait();
 
-      alert("Token-to-token route coming soon.");
-    } catch (error) {
-      console.log(error);
-      alert("Swap failed.");
+      updateLocalTxStatus(tx.hash, "success");
+
+      await saveWeb3TxToBackend(API, {
+        type: "Swap",
+        hash: tx.hash,
+        amount: swapAmount,
+        coin: toCoin,
+        status: "success",
+        wallet,
+      });
+
+      await loadBalances(wallet);
+      await loadHistory(wallet);
+
+      setSwapAmount("");
+      showToast("Swap completed.");
+    } catch (err) {
+      console.log(err);
+      alert(err.message || "Swap failed.");
     }
   };
 
-  const trendingCoins = (coins || []).slice(0, 20);
-
-  const visibleCoins = (assetTab === "holdings" ? DEFAULT_TOKENS : trendingCoins).filter(
-    (coin) => {
-      const keyword = search.toLowerCase();
-      return (
-        String(coin.symbol || "").toLowerCase().includes(keyword) ||
-        String(coin.name || "").toLowerCase().includes(keyword)
-      );
-    }
-  );
+  const receiveAddress = getReceiveAddressForToken(receiveCoin, wallet);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowWelcome(false), 1800);
@@ -664,27 +505,24 @@ function Web3Wallet({ setPage }) {
   }, []);
 
   useEffect(() => {
-    const savedWallet = localStorage.getItem("web3_wallet");
-    const savedWallets = JSON.parse(localStorage.getItem("exalt_web3_wallets") || "[]");
-    const savedHistory = localStorage.getItem("exalt_tx_history");
+    const savedWallets = getSavedWallets();
+    const active = getActiveWalletAddress();
 
     setWallets(savedWallets);
-    if (savedWallet) setWallet(savedWallet);
+    if (active) setWallet(active);
 
-    if (savedHistory) {
-      try {
-        setTxHistory(JSON.parse(savedHistory));
-      } catch {
-        setTxHistory([]);
-      }
+    loadMarketPrices();
+
+    if (active) {
+      loadBalances(active);
+      loadHistory(active);
     }
-
-    loadCoins();
   }, []);
 
   useEffect(() => {
-    if (wallet) loadBalances(wallet);
-  }, [wallet, livePrices]);
+    setTotalAssets(portfolioValue);
+  }, [portfolioValue]);
+
   return (
     <div className="ex-web3-page">
       <div className="ex-web3-phone">
@@ -706,12 +544,12 @@ function Web3Wallet({ setPage }) {
             <button className="active">Wallet</button>
           </div>
 
-          <button className="ex-icon-btn" onClick={openScanner}>⌗</button>
+          <button className="ex-icon-btn" onClick={startScanner}>⌗</button>
           <button className="ex-icon-btn" onClick={openSupport}>💬</button>
         </div>
 
         <div className="ex-search">
-          <span>Search</span>
+          <span>BNB Smart Chain • Web3 Wallet</span>
           <button>⌕</button>
         </div>
 
@@ -719,9 +557,7 @@ function Web3Wallet({ setPage }) {
           <div className="ex-welcome-card">
             <img src={exchangeLogo} alt="Exalt Exchange" />
             <p>Welcome to</p>
-            <h1>
-              Exalt Exchange <span>Web3 Wallet</span>
-            </h1>
+            <h1>Exalt Exchange <span>Web3 Wallet</span></h1>
             <button onClick={() => setShowAddWallet(true)}>Add Wallet</button>
           </div>
         ) : (
@@ -729,17 +565,14 @@ function Web3Wallet({ setPage }) {
             <div className="ex-wallet-head">
               <div>
                 <div className="ex-wallet-name">
-                  <span>⚙️</span>
-                  <button
-                    className="ex-wallet-select-btn"
-                    onClick={() => setShowMyWallets(true)}
-                  >
+                  <span>💼</span>
+                  <button className="ex-wallet-select-btn" onClick={() => setShowMyWallets(true)}>
                     {activeWalletName}⌄
                   </button>
                   <button onClick={() => setShowAddWallet(true)}>＋</button>
                 </div>
 
-                <button className="ex-address-btn" onClick={copyAddress}>
+                <button className="ex-address-btn" onClick={() => copyToClipboard(wallet)}>
                   {shortAddress(wallet)} 📋
                 </button>
               </div>
@@ -750,13 +583,12 @@ function Web3Wallet({ setPage }) {
             </div>
 
             <div className="ex-balance-card">
-              <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
-              <p>BNB Balance: {bnbBalance}</p>
+              <h1>{formatUsd(totalAssets)}</h1>
+              <p>{BSC_CHAIN.name}</p>
             </div>
           </>
         )}
-
-        <div className="ex-action-row">
+<div className="ex-action-row">
           {[
             ["Receive", "⬇️"],
             ["Send", "⬆️"],
@@ -782,19 +614,22 @@ function Web3Wallet({ setPage }) {
 
         <div className="ex-promo-card">
           <div>
-            <h3>Make your first trade on Exalt Web3</h3>
-            <p>Explore BSC assets, DeFi and EXALT ecosystem.</p>
-            <span>Register Now ›</span>
+            <h3>Exalt Web3 Wallet</h3>
+            <p>Multi-wallet, BSC assets, swap, scan, support and history.</p>
+            <span onClick={goExchange}>Open Exchange ›</span>
           </div>
           <img src={exaltLogo} alt="EXALT" />
         </div>
 
         <div className="ex-asset-tabs">
-          {["holdings", "trending", "perps", "securities"].map((tab) => (
+          {["holdings", "tokens", "history", "security"].map((tab) => (
             <button
               key={tab}
               className={assetTab === tab ? "active" : ""}
-              onClick={() => setAssetTab(tab)}
+              onClick={() => {
+                setAssetTab(tab);
+                if (tab === "history") setBottomTab("market");
+              }}
             >
               {tab === "holdings"
                 ? "★ Holdings"
@@ -811,15 +646,15 @@ function Web3Wallet({ setPage }) {
         />
 
         <div className="ex-coin-list">
-          {visibleCoins.slice(0, 25).map((coin, index) => {
+          {visibleTokens.slice(0, 25).map((coin, index) => {
             const symbol = String(coin.symbol || "COIN").toUpperCase();
-            const balance = balances[symbol] || "0.0000";
-            const price = Number(coin.priceUsd || getTokenPrice(symbol) || 0);
+            const balance = balances[symbol] || 0;
+            const price = Number(prices[symbol] || coin.fallbackPrice || 0);
 
             return (
               <div className="ex-coin-item" key={`${symbol}-${index}`}>
                 <img
-                  src={getCoinLogo(coin)}
+                  src={coin.logoType === "local-exalt" ? exaltLogo : coin.logo}
                   alt={symbol}
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
@@ -832,12 +667,8 @@ function Web3Wallet({ setPage }) {
                 </div>
 
                 <div>
-                  <strong>
-                    {assetTab === "holdings"
-                      ? balance
-                      : `$${price.toFixed(price > 1 ? 2 : 6)}`}
-                  </strong>
-                  <p>{coin.network || "BSC"}</p>
+                  <strong>{formatTokenAmount(balance)}</strong>
+                  <p>${formatTokenPrice(price)}</p>
                 </div>
               </div>
             );
@@ -850,28 +681,26 @@ function Web3Wallet({ setPage }) {
             <h3>Receive {receiveCoin}</h3>
 
             <p className="ex-network-warning">
-              Network: BNB Smart Chain (BEP20). Only send {receiveCoin} on BSC to this address.
-              {receiveCoin === "BTCB" ? " This is BTCB, not native BTC." : ""}
+              {getTokenWarning(receiveCoin)}
             </p>
 
             <select value={receiveCoin} onChange={(e) => setReceiveCoin(e.target.value)}>
               {DEFAULT_TOKENS.map((x) => (
                 <option key={x.symbol} value={x.symbol}>
-                  {x.symbol} - {x.network}
+                  {x.symbol} - {x.chain?.toUpperCase?.() || "BSC"}
                 </option>
               ))}
             </select>
 
             <div className="ex-qr">
-              <QRCode value={wallet} size={170} />
+              <QRCode value={receiveAddress || wallet} size={170} />
             </div>
 
-            <p>{wallet}</p>
-            <small className="ex-token-contract">
-              Token: {selectedReceiveToken.symbol === "BNB" ? "Native BNB" : selectedReceiveToken.address}
-            </small>
+            <p>{receiveAddress || wallet}</p>
 
-            <button onClick={copyAddress}>Copy Address</button>
+            <button onClick={() => copyToClipboard(receiveAddress || wallet)}>
+              Copy Address
+            </button>
           </div>
         )}
 
@@ -881,12 +710,9 @@ function Web3Wallet({ setPage }) {
             <h3>Send Crypto</h3>
 
             <select value={sendCoin} onChange={(e) => setSendCoin(e.target.value)}>
-              <option>BNB</option>
-              <option>EXALT</option>
-              <option>USDT</option>
-              <option>BTCB</option>
-              <option>ETH</option>
-              <option>CAKE</option>
+              {DEFAULT_TOKENS.map((x) => (
+                <option key={x.symbol} value={x.symbol}>{x.symbol}</option>
+              ))}
             </select>
 
             <input
@@ -901,9 +727,7 @@ function Web3Wallet({ setPage }) {
               onChange={(e) => setAmount(e.target.value)}
             />
 
-            <button onClick={sendCoin === "BNB" ? sendBNB : () => sendToken(sendCoin)}>
-              Send Now
-            </button>
+            <button onClick={handleSend}>Send Now</button>
           </div>
         )}
 
@@ -930,7 +754,7 @@ function Web3Wallet({ setPage }) {
               onChange={(e) => setSwapAmount(e.target.value)}
             />
 
-            <button onClick={executeSwap}>Swap Now</button>
+            <button onClick={handleSwap}>Swap Now</button>
           </div>
         )}
 
@@ -943,17 +767,11 @@ function Web3Wallet({ setPage }) {
               <p>No transactions yet.</p>
             ) : (
               txHistory.map((tx, i) => (
-                <div className="ex-history-item" key={`${tx.hash || i}`}>
-                  <strong>
-                    {tx.type} {tx.coin}
-                  </strong>
+                <div className="ex-history-item" key={`${tx.hash || tx.id || i}`}>
+                  <strong>{tx.type} {tx.coin}</strong>
                   <span>{tx.amount}</span>
                   {tx.hash && (
-                    <a
-                      href={`https://bscscan.com/tx/${tx.hash}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
+                    <a href={tx.explorer} target="_blank" rel="noreferrer">
                       BscScan
                     </a>
                   )}
@@ -980,7 +798,7 @@ function Web3Wallet({ setPage }) {
             <h3>More</h3>
             <button onClick={() => setShowMyWallets(true)}>My Wallets</button>
             <button onClick={() => setShowAddWallet(true)}>Add Wallet</button>
-            <button onClick={openScanner}>Scan / WalletConnect</button>
+            <button onClick={startScanner}>Scan QR</button>
             <button onClick={openSupport}>Support</button>
           </div>
         )}
@@ -1002,6 +820,21 @@ function Web3Wallet({ setPage }) {
           </div>
         )}
 
+        {showScanner && (
+          <div className="ex-wallets-screen">
+            <div className="ex-wallets-top">
+              <button onClick={stopScanner}>‹</button>
+              <h3>QR Scanner</h3>
+              <span />
+            </div>
+
+            <div className="ex-scanner-box">
+              <video ref={videoRef} className="ex-scanner-video" />
+              <p>Scan wallet address QR code.</p>
+            </div>
+          </div>
+        )}
+
         {showMyWallets && (
           <div className="ex-wallets-screen">
             <div className="ex-wallets-top">
@@ -1012,7 +845,7 @@ function Web3Wallet({ setPage }) {
 
             <div className="ex-wallets-portfolio">
               <span>Portfolio ›</span>
-              <h1>${Number(totalAssets || 0).toLocaleString()}</h1>
+              <h1>{formatUsd(totalAssets)}</h1>
             </div>
 
             <h4>Keyless</h4>
@@ -1058,13 +891,19 @@ function Web3Wallet({ setPage }) {
             <div className="ex-add-wallet-card">
               <h3>Connect Existing Wallet</h3>
               <p>MetaMask, Trust Wallet, Binance Wallet browser.</p>
-              <button onClick={connectExternalWallet}>Connect External Wallet</button>
+              <button onClick={connectExternal}>Connect External Wallet</button>
+            </div>
+
+            <div className="ex-add-wallet-card">
+              <h3>WalletConnect</h3>
+              <p>Connect SafePal, Trust Wallet, MetaMask, OKX and more.</p>
+              <button onClick={connectWC}>Connect WalletConnect</button>
             </div>
 
             <div className="ex-add-wallet-card">
               <h3>Create New Wallet</h3>
               <p>Create a local Web3 wallet. Save the recovery phrase safely.</p>
-              <button onClick={createLocalWallet}>Create Wallet</button>
+              <button onClick={createWallet}>Create Wallet</button>
             </div>
 
             <div className="ex-add-wallet-card">
@@ -1086,7 +925,7 @@ function Web3Wallet({ setPage }) {
             <h3>Recovery Phrase</h3>
             <p>Save these 12 words safely. Anyone with this phrase can access the wallet.</p>
             <div className="ex-seed-box">{showPhrase}</div>
-            <button onClick={() => navigator.clipboard.writeText(showPhrase)}>Copy Phrase</button>
+            <button onClick={() => copyToClipboard(showPhrase)}>Copy Phrase</button>
           </div>
         )}
 
