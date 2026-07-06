@@ -1,30 +1,30 @@
 .ex-web3-page {
   min-height: 100vh;
-  background: #07101f;
+  background: #050b16;
+  color: #fff;
   display: flex;
   justify-content: center;
-  color: #fff;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .ex-web3-phone {
   width: 100%;
   max-width: 430px;
   min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
   padding: 16px 14px 92px;
   background:
-    radial-gradient(circle at 20% 10%, rgba(37, 99, 235, 0.28), transparent 35%),
-    linear-gradient(180deg, #111b35 0%, #07101f 100%);
-  position: relative;
+    radial-gradient(circle at 15% 4%, rgba(248, 196, 0, 0.18), transparent 30%),
+    radial-gradient(circle at 90% 8%, rgba(37, 99, 235, 0.22), transparent 34%),
+    linear-gradient(180deg, #111b35 0%, #07101f 48%, #050b16 100%);
 }
 
 .ex-web3-topbar,
 .ex-main-tabs,
 .ex-wallet-head,
 .ex-action-row,
-.ex-mini-cards,
 .ex-asset-tabs,
-.ex-chain-tabs,
 .ex-bottom-nav {
   display: flex;
   align-items: center;
@@ -33,6 +33,7 @@
 .ex-web3-topbar {
   justify-content: space-between;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .ex-icon-btn {
@@ -40,93 +41,117 @@
   height: 38px;
   border: 0;
   border-radius: 14px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ex-icon-btn:active,
+.ex-action-row button:active,
+.ex-bottom-nav button:active {
+  transform: scale(0.96);
 }
 
 .ex-main-tabs {
   flex: 1;
-  background: rgba(255,255,255,0.07);
+  background: rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   padding: 4px;
+  gap: 4px;
 }
 
 .ex-main-tabs button {
   flex: 1;
   border: 0;
   border-radius: 13px;
-  padding: 10px;
+  padding: 10px 8px;
   background: transparent;
   color: #aeb7d8;
-  font-weight: 800;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .ex-main-tabs .active {
-  background: #293b75;
+  background: linear-gradient(135deg, #27386f, #32498c);
   color: #fff;
 }
 
 .ex-search {
-  margin: 14px 0;
+  margin: 12px 0 14px;
   height: 44px;
   padding: 0 14px;
   border-radius: 14px;
-  background: rgba(255,255,255,0.07);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #7f8bb5;
+  color: #9ca9d6;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .ex-search button {
   border: 0;
   background: transparent;
-  color: #9fb0ff;
-  font-size: 22px;
+  color: #ffc233;
+  font-size: 21px;
+  cursor: pointer;
 }
 
 .ex-welcome-card {
-  margin-top: 22px;
+  margin-top: 20px;
   padding: 28px 18px;
   text-align: center;
-  border-radius: 26px;
-  background: linear-gradient(145deg, rgba(31, 47, 92, .95), rgba(10, 18, 37, .95));
-  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(31, 47, 92, 0.96), rgba(10, 18, 37, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
 }
 
 .ex-welcome-card img {
-  width: 74px;
-  height: 74px;
-  border-radius: 18px;
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 0 28px rgba(248, 196, 0, 0.25);
 }
 
 .ex-welcome-card p {
   color: #aeb7d8;
+  margin: 12px 0 8px;
 }
 
 .ex-welcome-card h1 {
   font-size: 28px;
   line-height: 1.15;
+  margin: 0 0 18px;
 }
 
 .ex-welcome-card h1 span {
-  color: #f5b301;
+  color: #f8c400;
 }
 
 .ex-welcome-card button,
 .ex-receive-btn,
-.ex-modal-panel button {
+.ex-modal-panel button,
+.ex-add-wallet-main,
+.ex-add-wallet-card button {
   border: 0;
   border-radius: 14px;
   padding: 12px 16px;
   background: linear-gradient(135deg, #f8c400, #ff9f1a);
   color: #1a1200;
-  font-weight: 900;
+  font-weight: 950;
+  cursor: pointer;
 }
 
 .ex-wallet-head {
   justify-content: space-between;
+  gap: 14px;
   margin-top: 8px;
 }
 
@@ -136,42 +161,67 @@
   gap: 8px;
 }
 
-.ex-wallet-name select {
-  background: transparent;
-  color: #fff;
-  border: 0;
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.ex-wallet-name option {
-  color: #111;
+.ex-wallet-name span {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .ex-wallet-name button {
   border: 0;
-  border-radius: 10px;
-  background: rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.09);
   color: #fff;
-  padding: 6px 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ex-wallet-select-btn {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ex-address-btn {
-  margin-top: 6px;
+  margin-top: 7px;
   border: 0;
   background: transparent;
   color: #9aa8d8;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ex-receive-btn {
+  min-width: 92px;
+  box-shadow: 0 8px 26px rgba(248, 196, 0, 0.2);
+}
+
+.ex-balance-card {
+  margin: 18px 0 10px;
+  padding: 22px 18px;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(248, 196, 0, 0.16), transparent 35%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .ex-balance-card h1 {
-  font-size: 46px;
-  margin: 8px 0 0;
-  letter-spacing: -1px;
+  font-size: 44px;
+  letter-spacing: -1.2px;
+  margin: 0;
 }
 
 .ex-balance-card p {
-  margin-top: 0;
+  margin: 6px 0 0;
   color: #33d18f;
+  font-weight: 850;
 }
 
 .ex-action-row {
@@ -185,10 +235,11 @@
   min-height: 72px;
   border: 0;
   border-radius: 18px;
-  background: rgba(255,255,255,0.07);
+  background: rgba(255, 255, 255, 0.07);
   color: #e9edff;
-  font-weight: 800;
+  font-weight: 900;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .ex-action-row span {
@@ -196,14 +247,16 @@
   font-size: 24px;
   margin-bottom: 7px;
 }
-
 .ex-promo-card {
   padding: 18px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(95, 65, 180, .5), rgba(26, 40, 82, .85));
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(95, 65, 180, 0.48), rgba(26, 40, 82, 0.88));
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  margin-bottom: 10px;
 }
 
 .ex-promo-card h3 {
@@ -214,87 +267,82 @@
 .ex-promo-card p {
   color: #c5cbed;
   font-size: 13px;
+  line-height: 1.45;
 }
 
 .ex-promo-card span {
   color: #ffc233;
-  font-weight: 900;
+  font-weight: 950;
+  cursor: pointer;
 }
 
 .ex-promo-card img {
   width: 68px;
   height: 68px;
   border-radius: 50%;
-}
-
-.ex-mini-cards {
-  gap: 12px;
-  margin: 14px 0;
-}
-
-.ex-mini-cards div {
-  flex: 1;
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.06);
-}
-
-.ex-mini-cards h3 {
-  margin: 0 0 10px;
-  color: #d8ddff;
-}
-
-.ex-mini-cards strong {
-  font-size: 22px;
-}
-
-.ex-mini-cards p {
-  margin: 4px 0 0;
-  color: #33d18f;
-  font-size: 12px;
+  object-fit: cover;
+  box-shadow: 0 0 24px rgba(248, 196, 0, 0.25);
 }
 
 .ex-asset-tabs {
   gap: 16px;
   overflow-x: auto;
   margin-top: 8px;
+  padding-bottom: 2px;
 }
 
-.ex-asset-tabs button,
-.ex-chain-tabs button {
+.ex-asset-tabs::-webkit-scrollbar,
+.ex-wallets-screen::-webkit-scrollbar,
+.ex-modal-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.ex-asset-tabs button {
   border: 0;
   background: transparent;
   color: #8f9bc4;
-  font-weight: 900;
+  font-weight: 950;
   white-space: nowrap;
   padding: 10px 0;
+  cursor: pointer;
 }
 
 .ex-asset-tabs .active {
   color: #fff;
   font-size: 18px;
-}
-
-.ex-chain-tabs {
-  gap: 14px;
-  overflow-x: auto;
+  border-bottom: 2px solid #ffc233;
 }
 
 .ex-web3-search-input,
 .ex-modal-panel input,
-.ex-modal-panel select {
+.ex-modal-panel select,
+.ex-add-wallet-card textarea,
+.ex-support-textarea {
   width: 100%;
   margin: 8px 0 12px;
   padding: 13px 14px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.06);
   color: #fff;
   outline: none;
+  font-weight: 800;
+}
+
+.ex-web3-search-input::placeholder,
+.ex-modal-panel input::placeholder,
+.ex-add-wallet-card textarea::placeholder,
+.ex-support-textarea::placeholder {
+  color: #7f8bb5;
+}
+
+.ex-modal-panel select option {
+  color: #111;
 }
 
 .ex-coin-list {
   margin-top: 6px;
+  padding-bottom: 10px;
 }
 
 .ex-coin-item {
@@ -303,23 +351,29 @@
   align-items: center;
   gap: 12px;
   padding: 13px 0;
-  border-bottom: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .ex-coin-item img {
   width: 38px;
   height: 38px;
   border-radius: 50%;
+  object-fit: cover;
 }
 
 .ex-coin-item strong {
   display: block;
+  font-size: 14px;
 }
 
 .ex-coin-item p {
-  margin: 3px 0 0;
+  margin: 4px 0 0;
   color: #8e9ac0;
   font-size: 12px;
+}
+
+.ex-coin-item > div:last-child {
+  text-align: right;
 }
 
 .ex-modal-panel {
@@ -331,11 +385,24 @@
   max-height: 72vh;
   overflow-y: auto;
   padding: 20px;
-  border-radius: 24px 24px 18px 18px;
-  background: #101b35;
-  border: 1px solid rgba(255,255,255,.1);
-  box-shadow: 0 -20px 60px rgba(0,0,0,.55);
-  z-index: 30;
+  border-radius: 26px 26px 18px 18px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(248, 196, 0, 0.12), transparent 28%),
+    #101b35;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -22px 70px rgba(0, 0, 0, 0.58);
+  z-index: 60;
+}
+
+.ex-modal-panel h3 {
+  color: #ffc233;
+  margin: 0 0 12px;
+}
+
+.ex-modal-panel p {
+  word-break: break-all;
+  color: #c8d0ef;
+  line-height: 1.5;
 }
 
 .ex-close {
@@ -344,35 +411,67 @@
   height: 34px;
   padding: 0 !important;
   border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+.ex-network-warning {
+  color: #ffc233 !important;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .ex-qr {
-  background: white;
+  background: #fff;
   padding: 16px;
   border-radius: 18px;
   width: fit-content;
   margin: 16px auto;
-}
-
-.ex-modal-panel p {
-  word-break: break-all;
-  color: #c8d0ef;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.24);
 }
 
 .ex-history-item {
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255,255,255,.06);
+  padding: 13px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.065);
   margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .ex-history-item span {
   display: block;
   color: #f8c400;
+  margin-top: 4px;
+  font-weight: 900;
 }
 
 .ex-history-item a {
   color: #8fb7ff;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.ex-menu-panel button {
+  width: 100%;
+  margin: 7px 0;
+}
+
+.ex-support-textarea {
+  min-height: 118px;
+  resize: vertical;
+}
+
+.ex-scanner-box {
+  padding: 16px;
+  text-align: center;
+}
+
+.ex-scanner-video {
+  width: 100%;
+  min-height: 320px;
+  background: #000;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .ex-web3-toast {
@@ -383,187 +482,22 @@
   width: min(92vw, 410px);
   padding: 12px 14px;
   border-radius: 14px;
-  background: rgba(21, 31, 61, .96);
+  background: rgba(21, 31, 61, 0.98);
   color: #fff;
-  border: 1px solid rgba(255,255,255,.12);
-  z-index: 40;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  z-index: 120;
+  font-weight: 850;
 }
-
-.ex-bottom-nav {
-  position: fixed;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: min(100vw, 430px);
-  height: 74px;
-  padding: 8px 8px 12px;
-  background: rgba(7, 13, 28, .96);
-  backdrop-filter: blur(14px);
-  justify-content: space-between;
-  z-index: 35;
-}
-
-.ex-bottom-nav button {
-  flex: 1;
-  border: 0;
-  background: transparent;
-  color: #8d99be;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.ex-bottom-nav span {
-  display: block;
-  font-size: 22px;
-  margin-bottom: 3px;
-}
-
-.ex-bottom-nav .active {
-  color: #ffc233;
-}
-
-@media (min-width: 700px) {
-  .ex-web3-page {
-    padding: 20px;
-  }
-
-  .ex-web3-phone {
-    border-radius: 28px;
-    min-height: 820px;
-    box-shadow: 0 30px 90px rgba(0,0,0,.45);
-  }
-}
-.ex-welcome-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 999;
-  background:
-    radial-gradient(circle at 50% 20%, rgba(248, 196, 0, 0.18), transparent 35%),
-    linear-gradient(180deg, #07101f 0%, #111b35 100%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  text-align: center;
-  border-radius: inherit;
-  animation: exWelcomeFade 2.2s ease forwards;
-}
-
-.ex-welcome-overlay .welcome-logo {
-  width: 88px;
-  height: 88px;
-  border-radius: 24px;
-  margin-bottom: 18px;
-  box-shadow: 0 0 35px rgba(248, 196, 0, 0.35);
-}
-
-.ex-welcome-overlay h3 {
-  margin: 0;
-  color: #aeb7d8;
-  font-size: 16px;
-}
-
-.ex-welcome-overlay h1 {
-  margin: 8px 0;
-  color: #f8c400;
-  font-size: 28px;
-  font-weight: 900;
-}
-
-.ex-welcome-overlay p {
-  color: #cbd5ff;
-  font-size: 13px;
-}
-
-@keyframes exWelcomeFade {
-  0% { opacity: 1; }
-  78% { opacity: 1; }
-  100% { opacity: 0; visibility: hidden; pointer-events: none; }
-}.ex-active-wallet-name {
-  margin: 4px 0 0;
-  color: #8f9bc4;
-  font-size: 12px;
-}
-
-.ex-wallet-manage {
-  margin: 14px 0;
-  display: grid;
-  gap: 10px;
-}
-
-.ex-wallet-manage-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 8px;
-  align-items: center;
-  padding: 10px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.06);
-}
-
-.ex-wallet-manage-row small {
-  grid-column: 1 / -1;
-  color: #8f9bc4;
-}
-
-.ex-wallet-manage-row button {
-  border: 0;
-  border-radius: 10px;
-  padding: 7px 9px;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  font-weight: 800;
-}
-.ex-wallet-seed-box {
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255, 193, 7, 0.12);
-  border: 1px solid rgba(255, 193, 7, 0.35);
-  margin: 12px 0;
-}
-
-.ex-wallet-seed-box strong {
-  color: #ffc233;
-}
-
-.ex-wallet-seed-box p {
-  color: #ffc233;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.ex-wallet-manage-row {
-  grid-template-columns: 1fr auto auto auto;
-}
-
-.ex-wallet-manage-row strong {
-  color: #fff;
-  font-size: 13px;
-}
-
-.ex-modal-panel h3 {
-  color: #ffc233;
-  margin-top: 0;
-}
-.ex-wallet-select-btn {
-  border: 0;
-  background: rgba(255,255,255,.08);
-  color: #fff;
-  border-radius: 12px;
-  padding: 8px 10px;
-  font-weight: 900;
-}
-
 .ex-wallets-screen {
   position: fixed;
   inset: 0;
-  z-index: 80;
   width: min(100vw, 430px);
   margin: 0 auto;
-  background: #07101f;
-  color: #fff;
-  padding: 16px 14px 92px;
+  background:
+    radial-gradient(circle at top, rgba(248,196,0,.10), transparent 28%),
+    #07101f;
+  z-index: 80;
+  padding: 18px;
   overflow-y: auto;
 }
 
@@ -577,10 +511,11 @@
 .ex-wallets-top button {
   border: 0;
   border-radius: 12px;
+  padding: 9px 12px;
   background: rgba(255,255,255,.08);
   color: #fff;
-  padding: 9px 12px;
   font-weight: 900;
+  cursor: pointer;
 }
 
 .ex-wallets-top h3 {
@@ -589,9 +524,12 @@
 }
 
 .ex-wallets-portfolio {
-  padding: 18px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(248,196,0,.16), rgba(37,99,235,.18));
+  padding: 20px;
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg,
+      rgba(248,196,0,.16),
+      rgba(37,99,235,.18));
   border: 1px solid rgba(255,255,255,.08);
   margin-bottom: 18px;
 }
@@ -602,7 +540,8 @@
 
 .ex-wallets-portfolio h1 {
   margin: 8px 0 0;
-  font-size: 34px;
+  font-size: 36px;
+  font-weight: 900;
 }
 
 .ex-wallet-list-row {
@@ -611,217 +550,184 @@
   gap: 8px;
   align-items: center;
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 18px;
   background: rgba(255,255,255,.06);
-  margin-bottom: 10px;
   border: 1px solid transparent;
+  margin-bottom: 12px;
 }
 
 .ex-wallet-list-row.active {
-  border-color: #f8c400;
+  border-color: #ffc233;
+  box-shadow: 0 0 18px rgba(248,196,0,.15);
 }
 
 .ex-wallet-list-row strong {
   display: block;
+  font-size: 14px;
 }
 
 .ex-wallet-list-row p,
 .ex-wallet-list-row small {
-  margin: 3px 0 0;
+  margin: 4px 0 0;
   color: #8f9bc4;
+  font-size: 12px;
 }
 
-.ex-wallet-list-row button,
-.ex-add-wallet-main,
-.ex-add-wallet-card button {
+.ex-wallet-list-row button {
   border: 0;
-  border-radius: 12px;
-  padding: 9px 11px;
-  background: linear-gradient(135deg, #f8c400, #ff9f1a);
-  color: #1a1200;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.10);
+  color: #fff;
+  cursor: pointer;
   font-weight: 900;
+}
+
+.ex-wallet-list-row button:hover {
+  background: #ffc233;
+  color: #111;
 }
 
 .ex-add-wallet-main {
   width: 100%;
   margin-top: 14px;
-  padding: 14px;
 }
 
 .ex-add-wallet-card {
-  padding: 16px;
-  border-radius: 18px;
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.08);
-  margin-bottom: 12px;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 14px;
 }
 
 .ex-add-wallet-card h3 {
-  color: #ffc233;
   margin: 0 0 8px;
+  color: #ffc233;
 }
 
 .ex-add-wallet-card p {
   color: #aeb7d8;
-}
-
-.ex-add-wallet-card textarea {
-  width: 100%;
-  min-height: 86px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.06);
-  color: #fff;
-  padding: 12px;
-  outline: none;
-  margin-bottom: 10px;
+  line-height: 1.5;
 }
 
 .ex-seed-warning {
-  z-index: 100;
+  z-index: 120;
 }
 
 .ex-seed-box {
   background: rgba(255,193,7,.12);
   border: 1px solid rgba(255,193,7,.35);
   color: #ffc233;
-  padding: 14px;
-  border-radius: 14px;
-  line-height: 1.6;
-  margin: 12px 0;
-  word-break: break-word;
-}
-
-.ex-menu-panel button {
-  width: 100%;
-  margin: 7px 0;
-}
-.ex-network-warning {
-  color: #ffc233 !important;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.ex-token-contract {
-  display: block;
-  color: #8f9bc4;
-  word-break: break-all;
-  margin: 8px 0 12px;
-}
-
-.ex-support-textarea {
-  width: 100%;
-  min-height: 110px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.06);
-  color: #fff;
-  padding: 12px;
-  outline: none;
-  margin: 10px 0 14px;
-}
-.ex-wallet-select-btn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-weight: 900;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 14px 0;
   font-size: 15px;
-}
-
-.ex-network-warning {
-  color: #ffc233 !important;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.ex-support-textarea,
-.ex-add-wallet-card textarea {
-  width: 100%;
-  min-height: 110px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.06);
-  color: #fff;
-  padding: 12px;
-  outline: none;
-  margin: 10px 0 14px;
-}
-
-.ex-scanner-box {
-  padding: 16px;
-  text-align: center;
-}
-
-.ex-scanner-video {
-  width: 100%;
-  min-height: 320px;
-  background: #000;
-  border-radius: 18px;
-}
-
-.ex-seed-box {
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 16px;
-  padding: 14px;
-  color: #ffc233;
+  line-height: 1.8;
+  word-break: break-word;
   font-weight: 900;
-  line-height: 1.7;
-  word-spacing: 8px;
 }
 
-.ex-add-wallet-card {
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 18px;
-  padding: 16px;
-  margin-bottom: 12px;
-}
-
-.ex-wallets-screen {
-  position: fixed;
+.ex-welcome-overlay {
+  position: absolute;
   inset: 0;
-  width: min(100vw, 430px);
-  margin: 0 auto;
-  background: #07101f;
-  z-index: 60;
-  padding: 18px;
-  overflow-y: auto;
-}
-
-.ex-wallets-top {
+  z-index: 999;
+  background:
+    radial-gradient(circle at 50% 20%,
+      rgba(248,196,0,.18),
+      transparent 35%),
+    linear-gradient(180deg,#07101f 0%,#111b35 100%);
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
+  color: #fff;
+  text-align: center;
+  animation: exWelcomeFade 2s ease forwards;
 }
 
-.ex-wallets-top button,
-.ex-add-wallet-main,
-.ex-wallet-list-row button {
-  border: none;
-  border-radius: 12px;
-  padding: 9px 12px;
-  background: #f8c400;
-  color: #111;
+.welcome-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 0 34px rgba(248,196,0,.35);
+}
+
+.ex-welcome-overlay h1 {
+  color: #ffc233;
+  margin: 10px 0;
+  font-size: 30px;
   font-weight: 900;
 }
 
-.ex-wallets-portfolio h1 {
-  font-size: 38px;
-  margin: 8px 0;
+.ex-welcome-overlay h3 {
+  color: #c7d2ff;
+  margin: 0;
 }
 
-.ex-wallet-list-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto;
-  gap: 8px;
-  align-items: center;
-  background: rgba(255,255,255,.06);
-  border-radius: 16px;
-  padding: 12px;
-  margin-bottom: 10px;
+.ex-welcome-overlay p {
+  color: #9fb0df;
+  font-size: 13px;
 }
 
-.ex-wallet-list-row.active {
-  border: 1px solid #f8c400;
+@keyframes exWelcomeFade {
+  0% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+.ex-bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100vw, 430px);
+  height: 76px;
+  padding: 8px 8px 12px;
+  backdrop-filter: blur(14px);
+  background: rgba(7,13,28,.96);
+  justify-content: space-between;
+  z-index: 90;
+}
+
+.ex-bottom-nav button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #8d99be;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ex-bottom-nav span {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.ex-bottom-nav .active {
+  color: #ffc233;
+}
+
+@media (min-width:700px) {
+  .ex-web3-page {
+    padding: 20px;
+  }
+
+  .ex-web3-phone {
+    border-radius: 28px;
+    box-shadow: 0 30px 90px rgba(0,0,0,.45);
+  }
 }
