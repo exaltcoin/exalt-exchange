@@ -696,3 +696,27 @@
   width: 100%;
   margin: 7px 0;
 }
+.ex-network-warning {
+  color: #ffc233 !important;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ex-token-contract {
+  display: block;
+  color: #8f9bc4;
+  word-break: break-all;
+  margin: 8px 0 12px;
+}
+
+.ex-support-textarea {
+  width: 100%;
+  min-height: 110px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  padding: 12px;
+  outline: none;
+  margin: 10px 0 14px;
+}
