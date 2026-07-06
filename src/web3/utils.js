@@ -1,40 +1,47 @@
 import { ethers } from "ethers";
 
-export function shortAddress(address = "") {
+export function shortAddress(address = "", start = 6, end = 4) {
   if (!address) return "";
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `${address.slice(0, start)}...${address.slice(-end)}`;
 }
 
 export function isValidAddress(address = "") {
   try {
-    return ethers.isAddress(address);
+    return ethers.isAddress(String(address || "").trim());
   } catch {
     return false;
   }
 }
 
-export function copyToClipboard(text) {
+export function isValidPrivateKey(value = "") {
+  return /^0x[a-fA-F0-9]{64}$/.test(String(value || "").trim());
+}
+
+export function isValidRecoveryPhrase(value = "") {
+  const words = String(value || "").trim().split(/\s+/);
+  return words.length === 12 || words.length === 24;
+}
+
+export async function copyToClipboard(text) {
   if (!text) return false;
 
-  navigator.clipboard.writeText(text);
-  return true;
+  try {
+    await navigator.clipboard.writeText(String(text));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function formatBalance(value = 0, decimals = 4) {
   const number = Number(value || 0);
 
   if (number === 0) return "0.0000";
-
-  if (number < 0.000001) {
-    return number.toFixed(10);
-  }
-
-  if (number < 0.01) {
-    return number.toFixed(8);
-  }
+  if (number < 0.000001) return number.toFixed(10);
+  if (number < 0.01) return number.toFixed(8);
 
   return number.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
   });
 }
@@ -65,45 +72,35 @@ export function sleep(ms = 500) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function randomId() {
-  return (
-    Date.now().toString(36) +
-    Math.random().toString(36).substring(2, 10)
-  );
+export function randomId(prefix = "exalt") {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random()
+    .toString(36)
+    .substring(2, 10)}`;
 }
 
 export function truncateText(text = "", length = 20) {
-  if (!text) return "";
-
-  if (text.length <= length) {
-    return text;
-  }
-
-  return `${text.substring(0, length)}...`;
+  const value = String(text || "");
+  if (value.length <= length) return value;
+  return `${value.substring(0, length)}...`;
 }
 
 export function openExplorerTx(hash) {
   if (!hash) return;
-  window.open(explorerTx(hash), "_blank");
+  window.open(explorerTx(hash), "_blank", "noopener,noreferrer");
 }
 
 export function openExplorerAddress(address) {
   if (!address) return;
-  window.open(explorerAddress(address), "_blank");
+  window.open(explorerAddress(address), "_blank", "noopener,noreferrer");
 }
 
 export function calculatePortfolio(tokens = [], balances = {}, prices = {}) {
-  let total = 0;
-
-  tokens.forEach((token) => {
+  return tokens.reduce((total, token) => {
     const symbol = token.symbol;
     const balance = Number(balances[symbol] || 0);
     const price = Number(prices[symbol] || token.fallbackPrice || 0);
-
-    total += balance * price;
-  });
-
-  return total;
+    return total + balance * price;
+  }, 0);
 }
 
 export function sortTokensByValue(tokens = [], balances = {}, prices = {}) {
@@ -121,14 +118,14 @@ export function sortTokensByValue(tokens = [], balances = {}, prices = {}) {
 }
 
 export function searchTokens(tokens = [], keyword = "") {
-  if (!keyword) return tokens;
-
-  const q = keyword.toLowerCase();
+  const q = String(keyword || "").toLowerCase();
+  if (!q) return tokens;
 
   return tokens.filter((token) => {
     return (
-      token.symbol.toLowerCase().includes(q) ||
-      token.name.toLowerCase().includes(q)
+      String(token.symbol || "").toLowerCase().includes(q) ||
+      String(token.name || "").toLowerCase().includes(q) ||
+      String(token.address || "").toLowerCase().includes(q)
     );
   });
 }

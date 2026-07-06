@@ -1,4 +1,6 @@
-export const APP_NAME = "Exalt Exchange Web3";
+export const APP_NAME = "Exalt Wallet";
+
+export const WALLET_VERSION = "EXALT_WALLET_V1";
 
 export const BSC_CHAIN = {
   key: "bsc",
@@ -16,6 +18,8 @@ export const STORAGE_KEYS = {
   TX_HISTORY: "exalt_tx_history",
   CUSTOM_TOKENS: "exalt_custom_tokens",
   SETTINGS: "exalt_web3_settings",
+  SECURITY: "exalt_wallet_security",
+  BACKUP_STATUS: "exalt_wallet_backup_status",
 };
 
 export const DEFAULT_NETWORK = BSC_CHAIN;
@@ -43,6 +47,7 @@ export const DEFAULT_TOKENS = [
     symbol: "BNB",
     name: "BNB",
     chain: "bsc",
+    network: "BEP20",
     decimals: 18,
     native: true,
     address: WBNB_ADDRESS,
@@ -53,6 +58,7 @@ export const DEFAULT_TOKENS = [
     symbol: "USDT",
     name: "Tether USD",
     chain: "bsc",
+    network: "BEP20",
     decimals: 18,
     native: false,
     address: USDT_ADDRESS,
@@ -60,9 +66,22 @@ export const DEFAULT_TOKENS = [
     logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png",
   },
   {
+    symbol: "EXALT",
+    name: "Exalt Coin",
+    chain: "bsc",
+    network: "BEP20",
+    decimals: 18,
+    native: false,
+    address: EXALT_ADDRESS,
+    fallbackPrice: 0,
+    logoType: "local-exalt",
+    logo: "/exalt.png",
+  },
+  {
     symbol: "BTCB",
     name: "Bitcoin BEP20",
     chain: "bsc",
+    network: "BEP20",
     decimals: 18,
     native: false,
     address: BTCB_ADDRESS,
@@ -73,26 +92,16 @@ export const DEFAULT_TOKENS = [
     symbol: "ETH",
     name: "Ethereum BEP20",
     chain: "bsc",
+    network: "BEP20",
     decimals: 18,
     native: false,
     address: ETH_BEP20_ADDRESS,
     fallbackPrice: 2400,
     logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
   },
-  {
-    symbol: "EXALT",
-    name: "Exalt Coin",
-    chain: "bsc",
-    decimals: 18,
-    native: false,
-    address: EXALT_ADDRESS,
-    fallbackPrice: 0,
-    logoType: "local-exalt",
-    logo: "/exalt.png",
-  },
 ];
 
-export const WALLET_TYPES = ["Keyless", "Imported", "External", "WalletConnect"];
+export const WALLET_TYPES = ["Exalt Wallet", "Imported Exalt Wallet"];
 
 export const EXPLORER = {
   tx: (hash) => `${BSC_CHAIN.explorer}/tx/${hash}`,
@@ -104,14 +113,17 @@ export const SUPPORT_LINK = "/support";
 export const EXCHANGE_LINK = "/trade";
 
 export const FEATURES = {
+  exaltWalletOnly: true,
   multiWallet: true,
-  walletConnect: true,
+  walletConnect: false,
+  externalWallet: false,
   qrScanner: true,
   receive: true,
   send: true,
   swap: true,
   history: true,
-  browser: true,
+  browser: false,
+  backupPhrase: true,
 };
 
 export const TOKEN_ABI = [
@@ -130,6 +142,7 @@ export const ROUTER_ABI = [
 
 export default {
   APP_NAME,
+  WALLET_VERSION,
   BSC_CHAIN,
   STORAGE_KEYS,
   DEFAULT_NETWORK,
