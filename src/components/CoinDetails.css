@@ -322,7 +322,7 @@
 }
 .coin-live-chart {
   width: 100%;
-  height: 320px;
+  height: 420px;
   border: none;
   border-radius: 16px;
   background: #111827;
@@ -360,4 +360,15 @@
 .coin-chart-placeholder p {
   font-size: 14px;
   color: #9ca3af;
+}
+.coin-live-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:20px;
+  background:rgba(34,197,94,.15);
+  color:#22c55e;
+  font-size:13px;
+  font-weight:700;
 }

@@ -154,7 +154,9 @@ const getDexChartUrl = () => {
         <div className="coin-chart-card">
           <div className="coin-section-head">
             <h3>Price Chart</h3>
-            <span>Coming Live</span>
+<span className="coin-live-badge">
+  🟢 Live
+</span>
           </div>
 
       {getDexChartUrl() ? (
