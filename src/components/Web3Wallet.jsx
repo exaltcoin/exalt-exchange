@@ -124,7 +124,7 @@ const [selectedCoinDetails, setSelectedCoinDetails] = useState(null);
   const [swapAmount, setSwapAmount] = useState("");
 
   const [txHistory, setTxHistory] = useState([]);
-
+const [lastReceipt, setLastReceipt] = useState(null);
   const [importValue, setImportValue] = useState("");
   const [supportMsg, setSupportMsg] = useState("");
 
