@@ -1400,3 +1400,102 @@
 .ex-close {
   z-index: 5;
 }
+/* ===========================
+   Transaction History
+=========================== */
+
+.ex-history-item {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.ex-history-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ex-history-top strong {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ex-history-item span {
+  display: block;
+  color: #ffb347;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.ex-history-item p {
+  color: rgba(255,255,255,.65);
+  font-size: 12px;
+  margin: 0;
+}
+
+.ex-status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ex-status.success {
+  background: rgba(46,204,113,.18);
+  color: #2ecc71;
+}
+
+.ex-status.pending {
+  background: rgba(255,193,7,.18);
+  color: #ffc107;
+}
+
+.ex-status.failed {
+  background: rgba(231,76,60,.18);
+  color: #e74c3c;
+}
+
+.ex-history-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.ex-history-actions button,
+.ex-history-actions a {
+  flex: 1;
+  text-align: center;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ex-history-actions button {
+  background: #ff9800;
+  color: #fff;
+}
+
+.ex-history-actions button:hover {
+  background: #f57c00;
+}
+
+.ex-history-actions a {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+}
+
+.ex-history-actions a:hover {
+  background: rgba(255,255,255,.15);
+}

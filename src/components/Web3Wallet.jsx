@@ -1281,32 +1281,46 @@ onBack={() => {
           </div>
         )}
 
-        {bottomTab === "market" && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
-            <h3>Transaction History</h3>
+       {bottomTab === "market" && (
+  <div className="ex-modal-panel">
+    <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+    <h3>Transaction History</h3>
 
-            {txHistory.length === 0 ? (
-              <p>No transactions yet.</p>
-            ) : (
-              txHistory.map((tx, i) => (
-                <div className="ex-history-item" key={`${tx.hash || tx.id || i}`}>
-                  <strong>{tx.type} {tx.coin}</strong>
-                  <span>{tx.amount}</span>
-                 {tx.hash && (
-  <a
-    href={`${getChain(tx.chainKey || activeChain).explorer}/tx/${tx.hash}`}
-    target="_blank"
-    rel="noreferrer"
-  >
-    Explorer
-  </a>
-)}
-                </div>
-              ))
-            )}
+    {txHistory.length === 0 ? (
+      <p>No transactions yet.</p>
+    ) : (
+      txHistory.map((tx, i) => (
+        <div className="ex-history-item" key={`${tx.hash || tx.id || i}`}>
+          <div className="ex-history-top">
+            <strong>{tx.type} {tx.coin}</strong>
+            <small className={`ex-status ${tx.status || "success"}`}>
+              {tx.status || "success"}
+            </small>
           </div>
-        )}
+
+          <span>{tx.amount} {tx.coin}</span>
+
+          <p>{tx.createdAt ? new Date(tx.createdAt).toLocaleString() : ""}</p>
+
+          {tx.hash && (
+            <div className="ex-history-actions">
+              <button onClick={() => copyToClipboard(tx.hash)}>Copy Hash</button>
+
+              <a
+                href={`${getChain(tx.chainKey || activeChain).explorer}/tx/${tx.hash}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Explorer
+              </a>
+            </div>
+          )}
+        </div>
+      ))
+    )}
+  </div>
+)}
+              
 
         {showMenu && (
           <div className="ex-modal-panel ex-menu-panel">
