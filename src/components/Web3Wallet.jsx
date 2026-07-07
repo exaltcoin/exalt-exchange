@@ -788,7 +788,11 @@ onBack={() => {
         </div>
 
         <div className="ex-search">
-          <span>{chain.name} • Exalt Multi-Chain Wallet</span>
+         <span>
+  <b>{chain.name}</b>
+  <small className="ex-network-badge">{chain.network}</small>
+  <em>Exalt Multi-Chain Wallet</em>
+</span>
           <button onClick={() => setShowImportToken(true)}>＋</button>
         </div>
 
@@ -829,10 +833,11 @@ onBack={() => {
                   </button>
                   <button onClick={() => setShowAddWallet(true)}>＋</button>
                 </div>
-
-                <button className="ex-address-btn" onClick={copyAddress}>
-                  {shortAddress(wallet)} 📋
-                </button>
+<button className="ex-address-btn" onClick={copyAddress}>
+  <span>{shortAddress(wallet)}</span>
+  <span className="copy-icon">📋</span>
+</button>
+               
               </div>
 
               <button className="ex-receive-btn" onClick={() => setBottomTab("assets")}>
@@ -841,7 +846,22 @@ onBack={() => {
             </div>
 
             <div className="ex-balance-card">
-              <h1>{formatUsd(totalAssets)}</h1>
+             <div className="ex-balance-row">
+  <h1>
+    {hideBalance ? "••••••••" : formatUsd(totalAssets)}
+  </h1>
+
+  <button
+    className="ex-eye-btn"
+    onClick={() => {
+      const next = !hideBalance;
+      setHideBalance(next);
+      localStorage.setItem("exalt_hide_balance", next);
+    }}
+  >
+    {hideBalance ? "👁️" : "🙈"}
+  </button>
+</div>
               <p>{chain.name}</p>
             </div>
           </>
@@ -958,8 +978,10 @@ onBack={() => {
                 </div>
 
                 <div>
-                  <strong>{formatTokenAmount(balance)}</strong>
-                  <p>${formatTokenPrice(price)}</p>
+                 <strong>
+  {hideBalance ? "••••" : formatTokenAmount(balance)}
+</strong> 
+                 <p>{hideBalance ? "••••" : `$${formatTokenPrice(price)}`}</p>
                   {coin.custom && (
                     <button
                       className="ex-token-mini-btn"
@@ -1107,7 +1129,22 @@ onBack={() => {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
+<button
+  type="button"
+  className="ex-max-btn"
+  onClick={() => {
+    const key = getTokenBalanceKey(selectedSendToken);
+    const available =
+      balances[key] ??
+      balances[`${selectedSendToken.chainKey}:${selectedSendToken.symbol}`] ??
+      balances[selectedSendToken.symbol] ??
+      0;
 
+    setAmount(String(available));
+  }}
+>
+  Max
+</button>
             <button onClick={handleSend}>Send Now</button>
           </div>
         )}
