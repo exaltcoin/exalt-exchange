@@ -1,5 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./TradingViewChart.css";
+
+const TIMEFRAMES = [
+  ["1", "1m"],
+  ["5", "5m"],
+  ["15", "15m"],
+  ["60", "1H"],
+  ["240", "4H"],
+  ["D", "1D"],
+];
 
 function getTradingViewSymbol(token = {}) {
   const symbol = String(token.symbol || "BNB").toUpperCase();
@@ -14,12 +23,10 @@ function getTradingViewSymbol(token = {}) {
     ADA: "BINANCE:ADAUSDT",
     DOT: "BINANCE:DOTUSDT",
     LINK: "BINANCE:LINKUSDT",
-    MATIC: "BINANCE:MATICUSDT",
     AVAX: "BINANCE:AVAXUSDT",
     LTC: "BINANCE:LTCUSDT",
     BCH: "BINANCE:BCHUSDT",
     TRX: "BINANCE:TRXUSDT",
-    UNI: "BINANCE:UNIUSDT",
     AAVE: "BINANCE:AAVEUSDT",
     EXALT: "BINANCE:BNBUSDT",
   };
@@ -29,6 +36,7 @@ function getTradingViewSymbol(token = {}) {
 
 function TradingViewChart({ token }) {
   const containerRef = useRef(null);
+  const [interval, setIntervalValue] = useState("15");
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -48,20 +56,21 @@ function TradingViewChart({ token }) {
     script.innerHTML = JSON.stringify({
       autosize: true,
       symbol: getTradingViewSymbol(token),
-      interval: "15",
+      interval,
       timezone: "Etc/UTC",
       theme: "dark",
       style: "1",
       locale: "en",
       enable_publishing: false,
-      allow_symbol_change: true,
+      allow_symbol_change: false,
       calendar: false,
-      support_host: "https://www.tradingview.com",
-      studies: ["STD;Volume"],
       hide_side_toolbar: false,
-      withdateranges: true,
-      details: true,
+      hide_top_toolbar: true,
+      withdateranges: false,
+      details: false,
       hotlist: false,
+      studies: ["STD;Volume"],
+      support_host: "https://www.tradingview.com",
     });
 
     containerRef.current.appendChild(script);
@@ -69,11 +78,32 @@ function TradingViewChart({ token }) {
     return () => {
       if (containerRef.current) containerRef.current.innerHTML = "";
     };
-  }, [token?.symbol]);
+  }, [token?.symbol, interval]);
 
   return (
-    <div className="tv-chart-shell">
-      <div ref={containerRef} className="tradingview-widget-container" />
+    <div className="tv-pro-card">
+      <div className="tv-pro-top">
+        <div>
+          <strong>{token?.symbol || "BNB"}/USDT</strong>
+          <span>Professional TradingView Chart</span>
+        </div>
+
+        <div className="tv-timeframes">
+          {TIMEFRAMES.map(([value, label]) => (
+            <button
+              key={value}
+              className={interval === value ? "active" : ""}
+              onClick={() => setIntervalValue(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="tv-chart-shell">
+        <div ref={containerRef} className="tradingview-widget-container" />
+      </div>
     </div>
   );
 }
