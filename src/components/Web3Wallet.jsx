@@ -106,6 +106,7 @@ function Web3Wallet({ setPage }) {
 const [welcomeKey, setWelcomeKey] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showMore, setShowMore] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [showMyWallets, setShowMyWallets] = useState(false);
   const [showAddWallet, setShowAddWallet] = useState(false);
   const [showPhrase, setShowPhrase] = useState("");
@@ -1025,6 +1026,32 @@ onBack={() => {
             <button onClick={() => copyToClipboard(receiveAddress || wallet)}>
               Copy Address
             </button>
+            <button
+  onClick={() => {
+    const address = receiveAddress || wallet;
+
+    if (navigator.share) {
+      navigator.share({
+        title: "Exalt Wallet Address",
+        text: address,
+      });
+    } else {
+      copyToClipboard(address);
+      showToast("Address copied for sharing.");
+    }
+  }}
+>
+  Share Address
+</button>
+
+<button
+  onClick={() => {
+    const chainData = getChain(selectedReceiveToken?.chainKey || activeChain);
+    window.open(`${chainData.explorer}/address/${receiveAddress || wallet}`, "_blank");
+  }}
+>
+  Open Explorer
+</button>
           </div>
         )}
 
@@ -1136,6 +1163,7 @@ onBack={() => {
           <div className="ex-modal-panel ex-menu-panel">
             <button className="ex-close" onClick={() => setShowMore(false)}>×</button>
             <h3>More</h3>
+            <button onClick={() => setShowSettings(true)}>Wallet Settings</button>
             <button onClick={() => setShowMyWallets(true)}>My Exalt Wallets</button>
             <button onClick={() => setShowAddWallet(true)}>Create / Import Wallet</button>
             <button onClick={() => setShowImportToken(true)}>Import Custom Token</button>
@@ -1143,7 +1171,19 @@ onBack={() => {
             <button onClick={openSupport}>Support</button>
           </div>
         )}
+{showSettings && (
+  <div className="ex-modal-panel ex-menu-panel">
+    <button className="ex-close" onClick={() => setShowSettings(false)}>×</button>
+    <h3>Wallet Settings</h3>
 
+    <button onClick={() => setShowMyWallets(true)}>Manage Wallets</button>
+    <button onClick={() => setShowAddWallet(true)}>Create / Import Wallet</button>
+    <button onClick={() => setBottomTab("assets")}>Receive Address</button>
+    <button onClick={() => setBottomTab("market")}>Transaction History</button>
+    <button onClick={() => setShowImportToken(true)}>Import Custom Token</button>
+    <button onClick={copyAddress}>Copy Active Wallet</button>
+  </div>
+)}
         {showSupport && (
           <div className="ex-modal-panel">
             <button className="ex-close" onClick={() => setShowSupport(false)}>×</button>
@@ -1233,6 +1273,23 @@ onBack={() => {
               <h3>Create Exalt Wallet</h3>
               <p>Create your own secure Exalt Wallet with a 12-word recovery phrase.</p>
               <button onClick={createWallet}>Create Exalt Wallet</button>
+              <div className="ex-security-card">
+  <h3>🔐 Security Reminder</h3>
+
+  <ul>
+    <li>Never share your 12-word recovery phrase.</li>
+    <li>Exalt Exchange can never recover your wallet.</li>
+    <li>Store your backup offline.</li>
+    <li>Anyone with your phrase can access your funds.</li>
+  </ul>
+
+  <button
+    className="ex-security-btn"
+    onClick={() => setShowPhrase(true)}
+  >
+    View Recovery Phrase
+  </button>
+</div>
             </div>
 
             <div className="ex-add-wallet-card">
