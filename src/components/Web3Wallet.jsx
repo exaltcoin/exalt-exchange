@@ -126,7 +126,11 @@ const [selectedCoinDetails, setSelectedCoinDetails] = useState(null);
 
   const [txHistory, setTxHistory] = useState([]);
 const [lastReceipt, setLastReceipt] = useState(null);
+const [hideBalance, setHideBalance] = useState(
+  localStorage.getItem("exalt_hide_balance") === "true"
+);
   const [importValue, setImportValue] = useState("");
+
   const [supportMsg, setSupportMsg] = useState("");
 
   const [customTokenAddress, setCustomTokenAddress] = useState("");
