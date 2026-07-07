@@ -27,6 +27,7 @@ export function normalizeTx(tx = {}) {
     status: tx.status || "pending",
     wallet: String(tx.wallet || "").toLowerCase(),
     chain: tx.chain || "BSC",
+    chainKey: tx.chainKey || tx.chain_key || "bsc",
     note: tx.note || tx.notes || "",
     source: tx.source || "exalt-wallet",
     explorer: hash ? buildExplorerTx(hash) : "",
@@ -85,6 +86,7 @@ export async function saveWeb3TxToBackend(API, tx) {
         hash: item.hash,
         status: item.status,
         chain: item.chain,
+        chainKey: item.chainKey,
         source: "exalt-wallet",
         notes: item.note,
       }),
@@ -99,53 +101,43 @@ export async function saveWeb3TxToBackend(API, tx) {
 
 export async function loadWeb3HistoryFromBackend(API, walletAddress) {
   try {
-    if (!walletAddress) return [];
-
-    const localHistory = getLocalHistory().filter(
-      (tx) => String(tx.wallet || "").toLowerCase() === String(walletAddress).toLowerCase()
-    );
-
-    if (!API) return localHistory;
+    if (!API || !walletAddress) return [];
 
     const res = await fetch(`${API}/api/web3-transactions/${walletAddress}`);
     const data = await res.json();
 
-    if (!data.success || !Array.isArray(data.transactions)) {
-      return localHistory;
-    }
+    console.log("Web3 history backend response:", data);
 
-    const backendHistory = data.transactions.map((tx) =>
-      normalizeTx({
-        id: tx._id || tx.id,
-        type: tx.type,
-        hash: tx.hash,
-        amount: tx.amount,
-        coin: tx.coin,
-        status: tx.status || "success",
-        wallet: tx.wallet || walletAddress,
-        chain: tx.chain || "BSC",
-        note: tx.notes || tx.note || "",
-        source: tx.source || "exalt-wallet",
-        createdAt: tx.createdAt || new Date().toISOString(),
-      })
-    );
+    const list = Array.isArray(data)
+      ? data
+      : Array.isArray(data.transactions)
+      ? data.transactions
+      : Array.isArray(data.data)
+      ? data.data
+      : [];
 
-    const mergedMap = new Map();
-
-    [...backendHistory, ...localHistory].forEach((tx) => {
-      const key = tx.hash || tx.id;
-      if (!mergedMap.has(key)) mergedMap.set(key, tx);
-    });
-
-    const merged = Array.from(mergedMap.values())
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    return list
+      .map((tx) =>
+        normalizeTx({
+          id: tx._id || tx.id,
+          type: tx.type,
+          hash: tx.hash || tx.txHash,
+          amount: tx.amount,
+          coin: tx.coin,
+          status: tx.status || "success",
+          wallet: tx.wallet || walletAddress,
+          chain: tx.chain || "BSC",
+          chainKey: tx.chainKey || tx.chain_key || "bsc",
+          note: tx.notes || tx.note || "",
+          source: tx.source || "exalt-wallet",
+          createdAt: tx.createdAt || new Date().toISOString(),
+          updatedAt: tx.updatedAt || "",
+        })
+      )
       .slice(0, MAX_HISTORY);
-
-    saveLocalHistory(merged);
-    return merged;
   } catch (error) {
     console.log("Load Exalt Wallet history backend error:", error);
-    return getLocalHistory();
+    return [];
   }
 }
 

@@ -327,12 +327,19 @@ const replayWelcome = () => {
   const loadHistory = async (address = wallet) => {
     try {
       if (!address) return;
+const history = await loadWeb3HistoryFromBackend(API, address);
 
-      const history = await loadWeb3HistoryFromBackend(API, address);
-      setTxHistory(history);
-    } catch (err) {
-      console.log("History error:", err);
-    }
+setTxHistory(Array.isArray(history) ? history : []);
+
+setHistoryStats(
+  getHistoryStats(Array.isArray(history) ? history : [])
+);
+   } catch (err) {
+  console.log("History error:", err);
+  setTxHistory([]);
+  setHistoryStats({});
+}   
+  
   };
 
   const loadMarketPrices = async () => {
@@ -1286,11 +1293,15 @@ onBack={() => {
                 <div className="ex-history-item" key={`${tx.hash || tx.id || i}`}>
                   <strong>{tx.type} {tx.coin}</strong>
                   <span>{tx.amount}</span>
-                  {tx.hash && (
-                    <a href={tx.explorer} target="_blank" rel="noreferrer">
-                      Explorer
-                    </a>
-                  )}
+                 {tx.hash && (
+  <a
+    href={`${getChain(tx.chainKey || activeChain).explorer}/tx/${tx.hash}`}
+    target="_blank"
+    rel="noreferrer"
+  >
+    Explorer
+  </a>
+)}
                 </div>
               ))
             )}
@@ -1357,10 +1368,17 @@ onBack={() => {
     <div className="ex-settings-section">
       <span>Tools</span>
 
-      <button onClick={() => setBottomTab("market")}>
-        <b>📜 History</b>
-        <small>View transactions and receipts</small>
-      </button>
+     <button
+  onClick={() => {
+    setBottomTab("market");
+    setAssetTab("history");
+    setShowSettings(false);
+    if (wallet) loadHistory(wallet);
+  }}
+>
+  <b>📜 History</b>
+  <small>View transactions and receipts</small>
+</button>
 
       <button onClick={() => setShowAddressBook(true)}>
         <b>📒 Address Book</b>
