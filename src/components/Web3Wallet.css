@@ -860,3 +860,115 @@
   color:#777;
   word-break:break-all;
 }
+/* =========================
+   Receipt Modal
+========================= */
+
+.ex-receipt-panel {
+  width: 92%;
+  max-width: 380px;
+  background: linear-gradient(180deg, #1b2336 0%, #131a29 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  z-index: 9999;
+}
+
+.ex-receipt-success {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+}
+
+.ex-receipt-panel h3 {
+  margin: 10px 0 6px;
+  color: #fff;
+  font-size: 22px;
+}
+
+.ex-receipt-subtitle {
+  color: #94a3b8;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.ex-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.ex-receipt-row span {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.ex-receipt-row strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+.ex-receipt-hash {
+  margin: 18px 0;
+  padding: 12px;
+  background: rgba(255,255,255,.05);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.ex-receipt-hash span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.ex-receipt-hash small {
+  display: block;
+  color: #fff;
+  font-size: 11px;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+.ex-receipt-panel button:not(.ex-close) {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  background: linear-gradient(135deg,#f59e0b,#fb923c);
+  color: #fff;
+  transition: .25s;
+}
+
+.ex-receipt-panel button:not(.ex-close):hover {
+  transform: translateY(-2px);
+}
+
+.ex-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+}

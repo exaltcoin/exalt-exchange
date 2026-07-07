@@ -124,6 +124,7 @@ const [selectedCoinDetails, setSelectedCoinDetails] = useState(null);
   const [swapAmount, setSwapAmount] = useState("");
 
   const [txHistory, setTxHistory] = useState([]);
+
   const [importValue, setImportValue] = useState("");
   const [supportMsg, setSupportMsg] = useState("");
 
@@ -496,6 +497,16 @@ if (selectedSendToken.marketOnly || selectedSendToken.watchOnly) {
 
       setSendTo("");
       setAmount("");
+      setLastReceipt({
+  type: "Send",
+  hash: result.hash,
+  amount,
+  coin: selectedSendToken.symbol,
+  status: "success",
+  wallet,
+  chain: selectedSendToken.network,
+  chainKey: selectedSendToken.chainKey,
+});
       showToast("Transaction confirmed.");
     } catch (err) {
       console.log(err);
@@ -1234,6 +1245,69 @@ onBack={() => {
             <button onClick={() => copyToClipboard(showPhrase)}>Copy Phrase</button>
           </div>
         )}
+        {lastReceipt && (
+  <div className="ex-modal-panel ex-receipt-panel">
+    <button className="ex-close" onClick={() => setLastReceipt(null)}>×</button>
+
+    <div className="ex-receipt-success">✅</div>
+
+    <h3>Transaction Successful</h3>
+    <p className="ex-receipt-subtitle">
+      Your {lastReceipt.type} transaction has been confirmed.
+    </p>
+
+    <div className="ex-receipt-row">
+      <span>Type</span>
+      <strong>{lastReceipt.type}</strong>
+    </div>
+
+    <div className="ex-receipt-row">
+      <span>Amount</span>
+      <strong>{lastReceipt.amount} {lastReceipt.coin}</strong>
+    </div>
+
+    <div className="ex-receipt-row">
+      <span>Network</span>
+      <strong>{lastReceipt.chain || lastReceipt.chainKey}</strong>
+    </div>
+
+    <div className="ex-receipt-hash">
+      <span>Transaction Hash</span>
+      <small>{lastReceipt.hash}</small>
+    </div>
+
+    <button
+      onClick={() => copyToClipboard(lastReceipt.hash)}
+    >
+      Copy Hash
+    </button>
+
+    <button
+      onClick={() => {
+        const chainData = getChain(lastReceipt.chainKey || activeChain);
+        window.open(`${chainData.explorer}/tx/${lastReceipt.hash}`, "_blank");
+      }}
+    >
+      View on Explorer
+    </button>
+
+    <button
+      onClick={() => {
+        if (navigator.share) {
+          navigator.share({
+            title: "Exalt Wallet Transaction",
+            text: `${lastReceipt.type} ${lastReceipt.amount} ${lastReceipt.coin}\nHash: ${lastReceipt.hash}`,
+          });
+        } else {
+          copyToClipboard(lastReceipt.hash);
+          showToast("Hash copied for sharing.");
+        }
+      }}
+    >
+      Share Receipt
+    </button>
+  </div>
+)}
 
         {message && <div className="ex-web3-toast">{message}</div>}
 
