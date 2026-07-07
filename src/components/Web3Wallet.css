@@ -1149,3 +1149,93 @@
   font-size: 11px;
   font-weight: 800;
 }
+/* =========================
+   Final Wallet Sections
+========================= */
+
+.ex-manage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.ex-manage-row div {
+  flex: 1;
+  min-width: 0;
+}
+
+.ex-manage-row strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+}
+
+.ex-manage-row small {
+  display: block;
+  color: #94a3b8;
+  font-size: 11px;
+  margin-top: 4px;
+  word-break: break-all;
+}
+
+.ex-manage-row button {
+  width: auto !important;
+  min-width: 54px;
+  padding: 8px 10px !important;
+  margin-top: 0 !important;
+  font-size: 11px;
+}
+
+.ex-menu-panel p {
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.ex-menu-panel p strong {
+  color: #f8b42d;
+  margin-left: 6px;
+}
+
+.ex-menu-panel h3 {
+  color: #f8b42d;
+  margin-bottom: 14px;
+}
+
+.ex-menu-panel input,
+.ex-menu-panel select {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  outline: none;
+}
+
+.ex-menu-panel input::placeholder {
+  color: #94a3b8;
+}
+
+.ex-menu-panel .danger,
+.ex-manage-row .danger {
+  background: rgba(239,68,68,.18) !important;
+  color: #fca5a5 !important;
+}
+
+.ex-menu-panel .success {
+  background: rgba(34,197,94,.18) !important;
+  color: #86efac !important;
+}
+
+.ex-menu-panel .warning {
+  background: rgba(248,180,45,.18) !important;
+  color: #f8b42d !important;
+}

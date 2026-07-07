@@ -76,7 +76,48 @@ import {
   copyToClipboard,
   isValidAddress,
 } from "../web3/utils";
+import {
+  getAssetSettings,
+  saveAssetSettings,
+  toggleHiddenToken,
+  togglePinnedToken,
+  toggleFavoriteToken as toggleManagedFavorite,
+  setHideZeroBalances,
+  setAssetSortBy,
+  restoreHiddenTokens,
+  getHiddenAssetList,
+} from "../web3/assetManagerService";
 
+import {
+  getAddressBook,
+  addAddressBookContact,
+  deleteAddressBookContact,
+  toggleAddressFavorite,
+  searchAddressBook,
+} from "../web3/addressBookService";
+
+import {
+  getBackupStatus,
+  markWalletBackedUp,
+  markWalletVerified,
+  dismissBackupReminder,
+  shouldShowBackupReminder,
+  getBackupLabel,
+} from "../web3/backupService";
+
+import {
+  getPriceAlerts,
+  addPriceAlert,
+  deletePriceAlert,
+  togglePriceAlert,
+  checkPriceAlerts,
+} from "../web3/priceAlertService";
+
+import {
+  exportHistoryToCsv,
+  filterHistory,
+  getHistoryStats,
+} from "../web3/historyExportService";
 function Web3Wallet({ setPage }) {
   const API_BASE =
     import.meta.env.VITE_API_URL ||
@@ -139,6 +180,27 @@ const [hideBalance, setHideBalance] = useState(
   const [tokenPreview, setTokenPreview] = useState(null);
   const chain = getChain(activeChain);
   const chains = getChainList();
+const [assetSettings, setAssetSettings] = useState(getAssetSettings());
+
+const [showManage, setShowManage] = useState(false);
+
+const [showAddressBook, setShowAddressBook] = useState(false);
+
+const [showPriceAlerts, setShowPriceAlerts] = useState(false);
+
+const [showBackup, setShowBackup] = useState(false);
+
+const [priceAlerts, setPriceAlerts] = useState(getPriceAlerts());
+
+const [addressBook, setAddressBook] = useState(getAddressBook());
+
+const [backupStatus, setBackupStatus] = useState(getBackupStatus());
+
+const [historyFilter, setHistoryFilter] = useState("all");
+
+const [historyStats, setHistoryStats] = useState({});
+
+const [showExportMenu, setShowExportMenu] = useState(false);
 
   const activeWallet = useMemo(
     () => findWallet(wallets, wallet),
@@ -714,6 +776,28 @@ const handleWatchlistToken = (token) => {
     setTotalAssets(portfolioValue);
   }, [portfolioValue]);
   useEffect(() => {
+  setAssetSettings(getAssetSettings());
+  setPriceAlerts(getPriceAlerts());
+  setAddressBook(getAddressBook());
+
+  if (wallet) {
+    setBackupStatus(getBackupStatus(wallet));
+  }
+}, [wallet]);
+
+useEffect(() => {
+  setHistoryStats(getHistoryStats(txHistory));
+}, [txHistory]);
+
+useEffect(() => {
+  const result = checkPriceAlerts(prices);
+
+  if (result.triggered.length > 0) {
+    showToast(`${result.triggered.length} price alert triggered.`);
+    setPriceAlerts(result.alerts);
+  }
+}, [prices]);
+  useEffect(() => {
   if (!wallet) return;
 
   const interval = setInterval(() => {
@@ -1247,7 +1331,265 @@ onBack={() => {
     <button onClick={() => setBottomTab("assets")}>Receive Address</button>
     <button onClick={() => setBottomTab("market")}>Transaction History</button>
     <button onClick={() => setShowImportToken(true)}>Import Custom Token</button>
+    <button onClick={() => setShowManage(true)}>
+  Manage Assets
+</button>
+
+<button onClick={() => setShowAddressBook(true)}>
+  Address Book
+</button>
+
+<button onClick={() => setShowBackup(true)}>
+  Wallet Backup
+</button>
+
+<button onClick={() => setShowPriceAlerts(true)}>
+  Price Alerts
+</button>
     <button onClick={copyAddress}>Copy Active Wallet</button>
+  </div>
+)}
+
+         {showManage && (
+  <div className="ex-modal-panel ex-menu-panel">
+    <button className="ex-close" onClick={() => setShowManage(false)}>×</button>
+
+    <h3>Manage Assets</h3>
+
+    <button
+      onClick={() => {
+        const next = !assetSettings.hideZeroBalances;
+        const updated = setHideZeroBalances(next);
+        setAssetSettings(updated);
+        showToast(next ? "Zero balances hidden." : "Zero balances visible.");
+      }}
+    >
+      {assetSettings.hideZeroBalances ? "Show Zero Balances" : "Hide Zero Balances"}
+    </button>
+
+    <button
+      onClick={() => {
+        const updated = setAssetSortBy("value");
+        setAssetSettings(updated);
+        showToast("Sorted by value.");
+      }}
+    >
+      Sort by Value
+    </button>
+
+    <button
+      onClick={() => {
+        const updated = setAssetSortBy("name");
+        setAssetSettings(updated);
+        showToast("Sorted by name.");
+      }}
+    >
+      Sort by Name
+    </button>
+
+    <button
+      onClick={() => {
+        const updated = setAssetSortBy("balance");
+        setAssetSettings(updated);
+        showToast("Sorted by balance.");
+      }}
+    >
+      Sort by Balance
+    </button>
+
+    <button
+      onClick={() => {
+        const updated = restoreHiddenTokens();
+        setAssetSettings(updated);
+        showToast("Hidden tokens restored.");
+      }}
+    >
+      Restore Hidden Tokens
+    </button>
+
+    <button onClick={() => setShowImportToken(true)}>
+      Import Custom Token
+    </button>
+  </div>
+)}
+{showAddressBook && (
+  <div className="ex-modal-panel ex-menu-panel">
+    <button
+      className="ex-close"
+      onClick={() => setShowAddressBook(false)}
+    >
+      ×
+    </button>
+
+    <h3>Address Book</h3>
+
+    {addressBook.length === 0 ? (
+      <p>No saved addresses yet.</p>
+    ) : (
+      addressBook.map((item) => (
+        <div className="ex-manage-row" key={item.id}>
+          <div>
+            <strong>{item.name}</strong>
+            <small>{shortAddress(item.address)} • {item.network}</small>
+          </div>
+
+          <button onClick={() => setSendTo(item.address)}>
+            Use
+          </button>
+
+          <button
+            onClick={() => {
+              const updated = toggleAddressFavorite(item.id);
+              setAddressBook(updated);
+            }}
+          >
+            {item.favorite ? "★" : "☆"}
+          </button>
+
+          <button
+            onClick={() => {
+              const updated = deleteAddressBookContact(item.id);
+              setAddressBook(updated);
+              showToast("Address deleted.");
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      ))
+    )}
+
+    <button
+      onClick={() => {
+        const name = prompt("Contact name");
+        const address = prompt("Wallet address");
+
+        if (!name || !address) return;
+
+        try {
+          const updated = addAddressBookContact({
+            name,
+            address,
+            network: chain.network,
+            chainKey: activeChain,
+          });
+
+          setAddressBook(updated);
+          showToast("Address saved.");
+        } catch (err) {
+          alert(err.message || "Address save failed.");
+        }
+      }}
+    >
+      Add New Address
+    </button>
+  </div>
+)}
+{showBackup && (
+  <div className="ex-modal-panel ex-menu-panel">
+    <button
+      className="ex-close"
+      onClick={() => setShowBackup(false)}
+    >
+      ×
+    </button>
+
+    <h3>Wallet Backup</h3>
+
+    <p>
+      Backup status:
+      <strong>
+        {backupStatus?.completed ? " ✅ Completed" : " ❌ Not Backed Up"}
+      </strong>
+    </p>
+
+   <button
+  onClick={() => {
+    const updated = markWalletBackedUp(wallet);
+    setBackupStatus(updated);
+    showToast("Wallet marked as backed up.");
+  }}
+>
+  Mark as Backed Up
+</button>
+
+<button
+  onClick={() => {
+    const updated = markWalletVerified(wallet);
+    setBackupStatus(updated);
+    showToast("Wallet backup verified.");
+  }}
+>
+  Verify Backup
+</button>
+
+<button
+  onClick={() => {
+    const updated = dismissBackupReminder(wallet);
+    setBackupStatus(updated);
+    showToast("Backup reminder dismissed.");
+  }}
+>
+  Dismiss Reminder
+</button>
+  </div>
+)}
+{showPriceAlerts && (
+  <div className="ex-modal-panel ex-menu-panel">
+    <button
+      className="ex-close"
+      onClick={() => setShowPriceAlerts(false)}
+    >
+      ×
+    </button>
+
+    <h3>Price Alerts</h3>
+
+    {!priceAlerts.length ? (
+      <p>No active price alerts.</p>
+    ) : (
+      priceAlerts.map((alert) => (
+        <div className="ex-manage-row" key={alert.id}>
+          <div>
+            <strong>{alert.symbol}</strong>
+            <small>
+              {alert.condition} ${alert.targetPrice}
+            </small>
+          </div>
+
+          <button
+            onClick={() => {
+              const updated =deletePriceAlert(alert.id);
+              setPriceAlerts(updated);
+              showToast("Alert removed.");
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      ))
+    )}
+
+    <button
+      onClick={() => {
+        const symbol = prompt("Token Symbol");
+        const target = Number(prompt("Target Price"));
+        const condition = prompt("above / below");
+
+        if (!symbol || !target || !condition) return;
+
+        const updated = addPriceAlert({
+          symbol: symbol.toUpperCase(),
+          targetPrice: target,
+          condition,
+        });
+
+        setPriceAlerts(updated);
+        showToast("Price Alert Added.");
+      }}
+    >
+      Add Price Alert
+    </button>
   </div>
 )}
         {showSupport && (
