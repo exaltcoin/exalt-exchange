@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import exaltLogo from "../assets/exalt-coin.png";
+import TradingViewChart from "./TradingViewChart";
 import "./CoinDetails.css";
 
 import {
@@ -159,19 +160,7 @@ const getDexChartUrl = () => {
 </span>
           </div>
 
-      {getDexChartUrl() ? (
-  <iframe
-    className="coin-live-chart"
-    src={getDexChartUrl()}
-    title={`${token.symbol} live chart`}
-    loading="lazy"
-  />
-) : (
-  <div className="coin-chart-placeholder">
-    <div />
-    <p>Live chart available after real contract import</p>
-  </div>
-)}
+      <TradingViewChart token={token} />
             
         </div>
 
