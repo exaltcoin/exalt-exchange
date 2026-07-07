@@ -226,8 +226,6 @@ function CoinDetails({
           <h3>Manage Coin</h3>
 
           <button onClick={copySymbol}>Copy Symbol</button>
-<button onClick={copySymbol}>Copy Symbol</button>
-
 <button onClick={() => onFavorite?.(token)}>
   {token.favorite ? "★ Remove Favorite" : "☆ Add Favorite"}
 </button>
