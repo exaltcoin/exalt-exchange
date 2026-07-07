@@ -59,7 +59,27 @@ function CoinDetails({
     if (!explorerUrl) return alert("Explorer not available.");
     window.open(explorerUrl, "_blank", "noopener,noreferrer");
   };
+const getDexChartUrl = () => {
+  if (!token?.address || token.native || token.marketOnly || token.watchOnly) {
+    return "";
+  }
 
+  const chainMap = {
+    bsc: "bsc",
+    ethereum: "ethereum",
+    polygon: "polygon",
+    arbitrum: "arbitrum",
+    optimism: "optimism",
+    base: "base",
+    avalanche: "avalanche",
+    fantom: "fantom",
+    cronos: "cronos",
+  };
+
+  const dexChain = chainMap[token.chainKey || token.chain] || "bsc";
+
+  return `https://dexscreener.com/${dexChain}/${token.address}?embed=1&theme=dark&info=0`;
+};
   const canUseOnChain =
     !token.marketOnly && !token.watchOnly && (token.native || token.address);
 
@@ -137,10 +157,20 @@ function CoinDetails({
             <span>Coming Live</span>
           </div>
 
-          <div className="coin-chart-placeholder">
-            <div />
-            <p>Live chart integration ready</p>
-          </div>
+      {getDexChartUrl() ? (
+  <iframe
+    className="coin-live-chart"
+    src={getDexChartUrl()}
+    title={`${token.symbol} live chart`}
+    loading="lazy"
+  />
+) : (
+  <div className="coin-chart-placeholder">
+    <div />
+    <p>Live chart available after real contract import</p>
+  </div>
+)}
+            
         </div>
 
         <div className="coin-stats-card">
