@@ -270,6 +270,35 @@ const [showExportMenu, setShowExportMenu] = useState(false);
     setMessage(text);
     setTimeout(() => setMessage(""), 3500);
   };
+ const shortHash = (hash = "") => {
+  if (!hash) return "No Hash";
+  if (!hash.startsWith("0x")) return hash;
+  return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
+};
+
+const timeAgo = (date) => {
+  if (!date) return "";
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (seconds < 60) return "Just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Yesterday";
+  return `${days} days ago`;
+};
+
+const openExplorerTx = (tx) => {
+  const explorer = getChain(tx.chainKey || activeChain).explorer;
+
+  if (!tx.hash || !tx.hash.startsWith("0x")) {
+    showToast("This is a test transaction. No explorer hash available.");
+    return;
+  }
+
+  window.open(`${explorer}/tx/${tx.hash}`, "_blank");
+}; 
 const replayWelcome = () => {
   setShowWelcome(false);
 
@@ -1281,40 +1310,77 @@ onBack={() => {
           </div>
         )}
 
-       {bottomTab === "market" && (
-  <div className="ex-modal-panel">
+      {bottomTab === "market" && (
+  <div className="ex-modal-panel ex-history-panel">
     <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
-    <h3>Transaction History</h3>
+
+    <div className="ex-history-head">
+      <div>
+        <h3>Transaction History</h3>
+        <p>{txHistory.length} transaction{txHistory.length !== 1 ? "s" : ""}</p>
+      </div>
+
+      <button
+        className="ex-history-refresh"
+        onClick={() => {
+          if (wallet) loadHistory(wallet);
+          showToast("History refreshed.");
+        }}
+      >
+        ↻
+      </button>
+    </div>
 
     {txHistory.length === 0 ? (
-      <p>No transactions yet.</p>
+      <div className="ex-history-empty">
+        <span>🧾</span>
+        <strong>No transactions yet</strong>
+        <p>Your Web3 send and swap records will appear here.</p>
+      </div>
     ) : (
       txHistory.map((tx, i) => (
-        <div className="ex-history-item" key={`${tx.hash || tx.id || i}`}>
+        <div className="ex-history-item pro" key={`${tx.hash || tx.id || i}`}>
           <div className="ex-history-top">
-            <strong>{tx.type} {tx.coin}</strong>
-            <small className={`ex-status ${tx.status || "success"}`}>
+            <div className="ex-history-token">
+              <span className="ex-history-token-icon">
+                {tx.type === "Send" ? "↗" : tx.type === "Receive" ? "↙" : "⇄"}
+              </span>
+
+              <div>
+                <strong>{tx.type} {tx.coin}</strong>
+                <small>{timeAgo(tx.createdAt)}</small>
+              </div>
+            </div>
+
+            <small className={`ex-status ${(tx.status || "success").toLowerCase()}`}>
               {tx.status || "success"}
             </small>
           </div>
 
-          <span>{tx.amount} {tx.coin}</span>
+          <div className="ex-history-amount">
+            <strong>{tx.amount} {tx.coin}</strong>
+            <span>{tx.chain || getChain(tx.chainKey || activeChain).network}</span>
+          </div>
 
-          <p>{tx.createdAt ? new Date(tx.createdAt).toLocaleString() : ""}</p>
+          <div className="ex-history-hash-box">
+            <span>Tx Hash</span>
+            <strong>{shortHash(tx.hash)}</strong>
+          </div>
 
-          {tx.hash && (
-            <div className="ex-history-actions">
-              <button onClick={() => copyToClipboard(tx.hash)}>Copy Hash</button>
+          <div className="ex-history-actions">
+            <button
+              onClick={() => {
+                copyToClipboard(tx.hash || "");
+                showToast("Transaction hash copied.");
+              }}
+            >
+              📋 Copy
+            </button>
 
-              <a
-                href={`${getChain(tx.chainKey || activeChain).explorer}/tx/${tx.hash}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Explorer
-              </a>
-            </div>
-          )}
+            <button onClick={() => openExplorerTx(tx)}>
+              🔗 Explorer
+            </button>
+          </div>
         </div>
       ))
     )}
