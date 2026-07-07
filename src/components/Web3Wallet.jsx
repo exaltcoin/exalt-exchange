@@ -1322,31 +1322,84 @@ onBack={() => {
           </div>
         )}
 {showSettings && (
-  <div className="ex-modal-panel ex-menu-panel">
+  <div className="ex-modal-panel ex-settings-panel">
     <button className="ex-close" onClick={() => setShowSettings(false)}>×</button>
-    <h3>Wallet Settings</h3>
 
-    <button onClick={() => setShowMyWallets(true)}>Manage Wallets</button>
-    <button onClick={() => setShowAddWallet(true)}>Create / Import Wallet</button>
-    <button onClick={() => setBottomTab("assets")}>Receive Address</button>
-    <button onClick={() => setBottomTab("market")}>Transaction History</button>
-    <button onClick={() => setShowImportToken(true)}>Import Custom Token</button>
-    <button onClick={() => setShowManage(true)}>
-  Manage Assets
-</button>
+    <div className="ex-settings-head">
+      <h3>Wallet Settings</h3>
+      <p>Manage your Exalt Wallet, security and activity.</p>
+    </div>
 
-<button onClick={() => setShowAddressBook(true)}>
-  Address Book
-</button>
+    <div className="ex-settings-section">
+      <span>Wallet</span>
 
-<button onClick={() => setShowBackup(true)}>
-  Wallet Backup
-</button>
+      <button onClick={() => setShowMyWallets(true)}>
+        <b>👛 Manage Wallets</b>
+        <small>Switch, rename or remove wallets</small>
+      </button>
 
-<button onClick={() => setShowPriceAlerts(true)}>
-  Price Alerts
-</button>
-    <button onClick={copyAddress}>Copy Active Wallet</button>
+      <button onClick={() => setShowAddWallet(true)}>
+        <b>➕ Create Wallet</b>
+        <small>Create a new Exalt Wallet</small>
+      </button>
+
+      <button onClick={() => setShowAddWallet(true)}>
+        <b>📥 Import Wallet</b>
+        <small>Import phrase or private key</small>
+      </button>
+
+      <button onClick={() => setBottomTab("assets")}>
+        <b>⬇️ Receive</b>
+        <small>Show wallet QR and address</small>
+      </button>
+    </div>
+
+    <div className="ex-settings-section">
+      <span>Tools</span>
+
+      <button onClick={() => setBottomTab("market")}>
+        <b>📜 History</b>
+        <small>View transactions and receipts</small>
+      </button>
+
+      <button onClick={() => setShowAddressBook(true)}>
+        <b>📒 Address Book</b>
+        <small>Save trusted wallet addresses</small>
+      </button>
+
+      <button onClick={() => setShowPriceAlerts(true)}>
+        <b>🔔 Price Alerts</b>
+        <small>Create token price notifications</small>
+      </button>
+
+      <button onClick={() => setShowImportToken(true)}>
+        <b>🪙 Import Token</b>
+        <small>Add custom BEP20/ERC20 token</small>
+      </button>
+    </div>
+
+    <div className="ex-settings-section">
+      <span>Security</span>
+
+      <button onClick={() => setShowBackup(true)}>
+        <b>🔐 Wallet Backup</b>
+        <small>Backup and verify wallet safety</small>
+      </button>
+
+      <button onClick={() => {
+        const next = !hideBalance;
+        setHideBalance(next);
+        localStorage.setItem("exalt_hide_balance", next);
+      }}>
+        <b>{hideBalance ? "👁 Show Balances" : "🙈 Hide Balances"}</b>
+        <small>Privacy mode for portfolio value</small>
+      </button>
+
+      <button onClick={copyAddress}>
+        <b>📋 Copy Active Wallet</b>
+        <small>{shortAddress(wallet)}</small>
+      </button>
+    </div>
   </div>
 )}
 
