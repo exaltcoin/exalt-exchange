@@ -585,6 +585,7 @@ export function getWalletTokenList({
   query = "",
 } = {}) {
   let tokens = getTokensByChain(chainKey, includeHidden);
+  tokens = tokens.filter((token) => !token.marketOnly && !token.watchOnly);
 if (!includeHidden) {
   tokens = tokens.filter((token) => !token.hidden);
 }
