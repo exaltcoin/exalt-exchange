@@ -709,7 +709,18 @@ const handleWatchlistToken = (token) => {
   useEffect(() => {
     setTotalAssets(portfolioValue);
   }, [portfolioValue]);
+  useEffect(() => {
+  if (!wallet) return;
+
+  const interval = setInterval(() => {
+    loadBalances(wallet, activeChain);
+    loadHistory(wallet);
+  }, 30000);
+
+  return () => clearInterval(interval);
+}, [wallet, activeChain]);
 if (selectedCoinDetails) {
+  
   return (
     <CoinDetails
       coin={selectedCoinDetails}
@@ -873,6 +884,20 @@ onBack={() => {
           </div>
           <img src={exaltLogo} alt="EXALT" />
         </div>
+        <div className="ex-holdings-head">
+  <h3>Wallet Assets</h3>
+
+  <button
+    onClick={() => {
+      if (!wallet) return setShowAddWallet(true);
+      loadBalances(wallet, activeChain);
+      loadHistory(wallet);
+      showToast("Wallet refreshed.");
+    }}
+  >
+    🔄 Refresh
+  </button>
+</div>
         <div className="ex-asset-tabs">
           {["holdings", "tokens", "history", "security"].map((tab) => (
             <button
