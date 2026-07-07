@@ -510,7 +510,19 @@ if (selectedSendToken.marketOnly || selectedSendToken.watchOnly) {
       showToast("Transaction confirmed.");
     } catch (err) {
       console.log(err);
-      alert(err.message || "Send failed.");
+     const errorText = String(err?.message || "");
+
+if (
+  errorText.includes("insufficient funds") ||
+  errorText.includes("gas * price") ||
+  errorText.includes("intrinsic transaction cost")
+) {
+  alert(
+    `Insufficient BNB for network fee.\n\nPlease add BNB to this wallet for gas fee, then try again.`
+  );
+} else {
+  alert(err.message || "Send failed.");
+}
     }
   };
   const handleSwap = async () => {
