@@ -1,0 +1,90 @@
+.admin-login-history-page {
+  padding: 20px;
+  color: #fff;
+}
+
+.admin-login-history-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0 20px;
+}
+
+.admin-login-history-toolbar input,
+.admin-login-history-toolbar select {
+  background: #181a20;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.admin-login-history-toolbar input {
+  flex: 1;
+  min-width: 260px;
+}
+
+.admin-login-history-toolbar button {
+  background: #f0b90b;
+  color: #111;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-login-history-card {
+  background: #1e2329;
+  border: 1px solid #333;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.admin-login-history-card h4 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #f0b90b;
+  margin: 0 0 12px;
+}
+
+.login-status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.login-status.success {
+  background: rgba(34, 197, 94, 0.18);
+  color: #22c55e;
+}
+
+.login-status.failed,
+.login-status.blocked {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+}
+
+.login-status.\32 fa_required {
+  background: rgba(240, 185, 11, 0.18);
+  color: #f0b90b;
+}
+
+.admin-login-history-card p {
+  margin: 6px 0;
+  color: #e5e7eb;
+}
+
+.admin-login-history-card b {
+  color: #f0b90b;
+}
+
+.admin-login-history-card small {
+  display: block;
+  margin-top: 10px;
+  color: #9ca3af;
+  word-break: break-word;
+}

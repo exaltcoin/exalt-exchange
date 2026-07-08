@@ -1,0 +1,76 @@
+.admin-audit-page {
+  padding: 20px;
+  color: #fff;
+}
+
+.admin-audit-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0 20px;
+}
+
+.admin-audit-toolbar input,
+.admin-audit-toolbar select {
+  background: #181a20;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.admin-audit-toolbar input {
+  flex: 1;
+  min-width: 260px;
+}
+
+.admin-audit-toolbar button {
+  background: #f0b90b;
+  color: #111;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-audit-card {
+  background: #1e2329;
+  border: 1px solid #333;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.admin-audit-card h4 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #f0b90b;
+  margin: 0 0 12px;
+}
+
+.admin-audit-card h4 span {
+  background: rgba(240, 185, 11, 0.15);
+  color: #f0b90b;
+  border: 1px solid rgba(240, 185, 11, 0.25);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.admin-audit-card p {
+  margin: 6px 0;
+  color: #e5e7eb;
+}
+
+.admin-audit-card b {
+  color: #f0b90b;
+}
+
+.admin-audit-card small {
+  display: block;
+  margin-top: 10px;
+  color: #9ca3af;
+  word-break: break-word;
+}
