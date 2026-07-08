@@ -20,6 +20,7 @@ import AdminExaltUtility from "./components/AdminExaltUtility";
 import AdminReputation from "./components/AdminReputation";
 import AdminAchievement from "./components/AdminAchievement";
 import AdminSpotTrading from "./components/AdminSpotTrading";
+import AdminFutures from "./components/AdminFutures";
 import AdminNotifications from "./components/AdminNotifications";
 
 function AdminPanel() {
@@ -568,6 +569,12 @@ Staking
   onClick={() => setAdminTab("spot-trading")}
 >
   Spot Trading
+</button>
+<button
+  className={adminTab === "futures-admin" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("futures-admin")}
+>
+  Futures Admin
 </button>
 
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>
@@ -1283,6 +1290,7 @@ Staking
 {adminTab === "achievements" && <AdminAchievement />}
 {adminTab === "notifications" && <AdminNotifications />}
 {adminTab === "spot-trading" && <AdminSpotTrading />}
+{adminTab === "futures-admin" && <AdminFutures />}
       {adminTab === "transactions" && (
         <div className="admin-content">
           <h3>Transaction History</h3>

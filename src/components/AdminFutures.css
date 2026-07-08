@@ -1,0 +1,107 @@
+.admin-futures-page{
+  padding:20px;
+}
+
+.admin-futures-stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.admin-futures-stats div{
+  background:#1e2329;
+  border:1px solid #f0b90b;
+  border-radius:12px;
+  padding:18px;
+  text-align:center;
+}
+
+.admin-futures-stats h3{
+  color:#f0b90b;
+  margin:0;
+  font-size:24px;
+}
+
+.admin-futures-stats p{
+  margin-top:8px;
+  color:#ccc;
+}
+
+.admin-futures-toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.admin-futures-toolbar input,
+.admin-futures-toolbar select{
+  background:#181a20;
+  color:#fff;
+  border:1px solid #333;
+  border-radius:8px;
+  padding:10px;
+}
+
+.admin-futures-toolbar button{
+  background:#f0b90b;
+  color:#000;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.admin-futures-card{
+  background:#1e2329;
+  border:1px solid #333;
+  border-radius:12px;
+  padding:18px;
+  margin-bottom:15px;
+}
+
+.admin-futures-card h4{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.futures-status{
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.futures-status.open{
+  background:#0a7d32;
+  color:#fff;
+}
+
+.futures-status.closed{
+  background:#2962ff;
+  color:#fff;
+}
+
+.futures-status.liquidated{
+  background:#c62828;
+  color:#fff;
+}
+
+.force-close-btn{
+  margin-top:12px;
+  background:#d32f2f;
+  color:#fff;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.force-close-btn:hover{
+  background:#b71c1c;
+}
