@@ -1,0 +1,106 @@
+.admin-content {
+  color: #fff;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.admin-stats .stat-card {
+  background: linear-gradient(135deg, rgba(30, 35, 41, 0.95), rgba(17, 24, 39, 0.95));
+  border: 1px solid rgba(240, 185, 11, 0.18);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.admin-stats .stat-card h3 {
+  color: #f0b90b;
+  font-size: 24px;
+  margin: 0 0 6px;
+}
+
+.admin-stats .stat-card p {
+  margin: 0;
+  color: #cbd5e1;
+  font-weight: 800;
+}
+
+.admin-content input,
+.admin-content select {
+  border-radius: 12px;
+  border: 1px solid rgba(240, 185, 11, 0.35);
+  background: #111827;
+  color: #fff;
+  padding: 11px 12px;
+  outline: none;
+}
+
+.admin-content input::placeholder {
+  color: #8f9bb3;
+}
+
+.admin-content select option {
+  color: #111;
+}
+
+.admin-content .action-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-content .approve-btn {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #fff;
+}
+
+.admin-content .reject-btn {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: #fff;
+}
+
+.admin-card {
+  background: linear-gradient(135deg, rgba(30, 35, 41, 0.94), rgba(15, 23, 42, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.admin-card h4 {
+  color: #f0b90b;
+  margin: 0 0 10px;
+}
+
+.admin-card h4 span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+}
+
+.admin-card p {
+  margin: 6px 0;
+  color: #e5e7eb;
+}
+
+.admin-card p b {
+  color: #f0b90b;
+}
+
+@media (max-width: 768px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-content .action-btn,
+  .admin-content input,
+  .admin-content select {
+    width: 100%;
+  }
+}

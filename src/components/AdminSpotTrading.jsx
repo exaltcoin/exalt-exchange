@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import API_BASE_URL from "../api";
-
+import "./AdminSpotTrading.css";
 function AdminSpotTrading() {
   const API_BASE = API_BASE_URL || "https://api.exaltexchange.io";
   const API = API_BASE.endsWith("/api") ? API_BASE.replace("/api", "") : API_BASE;
