@@ -901,12 +901,23 @@ onBack={() => {
         <div className="ex-web3-topbar">
           <button className="ex-icon-btn" onClick={() => setShowMenu(true)}>☰</button>
           <button className="ex-icon-btn" onClick={openSupport}>🎧</button>
+<div className="ex-main-tabs">
+  <button
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (setPage) setPage("dashboard");
+    }}
+  >
+    Exchange
+  </button>
 
-          <div className="ex-main-tabs">
-            <button onClick={goExchange}>Exchange</button>
-            <button className="active">Wallet</button>
-          </div>
-
+  <button type="button" className="active">
+    Wallet
+  </button>
+</div>
+         
           <button className="ex-icon-btn" onClick={startScanner}>⌗</button>
           <button className="ex-icon-btn" onClick={openSupport}>💬</button>
         </div>
