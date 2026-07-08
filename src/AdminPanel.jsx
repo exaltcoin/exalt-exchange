@@ -165,6 +165,24 @@ const filteredAdminTransactions = transactions.filter((item) => {
   if (transactionFilter === "all") return true;
   return String(item.type).toLowerCase() === transactionFilter;
 });
+const web3SendCount = web3Transactions.filter((tx) => tx.type === "Send").length;
+const web3ReceiveCount = web3Transactions.filter((tx) => tx.type === "Receive").length;
+const web3SwapCount = web3Transactions.filter((tx) => tx.type === "Swap").length;
+const web3SuccessCount = web3Transactions.filter((tx) => tx.status === "success").length;
+
+const shortText = (value = "") => {
+  if (!value) return "N/A";
+  return value.length > 18 ? `${value.slice(0, 10)}...${value.slice(-6)}` : value;
+};
+
+const openWeb3Explorer = (tx) => {
+  if (!tx.hash || !tx.hash.startsWith("0x")) {
+    alert("Test transaction hash. Explorer not available.");
+    return;
+  }
+
+  window.open(`https://bscscan.com/tx/${tx.hash}`, "_blank");
+};
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -855,56 +873,116 @@ Staking
         </div>
       )}
 
-      {adminTab === "web3" && (
-        <div className="admin-content">
-          <h3>Web3 Transactions</h3>
+     {adminTab === "web3" && (
+  <div className="admin-content">
+    <h3>Web3 Transactions</h3>
 
-          <div style={{ marginBottom: "15px" }}>
-            <input
-              type="text"
-              placeholder="Search wallet or hash..."
-              value={web3Search}
-              onChange={(e) => setWeb3Search(e.target.value)}
-              style={{ width: "60%", padding: "8px", marginRight: "10px" }}
-            />
+    <div className="admin-stats">
+      <div className="stat-card"><h3>{web3Transactions.length}</h3><p>Total Web3</p></div>
+      <div className="stat-card"><h3>{web3SendCount}</h3><p>Send</p></div>
+      <div className="stat-card"><h3>{web3ReceiveCount}</h3><p>Receive</p></div>
+      <div className="stat-card"><h3>{web3SwapCount}</h3><p>Swap</p></div>
+      <div className="stat-card"><h3>{web3SuccessCount}</h3><p>Success</p></div>
+    </div>
 
-            <select value={web3Filter} onChange={(e) => setWeb3Filter(e.target.value)} style={{ padding: "8px" }}>
-              <option value="ALL">All</option>
-              <option value="Receive">Receive</option>
-              <option value="Send">Send</option>
-              <option value="Swap">Swap</option>
-            </select>
+    <div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+      <input
+        type="text"
+        placeholder="Search wallet, hash, coin..."
+        value={web3Search}
+        onChange={(e) => setWeb3Search(e.target.value)}
+        style={{
+          flex: 1,
+          minWidth: "240px",
+          padding: "10px",
+          borderRadius: "8px",
+          background: "#1e2329",
+          color: "#fff",
+          border: "1px solid #f0b90b",
+        }}
+      />
+
+      <select
+        value={web3Filter}
+        onChange={(e) => setWeb3Filter(e.target.value)}
+        style={{ padding: "10px", borderRadius: "8px" }}
+      >
+        <option value="ALL">All</option>
+        <option value="Receive">Receive</option>
+        <option value="Send">Send</option>
+        <option value="Swap">Swap</option>
+      </select>
+    </div>
+
+    {web3Transactions.length === 0 ? (
+      <p>No Web3 transactions found.</p>
+    ) : (
+      web3Transactions
+        .filter((tx) => {
+          const matchFilter = web3Filter === "ALL" || tx.type === web3Filter;
+          const search = web3Search.toLowerCase();
+
+          const matchSearch =
+            !search ||
+            tx.wallet?.toLowerCase().includes(search) ||
+            tx.hash?.toLowerCase().includes(search) ||
+            tx.coin?.toLowerCase().includes(search) ||
+            tx.chain?.toLowerCase().includes(search);
+
+          return matchFilter && matchSearch;
+        })
+        .map((tx) => (
+          <div className="admin-card" key={tx._id || tx.hash}>
+            <h4>
+              {tx.type} {tx.coin}
+              <span
+                style={{
+                  marginLeft: "10px",
+                  color:
+                    tx.status === "success"
+                      ? "#00ff88"
+                      : tx.status === "pending"
+                      ? "#ffaa00"
+                      : "#ff4444",
+                }}
+              >
+                {String(tx.status || "success").toUpperCase()}
+              </span>
+            </h4>
+
+            <p><b>Wallet:</b> {shortText(tx.wallet)}</p>
+            <p><b>Amount:</b> {tx.amount} {tx.coin}</p>
+            <p><b>Chain:</b> {tx.chain || "BSC"}</p>
+            <p><b>Hash:</b> {shortText(tx.hash)}</p>
+            <p><b>Time:</b> {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : "N/A"}</p>
+
+            <button
+              className="action-btn approve-btn"
+              onClick={() => navigator.clipboard.writeText(tx.wallet || "")}
+            >
+              Copy Wallet
+            </button>
+
+            <button
+              className="action-btn"
+              onClick={() => navigator.clipboard.writeText(tx.hash || "")}
+              style={{ marginLeft: "8px" }}
+            >
+              Copy Hash
+            </button>
+
+            <button
+              className="action-btn"
+              onClick={() => openWeb3Explorer(tx)}
+              style={{ marginLeft: "8px" }}
+            >
+              Explorer
+            </button>
           </div>
-
-          {web3Transactions.length === 0 ? (
-            <p>No Web3 transactions found.</p>
-          ) : (
-            web3Transactions
-              .filter((tx) => {
-                const matchFilter = web3Filter === "ALL" || tx.type === web3Filter;
-                const search = web3Search.toLowerCase();
-                const matchSearch =
-                  !search ||
-                  tx.wallet?.toLowerCase().includes(search) ||
-                  tx.hash?.toLowerCase().includes(search) ||
-                  tx.coin?.toLowerCase().includes(search);
-                return matchFilter && matchSearch;
-              })
-              .map((tx) => (
-                <div className="admin-card" key={tx._id}>
-                  <p><b>Wallet:</b> {tx.wallet}</p>
-                  <p><b>Type:</b> {tx.type}</p>
-                  <p><b>Coin:</b> {tx.coin}</p>
-                  <p><b>Amount:</b> {tx.amount}</p>
-                  <p><b>Status:</b> {tx.status}</p>
-                  <p><b>Chain:</b> {tx.chain}</p>
-                  <p><b>Time:</b> {new Date(tx.createdAt).toLocaleString()}</p>
-                  <p><b>Hash:</b> {tx.hash}</p>
-                </div>
-              ))
-          )}
-        </div>
-      )}
+        ))
+    )}
+  </div>
+)}
 
       {adminTab === "kyc" && (
         <div className="admin-content">
