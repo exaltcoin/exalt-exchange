@@ -39,6 +39,11 @@ const API = API_BASE.endsWith("/api")
   const [web3Search, setWeb3Search] = useState("");
   const [webSearch, setWebSearch] = useState("");
   const [web3Filter, setWeb3Filter] = useState("ALL");
+  const [web3CoinFilter, setWeb3CoinFilter] = useState("ALL");
+const [web3StatusFilter, setWeb3StatusFilter] = useState("ALL");
+const [web3DateFilter, setWeb3DateFilter] = useState("ALL");
+const [web3Page, setWeb3Page] = useState(1);
+const WEB3_PAGE_SIZE = 20;
   const [adminTab, setAdminTab] = useState("overview");
   const [learnEarnRecords, setLearnEarnRecords] = useState([]);
   const [listingFilter, setListingFilter] = useState("all");
@@ -169,20 +174,105 @@ const web3SendCount = web3Transactions.filter((tx) => tx.type === "Send").length
 const web3ReceiveCount = web3Transactions.filter((tx) => tx.type === "Receive").length;
 const web3SwapCount = web3Transactions.filter((tx) => tx.type === "Swap").length;
 const web3SuccessCount = web3Transactions.filter((tx) => tx.status === "success").length;
+const web3PendingCount = web3Transactions.filter((tx) => tx.status === "pending").length;
+const web3FailedCount = web3Transactions.filter((tx) => tx.status === "failed").length;
 
 const shortText = (value = "") => {
-  if (!value) return "N/A";
-  return value.length > 18 ? `${value.slice(0, 10)}...${value.slice(-6)}` : value;
+  const text = String(value || "");
+  if (!text) return "N/A";
+  return text.length > 22 ? `${text.slice(0, 12)}...${text.slice(-8)}` : text;
+};
+
+const copyAdminText = async (text, label = "Copied") => {
+  await navigator.clipboard.writeText(String(text || ""));
+  alert(`${label} copied`);
 };
 
 const openWeb3Explorer = (tx) => {
-  if (!tx.hash || !tx.hash.startsWith("0x")) {
+  if (!tx.hash || !String(tx.hash).startsWith("0x")) {
     alert("Test transaction hash. Explorer not available.");
     return;
   }
 
   window.open(`https://bscscan.com/tx/${tx.hash}`, "_blank");
 };
+
+const uniqueWeb3Coins = [
+  "ALL",
+  ...new Set(web3Transactions.map((tx) => String(tx.coin || "").toUpperCase()).filter(Boolean)),
+];
+
+const isWeb3DateMatch = (tx) => {
+  if (web3DateFilter === "ALL") return true;
+  if (!tx.createdAt) return false;
+
+  const txDate = new Date(tx.createdAt);
+  const now = new Date();
+  const diffDays = (now - txDate) / (1000 * 60 * 60 * 24);
+
+  if (web3DateFilter === "TODAY") {
+    return txDate.toDateString() === now.toDateString();
+  }
+
+  if (web3DateFilter === "7D") return diffDays <= 7;
+  if (web3DateFilter === "30D") return diffDays <= 30;
+
+  return true;
+};
+
+const filteredWeb3Transactions = web3Transactions.filter((tx) => {
+  const search = web3Search.toLowerCase();
+
+  const matchSearch =
+    !search ||
+    tx.wallet?.toLowerCase().includes(search) ||
+    tx.hash?.toLowerCase().includes(search) ||
+    tx.coin?.toLowerCase().includes(search) ||
+    tx.chain?.toLowerCase().includes(search);
+
+  const matchType = web3Filter === "ALL" || tx.type === web3Filter;
+  const matchCoin = web3CoinFilter === "ALL" || String(tx.coin).toUpperCase() === web3CoinFilter;
+  const matchStatus =
+    web3StatusFilter === "ALL" ||
+    String(tx.status || "success").toLowerCase() === web3StatusFilter.toLowerCase();
+
+  return matchSearch && matchType && matchCoin && matchStatus && isWeb3DateMatch(tx);
+});
+
+const totalWeb3Pages = Math.max(1, Math.ceil(filteredWeb3Transactions.length / WEB3_PAGE_SIZE));
+
+const paginatedWeb3Transactions = filteredWeb3Transactions.slice(
+  (web3Page - 1) * WEB3_PAGE_SIZE,
+  web3Page * WEB3_PAGE_SIZE
+);
+
+const exportWeb3Csv = () => {
+  const rows = [
+    ["Wallet", "Type", "Coin", "Amount", "Status", "Chain", "Hash", "Time"],
+    ...filteredWeb3Transactions.map((tx) => [
+      tx.wallet || "",
+      tx.type || "",
+      tx.coin || "",
+      tx.amount || "",
+      tx.status || "",
+      tx.chain || "",
+      tx.hash || "",
+      tx.createdAt ? new Date(tx.createdAt).toLocaleString() : "",
+    ]),
+  ];
+
+  const csv = rows.map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `web3-transactions-${Date.now()}.csv`;
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -872,25 +962,29 @@ Staking
           )}
         </div>
       )}
-
-     {adminTab === "web3" && (
+{adminTab === "web3" && (
   <div className="admin-content">
     <h3>Web3 Transactions</h3>
 
     <div className="admin-stats">
-      <div className="stat-card"><h3>{web3Transactions.length}</h3><p>Total Web3</p></div>
+      <div className="stat-card"><h3>{web3Transactions.length}</h3><p>Total</p></div>
       <div className="stat-card"><h3>{web3SendCount}</h3><p>Send</p></div>
       <div className="stat-card"><h3>{web3ReceiveCount}</h3><p>Receive</p></div>
       <div className="stat-card"><h3>{web3SwapCount}</h3><p>Swap</p></div>
       <div className="stat-card"><h3>{web3SuccessCount}</h3><p>Success</p></div>
+      <div className="stat-card"><h3>{web3PendingCount}</h3><p>Pending</p></div>
+      <div className="stat-card"><h3>{web3FailedCount}</h3><p>Failed</p></div>
     </div>
 
     <div style={{ marginBottom: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
       <input
         type="text"
-        placeholder="Search wallet, hash, coin..."
+        placeholder="Search wallet, hash, coin, chain..."
         value={web3Search}
-        onChange={(e) => setWeb3Search(e.target.value)}
+        onChange={(e) => {
+          setWeb3Search(e.target.value);
+          setWeb3Page(1);
+        }}
         style={{
           flex: 1,
           minWidth: "240px",
@@ -902,48 +996,64 @@ Staking
         }}
       />
 
-      <select
-        value={web3Filter}
-        onChange={(e) => setWeb3Filter(e.target.value)}
-        style={{ padding: "10px", borderRadius: "8px" }}
-      >
-        <option value="ALL">All</option>
+      <select value={web3Filter} onChange={(e) => { setWeb3Filter(e.target.value); setWeb3Page(1); }}>
+        <option value="ALL">All Types</option>
         <option value="Receive">Receive</option>
         <option value="Send">Send</option>
         <option value="Swap">Swap</option>
       </select>
+
+      <select value={web3CoinFilter} onChange={(e) => { setWeb3CoinFilter(e.target.value); setWeb3Page(1); }}>
+        {uniqueWeb3Coins.map((coin) => (
+          <option key={coin} value={coin}>{coin === "ALL" ? "All Coins" : coin}</option>
+        ))}
+      </select>
+
+      <select value={web3StatusFilter} onChange={(e) => { setWeb3StatusFilter(e.target.value); setWeb3Page(1); }}>
+        <option value="ALL">All Status</option>
+        <option value="success">Success</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+      </select>
+
+      <select value={web3DateFilter} onChange={(e) => { setWeb3DateFilter(e.target.value); setWeb3Page(1); }}>
+        <option value="ALL">All Time</option>
+        <option value="TODAY">Today</option>
+        <option value="7D">Last 7 Days</option>
+        <option value="30D">Last 30 Days</option>
+      </select>
+
+      <button className="action-btn approve-btn" onClick={exportWeb3Csv}>
+        Export CSV
+      </button>
     </div>
 
-    {web3Transactions.length === 0 ? (
+    {filteredWeb3Transactions.length === 0 ? (
       <p>No Web3 transactions found.</p>
     ) : (
-      web3Transactions
-        .filter((tx) => {
-          const matchFilter = web3Filter === "ALL" || tx.type === web3Filter;
-          const search = web3Search.toLowerCase();
-
-          const matchSearch =
-            !search ||
-            tx.wallet?.toLowerCase().includes(search) ||
-            tx.hash?.toLowerCase().includes(search) ||
-            tx.coin?.toLowerCase().includes(search) ||
-            tx.chain?.toLowerCase().includes(search);
-
-          return matchFilter && matchSearch;
-        })
-        .map((tx) => (
+      <>
+        {paginatedWeb3Transactions.map((tx) => (
           <div className="admin-card" key={tx._id || tx.hash}>
             <h4>
               {tx.type} {tx.coin}
               <span
                 style={{
                   marginLeft: "10px",
+                  padding: "4px 10px",
+                  borderRadius: "999px",
+                  fontSize: "12px",
                   color:
                     tx.status === "success"
                       ? "#00ff88"
                       : tx.status === "pending"
                       ? "#ffaa00"
                       : "#ff4444",
+                  background:
+                    tx.status === "success"
+                      ? "rgba(0,255,136,.12)"
+                      : tx.status === "pending"
+                      ? "rgba(255,170,0,.12)"
+                      : "rgba(255,68,68,.12)",
                 }}
               >
                 {String(tx.status || "success").toUpperCase()}
@@ -956,33 +1066,44 @@ Staking
             <p><b>Hash:</b> {shortText(tx.hash)}</p>
             <p><b>Time:</b> {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : "N/A"}</p>
 
-            <button
-              className="action-btn approve-btn"
-              onClick={() => navigator.clipboard.writeText(tx.wallet || "")}
-            >
+            <button className="action-btn approve-btn" onClick={() => copyAdminText(tx.wallet, "Wallet")}>
               Copy Wallet
             </button>
 
-            <button
-              className="action-btn"
-              onClick={() => navigator.clipboard.writeText(tx.hash || "")}
-              style={{ marginLeft: "8px" }}
-            >
+            <button className="action-btn" onClick={() => copyAdminText(tx.hash, "Hash")} style={{ marginLeft: "8px" }}>
               Copy Hash
             </button>
 
-            <button
-              className="action-btn"
-              onClick={() => openWeb3Explorer(tx)}
-              style={{ marginLeft: "8px" }}
-            >
-              Explorer
+            <button className="action-btn" onClick={() => openWeb3Explorer(tx)} style={{ marginLeft: "8px" }}>
+              BscScan
             </button>
           </div>
-        ))
+        ))}
+
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "15px" }}>
+          <button
+            className="tab"
+            disabled={web3Page <= 1}
+            onClick={() => setWeb3Page((p) => Math.max(1, p - 1))}
+          >
+            Prev
+          </button>
+
+          <span>Page {web3Page} / {totalWeb3Pages}</span>
+
+          <button
+            className="tab"
+            disabled={web3Page >= totalWeb3Pages}
+            onClick={() => setWeb3Page((p) => Math.min(totalWeb3Pages, p + 1))}
+          >
+            Next
+          </button>
+        </div>
+      </>
     )}
   </div>
 )}
+   
 
       {adminTab === "kyc" && (
         <div className="admin-content">

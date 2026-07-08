@@ -4080,3 +4080,75 @@ img {
 .hero-logo-bg {
   pointer-events: none !important;
 }
+/* ===== Admin Web3 Dashboard Final ===== */
+
+.admin-web3-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+
+.admin-web3-toolbar input,
+.admin-web3-toolbar select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #1e2329;
+  color: #fff;
+  border: 1px solid #f0b90b;
+}
+
+.admin-web3-toolbar input {
+  flex: 1;
+  min-width: 240px;
+}
+
+.admin-web3-card {
+  border: 1px solid rgba(240, 185, 11, 0.35);
+  background: linear-gradient(135deg, rgba(30, 35, 41, 0.96), rgba(17, 24, 39, 0.96));
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.admin-web3-card h4 {
+  color: #fff;
+  margin: 0 0 10px;
+}
+
+.admin-web3-status {
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-web3-status.success {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.12);
+}
+
+.admin-web3-status.pending {
+  color: #ffaa00;
+  background: rgba(255, 170, 0, 0.12);
+}
+
+.admin-web3-status.failed {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.12);
+}
+
+.admin-web3-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.admin-web3-pagination {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 15px;
+}
