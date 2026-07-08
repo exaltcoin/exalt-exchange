@@ -297,7 +297,7 @@ const openExplorerTx = (tx) => {
     return;
   }
 
-  window.open(`${explorer}/tx/$ {shortHash(tx.hash)} `, "_blank");
+ window.open(`${explorer}/tx/${tx.hash}`, "_blank");
 }; 
 const replayWelcome = () => {
   setShowWelcome(false);
