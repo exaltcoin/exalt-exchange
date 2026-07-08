@@ -474,9 +474,23 @@ setHistoryStats(
     showToast("Wallet address copied.");
   };
 
-  const goExchange = () => {
-    if (setPage) setPage("trade");
-  };
+ const goExchange = () => {
+  try {
+    setShowWelcome(false);
+    setShowMenu(false);
+    setShowMore(false);
+    setBottomTab("home");
+
+    if (typeof setPage === "function") {
+      setPage("trade");
+      return;
+    }
+
+    window.location.href = "/";
+  } catch (err) {
+    window.location.href = "/";
+  }
+};
 
   const openSupport = () => {
     setShowSupport(true);
@@ -904,11 +918,8 @@ onBack={() => {
 <div className="ex-main-tabs">
   <button
     type="button"
-    onClick={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (setPage) setPage("dashboard");
-    }}
+    onClick={goExchange}
+    onTouchStart={goExchange}
   >
     Exchange
   </button>
