@@ -19,7 +19,9 @@ import AdminAIWhaleAlert from "./components/AdminAIWhaleAlert";
 import AdminExaltUtility from "./components/AdminExaltUtility";
 import AdminReputation from "./components/AdminReputation";
 import AdminAchievement from "./components/AdminAchievement";
+import AdminSpotTrading from "./components/AdminSpotTrading";
 import AdminNotifications from "./components/AdminNotifications";
+
 function AdminPanel() {
  const API_BASE =
   import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
@@ -560,6 +562,12 @@ Staking
   onClick={() => setAdminTab("notifications")}
 >
   Notifications
+</button>
+<button
+  className={adminTab === "spot-trading" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("spot-trading")}
+>
+  Spot Trading
 </button>
 
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>
@@ -1274,6 +1282,7 @@ Staking
 {adminTab === "reputation" && <AdminReputation />}
 {adminTab === "achievements" && <AdminAchievement />}
 {adminTab === "notifications" && <AdminNotifications />}
+{adminTab === "spot-trading" && <AdminSpotTrading />}
       {adminTab === "transactions" && (
         <div className="admin-content">
           <h3>Transaction History</h3>

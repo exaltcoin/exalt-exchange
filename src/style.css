@@ -4152,3 +4152,33 @@ img {
   align-items: center;
   margin-top: 15px;
 }
+/* ===== Admin Spot Trading Panel ===== */
+
+.admin-content input,
+.admin-content select {
+  border-radius: 10px;
+  border: 1px solid rgba(240, 185, 11, 0.45);
+  background: #1e2329;
+  color: #fff;
+  padding: 10px;
+  outline: none;
+}
+
+.admin-content input::placeholder {
+  color: #8f9bb3;
+}
+
+.admin-content select option {
+  color: #111;
+}
+
+.admin-card h4 span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+}
+
+.admin-card p b {
+  color: #f0b90b;
+}
