@@ -1,0 +1,107 @@
+.admin-wallets-page {
+  padding: 20px;
+  color: #fff;
+}
+
+.admin-wallet-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0 20px;
+}
+
+.admin-wallet-toolbar input,
+.admin-wallet-manage input,
+.admin-wallet-manage select {
+  background: #181a20;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.admin-wallet-toolbar input {
+  flex: 1;
+  min-width: 240px;
+}
+
+.admin-wallet-toolbar button,
+.admin-wallet-card button,
+.admin-wallet-manage button {
+  background: #f0b90b;
+  color: #111;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 4px;
+}
+
+.admin-wallet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 15px;
+}
+
+.admin-wallet-card,
+.admin-wallet-manage {
+  background: #1e2329;
+  border: 1px solid #333;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.admin-wallet-card h4 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wallet-active,
+.wallet-frozen {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.wallet-active {
+  background: #0a7d32;
+  color: #fff;
+}
+
+.wallet-frozen {
+  background: #c62828;
+  color: #fff;
+}
+
+.admin-wallet-card .danger {
+  background: #d32f2f;
+  color: #fff;
+}
+
+.admin-wallet-manage {
+  margin-top: 20px;
+}
+
+.admin-wallet-manage input,
+.admin-wallet-manage select {
+  width: 100%;
+  margin: 6px 0;
+}
+
+.ledger-row {
+  background: #111827;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+  margin-top: 8px;
+}
+
+.ledger-row strong {
+  color: #f0b90b;
+}
+
+.ledger-row small {
+  color: #aaa;
+}
