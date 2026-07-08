@@ -213,17 +213,23 @@ const availableBalance =
     }
 
     socket.emit("orderCreated", data);
+    socket.emit("refreshOrderBook", tradingPair);
+socket.emit("refreshTrades", tradingPair);
 
     alert("Order submitted successfully");
 
     setPrice("");
     setAmount("");
+loadWalletBalance();
+loadMyOrders();
+loadOrderBook();
+loadTradeHistory();
 
-    loadWalletBalance();
-    loadOrderBook();
-    loadTradeHistory();
-    loadMyOrders();
-
+socket.emit("orderCancelled", {
+  pair: tradingPair,
+  orderId,
+});
+   
   } catch (err) {
     console.log(err);
     alert("Server error");
@@ -369,13 +375,27 @@ useEffect(() => {
       })
     );
   };
+const handleOrderMatched = (data) => {
+  if (data?.pair && data.pair !== tradingPair) return;
 
+  loadOrderBook();
+  loadTradeHistory();
+  loadMyOrders();
+  loadWalletBalance();
+};
+
+socket.on("orderMatched", handleOrderMatched);
+socket.on("orderCreated", handleOrderMatched);
+socket.on("orderCancelled", handleOrderMatched);
   socket.on("marketUpdate", handleMarketUpdate);
 
   return () => {
-    socket.off("marketUpdate", handleMarketUpdate);
-  };
-}, []);
+  socket.off("marketUpdate", handleMarketUpdate);
+  socket.off("orderMatched", handleOrderMatched);
+  socket.off("orderCreated", handleOrderMatched);
+  socket.off("orderCancelled", handleOrderMatched);
+};
+}, [tradingPair]);
   useEffect(() => {
     const savedWallet = localStorage.getItem("trade_wallet");
     if (savedWallet) setWallet(savedWallet);
@@ -558,13 +578,32 @@ if (!hasExalt) {
               />
               <span>{type === "buy" ? "USDT" : selectedSymbol}</span>
             </div>
+<div className="ms-slider">
+  {[25, 50, 75, 100].map((percent) => (
+    <span
+      key={percent}
+      onClick={() => {
+        if (!availableBalance || availableBalance <= 0) return;
 
-            <div className="ms-slider">
-              <span onClick={() => setAmount("25")}></span>
-              <span onClick={() => setAmount("50")}></span>
-              <span onClick={() => setAmount("75")}></span>
-              <span onClick={() => setAmount("100")}></span>
-            </div>
+        if (type === "buy") {
+          const buyAmount =
+            orderMode === "market"
+              ? (availableBalance * percent) / 100
+              : ((availableBalance * percent) / 100) / Number(price || selectedPrice || 1);
+
+          setAmount(String(Number(buyAmount).toFixed(6)));
+        } else {
+          const sellAmount = (availableBalance * percent) / 100;
+          setAmount(String(Number(sellAmount).toFixed(6)));
+        }
+      }}
+      title={`${percent}%`}
+    >
+      {percent}%
+    </span>
+  ))}
+</div>
+           
 
             <p className="ms-balance">
   {t("available")}: {availableBalance.toFixed(4)}{" "}
@@ -586,7 +625,11 @@ if (!hasExalt) {
           </div>
 
           <div className="ms-orderbook">
-            <OrderBook coin={selectedCoin} />
+            <OrderBook
+              coin={selectedCoin}
+              bids={orderBookData.bids}
+              asks={orderBookData.asks}
+            />
           </div>
         </div>
 <div className="ms-live-section">
@@ -598,9 +641,30 @@ if (!hasExalt) {
       <div className="order-line" key={order._id}>
         <div>
           <strong>{order.side?.toUpperCase()} {order.pair}</strong>
-          <small>{order.status} • {Number(order.remaining || 0).toFixed(4)}</small>
+       <small>
+  <span className={`status-badge ${order.status}`}>
+    {order.status.toUpperCase()}
+  </span>
+
+  {" • "}Filled {Number(order.filled || 0).toFixed(4)}
+
+  {" • "}Remaining {Number(order.remaining || 0).toFixed(4)}
+</small>
+<div className="order-progress">
+  <div
+    className="order-progress-fill"
+    style={{
+      width: `${Math.min(
+        100,
+        (Number(order.filled || 0) / Number(order.amount || 1)) * 100
+      )}%`,
+    }}
+  />
+</div>
         </div>
-        <span>${formatPrice(order.price)}</span>
+       <span>
+  ${formatPrice(order.averagePrice || order.price)}
+</span>
         {["open", "partial"].includes(order.status) && (
           <button className="cancel-order-btn" onClick={() => cancelOrder(order._id)}>
             Cancel
@@ -851,7 +915,11 @@ if (!hasExalt) {
               </div>
 
               <div className="mobile-orderbook-box">
-                <OrderBook coin={selectedCoin} />
+               <OrderBook
+    coin={selectedCoin}
+    bids={orderBookData.bids}
+    asks={orderBookData.asks}
+/>
               </div>
             </div>
 
@@ -891,9 +959,30 @@ if (!hasExalt) {
       <div className="order-line" key={order._id}>
         <div>
           <strong>{order.side?.toUpperCase()} {order.pair}</strong>
-          <small>{order.status} • Remaining {Number(order.remaining || 0).toFixed(4)}</small>
+        <small>
+  <span className={`status-badge ${order.status}`}>
+    {order.status.toUpperCase()}
+  </span>
+
+  {" • "}Filled {Number(order.filled || 0).toFixed(4)}
+
+  {" • "}Remaining {Number(order.remaining || 0).toFixed(4)}
+</small>
+<div className="order-progress">
+  <div
+    className="order-progress-fill"
+    style={{
+      width: `${Math.min(
+        100,
+        (Number(order.filled || 0) / Number(order.amount || 1)) * 100
+      )}%`,
+    }}
+  />
+</div>
         </div>
-        <span>${formatPrice(order.price)}</span>
+       <span>
+  ${formatPrice(order.averagePrice || order.price)}
+</span>
         {["open", "partial"].includes(order.status) && (
           <button className="cancel-order-btn" onClick={() => cancelOrder(order._id)}>
             Cancel

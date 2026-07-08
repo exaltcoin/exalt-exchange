@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { socket } from "../api";
 import API_BASE_URL from "../api";
 
-function OrderBook({ coin }) {
+function OrderBook({ coin, bids: propBids = [], asks: propAsks = [] }) {
   const API_BASE =
     API_BASE_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
@@ -70,37 +70,75 @@ function OrderBook({ coin }) {
   }, [encodedPair]);
 
   const sellOrders = useMemo(() => {
-    return [...asks]
-      .sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
-      .slice(0, 10);
-  }, [asks]);
+  const list = propAsks.length ? propAsks : asks;
+  return [...list]
+    .sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
+    .slice(0, 10);
+}, [asks, propAsks]);
 
-  const buyOrders = useMemo(() => {
-    return [...bids]
-      .sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
-      .slice(0, 10);
-  }, [bids]);
+ const buyOrders = useMemo(() => {
+  const list = propBids.length ? propBids : bids;
+  return [...list]
+    .sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
+    .slice(0, 10);
+}, [bids, propBids]);
 
   const bestBid = Number(buyOrders[0]?.price || marketPrice);
   const bestAsk = Number(sellOrders[0]?.price || marketPrice);
   const spread = bestBid && bestAsk ? Math.abs(bestAsk - bestBid) : 0;
+const maxOrderTotal = useMemo(() => {
+  const totals = [...buyOrders, ...sellOrders].map((order) => {
+    const amount = Number(order.remaining || order.amount || 0);
+    const price = Number(order.price || 0);
+    return amount * price;
+  });
 
-  const renderRow = (order, side) => (
+  return Math.max(...totals, 1);
+}, [buyOrders, sellOrders]);
+  const renderRow = (order, side) => {
+  const amount = Number(order.remaining || order.amount || 0);
+  const total = amount * Number(order.price || 0);
+const depthPercent = Math.min(100, (total / maxOrderTotal) * 100);
+  return (
     <tr
-      key={order._id || `${side}-${order.price}-${order.amount}`}
-      className={`order-book-row ${side}`}
-    >
-      <td>{side === "buy" ? "BUY" : "SELL"}</td>
-      <td>${formatPrice(order.price)}</td>
-      <td>{Number(order.remaining || order.amount || 0).toFixed(4)}</td>
-      <td>{order.status || "open"}</td>
+  key={order._id || `${side}-${order.price}-${order.amount}`}
+  className={`order-book-row ${side}`}
+  style={{
+    background:
+      side === "buy"
+        ? `linear-gradient(90deg, rgba(0,200,83,.16) ${depthPercent}%, transparent ${depthPercent}%)`
+        : `linear-gradient(90deg, rgba(255,68,68,.16) ${depthPercent}%, transparent ${depthPercent}%)`,
+  }}
+>
+      <td className={side === "buy" ? "buy-price" : "sell-price"}>
+        ${formatPrice(order.price)}
+      </td>
+
+    <td>
+  {amount.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  })}
+</td>
+
+    <td>
+  $
+  {total.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}
+</td>
     </tr>
   );
+};
 
   return (
     <div className="orderbook-card">
       <div className="panel-header">
-        <h2 className="orderbook-title">Live Order Book</h2>
+        <h2 className="orderbook-title">
+  Live Order Book
+  <span className="live-dot"></span>
+</h2>
         <span>{selectedPair}</span>
       </div>
 
@@ -129,18 +167,17 @@ function OrderBook({ coin }) {
         <table>
           <thead>
             <tr>
-              <th>Side</th>
-              <th>Price</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
+  <th>Price (USDT)</th>
+  <th>Amount</th>
+  <th>Total</th>
+</tr>
           </thead>
 
           <tbody>
             {sellOrders.map((order) => renderRow(order, "sell"))}
 
             <tr className="orderbook-mid-row">
-              <td colSpan="4">Mid: ${formatPrice((bestBid + bestAsk) / 2)}</td>
+              <td colSpan="3">Mid: ${formatPrice((bestBid + bestAsk) / 2)}</td>
             </tr>
 
             {buyOrders.map((order) => renderRow(order, "buy"))}
