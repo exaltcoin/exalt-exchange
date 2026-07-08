@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./app.jsx";
+import "./styles/ExaltTheme.css";
 import { I18nProvider } from "./i18n";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <I18nProvider>
