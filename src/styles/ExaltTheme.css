@@ -206,3 +206,117 @@ h3,
     white-space: nowrap;
   }
 }
+/* ===== Exalt Premium Override Layer ===== */
+
+body,
+#root {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(240,185,11,.14), transparent 28%),
+    radial-gradient(circle at 90% 15%, rgba(0,200,83,.08), transparent 24%),
+    radial-gradient(circle at 50% 100%, rgba(59,130,246,.08), transparent 28%),
+    #07090f !important;
+}
+
+.panel,
+.page-shell,
+.dashboard,
+.dashboard-page,
+.markets-page,
+.trade-page-pro,
+.futures-page,
+.wallet-v2-page,
+.web3-wallet-page,
+.p2p-page,
+.profile-page,
+.support-page,
+.transactions-page,
+.orders-page {
+  background: transparent !important;
+}
+
+.card,
+.admin-card,
+.stat-card,
+.request-card,
+.wallet-v2-card,
+.wallet-v2-hero,
+.wallet-v2-asset-row,
+.trade-panel,
+.market-panel,
+.chart-panel,
+.history-panel,
+.positions-panel,
+.orderbook-card,
+.coin-details-box,
+.ms-info-card,
+.ms-live-section,
+.trade-live-section,
+.futures-container > div,
+.dashboard-card,
+.market-card,
+.p2p-card {
+  background: linear-gradient(135deg, rgba(30,35,41,.88), rgba(15,23,42,.9)) !important;
+  border: 1px solid rgba(240,185,11,.22) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 45px rgba(0,0,0,.35) !important;
+  backdrop-filter: blur(16px);
+}
+
+button,
+.tab,
+.action-btn,
+.wallet-v2-primary,
+.execute-buy,
+.execute-sell,
+.ms-main-buy,
+.ms-main-sell,
+.bm-main-buy,
+.bm-main-sell {
+  border-radius: 14px !important;
+  font-weight: 800 !important;
+}
+
+.sidebar button,
+.admin-tabs button,
+.wallet-v2-tabs button {
+  background: rgba(255,255,255,.06) !important;
+  border: 1px solid rgba(240,185,11,.18) !important;
+  color: #fff !important;
+}
+
+.sidebar button.active,
+.sidebar .active,
+.admin-tabs .active-tab,
+.wallet-v2-tabs .active,
+.tab.active,
+.active-tab {
+  background: linear-gradient(135deg, #f0b90b, #ffd56a) !important;
+  color: #111 !important;
+}
+
+input,
+select,
+textarea {
+  background: rgba(17,24,39,.94) !important;
+  color: #fff !important;
+  border: 1px solid rgba(240,185,11,.25) !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: #fff !important;
+}
+
+p,
+span,
+small,
+label {
+  color: inherit;
+}
+
+a {
+  color: #f0b90b;
+}
