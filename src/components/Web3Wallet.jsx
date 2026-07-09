@@ -482,7 +482,7 @@ setHistoryStats(
     setBottomTab("home");
 
     if (typeof setPage === "function") {
-      setPage("trade");
+     setPage("dashboard");
       return;
     }
 
