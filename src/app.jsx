@@ -53,6 +53,7 @@ import ReputationCenter from "./components/ReputationCenter";
 import AchievementCenter from "./components/AchievementCenter";
 import AdminRewards from "./components/AdminRewards";
 import NotificationCenter from "./components/NotificationCenter";
+import NotificationBell from "./components/NotificationBell";
 import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
 function App() {
@@ -221,7 +222,7 @@ if (path.startsWith("/ref/")) {
     if (page === "buy") return <BuyCrypto />;
     if (page === "futures") return <Futures setPage={setPage} />;
     if (page === "wallets") return <Wallets />;
-    if (page === "web3wallet") return <Web3Wallet />;
+   if (page === "web3wallet") return <Web3Wallet setPage={setPage} />;
     if (page === "transactions") return <Transactions />;
     if (page === "orders") return <Orders />;
     if (page === "p2p") return <P2P />;
@@ -329,7 +330,7 @@ if (path.startsWith("/ref/")) {
 
   return (
     <div className="app">
-      {page !== "dashboard" && (
+     {page !== "dashboard" && page !== "web3wallet" && (
   <button
     onClick={() => setPage("dashboard")}
     style={{
@@ -409,7 +410,7 @@ if (path.startsWith("/ref/")) {
         {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
       </div>
     </div>
-
+<NotificationBell setPage={setPage} />
     <button className="topbar-profile-btn" onClick={() => setPage("profile")}>
       👤
     </button>
