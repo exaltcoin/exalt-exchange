@@ -61,35 +61,52 @@ function ResetPassword({ setPage }) {
       setLoading(false);
     }
   };
+ return (
+  <div className="auth-page">
+    <div className="auth-card reset-card">
 
-  return (
-    <div className="auth-card">
+      <div className="auth-logo">
+        <img src="/logo192.png" alt="Exalt Exchange" />
+      </div>
+
       <h2>Reset Password</h2>
-      <p>Create your new Exalt Exchange password.</p>
+
+      <p className="auth-subtitle">
+        Create a strong new password to secure your Exalt Exchange account.
+      </p>
 
       <input
         type="password"
-        placeholder="New password"
+        placeholder="New Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
 
       <input
         type="password"
-        placeholder="Confirm new password"
+        placeholder="Confirm Password"
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
       />
 
-      <button onClick={resetPassword} disabled={loading}>
+      <button
+        className="primary-btn"
+        onClick={resetPassword}
+        disabled={loading}
+      >
         {loading ? "Resetting..." : "Reset Password"}
       </button>
 
-      <button type="button" onClick={() => setPage("auth")}>
-        Back to Login
+      <button
+        className="secondary-btn"
+        type="button"
+        onClick={() => setPage("auth")}
+      >
+        ← Back to Login
       </button>
-    </div>
-  );
-}
 
+    </div>
+  </div>
+);
+}
 export default ResetPassword;
