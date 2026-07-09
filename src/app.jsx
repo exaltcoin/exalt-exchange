@@ -56,6 +56,8 @@ import NotificationCenter from "./components/NotificationCenter";
 import NotificationBell from "./components/NotificationBell";
 import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
+import ForgotPassword from "./components/ForgotPassword";
+import VerifyResetCode from "./components/VerifyResetCode";
 function App() {
   const { t } = useI18n();
   const path = window.location.pathname;
@@ -182,17 +184,26 @@ if (path.startsWith("/ref/")) {
   const shortWallet = wallet
     ? wallet.slice(0, 6) + "..." + wallet.slice(-4)
     : "Connect Wallet";
+if (!isLoggedIn) {
+  return (
+    <div className="app">
+      <main className="main auth-only">
+        {page === "forgot-password" && <ForgotPassword setPage={setPage} />}
 
-  if (!isLoggedIn) {
-    return (
-      <div className="app">
-        <main className="main auth-only">
+        {page === "verify-reset-code" && (
+          <VerifyResetCode setPage={setPage} />
+        )}
+
+        {page === "reset-password" && <ResetPassword setPage={setPage} />}
+
+        {!["forgot-password", "verify-reset-code", "reset-password"].includes(page) && (
           <AuthPanel setPage={setPage} />
-        </main>
-      </div>
-    );
-  }
-
+        )}
+      </main>
+    </div>
+  );
+}
+ 
   const adminOnlyPanel = (Component) => {
     if (!isAdmin) {
       return (
@@ -216,7 +227,9 @@ if (path.startsWith("/ref/")) {
         </>
       );
     }
-
+if (page === "forgot-password") return <ForgotPassword setPage={setPage} />;
+if (page === "verify-reset-code") return <VerifyResetCode setPage={setPage} />;
+if (page === "reset-password") return <ResetPassword setPage={setPage} />;
     if (page === "markets") return <Markets />;
    if (page === "trade") return <Trade setPage={setPage} />;
     if (page === "buy") return <BuyCrypto />;
