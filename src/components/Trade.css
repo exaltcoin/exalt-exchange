@@ -955,3 +955,97 @@
     background:#d32f2f;
     color:#fff;
 }
+/* ===== FINAL MOBILE TRADE LAYOUT FIX ===== */
+
+@media (max-width: 768px) {
+  .mobile-spot-view {
+    width: 100%;
+    max-width: 100vw;
+    padding: 10px 10px 82px;
+    overflow-x: hidden;
+  }
+
+  .ms-trade-grid {
+    display: grid;
+    grid-template-columns: 1fr 145px;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .ms-order-box {
+    border-radius: 18px;
+    padding: 12px;
+    background: #101936;
+    border: 1px solid rgba(240,185,11,.18);
+  }
+
+  .ms-orderbook {
+    width: 145px;
+    border-radius: 18px;
+    padding: 12px 9px;
+    background: #101936;
+    border: 1px solid rgba(240,185,11,.18);
+    min-height: 360px;
+  }
+
+  .ms-orderbook h3,
+  .ms-orderbook h4 {
+    font-size: 15px !important;
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+
+  .ms-orderbook table {
+    width: 100%;
+    font-size: 10px;
+  }
+
+  .ms-orderbook td,
+  .ms-orderbook th {
+    padding: 5px 2px;
+  }
+
+  .ms-buy-sell button {
+    height: 42px;
+    border-radius: 13px;
+    font-size: 14px;
+  }
+
+  .ms-order-box select,
+  .ms-order-box input,
+  .ms-amount-box {
+    height: 42px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .ms-main-buy,
+  .ms-main-sell {
+    height: 48px;
+    border-radius: 15px;
+    font-size: 15px;
+  }
+
+  .ms-bottom-nav {
+    height: 70px;
+  }
+
+  .ms-bottom-nav .active {
+    background: linear-gradient(135deg, #f0b90b, #f59e0b);
+    color: #111827 !important;
+    border-radius: 16px;
+    margin: 6px;
+  }
+}
+
+@media (max-width: 390px) {
+  .ms-trade-grid {
+    grid-template-columns: 1fr 132px;
+    gap: 8px;
+  }
+
+  .ms-orderbook {
+    width: 132px;
+    padding: 10px 7px;
+  }
+}
