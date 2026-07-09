@@ -368,19 +368,25 @@ localStorage.removeItem("pendingReferralCode");
           >
             {mode === "signup" ? "Create Account" : "Login"}
           </button>
-<p
+<button
+  type="button"
   className="forgot-password"
   onClick={() => setPage("forgot-password")}
   style={{
     marginTop: "14px",
+    background: "transparent",
+    border: "none",
     color: "#f0c419",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "15px",
     textAlign: "center",
+    width: "100%",
+    padding: "14px 0",
+    fontWeight: "700",
   }}
 >
   Forgot Password?
-</p>
+</button>
          
 
           <p className="security-text">
