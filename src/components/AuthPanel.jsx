@@ -368,42 +368,20 @@ localStorage.removeItem("pendingReferralCode");
           >
             {mode === "signup" ? "Create Account" : "Login"}
           </button>
-
-          <p
-            className="forgot-password"
-            onClick={async () => {
-              const email = prompt("Enter your email");
-              if (!email) return;
-
-              try {
-                const res = await fetch(`${API}/api/auth/forgot-password`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email }),
-                });
-
-                const data = await res.json();
-
-                if (data.success) {
-                  alert("Password reset email sent. Check your inbox.");
-                } else {
-                  alert(data.message || "Failed to send reset email");
-                }
-              } catch (error) {
-                console.log(error);
-                alert("Failed to send reset email");
-              }
-            }}
-            style={{
-              marginTop: "14px",
-              color: "#f0c419",
-              cursor: "pointer",
-              fontSize: "14px",
-              textAlign: "center",
-            }}
-          >
-            Forgot Password?
-          </p>
+<p
+  className="forgot-password"
+  onClick={() => setPage("forgot-password")}
+  style={{
+    marginTop: "14px",
+    color: "#f0c419",
+    cursor: "pointer",
+    fontSize: "14px",
+    textAlign: "center",
+  }}
+>
+  Forgot Password?
+</p>
+         
 
           <p className="security-text">
             🛡️ Exalt Exchange • Advanced Security • Google 2FA • Global Trading
