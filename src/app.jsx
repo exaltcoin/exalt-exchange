@@ -58,16 +58,15 @@ import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
 import ForgotPassword from "./components/ForgotPassword";
 import VerifyResetCode from "./components/VerifyResetCode";
-import LegalHome from "./pages/legal/LegalHome";
-import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
-import TermsOfService from "./pages/legal/TermsOfService";
-import AMLPolicy from "./pages/legal/AMLPolicy";
-import KYCPolicy from "./pages/legal/KYCPolicy";
-import RiskDisclosure from "./pages/legal/RiskDisclosure";
-import CookiePolicy from "./pages/legal/CookiePolicy";
-import RefundPolicy from "./pages/legal/RefundPolicy";
-import Compliance from "./pages/legal/Compliance";
-
+import LegalHome from "./pages/legal/LegalHome.jsx";
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy.jsx";
+import TermsOfService from "./pages/legal/TermsOfService.jsx";
+import AMLPolicy from "./pages/legal/AMLPolicy.jsx";
+import KYCPolicy from "./pages/legal/KYCPolicy.jsx";
+import RiskDisclosure from "./pages/legal/RiskDisclosure.jsx";
+import CookiePolicy from "./pages/legal/CookiePolicy.jsx";
+import RefundPolicy from "./pages/legal/RefundPolicy.jsx";
+import Compliance from "./pages/legal/Compliance.jsx";
 function App() {
   const { t } = useI18n();
   const path = window.location.pathname;
