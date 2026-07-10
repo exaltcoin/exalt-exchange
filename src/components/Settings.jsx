@@ -201,17 +201,17 @@ function Settings({ setPage }) {
   const activeLanguage =
     languages.find((item) => item.code === lang)?.native || "English";
 const legalLinks = [
-    ["📄", "Legal Center", "/legal"],
-    ["🔒", "Privacy Policy", "/privacy"],
-    ["📜", "Terms of Service", "/terms"],
-    ["🗑️", "Delete Account", "/delete-account"],
-    ["🛡️", "AML Policy", "/aml"],
-    ["🪪", "KYC Policy", "/kyc-policy"],
-    ["⚠️", "Risk Disclosure", "/risk"],
-    ["🍪", "Cookie Policy", "/cookies"],
-    ["💰", "Refund Policy", "/refund"],
-    ["✅", "Compliance Statement", "/compliance"],
-  ];
+  ["📄", "Legal Center", "https://exaltexchange.io/legal"],
+  ["🔒", "Privacy Policy", "https://exaltexchange.io/privacy"],
+  ["📜", "Terms of Service", "https://exaltexchange.io/terms"],
+  ["🗑️", "Delete Account", "https://exaltexchange.io/delete-account"],
+  ["🛡️", "AML Policy", "https://exaltexchange.io/aml"],
+  ["🪪", "KYC Policy", "https://exaltexchange.io/kyc-policy"],
+  ["⚠️", "Risk Disclosure", "https://exaltexchange.io/risk"],
+  ["🍪", "Cookie Policy", "https://exaltexchange.io/cookies"],
+  ["💰", "Refund Policy", "https://exaltexchange.io/refund"],
+  ["✅", "Compliance Statement", "https://exaltexchange.io/compliance"],
+];
   return (
     <PageShell titleKey="settingsSecurity" subtitleKey="settingsSecuritySubtitle">
       <div className="settings-page">
