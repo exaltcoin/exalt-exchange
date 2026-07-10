@@ -4578,3 +4578,17 @@ font-size:14px;
 .legal-sidebar a span {
   font-size: 16px;
 }
+.settings-info-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.settings-info-list span {
+  flex: 1;
+}
+
+.settings-legal-link {
+  flex-shrink: 0;
+}
