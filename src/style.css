@@ -4372,4 +4372,23 @@ img {
   .verify-card h2 {
     font-size: 28px;
   }
+}.legal-footer-links {
+  margin: 35px auto 20px;
+  padding: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(240,185,11,.22);
+}
+
+.legal-footer-links a {
+  color: #f0b90b;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.legal-footer-links a:hover {
+  color: #fff;
 }
