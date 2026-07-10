@@ -224,3 +224,23 @@
     width: 100%;
   }
 }
+.settings-legal-link {
+  color: #f0b90b;
+  font-weight: 900;
+  text-decoration: none;
+  margin-top: 6px;
+  display: inline-block;
+}
+
+.settings-legal-link:hover {
+  color: #ffd76a;
+  text-decoration: underline;
+}
+
+.settings-info-list a.settings-legal-link {
+  background: rgba(240, 185, 11, 0.12);
+  border: 1px solid rgba(240, 185, 11, 0.25);
+  border-radius: 999px;
+  padding: 7px 14px;
+  width: fit-content;
+}

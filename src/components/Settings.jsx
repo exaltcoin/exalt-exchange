@@ -200,7 +200,17 @@ function Settings({ setPage }) {
 
   const activeLanguage =
     languages.find((item) => item.code === lang)?.native || "English";
-
+const legalLinks = [
+    ["📄", "Legal Center", "/legal"],
+    ["🔒", "Privacy Policy", "/privacy"],
+    ["📜", "Terms of Service", "/terms"],
+    ["🛡️", "AML Policy", "/aml"],
+    ["🪪", "KYC Policy", "/kyc-policy"],
+    ["⚠️", "Risk Disclosure", "/risk"],
+    ["🍪", "Cookie Policy", "/cookies"],
+    ["💰", "Refund Policy", "/refund"],
+    ["✅", "Compliance Statement", "/compliance"],
+  ];
   return (
     <PageShell titleKey="settingsSecurity" subtitleKey="settingsSecuritySubtitle">
       <div className="settings-page">
@@ -381,6 +391,30 @@ function Settings({ setPage }) {
               <p>✅ {t("settingRuleBotProtection")}</p>
               <p>✅ {t("settingRuleDepositReview")}</p>
             </div>
+          </div>
+        </div>
+        <div className="settings-card">
+          <div className="settings-card-head">
+            <div>
+              <h2>Legal & Compliance</h2>
+              <p>
+                Review Exalt Exchange policies, user protection terms, compliance
+                documents, and risk disclosures.
+              </p>
+            </div>
+          </div>
+
+          <div className="settings-info-list">
+            {legalLinks.map(([icon, label, href]) => (
+              <div key={href}>
+                <span>
+                  {icon} {label}
+                </span>
+                <a href={href} className="settings-legal-link">
+                  Open
+                </a>
+              </div>
+            ))}
           </div>
         </div>
       </div>
