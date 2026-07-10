@@ -67,9 +67,11 @@ import RiskDisclosure from "./pages/legal/RiskDisclosure.jsx";
 import CookiePolicy from "./pages/legal/CookiePolicy.jsx";
 import RefundPolicy from "./pages/legal/RefundPolicy.jsx";
 import Compliance from "./pages/legal/Compliance.jsx";
+import DeleteAccount from "./pages/legal/DeleteAccount.jsx";
 function App() {
   const { t } = useI18n();
-  const path = window.location.pathname;
+ const path =
+  window.location.pathname.replace(/\/+$/, "") || "/";
 if (path === "/legal") return <LegalHome />;
 if (path === "/privacy") return <PrivacyPolicy />;
 if (path === "/terms") return <TermsOfService />;
@@ -79,6 +81,7 @@ if (path === "/risk") return <RiskDisclosure />;
 if (path === "/cookies") return <CookiePolicy />;
 if (path === "/refund") return <RefundPolicy />;
 if (path === "/compliance") return <Compliance />;
+if (path === "/delete-account") return <DeleteAccount />;
   if (path.startsWith("/verify-email/")) {
     return <VerifyEmail />;
   }
@@ -290,8 +293,7 @@ if (page === "reset-password") return <ResetPassword setPage={setPage} />;
     if (page === "admin-rewards") return adminOnlyPanel(AdminRewards);
     if (page === "admin-learn") return adminOnlyPanel(AdminLearnEarn);
     if (page === "admin-referrals") return adminOnlyPanel(AdminReferrals);
-    if (page === "settings") return <Settings />;
-
+   if (page === "settings") return <Settings setPage={setPage} />;
     return (
       <div className="panel">
         <h2>{page.toUpperCase()}</h2>
@@ -459,6 +461,7 @@ if (page === "reset-password") return <ResetPassword setPage={setPage} />;
   <a href="/legal">Legal Center</a>
   <a href="/privacy">Privacy Policy</a>
   <a href="/terms">Terms</a>
+  <a href="/delete-account">Delete Account</a>
   <a href="/aml">AML</a>
   <a href="/kyc-policy">KYC</a>
   <a href="/risk">Risk</a>

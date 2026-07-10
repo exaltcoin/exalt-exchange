@@ -250,3 +250,59 @@ button.settings-legal-link {
   font-family: inherit;
   line-height: 1.2;
 }
+/* ===========================
+   Legal Buttons Professional
+   Add at END of Settings.css
+=========================== */
+
+.settings-info-list > div{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:18px;
+  padding:14px 18px;
+  margin-bottom:12px;
+  border-radius:14px;
+  background:#1b2230;
+  border:1px solid rgba(255,255,255,.06);
+  transition:all .25s ease;
+}
+
+.settings-info-list > div:hover{
+  border-color:#f0b90b;
+  background:#232c3d;
+  transform:translateY(-1px);
+}
+
+.settings-legal-link{
+  min-width:92px !important;
+  height:40px !important;
+  border:none !important;
+  border-radius:12px !important;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:700;
+  color:#111 !important;
+  background:linear-gradient(135deg,#f0b90b,#ffcc33) !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none !important;
+  transition:all .25s ease;
+  box-shadow:0 6px 18px rgba(240,185,11,.35);
+}
+
+.settings-legal-link:hover{
+  background:linear-gradient(135deg,#ffd54f,#f0b90b) !important;
+  transform:translateY(-2px);
+  box-shadow:0 10px 24px rgba(240,185,11,.45);
+}
+
+.settings-legal-link:active{
+  transform:scale(.97);
+}
+
+.settings-legal-link:focus{
+  outline:none;
+  box-shadow:0 0 0 3px rgba(240,185,11,.25);
+}
