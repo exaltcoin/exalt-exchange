@@ -1,4 +1,4 @@
-import "./Legal.css";
+
 
 function LegalLayout({ title, children }) {
   return (
