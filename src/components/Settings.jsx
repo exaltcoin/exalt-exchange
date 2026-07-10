@@ -204,6 +204,7 @@ const legalLinks = [
     ["📄", "Legal Center", "/legal"],
     ["🔒", "Privacy Policy", "/privacy"],
     ["📜", "Terms of Service", "/terms"],
+    ["🗑️", "Delete Account", "/delete-account"],
     ["🛡️", "AML Policy", "/aml"],
     ["🪪", "KYC Policy", "/kyc-policy"],
     ["⚠️", "Risk Disclosure", "/risk"],
