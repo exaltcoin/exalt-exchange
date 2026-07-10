@@ -25,7 +25,7 @@ import AdminWallets from "./components/AdminWallets";
 import AdminAuditLogs from "./components/AdminAuditLogs";
 import AdminLoginHistory from "./components/AdminLoginHistory";
 import AdminNotifications from "./components/AdminNotifications";
-
+import AdminAccountDeletion from "./components/AdminAccountDeletion";
 function AdminPanel() {
  const API_BASE =
   import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
@@ -596,6 +596,12 @@ Staking
   onClick={() => setAdminTab("login-history")}
 >
   Login History
+</button>
+<button
+  className={adminTab === "account-deletion" ? "tab active-tab" : "tab"}
+  onClick={() => setAdminTab("account-deletion")}
+>
+  Account Deletion
 </button>
 
         <button className={adminTab === "transactions" ? "tab active-tab" : "tab"} onClick={() => setAdminTab("transactions")}>Transactions</button>
@@ -1315,6 +1321,7 @@ Staking
 {adminTab === "wallet-admin" && <AdminWallets />}
 {adminTab === "audit-logs" && <AdminAuditLogs />}
 {adminTab === "login-history" && <AdminLoginHistory />}
+{adminTab === "account-deletion" && <AdminAccountDeletion />}
       {adminTab === "transactions" && (
         <div className="admin-content">
           <h3>Transaction History</h3>

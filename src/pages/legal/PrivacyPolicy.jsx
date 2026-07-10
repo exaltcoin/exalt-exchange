@@ -110,7 +110,21 @@ function PrivacyPolicy() {
 
       <h2>14. Contact</h2>
       <p>
-        Website: <strong>https://exaltexchange.io</strong>
+       <p>
+  Website:{" "}
+  <a
+    href="https://exaltexchange.io"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    https://exaltexchange.io
+  </a>
+  <br />
+  Email:{" "}
+  <a href="mailto:support@exaltexchange.io">
+    support@exaltexchange.io
+  </a>
+</p>
         <br />
         Email: <strong>support@exaltexchange.io</strong>
       </p>
