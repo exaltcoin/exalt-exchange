@@ -58,10 +58,28 @@ import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
 import ForgotPassword from "./components/ForgotPassword";
 import VerifyResetCode from "./components/VerifyResetCode";
+import LegalHome from "./pages/legal/LegalHome";
+import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
+import TermsOfService from "./pages/legal/TermsOfService";
+import AMLPolicy from "./pages/legal/AMLPolicy";
+import KYCPolicy from "./pages/legal/KYCPolicy";
+import RiskDisclosure from "./pages/legal/RiskDisclosure";
+import CookiePolicy from "./pages/legal/CookiePolicy";
+import RefundPolicy from "./pages/legal/RefundPolicy";
+import Compliance from "./pages/legal/Compliance";
+
 function App() {
   const { t } = useI18n();
   const path = window.location.pathname;
-
+if (path === "/legal") return <LegalHome />;
+if (path === "/privacy") return <PrivacyPolicy />;
+if (path === "/terms") return <TermsOfService />;
+if (path === "/aml") return <AMLPolicy />;
+if (path === "/kyc-policy") return <KYCPolicy />;
+if (path === "/risk") return <RiskDisclosure />;
+if (path === "/cookies") return <CookiePolicy />;
+if (path === "/refund") return <RefundPolicy />;
+if (path === "/compliance") return <Compliance />;
   if (path.startsWith("/verify-email/")) {
     return <VerifyEmail />;
   }
@@ -438,6 +456,17 @@ if (page === "reset-password") return <ResetPassword setPage={setPage} />;
   {t("logout")}
 </button>
         {renderPage()}
+        <footer className="legal-footer-links">
+  <a href="/legal">Legal Center</a>
+  <a href="/privacy">Privacy Policy</a>
+  <a href="/terms">Terms</a>
+  <a href="/aml">AML</a>
+  <a href="/kyc-policy">KYC</a>
+  <a href="/risk">Risk</a>
+  <a href="/cookies">Cookies</a>
+  <a href="/refund">Refund</a>
+  <a href="/compliance">Compliance</a>
+</footer>
       </main>
     </div>
   );
