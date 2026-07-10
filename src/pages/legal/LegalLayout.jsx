@@ -1,21 +1,34 @@
-
-
 function LegalLayout({ title, children }) {
+  const legalLinks = [
+    ["📄", "Legal Home", "/legal"],
+    ["🔒", "Privacy Policy", "/privacy"],
+    ["📜", "Terms of Service", "/terms"],
+    ["🛡️", "AML Policy", "/aml"],
+    ["🪪", "KYC Policy", "/kyc-policy"],
+    ["⚠️", "Risk Disclosure", "/risk"],
+    ["🍪", "Cookie Policy", "/cookies"],
+    ["💰", "Refund Policy", "/refund"],
+    ["✅", "Compliance", "/compliance"],
+  ];
+
+  const currentPath = window.location.pathname;
+
   return (
     <div className="legal-page">
       <div className="legal-shell">
         <aside className="legal-sidebar">
           <h2>Exalt Legal Center</h2>
 
-          <a href="/legal">Legal Home</a>
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-          <a href="/aml">AML Policy</a>
-          <a href="/kyc-policy">KYC Policy</a>
-          <a href="/risk">Risk Disclosure</a>
-          <a href="/cookies">Cookie Policy</a>
-          <a href="/refund">Refund Policy</a>
-          <a href="/compliance">Compliance</a>
+          {legalLinks.map(([icon, label, href]) => (
+            <a
+              key={href}
+              href={href}
+              className={currentPath === href ? "active" : ""}
+            >
+              <span>{icon}</span>
+              {label}
+            </a>
+          ))}
         </aside>
 
         <main className="legal-content">

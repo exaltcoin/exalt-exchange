@@ -4562,3 +4562,19 @@ font-size:14px;
 }
 
 }
+.legal-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legal-sidebar a.active {
+  background: #f0b90b;
+  color: #111827;
+  border-color: #f0b90b;
+  box-shadow: 0 10px 25px rgba(240, 185, 11, 0.25);
+}
+
+.legal-sidebar a span {
+  font-size: 16px;
+}
