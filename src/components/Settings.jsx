@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Browser } from "@capacitor/browser";
 import PageShell from "./PageShell";
 import { useI18n } from "../i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -212,6 +213,17 @@ const legalLinks = [
   ["💰", "Refund Policy", "https://exaltexchange.io/refund"],
   ["✅", "Compliance Statement", "https://exaltexchange.io/compliance"],
 ];
+const openLegalPage = async (url) => {
+  try {
+    await Browser.open({
+      url,
+      presentationStyle: "fullscreen",
+    });
+  } catch (error) {
+    console.error("Unable to open legal page:", error);
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+};
   return (
     <PageShell titleKey="settingsSecurity" subtitleKey="settingsSecuritySubtitle">
       <div className="settings-page">
@@ -411,9 +423,13 @@ const legalLinks = [
                 <span>
                   {icon} {label}
                 </span>
-                <a href={href} className="settings-legal-link">
-                  Open
-                </a>
+              <button
+  type="button"
+  className="settings-legal-link"
+  onClick={() => openLegalPage(href)}
+>
+  Open
+</button>
               </div>
             ))}
           </div>

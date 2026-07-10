@@ -244,3 +244,9 @@
   padding: 7px 14px;
   width: fit-content;
 }
+button.settings-legal-link {
+  appearance: none;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.2;
+}
