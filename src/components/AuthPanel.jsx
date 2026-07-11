@@ -22,7 +22,19 @@ export default function AuthPanel({ setPage }) {
 
   const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [message, setMessage] = useState("");
+const saveAuthenticatedSession = (data) => {
+  if (!data?.token || !data?.user) {
+    throw new Error("Invalid authentication response");
+  }
 
+  const authenticatedUser = {
+    ...data.user,
+    uid: data.user.uid ? String(data.user.uid) : "",
+  };
+
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(authenticatedUser));
+};
  useEffect(() => {
   const pendingReferralCode = localStorage.getItem("pendingReferralCode");
 
@@ -187,9 +199,7 @@ localStorage.removeItem("pendingReferralCode");
       const data = await res.json();
 
       if (data.success) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-
+     saveAuthenticatedSession(data);
         alert("Login successful");
         if (setPage) setPage("dashboard");
         window.location.reload();

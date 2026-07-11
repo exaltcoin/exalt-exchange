@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 
 const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
-
+const API = API_BASE.endsWith("/api")
+  ? API_BASE.replace(/\/api$/, "")
+  : API_BASE.replace(/\/+$/, "");
 function AdminKycPanel() {
+  const token = localStorage.getItem("token");
   const [kycList, setKycList] = useState([]);
   const [filter, setFilter] = useState("all");
 const [stats, setStats] = useState({
@@ -14,7 +17,11 @@ const [stats, setStats] = useState({
 });
   const loadKyc = async () => {
     try {
-      const res = await fetch(`${API}/api/kyc/admin/all`);
+     const res = await fetch(`${API}/api/kyc/admin/all`, {
+  headers: {
+    Authorization: `Bearer ${token || ""}`,
+  },
+});
       const data = await res.json();
       console.log("KYC API Response:", data);
    const list = data.kycList || data.kyc || data.requests || [];
@@ -56,7 +63,10 @@ const confirmAction = window.confirm(
 if (!confirmAction) return;
     const res = await fetch(`${API}/api/kyc/admin/${id}/status`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+    headers: {
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${token || ""}`,
+},
       body: JSON.stringify({
         status,
       }),
@@ -90,14 +100,19 @@ const filteredKyc =
   <div onClick={() => setFilter("approved")}>Approved: {stats.approved}</div>
   <div onClick={() => setFilter("rejected")}>Rejected: {stats.rejected}</div>
 </div>
-      {kycList.length === 0 ? (
+     {filteredKyc.length === 0 ? (
         <p>No KYC requests found.</p>
       ) : (
         filteredKyc.map((kyc) => (
           <div className="admin-card" key={kyc._id}>
          <h3>{kyc.fullName || kyc.name || "Unknown User"}</h3>
             <p><b>Email:</b> {kyc.email}</p>
-            <p><b>User ID:</b> {kyc.userId}</p>
+         <p>
+  <b>User ID:</b>{" "}
+  <span className="admin-kyc-user-uid">
+    {kyc.uid || kyc.userUid || kyc.user?.uid || "N/A"}
+  </span>
+</p>
 <p><b>Submitted:</b> {kyc.createdAt ? new Date(kyc.createdAt).toLocaleString() : "N/A"}</p>
             <p><b>Phone:</b> {kyc.phone}</p>
             <p><b>Country:</b> {kyc.country}</p>
@@ -113,21 +128,7 @@ const filteredKyc =
       : "🟡 Pending"}
   </span>
 </p>
-{kyc.status === "pending" && (
-  <>
-    <button
-      onClick={() => updateKyc(kyc._id, "approved")}
-    >
-      Approve
-    </button>
 
-    <button
-      onClick={() => updateKyc(kyc._id, "rejected")}
-    >
-      Reject
-    </button>
-  </>
-)}
        {kyc.cnicFront && (
   <p>
     <a href={kyc.cnicFront} target="_blank" rel="noreferrer">

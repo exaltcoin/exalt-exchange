@@ -15,7 +15,7 @@ function Support() {
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
-
+const userUid = user?.uid ? String(user.uid) : "";
   const [category, setCategory] = useState("Wallet / Deposit");
   const [priority, setPriority] = useState("Medium");
   const [wallet, setWallet] = useState("");
@@ -48,19 +48,24 @@ function Support() {
 
     try {
       setLoading(true);
+const payload = {
+  userName,
+  userEmail,
+  email: userEmail,
 
-      const payload = {
-        userName,
-        userEmail,
-        email: userEmail,
-        wallet,
-        category,
-        priority,
-        subject,
-        message,
-        aiSuggestion,
-        status: "open",
-      };
+  // Public Exalt Exchange UID
+  uid: userUid,
+  userUid,
+
+  wallet,
+  category,
+  priority,
+  subject,
+  message,
+  aiSuggestion,
+  status: "open",
+};
+     
 
       const endpoints = [
         `${API}/api/support-ticket`,
@@ -143,7 +148,12 @@ function Support() {
 
           <div className="support-card">
             <h2>{t("createSupportTicket")}</h2>
-
+{userUid && (
+  <div className="support-user-uid-row">
+    <span>{t("userId")}</span>
+    <strong>{userUid}</strong>
+  </div>
+)}
             <div className="support-row">
               <input
                 placeholder={t("fullName")}

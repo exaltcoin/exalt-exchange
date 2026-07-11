@@ -284,11 +284,13 @@ const openLegalPage = async (url) => {
                 <span>{t("role")}</span>
                 <strong>{user.role || "user"}</strong>
               </div>
-
-              <div>
-                <span>{t("userId")}</span>
-                <strong>{user._id || user.id || "N/A"}</strong>
-              </div>
+<div>
+  <span>{t("userId")}</span>
+  <strong className="settings-user-uid">
+    {user.uid || "N/A"}
+  </strong>
+</div>
+            
             </div>
           </div>
         </div>

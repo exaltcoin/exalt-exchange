@@ -13,37 +13,56 @@ const API_BASE = RAW_API.endsWith("/api")
 
 export default function KycVerification() {
   const { t } = useI18n();
+const storedUser = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (error) {
+    console.error(error);
+    return {};
+  }
+})();
 
-  const [loading, setLoading] = useState(false);
-  const [emailOtp, setEmailOtp] = useState("");
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [faceVerified, setFaceVerified] = useState(false);
+const userUid = storedUser?.uid
+  ? String(storedUser.uid)
+  : "";
 
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    country: "",
-    documentType: "CNIC",
-    documentNumber: "",
-  });
+const token = localStorage.getItem("token");
 
-  const [files, setFiles] = useState({
-    cnicFront: null,
-    cnicBack: null,
-    passport: null,
-    selfie: null,
-  });
+const [loading, setLoading] = useState(false);
+const [emailOtp, setEmailOtp] = useState("");
+const [emailVerified, setEmailVerified] = useState(false);
+const [faceVerified, setFaceVerified] = useState(false);
 
-  const token = localStorage.getItem("token");
+const [form, setForm] = useState({
+  fullName: storedUser?.name || storedUser?.fullName || "",
+  email: storedUser?.email || "",
+  phone: storedUser?.phone || "",
+  country: storedUser?.country || "",
+  documentType: "CNIC",
+  documentNumber: "",
+});
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+const [files, setFiles] = useState({
+  cnicFront: null,
+  cnicBack: null,
+  passport: null,
+  selfie: null,
+});
 
-  const handleFile = (name, file) => {
-    setFiles({ ...files, [name]: file || null });
-  };
+const handleChange = (e) => {
+  setForm((prev) => ({
+    ...prev,
+    [e.target.name]: e.target.value,
+  }));
+};
+
+const handleFile = (name, file) => {
+  setFiles((prev) => ({
+    ...prev,
+    [name]: file || null,
+  }));
+};
+
 
   const sendEmailOtp = () => {
     alert(t("emailOtpSent"));
@@ -100,10 +119,12 @@ export default function KycVerification() {
       setLoading(true);
 
       const data = new FormData();
-      data.append("fullName", form.fullName);
-      data.append("email", form.email);
-      data.append("phone", form.phone);
-      data.append("country", form.country);
+     data.append("fullName", form.fullName);
+data.append("email", form.email);
+data.append("uid", userUid);
+data.append("userUid", userUid);
+data.append("phone", form.phone);
+data.append("country", form.country);
       data.append("idType", form.documentType);
       data.append("idNumber", form.documentNumber);
 
@@ -139,6 +160,10 @@ export default function KycVerification() {
     <PageShell titleKey="kycVerification" subtitleKey="kycVerificationSubtitle">
       <div className="kyc-page">
         <div className="kyc-card">
+          <div className="kyc-user-uid-box">
+  <span>{t("userId")}</span>
+  <strong>{userUid || t("notAvailable")}</strong>
+</div>
           <div className="kyc-grid">
             <input
               name="fullName"

@@ -336,3 +336,35 @@
     grid-template-columns:1fr;
   }
 }
+.kyc-user-uid-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 16px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(240, 185, 11, 0.32);
+  border-radius: 13px;
+  background: rgba(240, 185, 11, 0.08);
+}
+
+.kyc-user-uid-box span {
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.kyc-user-uid-box strong {
+  color: #f0b90b;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 600px) {
+  .kyc-user-uid-box {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

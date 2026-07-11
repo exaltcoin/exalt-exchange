@@ -74,3 +74,21 @@
   color: #9ca3af;
   word-break: break-word;
 }
+.admin-audit-user-uid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 108px;
+  padding: 5px 10px;
+  border: 1px solid rgba(240, 185, 11, 0.35);
+  border-radius: 9px;
+  color: #f0b90b;
+  background: rgba(240, 185, 11, 0.08);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  user-select: text;
+}

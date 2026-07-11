@@ -178,12 +178,13 @@ function Profile() {
         </div>
 
         <div className="profile-grid">
-          <div className="profile-card">
-            <h3>Account Overview</h3>
-            <p><b>{t("name")}:</b> {user.name || t("notAvailable")}</p>
-            <p><b>{t("email")}:</b> {user.email || t("notAvailable")}</p>
-            <p><b>{t("role")}:</b> {user.role || "user"}</p>
-          </div>
+         <p>
+  <b>{t("userId")}:</b>{" "}
+  <span className="profile-user-uid">
+    {user.uid || t("notAvailable")}
+  </span>
+</p>
+          
 
           <div className="profile-card">
             <h3>Security</h3>

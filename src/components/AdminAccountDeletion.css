@@ -746,3 +746,25 @@
 .admin-deletion-action-grid .complete:hover:not(:disabled) {
   box-shadow: 0 10px 22px rgba(124, 58, 237, 0.28);
 }
+.admin-deletion-public-uid {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 5px 9px;
+  border: 1px solid rgba(240, 185, 11, 0.35);
+  border-radius: 9px;
+  color: #f0b90b !important;
+  background: rgba(240, 185, 11, 0.08);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  user-select: text;
+}
+
+.admin-deletion-public-uid:hover {
+  border-color: rgba(240, 185, 11, 0.62);
+  background: rgba(240, 185, 11, 0.14);
+}

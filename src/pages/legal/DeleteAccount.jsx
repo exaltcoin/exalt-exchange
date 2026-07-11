@@ -21,7 +21,7 @@ function DeleteAccount() {
 
   const [form, setForm] = useState({
     email: storedUser?.email || "",
-    userId: storedUser?._id || storedUser?.id || "",
+   userId: storedUser?.uid || "",
     reason: "",
     details: "",
     confirmation: "",

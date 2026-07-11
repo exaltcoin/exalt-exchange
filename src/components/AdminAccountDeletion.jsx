@@ -180,14 +180,18 @@ function AdminAccountDeletion() {
         requestStatus === statusFilter;
 
       const user = request.user || {};
-
-      const searchableText = [
-        user.name,
-        user.email,
-        user._id,
-        request.fullName,
-        request.email,
-        request.userId,
+const searchableText = [
+  user.name,
+  user.email,
+  user.uid,
+  request.uid,
+  request.userUid,
+  request.fullName,
+  request.email,
+  typeof request.userId === "object"
+    ? request.userId?.uid
+    : request.userId,
+    
         request.reason,
         request.details,
         request.status,
@@ -262,24 +266,30 @@ function AdminAccountDeletion() {
       );
   };
 
-  const getRequestUser = (request) => {
-    return request?.user || {};
-  };
+ const getRequestUserId = (request) => {
+  const user = getRequestUser(request);
 
-  const getRequestUserId = (request) => {
-    const user = getRequestUser(request);
+  if (user?.uid) {
+    return String(user.uid);
+  }
 
-    if (user?._id) return user._id;
+  if (
+    request?.userId &&
+    typeof request.userId === "object"
+  ) {
+    return String(
+      request.userId.uid ||
+        request.userId.userUid ||
+        "N/A"
+    );
+  }
 
-    if (
-      request?.userId &&
-      typeof request.userId === "object"
-    ) {
-      return request.userId._id || "N/A";
-    }
-
-    return request?.userId || "N/A";
-  };
+  return String(
+    request?.uid ||
+      request?.userUid ||
+      "N/A"
+  );
+};
 
   const getRequestUserName = (request) => {
     const user = getRequestUser(request);
@@ -644,12 +654,9 @@ function AdminAccountDeletion() {
                               )}
                             </span>
 
-                            <small>
-                              ID:{" "}
-                              {getRequestUserId(
-                                request
-                              )}
-                            </small>
+                          <small className="admin-deletion-public-uid">
+  UID: {getRequestUserId(request)}
+</small>
                           </div>
                         </div>
                       </td>
@@ -805,15 +812,13 @@ function AdminAccountDeletion() {
                     </strong>
                   </div>
 
-                  <div>
-                    <span>User ID</span>
+                 <div>
+  <span>Exalt User ID</span>
 
-                    <strong>
-                      {getRequestUserId(
-                        selectedRequest
-                      )}
-                    </strong>
-                  </div>
+  <strong className="admin-deletion-public-uid">
+    {getRequestUserId(selectedRequest)}
+  </strong>
+</div>
 
                   <div>
                     <span>Account Status</span>

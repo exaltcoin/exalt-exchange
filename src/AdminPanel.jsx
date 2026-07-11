@@ -284,13 +284,34 @@ const exportWeb3Csv = () => {
     Authorization: `Bearer ${token}`,
   };
 
-  const safeText = (value) => {
-    if (value === null || value === undefined) return "N/A";
-    if (typeof value === "object") {
-      return value.name || value.email || value._id || JSON.stringify(value);
-    }
-    return value;
-  };
+ const safeText = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return "N/A";
+  }
+
+  if (typeof value === "object") {
+    return (
+      value.uid ||
+      value.userUid ||
+      value.name ||
+      value.email ||
+      JSON.stringify(value)
+    );
+  }
+
+  return String(value);
+};
+
+const getPublicUid = (record) => {
+  return (
+    record?.uid ||
+    record?.userUid ||
+    record?.user?.uid ||
+    record?.userId?.uid ||
+    record?.account?.uid ||
+    "N/A"
+  );
+};
  
   if (!user || user.role !== "admin") {
     return (
@@ -901,7 +922,23 @@ Staking
           ) : (
           filteredWithdrawals.map((item) =>(
               <div className="admin-card" key={item._id}>
-                <p>User: {safeText(item.userId)}</p>
+              <p>
+  <b>User ID:</b>{" "}
+  <span className="admin-user-uid">
+    {getPublicUid(item)}
+  </span>
+</p>
+
+<p>
+  <b>User:</b>{" "}
+  {safeText(
+    item.userId?.name ||
+      item.user?.name ||
+      item.userId?.email ||
+      item.user?.email ||
+      item.email
+  )}
+</p>
                 <p>Amount: {safeText(item.amount)}</p>
                 <p>Coin: {safeText(item.coin)}</p>
                 <p>Status: {safeText(item.status)}</p>
@@ -982,7 +1019,23 @@ Staking
           ) : (
          filteredDeposits.map((item) => (
               <div className="admin-card" key={item._id}>
-                <p>User: {safeText(item.userId?.name || item.userId?.email || item.email || "N/A")}</p>
+              <p>
+  <b>User ID:</b>{" "}
+  <span className="admin-user-uid">
+    {getPublicUid(item)}
+  </span>
+</p>
+
+<p>
+  <b>User:</b>{" "}
+  {safeText(
+    item.userId?.name ||
+      item.user?.name ||
+      item.userId?.email ||
+      item.user?.email ||
+      item.email
+  )}
+</p>
                 <p>Amount: {item.amount}</p>
                 <p>Status: {item.status}</p>
                 <p>Payment Method: {safeText(item.paymentMethod)}</p>
@@ -1200,9 +1253,24 @@ Staking
 ) : (
   filteredKyc.map((kyc) => (
               <div key={kyc._id} className="request-card">
-                <p><b>Name:</b> {kyc.fullName}</p>
-                <p><b>Email:</b> {kyc.email}</p>
-                <p><b>Country:</b> {kyc.country}</p>
+               <p>
+  <b>Name:</b> {kyc.fullName || kyc.name || "N/A"}
+</p>
+
+<p>
+  <b>Email:</b> {kyc.email || kyc.user?.email || "N/A"}
+</p>
+
+<p>
+  <b>User ID:</b>{" "}
+  <span className="admin-user-uid">
+    {getPublicUid(kyc)}
+  </span>
+</p>
+
+<p>
+  <b>Country:</b> {kyc.country || "N/A"}
+</p>
                 <p><b>Wallet:</b> {kyc.walletAddress}</p>
                 <p><b>ID Type:</b> {kyc.idType}</p>
                 <p><b>ID Number:</b> {kyc.idNumber}</p>
@@ -1273,7 +1341,22 @@ Staking
           ) : (
             filteredTickets.map((item) => (
               <div className="admin-card" key={item._id}>
-                <p>User: {item.userName || item.userEmail || item.email || item.user?.name || item.user?.email || item.user?._id || "N/A"}</p>
+             <p>
+  <b>User ID:</b>{" "}
+  <span className="admin-user-uid">
+    {getPublicUid(item)}
+  </span>
+</p>
+
+<p>
+  <b>User:</b>{" "}
+  {item.userName ||
+    item.user?.name ||
+    item.userEmail ||
+    item.user?.email ||
+    item.email ||
+    "N/A"}
+</p>
                 <p>Message: {safeText(item.message)}</p>
                 <p>Status: {safeText(item.status)}</p>
 
