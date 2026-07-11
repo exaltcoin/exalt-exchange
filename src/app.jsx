@@ -105,12 +105,20 @@ if (path.startsWith("/ref/")) {
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
   const [menuOpen, setMenuOpen] = useState(false);
+const [currentUser, setCurrentUser] = useState(() => {
+  try {
+    return JSON.parse(localStorage.getItem("user") || "{}");
+  } catch (error) {
+    console.error("Invalid stored user data:", error);
+    return {};
+  }
+});
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const isLoggedIn = !!localStorage.getItem("token");
-  const userEmail = storedUser?.email || "User";
-  const isAdmin = storedUser?.role === "admin";
-
+const isLoggedIn = !!localStorage.getItem("token");
+const userEmail = currentUser?.email || "User";
+const userUid = currentUser?.uid || "";
+const isAdmin = currentUser?.role === "admin";
+ 
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
@@ -128,10 +136,12 @@ if (path.startsWith("/ref/")) {
         });
 
         const data = await res.json();
+if (data.success && data.user) {
+ localStorage.setItem("user", JSON.stringify(data.user));
+setCurrentUser(data.user);
+  setPage("dashboard");
 
-        if (data.success) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-          setPage("dashboard");
+        
         } else {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
@@ -153,6 +163,7 @@ if (path.startsWith("/ref/")) {
     localStorage.removeItem("user");
     setWallet("");
     setBnbBalance("0.0000");
+    setCurrentUser({});
     setPage("auth");
 
     setTimeout(() => {
