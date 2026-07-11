@@ -677,3 +677,72 @@
     grid-template-columns: 1fr;
   }
 }
+/* ===== CANCELLED ACCOUNT DELETION STATUS ===== */
+
+.admin-deletion-stat-card.cancelled strong {
+  color: #94a3b8;
+}
+
+.admin-deletion-status.cancelled {
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(148, 163, 184, 0.1);
+}
+
+/* ===== SMALL ADMIN DELETION POLISH ===== */
+
+.admin-deletion-modal-body::-webkit-scrollbar,
+.admin-deletion-table-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-deletion-modal-body::-webkit-scrollbar-track,
+.admin-deletion-table-wrapper::-webkit-scrollbar-track {
+  background: #0b1220;
+  border-radius: 999px;
+}
+
+.admin-deletion-modal-body::-webkit-scrollbar-thumb,
+.admin-deletion-table-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f0b90b, #d89f00);
+  border-radius: 999px;
+}
+
+.admin-deletion-modal-header button:hover {
+  background: #dc2626;
+  transform: scale(1.04);
+}
+
+.admin-deletion-request-box > div,
+.admin-deletion-info-grid > div,
+.admin-deletion-risk-grid > div {
+  transition: 0.2s ease;
+}
+
+.admin-deletion-request-box > div:hover,
+.admin-deletion-info-grid > div:hover,
+.admin-deletion-risk-grid > div:hover {
+  border: 1px solid rgba(240, 185, 11, 0.22);
+  transform: translateY(-1px);
+}
+
+.admin-deletion-action-grid button {
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.admin-deletion-action-grid .under-review:hover:not(:disabled) {
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.28);
+}
+
+.admin-deletion-action-grid .approve:hover:not(:disabled) {
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.28);
+}
+
+.admin-deletion-action-grid .reject:hover:not(:disabled) {
+  box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
+}
+
+.admin-deletion-action-grid .complete:hover:not(:disabled) {
+  box-shadow: 0 10px 22px rgba(124, 58, 237, 0.28);
+}

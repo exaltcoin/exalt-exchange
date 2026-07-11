@@ -1,11 +1,27 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const SUPPORT_EMAIL = "support@exaltexchange.io";
 
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  "https://exalt-real-backend-6b6v.onrender.com";
+
+const API = API_BASE.endsWith("/api")
+  ? API_BASE.replace(/\/api$/, "")
+  : API_BASE.replace(/\/+$/, "");
+
 function DeleteAccount() {
+  const storedUser = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "{}");
+    } catch {
+      return {};
+    }
+  }, []);
+
   const [form, setForm] = useState({
-    email: "",
-    userId: "",
+    email: storedUser?.email || "",
+    userId: storedUser?._id || storedUser?.id || "",
     reason: "",
     details: "",
     confirmation: "",
@@ -13,7 +29,10 @@ function DeleteAccount() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submittedRequest, setSubmittedRequest] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const reasons = useMemo(
     () => [
@@ -27,6 +46,49 @@ function DeleteAccount() {
     []
   );
 
+  useEffect(() => {
+    const loadExistingRequest = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      try {
+        const response = await fetch(
+          `${API}/api/account-deletion/me`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.success && data.request) {
+          setSubmittedRequest(data.request);
+
+          if (
+            ["pending", "under_review", "approved"].includes(
+              data.request.status
+            )
+          ) {
+            setSubmitted(true);
+            setSuccessMessage(
+              "You already have an active account deletion request."
+            );
+          }
+        }
+      } catch (requestError) {
+        console.error(
+          "Unable to load existing deletion request:",
+          requestError
+        );
+      }
+    };
+
+    loadExistingRequest();
+  }, []);
+
   const updateField = (event) => {
     const { name, value, type, checked } = event.target;
 
@@ -36,39 +98,46 @@ function DeleteAccount() {
     }));
 
     setError("");
+    setSuccessMessage("");
   };
 
-  const submitDeletionRequest = (event) => {
-    event.preventDefault();
+  const getRequestSource = () => {
+    const userAgent = navigator.userAgent || "";
 
+    if (/Android/i.test(userAgent)) return "android";
+    if (/iPhone|iPad|iPod/i.test(userAgent)) return "ios";
+
+    return "web";
+  };
+
+  const validateForm = () => {
     const normalizedEmail = form.email.trim().toLowerCase();
 
     if (!normalizedEmail) {
-      setError("Please enter the email address registered with your account.");
-      return;
+      return "Please enter the email address registered with your account.";
     }
 
-    if (!normalizedEmail.includes("@")) {
-      setError("Please enter a valid email address.");
-      return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return "Please enter a valid email address.";
     }
 
     if (!form.reason) {
-      setError("Please select a reason for deleting your account.");
-      return;
+      return "Please select a reason for deleting your account.";
     }
 
     if (form.confirmation.trim().toUpperCase() !== "DELETE") {
-      setError('Please type "DELETE" to confirm your request.');
-      return;
+      return 'Please type "DELETE" to confirm your request.';
     }
 
     if (!form.acknowledge) {
-      setError(
-        "Please confirm that you understand the deletion consequences."
-      );
-      return;
+      return "Please confirm that you understand the deletion consequences.";
     }
+
+    return "";
+  };
+
+  const openEmailFallback = () => {
+    const normalizedEmail = form.email.trim().toLowerCase();
 
     const subject = encodeURIComponent(
       `Account Deletion Request — ${normalizedEmail}`
@@ -97,9 +166,176 @@ function DeleteAccount() {
       ].join("\n")
     );
 
-    setSubmitted(true);
+    window.location.href =
+      `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  };
 
-    window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+  const submitDeletionRequest = async (event) => {
+    event.preventDefault();
+
+    const validationError = validateForm();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    /*
+      Public web fallback:
+      The current protected backend route requires the user to be logged in.
+      If no token exists, prepare an email request instead.
+    */
+    if (!token) {
+      setSubmitted(true);
+      setSuccessMessage(
+        "Your email application will open with a prepared deletion request. Send the email to complete your request."
+      );
+
+      openEmailFallback();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      setSuccessMessage("");
+
+      const response = await fetch(
+        `${API}/api/account-deletion/request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            reason: form.reason,
+            details: form.details.trim(),
+            requestSource: getRequestSource(),
+          }),
+        }
+      );
+
+      let data = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+
+        throw new Error(
+          "Your session has expired. Please sign in again before submitting the request."
+        );
+      }
+
+      if (response.status === 409) {
+        setSubmitted(true);
+        setSubmittedRequest(data.request || null);
+        setSuccessMessage(
+          data.message ||
+            "An active account deletion request already exists."
+        );
+        return;
+      }
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Unable to submit your account deletion request."
+        );
+      }
+
+      setSubmitted(true);
+      setSubmittedRequest(data.request || null);
+      setSuccessMessage(
+        data.message ||
+          "Your account deletion request has been submitted successfully."
+      );
+
+      setForm((current) => ({
+        ...current,
+        reason: "",
+        details: "",
+        confirmation: "",
+        acknowledge: false,
+      }));
+    } catch (requestError) {
+      console.error("Account deletion request error:", requestError);
+
+      setError(
+        requestError.message ||
+          "Unable to submit your request. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelDeletionRequest = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Please sign in to cancel your deletion request.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel your account deletion request?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setLoading(true);
+      setError("");
+      setSuccessMessage("");
+
+      const response = await fetch(
+        `${API}/api/account-deletion/me/cancel`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Unable to cancel the deletion request."
+        );
+      }
+
+      setSubmittedRequest(data.request || null);
+      setSubmitted(false);
+      setSuccessMessage(
+        data.message ||
+          "Your account deletion request has been cancelled."
+      );
+    } catch (requestError) {
+      console.error("Cancel deletion request error:", requestError);
+
+      setError(
+        requestError.message ||
+          "Unable to cancel the request. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatStatus = (status) => {
+    return String(status || "pending")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   };
 
   return (
@@ -325,6 +561,13 @@ function DeleteAccount() {
           resize: vertical;
         }
 
+        .delete-account-field input:disabled,
+        .delete-account-field select:disabled,
+        .delete-account-field textarea:disabled {
+          cursor: not-allowed;
+          opacity: 0.65;
+        }
+
         .delete-account-field input::placeholder,
         .delete-account-field textarea::placeholder {
           color: #64748b;
@@ -368,43 +611,91 @@ function DeleteAccount() {
         }
 
         .delete-account-error {
-          padding: 12px 14px;
+          padding: 13px 15px;
           border: 1px solid rgba(239, 68, 68, 0.35);
           border-radius: 12px;
           color: #fecaca;
           background: rgba(239, 68, 68, 0.1);
           font-size: 13px;
           font-weight: 700;
+          line-height: 1.6;
         }
 
         .delete-account-success {
-          padding: 13px 15px;
+          padding: 15px;
           border: 1px solid rgba(34, 197, 94, 0.35);
-          border-radius: 12px;
+          border-radius: 13px;
           color: #86efac;
           background: rgba(34, 197, 94, 0.1);
           font-size: 13px;
           line-height: 1.65;
         }
 
-        .delete-account-submit {
+        .delete-account-request-status {
+          display: grid;
+          gap: 8px;
+          padding: 15px;
+          border: 1px solid rgba(96, 165, 250, 0.32);
+          border-radius: 13px;
+          background: rgba(37, 99, 235, 0.09);
+        }
+
+        .delete-account-request-status span {
+          color: #94a3b8;
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+        }
+
+        .delete-account-request-status strong {
+          color: #93c5fd;
+          font-size: 17px;
+        }
+
+        .delete-account-request-status small {
+          color: #cbd5e1;
+          line-height: 1.6;
+        }
+
+        .delete-account-submit,
+        .delete-account-cancel-request {
           width: 100%;
           padding: 15px 18px;
           border: 0;
           border-radius: 14px;
-          color: #111827;
-          background: linear-gradient(135deg, #f8d34f, #f0a500);
-          box-shadow: 0 12px 28px rgba(240, 185, 11, 0.2);
           font-size: 15px;
           font-weight: 900;
           cursor: pointer;
           transition: 0.22s ease;
         }
 
-        .delete-account-submit:hover {
+        .delete-account-submit {
+          color: #111827;
+          background: linear-gradient(135deg, #f8d34f, #f0a500);
+          box-shadow: 0 12px 28px rgba(240, 185, 11, 0.2);
+        }
+
+        .delete-account-submit:hover:not(:disabled) {
           transform: translateY(-2px);
           filter: brightness(1.05);
           box-shadow: 0 16px 35px rgba(240, 185, 11, 0.28);
+        }
+
+        .delete-account-submit:disabled,
+        .delete-account-cancel-request:disabled {
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        .delete-account-cancel-request {
+          color: #fecaca;
+          border: 1px solid rgba(239, 68, 68, 0.35);
+          background: rgba(239, 68, 68, 0.1);
+        }
+
+        .delete-account-cancel-request:hover:not(:disabled) {
+          color: #ffffff;
+          background: #dc2626;
         }
 
         .delete-account-side {
@@ -582,9 +873,10 @@ function DeleteAccount() {
           </h1>
 
           <p>
-            Use this page to request permanent deletion of your Exalt Exchange
-            account and associated personal data. Please review the information
-            below carefully before submitting your request.
+            Use this page to request permanent deletion of your Exalt
+            Exchange account and associated personal data. Please review
+            the information below carefully before submitting your
+            request.
           </p>
         </section>
 
@@ -592,9 +884,11 @@ function DeleteAccount() {
           <section className="delete-account-card delete-account-form-card">
             <div className="delete-account-section-head">
               <h2>Submit a deletion request</h2>
+
               <p>
-                Enter information that matches your registered Exalt Exchange
-                account. We may contact you to verify account ownership.
+                Enter information that matches your registered Exalt
+                Exchange account. We may contact you to verify account
+                ownership.
               </p>
             </div>
 
@@ -615,6 +909,7 @@ function DeleteAccount() {
                   placeholder="Enter your registered email"
                   value={form.email}
                   onChange={updateField}
+                  disabled={loading}
                 />
               </div>
 
@@ -630,6 +925,7 @@ function DeleteAccount() {
                   placeholder="Enter your user ID if available"
                   value={form.userId}
                   onChange={updateField}
+                  disabled={loading}
                 />
               </div>
 
@@ -643,6 +939,7 @@ function DeleteAccount() {
                   name="reason"
                   value={form.reason}
                   onChange={updateField}
+                  disabled={loading || submitted}
                 >
                   <option value="">Select a reason</option>
 
@@ -665,6 +962,7 @@ function DeleteAccount() {
                   placeholder="Add any information that may help us identify and process your request."
                   value={form.details}
                   onChange={updateField}
+                  disabled={loading || submitted}
                 />
               </div>
 
@@ -681,6 +979,7 @@ function DeleteAccount() {
                   placeholder="DELETE"
                   value={form.confirmation}
                   onChange={updateField}
+                  disabled={loading || submitted}
                 />
               </div>
 
@@ -691,32 +990,72 @@ function DeleteAccount() {
                     type="checkbox"
                     checked={form.acknowledge}
                     onChange={updateField}
+                    disabled={loading || submitted}
                   />
 
                   <span>
-                    I understand that account deletion may be permanent and
-                    irreversible. I confirm that I have withdrawn or transferred
-                    any eligible remaining assets and understand that access to
-                    my account, rewards, referrals, transaction history, and
-                    other services may be permanently removed.
+                    I understand that account deletion may be permanent
+                    and irreversible. I confirm that I have withdrawn or
+                    transferred any eligible remaining assets and
+                    understand that access to my account, rewards,
+                    referrals, transaction history, and other services
+                    may be permanently removed.
                   </span>
                 </label>
               </div>
 
-              {error && <div className="delete-account-error">{error}</div>}
+              {error && (
+                <div className="delete-account-error">{error}</div>
+              )}
 
-              {submitted && (
+              {successMessage && (
                 <div className="delete-account-success">
-                  Your email application should now open with a prepared account
-                  deletion request. Send that email to complete your request. If
-                  no email application opens, contact{" "}
-                  <strong>{SUPPORT_EMAIL}</strong> directly.
+                  {successMessage}
                 </div>
               )}
 
-              <button className="delete-account-submit" type="submit">
-                Submit Account Deletion Request
-              </button>
+              {submittedRequest && (
+                <div className="delete-account-request-status">
+                  <span>Current request status</span>
+
+                  <strong>
+                    {formatStatus(submittedRequest.status)}
+                  </strong>
+
+                  <small>
+                    Request ID:{" "}
+                    {submittedRequest._id || "Processing"}
+                  </small>
+                </div>
+              )}
+
+              {!submitted ? (
+                <button
+                  className="delete-account-submit"
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading
+                    ? "Submitting Request..."
+                    : "Submit Account Deletion Request"}
+                </button>
+              ) : (
+                ["pending", "under_review"].includes(
+                  submittedRequest?.status
+                ) &&
+                localStorage.getItem("token") && (
+                  <button
+                    className="delete-account-cancel-request"
+                    type="button"
+                    onClick={cancelDeletionRequest}
+                    disabled={loading}
+                  >
+                    {loading
+                      ? "Processing..."
+                      : "Cancel Deletion Request"}
+                  </button>
+                )
+              )}
             </form>
           </section>
 
@@ -728,32 +1067,32 @@ function DeleteAccount() {
                 <li>
                   <span className="delete-account-list-icon">✓</span>
                   <span>
-                    Account profile details, preferences, and non-required
-                    personal information.
+                    Account profile details, preferences, and
+                    non-required personal information.
                   </span>
                 </li>
 
                 <li>
                   <span className="delete-account-list-icon">✓</span>
                   <span>
-                    Authentication access, active sessions, saved settings, and
-                    eligible security information.
+                    Authentication access, active sessions, saved
+                    settings, and eligible security information.
                   </span>
                 </li>
 
                 <li>
                   <span className="delete-account-list-icon">✓</span>
                   <span>
-                    Eligible support, referral, reward, notification, and
-                    platform activity information.
+                    Eligible support, referral, reward, notification,
+                    and platform activity information.
                   </span>
                 </li>
 
                 <li>
                   <span className="delete-account-list-icon">✓</span>
                   <span>
-                    Other associated data that is not required to be retained by
-                    law or legitimate compliance obligations.
+                    Other associated data not required to be retained
+                    by law or legitimate compliance obligations.
                   </span>
                 </li>
               </ul>
@@ -766,24 +1105,27 @@ function DeleteAccount() {
                 <li>
                   <span className="delete-account-list-icon">!</span>
                   <span>
-                    Transaction, deposit, withdrawal, trade, wallet, and
-                    financial records required for audit or legal obligations.
+                    Transaction, deposit, withdrawal, trade, wallet,
+                    and financial records required for audit or legal
+                    obligations.
                   </span>
                 </li>
 
                 <li>
                   <span className="delete-account-list-icon">!</span>
                   <span>
-                    KYC, AML, fraud-prevention, sanctions, security, dispute,
-                    tax, or regulatory records where retention is required.
+                    KYC, AML, fraud-prevention, sanctions, security,
+                    dispute, tax, or regulatory records where retention
+                    is required.
                   </span>
                 </li>
 
                 <li>
                   <span className="delete-account-list-icon">!</span>
                   <span>
-                    Records connected to pending investigations, disputes,
-                    chargebacks, court orders, or enforcement requests.
+                    Records connected to pending investigations,
+                    disputes, chargebacks, court orders, or enforcement
+                    requests.
                   </span>
                 </li>
               </ul>
@@ -794,45 +1136,62 @@ function DeleteAccount() {
 
               <div className="delete-account-timeline">
                 <div className="delete-account-timeline-item">
-                  <span className="delete-account-timeline-number">1</span>
+                  <span className="delete-account-timeline-number">
+                    1
+                  </span>
+
                   <div>
                     <strong>Submit your request</strong>
+
                     <p>
-                      Send the prepared request from the email registered with
-                      your account.
+                      Submit the secure form while logged in or send the
+                      prepared request from your registered email.
                     </p>
                   </div>
                 </div>
 
                 <div className="delete-account-timeline-item">
-                  <span className="delete-account-timeline-number">2</span>
+                  <span className="delete-account-timeline-number">
+                    2
+                  </span>
+
                   <div>
                     <strong>Ownership verification</strong>
+
                     <p>
-                      We may request additional information to protect your
-                      account from unauthorized deletion.
+                      We may request additional information to protect
+                      your account from unauthorized deletion.
                     </p>
                   </div>
                 </div>
 
                 <div className="delete-account-timeline-item">
-                  <span className="delete-account-timeline-number">3</span>
+                  <span className="delete-account-timeline-number">
+                    3
+                  </span>
+
                   <div>
                     <strong>Security and balance review</strong>
+
                     <p>
-                      Pending balances, open orders, disputes, restrictions, or
-                      compliance reviews may need to be resolved first.
+                      Pending balances, open orders, disputes,
+                      restrictions, or compliance reviews must be
+                      resolved first.
                     </p>
                   </div>
                 </div>
 
                 <div className="delete-account-timeline-item">
-                  <span className="delete-account-timeline-number">4</span>
+                  <span className="delete-account-timeline-number">
+                    4
+                  </span>
+
                   <div>
                     <strong>Deletion confirmation</strong>
+
                     <p>
-                      Most eligible requests are processed within 30 days after
-                      successful verification.
+                      Most eligible requests are processed within 30
+                      days following successful verification.
                     </p>
                   </div>
                 </div>
@@ -843,11 +1202,15 @@ function DeleteAccount() {
 
         <footer className="delete-account-footer">
           Need assistance? Contact{" "}
-          <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+          <a href={`mailto:${SUPPORT_EMAIL}`}>
+            {SUPPORT_EMAIL}
+          </a>
+          .
           <br />
-          Exalt Exchange may refuse or delay a deletion request where necessary
-          to protect users, prevent fraud, resolve liabilities, comply with
-          applicable laws, or meet regulatory and record-retention obligations.
+          Exalt Exchange may refuse or delay a deletion request where
+          necessary to protect users, prevent fraud, resolve
+          liabilities, comply with applicable laws, or meet regulatory
+          and record-retention obligations.
         </footer>
       </div>
     </div>
