@@ -1,0 +1,66 @@
+{
+  "marketsTitle": "EXALT Markets",
+  "marketsSubtitle": "Approved coins, verified contracts, live charts, liquidity and volume.",
+
+  "liveMarketBoard": "● Live Market Board",
+
+  "searchCoin": "Search coin, symbol or contract...",
+
+  "allChains": "All Chains",
+
+  "totalListedCoins": "Total Listed Coins",
+
+  "filteredCoins": "Filtered Coins",
+
+  "marketStatus": "Market Status",
+
+  "live": "LIVE",
+
+  "loadingMarkets": "Loading markets...",
+
+  "noApprovedCoins": "No approved coins found.",
+
+  "coin": "Coin",
+
+  "symbol": "Symbol",
+
+  "chain": "Chain",
+
+  "price": "Price",
+
+  "marketCap": "Market Cap",
+
+  "liquidity": "Liquidity",
+
+  "volume24h": "24H Volume",
+
+  "change24h": "24H Change",
+
+  "holders": "Holders",
+
+  "contract": "Contract",
+
+  "website": "Website",
+
+  "telegram": "Telegram",
+
+  "chart": "Chart",
+
+  "buyToken": "Buy Token",
+
+  "topGainer": "Top Gainer",
+
+  "topLoser": "Top Loser",
+
+  "trending": "Trending",
+
+  "refresh": "Refresh",
+
+  "loading": "Loading...",
+
+  "volume": "Volume",
+
+  "status": "Status",
+
+  "exchange": "Exchange"
+}

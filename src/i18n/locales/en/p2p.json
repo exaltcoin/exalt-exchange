@@ -1,0 +1,99 @@
+{
+  "p2pTitle": "Global P2P Trading",
+  "p2pSubtitle": "Buy and sell crypto worldwide with secure escrow protection.",
+
+  "globalP2pTrading": "Global P2P Trading",
+  "liveGlobalAds": "Live Global Ads",
+
+  "escrowReady": "Escrow Ready",
+  "escrowActive": "Escrow Active",
+  "waitingEscrow": "Waiting for Escrow",
+  "inEscrow": "In Escrow",
+
+  "totalOrders": "Total Orders",
+  "createP2pAd": "Create P2P Ad",
+
+  "buy": "Buy",
+  "sell": "Sell",
+
+  "trader": "Trader",
+  "asset": "Asset",
+  "amount": "Amount",
+  "price": "Price",
+  "country": "Country",
+  "payment": "Payment",
+  "paymentMethod": "Payment Method",
+  "walletAddress": "Wallet Address",
+  "status": "Status",
+  "action": "Action",
+
+  "selectPaymentMethod": "Select Payment Method",
+
+  "allTypes": "All Types",
+  "allCountries": "All Countries",
+  "allPayments": "All Payment Methods",
+
+  "online": "Online",
+  "offline": "Offline",
+  "verifiedMerchant": "Verified Merchant",
+  "global": "Global",
+
+  "accept": "Accept",
+  "cancel": "Cancel",
+  "markPaid": "Mark Paid",
+  "release": "Release",
+
+  "open": "Open",
+  "inTrade": "In Trade",
+  "paymentSent": "Payment Sent",
+  "completed": "Completed",
+  "cancelled": "Cancelled",
+
+  "noP2pAdsFound": "No P2P ads found.",
+
+  "p2pSecurity": "P2P Security",
+  "p2pSecurity1": "User-to-user trading",
+  "p2pSecurity2": "Live database orders",
+  "p2pSecurity3": "Escrow status tracking",
+  "p2pSecurity4": "Payment proof upload",
+  "p2pSecurity5": "Administrator review support",
+  "p2pSecurity6": "Secure P2P status workflow",
+
+  "fillAllFields": "Please fill all required fields.",
+  "pleaseLoginFirst": "Please login first.",
+
+  "p2pOrderCreated": "P2P order created successfully.",
+  "tradeStartedSuccessfully": "Trade started successfully.",
+  "tradeCompletedSuccessfully": "Trade completed successfully.",
+
+  "tradeFailed": "Trade failed.",
+  "releaseFailed": "Asset release failed.",
+  "cancelFailed": "Order cancellation failed.",
+
+  "uploadPaymentProof": "Please upload payment proof.",
+  "paymentSubmitted": "Payment proof submitted successfully.",
+
+  "orderCancelledRefunded": "Order cancelled and the locked asset was refunded.",
+
+  "paymentProof": "Payment Proof",
+  "uploadProof": "Upload Proof",
+
+  "buyer": "Buyer",
+  "seller": "Seller",
+
+  "orderDetails": "Order Details",
+  "orderId": "Order ID",
+
+  "escrow": "Escrow",
+  "escrowProtection": "Escrow Protection",
+
+  "dispute": "Dispute",
+  "openDispute": "Open Dispute",
+  "disputeReason": "Dispute Reason",
+
+  "processing": "Processing...",
+  "loading": "Loading...",
+
+  "serverError": "Server error.",
+  "sessionExpired": "Session expired. Please login again."
+}

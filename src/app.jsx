@@ -1,8 +1,9 @@
-import exchangeLogo from "./assets/exalt-exchange-logo.png";
-import { useState, useEffect } from "react";
-import { useI18n } from "./i18n";
-import LanguageSwitcher from "./components/LanguageSwitcher";
+import { useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
+
+import exchangeLogo from "./assets/exalt-exchange-logo.png";
+import { useI18n } from "./i18n/index.js";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import "./style.css";
 
 import Dashboard from "./components/Dashboard";
@@ -58,6 +59,7 @@ import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
 import ForgotPassword from "./components/ForgotPassword";
 import VerifyResetCode from "./components/VerifyResetCode";
+
 import LegalHome from "./pages/legal/LegalHome.jsx";
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy.jsx";
 import TermsOfService from "./pages/legal/TermsOfService.jsx";
@@ -68,36 +70,56 @@ import CookiePolicy from "./pages/legal/CookiePolicy.jsx";
 import RefundPolicy from "./pages/legal/RefundPolicy.jsx";
 import Compliance from "./pages/legal/Compliance.jsx";
 import DeleteAccount from "./pages/legal/DeleteAccount.jsx";
+
+const DEFAULT_API_BASE =
+  "https://exalt-real-backend-6b6v.onrender.com";
+
+const normalizeApiBase = (value) => {
+  const base = String(value || DEFAULT_API_BASE)
+    .trim()
+    .replace(/\/+$/, "");
+
+  return base.endsWith("/api") ? base.slice(0, -4) : base;
+};
+
+const readStoredUser = () => {
+  try {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return {};
+    }
+
+    const parsedUser = JSON.parse(storedUser);
+
+    return parsedUser && typeof parsedUser === "object"
+      ? parsedUser
+      : {};
+  } catch (error) {
+    console.error("Invalid stored user data:", error);
+    localStorage.removeItem("user");
+    return {};
+  }
+};
+
+const checkAdminAccess = (user) =>
+  user?.role === "admin" ||
+  user?.role === "super_admin" ||
+  user?.role === "owner" ||
+  user?.isAdmin === true ||
+  user?.isOwner === true;
+
 function App() {
   const { t } = useI18n();
- const path =
-  window.location.pathname.replace(/\/+$/, "") || "/";
-if (path === "/legal") return <LegalHome />;
-if (path === "/privacy") return <PrivacyPolicy />;
-if (path === "/terms") return <TermsOfService />;
-if (path === "/aml") return <AMLPolicy />;
-if (path === "/kyc-policy") return <KYCPolicy />;
-if (path === "/risk") return <RiskDisclosure />;
-if (path === "/cookies") return <CookiePolicy />;
-if (path === "/refund") return <RefundPolicy />;
-if (path === "/compliance") return <Compliance />;
-if (path === "/delete-account") return <DeleteAccount />;
-  if (path.startsWith("/verify-email/")) {
-    return <VerifyEmail />;
-  }
-  if (path.startsWith("/reset-password/")) {
-  return <ResetPassword />;
-}
-if (path.startsWith("/ref/")) {
-  const referralCode = path.split("/ref/")[1];
 
-  if (referralCode) {
-    localStorage.setItem("pendingReferralCode", referralCode);
-    window.history.replaceState({}, "", "/");
-  }
-}
- const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  const path =
+    window.location.pathname.replace(/\/+$/, "") || "/";
+
+  const API_BASE = useMemo(
+    () => normalizeApiBase(import.meta.env.VITE_API_URL),
+    []
+  );
+
   const [page, setPage] = useState(() =>
     localStorage.getItem("token") ? "dashboard" : "auth"
   );
@@ -105,97 +127,247 @@ if (path.startsWith("/ref/")) {
   const [wallet, setWallet] = useState("");
   const [bnbBalance, setBnbBalance] = useState("0.0000");
   const [menuOpen, setMenuOpen] = useState(false);
-const [currentUser, setCurrentUser] = useState(() => {
-  try {
-    return JSON.parse(localStorage.getItem("user") || "{}");
-  } catch (error) {
-    console.error("Invalid stored user data:", error);
-    return {};
-  }
-});
+  const [currentUser, setCurrentUser] = useState(readStoredUser);
+  const [authChecking, setAuthChecking] = useState(
+    Boolean(localStorage.getItem("token"))
+  );
 
-const isLoggedIn = !!localStorage.getItem("token");
-const userEmail = currentUser?.email || "User";
-const userUid = currentUser?.uid || "";
-const isAdmin = currentUser?.role === "admin";
- 
+  const token = localStorage.getItem("token");
+  const isLoggedIn = Boolean(token);
+  const hasAdminAccess = checkAdminAccess(currentUser);
+
+  const translateWithFallback = (
+    key,
+    fallback,
+    namespace
+  ) => {
+    try {
+      const translatedValue = t(key, {
+        defaultValue: fallback,
+        ...(namespace ? { ns: namespace } : {}),
+      });
+
+      if (
+        translatedValue === undefined ||
+        translatedValue === null ||
+        String(translatedValue).trim() === "" ||
+        translatedValue === key
+      ) {
+        return fallback;
+      }
+
+      return translatedValue;
+    } catch (error) {
+      console.error(
+        `Translation failed for key "${key}":`,
+        error
+      );
+
+      return fallback;
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem("token");
+      const storedToken = localStorage.getItem("token");
 
-      if (!token) {
+      if (!storedToken) {
+        setCurrentUser({});
         setPage("auth");
+        setAuthChecking(false);
         return;
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${API_BASE}/api/auth/me`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${storedToken}`,
+              Accept: "application/json",
+            },
+          }
+        );
 
-        const data = await res.json();
-if (data.success && data.user) {
- localStorage.setItem("user", JSON.stringify(data.user));
-setCurrentUser(data.user);
-  setPage("dashboard");
+        const data = await response.json().catch(() => ({}));
 
-        
+        if (response.ok && data?.success && data?.user) {
+          localStorage.setItem(
+            "user",
+            JSON.stringify(data.user)
+          );
+
+          setCurrentUser(data.user);
+
+          setPage((currentPage) =>
+            currentPage === "auth"
+              ? "dashboard"
+              : currentPage
+          );
         } else {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+
+          setCurrentUser({});
           setPage("auth");
         }
       } catch (error) {
-        console.log(error);
+        console.error(
+          "Authentication check failed:",
+          error
+        );
+
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+
+        setCurrentUser({});
         setPage("auth");
+      } finally {
+        setAuthChecking(false);
       }
     };
 
     checkAuth();
   }, [API_BASE]);
 
+  if (path === "/legal") {
+    return <LegalHome />;
+  }
+
+  if (path === "/privacy") {
+    return <PrivacyPolicy />;
+  }
+
+  if (path === "/terms") {
+    return <TermsOfService />;
+  }
+
+  if (path === "/aml") {
+    return <AMLPolicy />;
+  }
+
+  if (path === "/kyc-policy") {
+    return <KYCPolicy />;
+  }
+
+  if (path === "/risk") {
+    return <RiskDisclosure />;
+  }
+
+  if (path === "/cookies") {
+    return <CookiePolicy />;
+  }
+
+  if (path === "/refund") {
+    return <RefundPolicy />;
+  }
+
+  if (path === "/compliance") {
+    return <Compliance />;
+  }
+
+  if (path === "/delete-account") {
+    return <DeleteAccount />;
+  }
+
+  if (path.startsWith("/verify-email/")) {
+    return <VerifyEmail />;
+  }
+
+  if (path.startsWith("/reset-password/")) {
+    return <ResetPassword />;
+  }
+
+  if (path.startsWith("/ref/")) {
+    const referralCode = path.split("/ref/")[1];
+
+    if (referralCode) {
+      localStorage.setItem(
+        "pendingReferralCode",
+        decodeURIComponent(referralCode)
+      );
+
+      window.history.replaceState({}, "", "/");
+    }
+  }
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     setWallet("");
     setBnbBalance("0.0000");
     setCurrentUser({});
+    setMenuOpen(false);
     setPage("auth");
 
-    setTimeout(() => {
-      window.location.reload();
-    }, 300);
+    window.history.replaceState({}, "", "/");
   };
 
   const connectWallet = async () => {
     try {
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isMobile =
+        /Android|iPhone|iPad|iPod/i.test(
+          navigator.userAgent
+        );
+
       const siteUrl = "exaltexchange.io";
 
       if (!window.ethereum) {
         if (isMobile) {
-          window.location.href = `https://metamask.app.link/dapp/${siteUrl}`;
+          window.location.href =
+            `https://metamask.app.link/dapp/${siteUrl}`;
           return;
         }
 
-        alert("Please install MetaMask extension");
+        window.alert("Please install MetaMask extension");
         return;
       }
 
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x38" }],
-      });
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x38" }],
+        });
+      } catch (switchError) {
+        if (switchError?.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: "0x38",
+                chainName: "BNB Smart Chain",
+                nativeCurrency: {
+                  name: "BNB",
+                  symbol: "BNB",
+                  decimals: 18,
+                },
+                rpcUrls: [
+                  "https://bsc-dataseed.binance.org/",
+                ],
+                blockExplorerUrls: [
+                  "https://bscscan.com",
+                ],
+              },
+            ],
+          });
+        } else {
+          throw switchError;
+        }
+      }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
+      const provider = new ethers.BrowserProvider(
+        window.ethereum
+      );
 
-      if (!accounts || !accounts.length) {
-        alert("No wallet account found");
+      const accounts = await provider.send(
+        "eth_requestAccounts",
+        []
+      );
+
+      if (!accounts?.length) {
+        window.alert("No wallet account found");
         return;
       }
 
@@ -203,49 +375,61 @@ setCurrentUser(data.user);
       const balance = await provider.getBalance(address);
 
       setWallet(address);
-      setBnbBalance(Number(ethers.formatEther(balance)).toFixed(4));
+      setBnbBalance(
+        Number(ethers.formatEther(balance)).toFixed(4)
+      );
 
-      alert("Wallet Connected Successfully");
+      window.alert("Wallet Connected Successfully");
     } catch (error) {
-      console.log(error);
-      alert("Wallet connection failed");
+      console.error(
+        "Wallet connection failed:",
+        error
+      );
+
+      window.alert("Wallet connection failed");
     }
   };
 
   const shortWallet = wallet
-    ? wallet.slice(0, 6) + "..." + wallet.slice(-4)
-    : "Connect Wallet";
-if (!isLoggedIn) {
-  return (
-    <div className="app">
-      <main className="main auth-only">
-        {page === "forgot-password" && <ForgotPassword setPage={setPage} />}
+    ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}`
+    : translateWithFallback(
+        "connectWallet",
+        "Connect Wallet",
+        "web3"
+      );
 
-        {page === "verify-reset-code" && (
-          <VerifyResetCode setPage={setPage} />
-        )}
-
-        {page === "reset-password" && <ResetPassword setPage={setPage} />}
-
-        {!["forgot-password", "verify-reset-code", "reset-password"].includes(page) && (
-          <AuthPanel setPage={setPage} />
-        )}
-      </main>
-    </div>
-  );
-}
- 
-  const adminOnlyPanel = (Component) => {
-    if (!isAdmin) {
+  const adminOnlyPanel = (
+    Component,
+    componentProps = {}
+  ) => {
+    if (!hasAdminAccess) {
       return (
         <div className="panel">
-          <h2>Access Denied</h2>
-          <p>Only admin can access this panel.</p>
+          <h2>
+            {translateWithFallback(
+              "accessDenied",
+              "Access Denied",
+              "common"
+            )}
+          </h2>
+
+          <p>
+            Only an authorized Owner, Super Admin or Admin
+            can access this panel.
+          </p>
+
+          <button
+            type="button"
+            className="buy-btn"
+            onClick={() => setPage("dashboard")}
+          >
+            Return to Dashboard
+          </button>
         </div>
       );
     }
 
-    return <Component />;
+    return <Component {...componentProps} />;
   };
 
   const renderPage = () => {
@@ -258,58 +442,208 @@ if (!isLoggedIn) {
         </>
       );
     }
-if (page === "forgot-password") return <ForgotPassword setPage={setPage} />;
-if (page === "verify-reset-code") return <VerifyResetCode setPage={setPage} />;
-if (page === "reset-password") return <ResetPassword setPage={setPage} />;
-    if (page === "markets") return <Markets />;
-   if (page === "trade") return <Trade setPage={setPage} />;
-    if (page === "buy") return <BuyCrypto />;
-    if (page === "futures") return <Futures setPage={setPage} />;
-    if (page === "wallets") return <Wallets />;
-   if (page === "web3wallet") return <Web3Wallet setPage={setPage} />;
-    if (page === "transactions") return <Transactions />;
-    if (page === "orders") return <Orders />;
-    if (page === "p2p") return <P2P />;
-    if (page === "kyc") return adminOnlyPanel(AdminKycPanel);
-    if (page === "kyc-submit") return <KycVerification />;
-    if (page === "referral") return <Referral />;
-    if (page === "rewards") return <ReplitRewards />;
-    if (page === "support") return <Support />;
-    if (page === "listings") return <ListingForm />;
-    if (page === "profile") return <Profile setPage={setPage} />;
-    if (page === "staking") return <Staking />;
-    if (page === "learnearn") return <LearnEarn />;
-    if (page === "ai-assistant") return <AITradingAssistant />;
-    if (page === "ai-copy-trading") return <AICopyTrading />;
-    if (page === "ai-portfolio") return <AIPortfolioManager />;
-    if (page === "social-trading") return <SocialTrading />;
-    if (page === "ai-risk-manager") return <AIRiskManager />;
-    if (page === "ai-profit-calculator") return <AIProfitCalculator />;
-    if (page === "ai-market-scanner") return <AIMarketScanner />;
-    if (page === "ai-news") return <AINews />;
-    if (page === "ai-whale-tracker") return <AIWhaleTracker />;
-    if (page === "ai-arbitrage-scanner") return <AIArbitrageScanner />;
-    if (page === "ai-grid-trading") return <AIGridTrading />;
-    if (page === "ai-smart-alerts") return <AISmartAlerts />;
-    if (page === "ai-launchpad") return <AILaunchpad />;
-    if (page === "ai-whale-heatmap") return <AIWhaleHeatmap />;
-    if (page === "ai-trust-score") return <AITrustScore />;
-    if (page === "ai-whale-alerts") return <AIWhaleAlert />;
-    if (page === "exalt-utility-center") return <ExaltUtilityCenter />;
-    if (page === "reputation-center") return <ReputationCenter />;
-    if (page === "achievement-center") return <AchievementCenter />;
-    if (page === "notification-center") return <NotificationCenter />;
-    if (page === "admin-p2p") return adminOnlyPanel(AdminP2P);
-    if (page === "admin") return adminOnlyPanel(AdminPanel);
-    if (page === "admin-rewards") return adminOnlyPanel(AdminRewards);
-    if (page === "admin-learn") return adminOnlyPanel(AdminLearnEarn);
-    if (page === "admin-referrals") return adminOnlyPanel(AdminReferrals);
-   if (page === "settings") return <Settings setPage={setPage} />;
+
+    if (page === "forgot-password") {
+      return <ForgotPassword setPage={setPage} />;
+    }
+
+    if (page === "verify-reset-code") {
+      return <VerifyResetCode setPage={setPage} />;
+    }
+
+    if (page === "reset-password") {
+      return <ResetPassword setPage={setPage} />;
+    }
+
+    if (page === "markets") {
+      return <Markets />;
+    }
+
+    if (page === "trade") {
+      return <Trade setPage={setPage} />;
+    }
+
+    if (page === "buy") {
+      return <BuyCrypto />;
+    }
+
+    if (page === "futures") {
+      return <Futures setPage={setPage} />;
+    }
+
+    if (page === "wallets") {
+      return <Wallets />;
+    }
+
+    if (page === "web3wallet") {
+      return <Web3Wallet setPage={setPage} />;
+    }
+
+    if (page === "transactions") {
+      return <Transactions />;
+    }
+
+    if (page === "orders") {
+      return <Orders />;
+    }
+
+    if (page === "p2p") {
+      return <P2P />;
+    }
+
+    if (page === "kyc") {
+      return adminOnlyPanel(AdminKycPanel);
+    }
+
+    if (page === "kyc-submit") {
+      return <KycVerification />;
+    }
+
+    if (page === "referral") {
+      return <Referral />;
+    }
+
+    if (page === "rewards") {
+      return <ReplitRewards />;
+    }
+
+    if (page === "support") {
+      return <Support />;
+    }
+
+    if (page === "listings") {
+      return <ListingForm />;
+    }
+
+    if (page === "profile") {
+      return <Profile setPage={setPage} />;
+    }
+
+    if (page === "staking") {
+      return <Staking />;
+    }
+
+    if (page === "learnearn") {
+      return <LearnEarn />;
+    }
+
+    if (page === "ai-assistant") {
+      return <AITradingAssistant />;
+    }
+
+    if (page === "ai-copy-trading") {
+      return <AICopyTrading />;
+    }
+
+    if (page === "ai-portfolio") {
+      return <AIPortfolioManager />;
+    }
+
+    if (page === "social-trading") {
+      return <SocialTrading />;
+    }
+
+    if (page === "ai-risk-manager") {
+      return <AIRiskManager />;
+    }
+
+    if (page === "ai-profit-calculator") {
+      return <AIProfitCalculator />;
+    }
+
+    if (page === "ai-market-scanner") {
+      return <AIMarketScanner />;
+    }
+
+    if (page === "ai-news") {
+      return <AINews />;
+    }
+
+    if (page === "ai-whale-tracker") {
+      return <AIWhaleTracker />;
+    }
+
+    if (page === "ai-arbitrage-scanner") {
+      return <AIArbitrageScanner />;
+    }
+
+    if (page === "ai-grid-trading") {
+      return <AIGridTrading />;
+    }
+
+    if (page === "ai-smart-alerts") {
+      return <AISmartAlerts />;
+    }
+
+    if (page === "ai-launchpad") {
+      return <AILaunchpad />;
+    }
+
+    if (page === "ai-whale-heatmap") {
+      return <AIWhaleHeatmap />;
+    }
+
+    if (page === "ai-trust-score") {
+      return <AITrustScore />;
+    }
+
+    if (page === "ai-whale-alerts") {
+      return <AIWhaleAlert />;
+    }
+
+    if (page === "exalt-utility-center") {
+      return <ExaltUtilityCenter />;
+    }
+
+    if (page === "reputation-center") {
+      return <ReputationCenter />;
+    }
+
+    if (page === "achievement-center") {
+      return <AchievementCenter />;
+    }
+
+    if (page === "notification-center") {
+      return <NotificationCenter />;
+    }
+
+    if (page === "admin-p2p") {
+      return adminOnlyPanel(AdminP2P);
+    }
+
+    if (page === "admin") {
+      return adminOnlyPanel(AdminPanel);
+    }
+
+    if (page === "admin-rewards") {
+      return adminOnlyPanel(AdminRewards);
+    }
+
+    if (page === "admin-learn") {
+      return adminOnlyPanel(AdminLearnEarn);
+    }
+
+    if (page === "admin-referrals") {
+      return adminOnlyPanel(AdminReferrals);
+    }
+
+    if (page === "settings") {
+      return <Settings setPage={setPage} />;
+    }
+
     return (
       <div className="panel">
-        <h2>{page.toUpperCase()}</h2>
+        <h2>
+          {String(page || "PAGE").toUpperCase()}
+        </h2>
+
         <p>This section is coming soon.</p>
-        <button className="buy-btn" onClick={() => setPage("transactions")}>
+
+        <button
+          type="button"
+          className="buy-btn"
+          onClick={() => setPage("transactions")}
+        >
           Open Transaction History
         </button>
       </div>
@@ -331,21 +665,39 @@ if (page === "reset-password") return <ResetPassword setPage={setPage} />;
     ["ai-portfolio", "📂 AI Portfolio Manager"],
     ["social-trading", "👥 Social Trading"],
     ["ai-risk-manager", "🛡️ AI Risk Manager"],
-    ["ai-profit-calculator", "💰 AI Profit Calculator"],
+    [
+      "ai-profit-calculator",
+      "💰 AI Profit Calculator",
+    ],
     ["ai-market-scanner", "🔎 AI Market Scanner"],
     ["ai-news", "📰 AI News"],
     ["ai-whale-tracker", "🐋 AI Whale Tracker"],
-    ["ai-arbitrage-scanner", "⚡ AI Arbitrage Scanner"],
+    [
+      "ai-arbitrage-scanner",
+      "⚡ AI Arbitrage Scanner",
+    ],
     ["ai-grid-trading", "🧮 AI Grid Trading"],
     ["ai-smart-alerts", "🚨 AI Smart Alerts"],
     ["ai-launchpad", "🚀 AI Launchpad"],
     ["ai-whale-heatmap", "🔥 AI Whale Heatmap"],
     ["ai-trust-score", "✅ AI Trust Score"],
     ["ai-whale-alerts", "🐳 AI Whale Alerts"],
-    ["exalt-utility-center", "🧰 Exalt Utility Center"],
-    ["reputation-center", "⭐ Community Reputation"],
-    ["achievement-center", "🏆 Achievement Center"],
-    ["notification-center", "🔔 Notification Center"],
+    [
+      "exalt-utility-center",
+      "🧰 Exalt Utility Center",
+    ],
+    [
+      "reputation-center",
+      "⭐ Community Reputation",
+    ],
+    [
+      "achievement-center",
+      "🏆 Achievement Center",
+    ],
+    [
+      "notification-center",
+      "🔔 Notification Center",
+    ],
     ["wallets", "👛 Wallets"],
     ["web3wallet", "🌐 Web3 Wallet"],
     ["orders", "📦 Orders"],
@@ -359,127 +711,320 @@ if (page === "reset-password") return <ResetPassword setPage={setPage} />;
   ];
 
   const adminMenuItems = [
-  ["admin-p2p", "🧾 Admin P2P"],
-  ["kyc", "🪪 KYC Requests"],
-  ["admin-learn", "🎓 Admin Learn & Earn"],
-  ["admin-referrals", "🤝 Admin Referrals"],
-  ["admin-rewards", "🎁 Admin Rewards"],
-  ["admin", "⚙️ Admin"],
-];
+    ["admin-p2p", "🧾 Admin P2P"],
+    ["kyc", "🪪 KYC Requests"],
+    ["admin-learn", "🎓 Admin Learn & Earn"],
+    ["admin-referrals", "🤝 Admin Referrals"],
+    ["admin-rewards", "🎁 Admin Rewards"],
+    ["admin", "⚙️ Admin Panel"],
+  ];
+
   const openPage = (pageName) => {
     setPage(pageName);
     setMenuOpen(false);
   };
 
+  if (authChecking && isLoggedIn) {
+    return (
+      <div className="app">
+        <main className="main auth-only">
+          <div className="panel">
+            <h2>Verifying secure session...</h2>
+            <p>
+              Please wait while your account is verified.
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="app">
+        <main className="main auth-only">
+          {page === "forgot-password" && (
+            <ForgotPassword setPage={setPage} />
+          )}
+
+          {page === "verify-reset-code" && (
+            <VerifyResetCode setPage={setPage} />
+          )}
+
+          {page === "reset-password" && (
+            <ResetPassword setPage={setPage} />
+          )}
+
+          {![
+            "forgot-password",
+            "verify-reset-code",
+            "reset-password",
+          ].includes(page) && (
+            <AuthPanel
+              setPage={setPage}
+              setCurrentUser={setCurrentUser}
+            />
+          )}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
-     {page !== "dashboard" && page !== "web3wallet" && (
-  <button
-    onClick={() => setPage("dashboard")}
-    style={{
-      position: "fixed",
-      top: "12px",
-      left: "12px",
-      zIndex: 99999,
-      background: "#f5a623",
-      color: "#111",
-      border: "none",
-      padding: "10px 16px",
-      borderRadius: "8px",
-      fontWeight: "600",
-      cursor: "pointer",
-    }}
-  >
-    ← Back
-  </button>
-)}
+      {page !== "dashboard" &&
+        page !== "web3wallet" && (
+          <button
+            type="button"
+            onClick={() => setPage("dashboard")}
+            style={{
+              position: "fixed",
+              top: "12px",
+              left: "12px",
+              zIndex: 99999,
+              background: "#f5a623",
+              color: "#111",
+              border: "none",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              fontWeight: "600",
+              cursor: "pointer",
+            }}
+          >
+            ← Back
+          </button>
+        )}
+
       <button
+        type="button"
         className="mobile-menu-btn"
-        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Open navigation menu"
+        aria-expanded={menuOpen}
+        onClick={() =>
+          setMenuOpen((open) => !open)
+        }
       >
         ☰
       </button>
 
-      <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-        <img src={exchangeLogo} alt="Exalt Exchange" className="main-logo" />
+      <aside
+        className={`sidebar ${
+          menuOpen ? "open" : ""
+        }`}
+      >
+        <img
+          src={exchangeLogo}
+          alt="Exalt Exchange"
+          className="main-logo"
+        />
 
         <div className="menu">
-         {menuItems.map(([key, label]) => (
-  <button
-    key={key}
-    className={`menu-btn ${page === key ? "active" : ""}`}
-    onClick={() => openPage(key)}
-  >
-    {label.split(" ")[0]} {t(key) || label}
-  </button>
-))}
+          {menuItems.map(([key, label]) => {
+            const firstSpaceIndex =
+              label.indexOf(" ");
 
-         {isAdmin &&
-  adminMenuItems.map(([key, label]) => (
-    <button
-      key={key}
-      className={`menu-btn ${page === key ? "active" : ""}`}
-      onClick={() => openPage(key)}
-    >
-      {label.split(" ")[0]} {t(key) || label}
-    </button>
-  ))}
+            const icon =
+              firstSpaceIndex >= 0
+                ? label.slice(0, firstSpaceIndex)
+                : "";
+
+            const fallbackLabel =
+              firstSpaceIndex >= 0
+                ? label.slice(firstSpaceIndex + 1)
+                : label;
+
+            return (
+              <button
+                type="button"
+                key={key}
+                className={`menu-btn ${
+                  page === key ? "active" : ""
+                }`}
+                onClick={() => openPage(key)}
+              >
+                <span aria-hidden="true">
+                  {icon}
+                </span>{" "}
+                {translateWithFallback(
+                  key,
+                  fallbackLabel,
+                  "navigation"
+                )}
+              </button>
+            );
+          })}
+
+          {hasAdminAccess &&
+            adminMenuItems.map(([key, label]) => {
+              const firstSpaceIndex =
+                label.indexOf(" ");
+
+              const icon =
+                firstSpaceIndex >= 0
+                  ? label.slice(
+                      0,
+                      firstSpaceIndex
+                    )
+                  : "";
+
+              const fallbackLabel =
+                firstSpaceIndex >= 0
+                  ? label.slice(
+                      firstSpaceIndex + 1
+                    )
+                  : label;
+
+              return (
+                <button
+                  type="button"
+                  key={key}
+                  className={`menu-btn ${
+                    page === key ? "active" : ""
+                  }`}
+                  onClick={() => openPage(key)}
+                >
+                  <span aria-hidden="true">
+                    {icon}
+                  </span>{" "}
+                  {translateWithFallback(
+                    key,
+                    fallbackLabel,
+                    "navigation"
+                  )}
+                </button>
+              );
+            })}
         </div>
 
         <div className="coin-box">
-       
+          {wallet && (
+            <>
+              <p>{shortWallet}</p>
+              <p>{bnbBalance} BNB</p>
+            </>
+          )}
         </div>
       </aside>
 
       <main className="main">
-       <div className="topbar">
-  <div className="topbar-main-row">
-    <div className="topbar-brand">
-      <img src={exchangeLogo} alt="Exalt Exchange" className="topbar-logo" />
+        <div className="topbar">
+          <div className="topbar-main-row">
+            <div className="topbar-brand">
+              <img
+                src={exchangeLogo}
+                alt="Exalt Exchange"
+                className="topbar-logo"
+              />
 
-      <div>
-        <h2>
-          {page === "trade"
-            ? t("spotTrading")
-            : t(page) || page.toUpperCase()}
-        </h2>
+              <div>
+                <h2>
+                  {page === "trade"
+                    ? translateWithFallback(
+                        "spotTrading",
+                        "Spot Trading",
+                        "trading"
+                      )
+                    : translateWithFallback(
+                        page,
+                        String(
+                          page || "Dashboard"
+                        ).toUpperCase(),
+                        "navigation"
+                      )}
+                </h2>
 
-        <p>
-          {page === "trade"
-            ? "Professional Spot Trading Engine Powered by Exalt Exchange"
-            : "Secure • Fast • Global Digital Asset Exchange"}
-        </p>
+                <p>
+                  {page === "trade"
+                    ? translateWithFallback(
+                        "spotTradingSubtitle",
+                        "Professional Spot Trading Engine Powered by Exalt Exchange",
+                        "trading"
+                      )
+                    : "Secure • Fast • Global Digital Asset Exchange"}
+                </p>
 
-        {wallet && <p>BNB Balance: {bnbBalance} BNB</p>}
-      </div>
-    </div>
-<NotificationBell setPage={setPage} />
-    <button className="topbar-profile-btn" onClick={() => setPage("profile")}>
-      👤
-    </button>
-  </div>
+                {wallet && (
+                  <p>
+                    BNB Balance: {bnbBalance} BNB
+                  </p>
+                )}
+              </div>
+            </div>
 
-  <div className="topbar-language-row">
-    <LanguageSwitcher />
-  </div>
-</div>
+            <NotificationBell
+              setPage={setPage}
+            />
 
-       <button className="connect-btn" onClick={logout}>
-  {t("logout")}
-</button>
+            <button
+              type="button"
+              className="topbar-profile-btn"
+              aria-label="Open profile"
+              onClick={() => setPage("profile")}
+            >
+              👤
+            </button>
+          </div>
+
+          <div className="topbar-language-row">
+            <LanguageSwitcher />
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            flexWrap: "wrap",
+            marginBottom: "12px",
+          }}
+        >
+          {!wallet && (
+            <button
+              type="button"
+              className="connect-btn"
+              onClick={connectWallet}
+            >
+              {translateWithFallback(
+                "connectWallet",
+                "Connect Wallet",
+                "web3"
+              )}
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="connect-btn"
+            onClick={logout}
+          >
+            {translateWithFallback(
+              "logout",
+              "Logout",
+              "auth"
+            )}
+          </button>
+        </div>
+
         {renderPage()}
+
         <footer className="legal-footer-links">
-  <a href="/legal">Legal Center</a>
-  <a href="/privacy">Privacy Policy</a>
-  <a href="/terms">Terms</a>
-  <a href="/delete-account">Delete Account</a>
-  <a href="/aml">AML</a>
-  <a href="/kyc-policy">KYC</a>
-  <a href="/risk">Risk</a>
-  <a href="/cookies">Cookies</a>
-  <a href="/refund">Refund</a>
-  <a href="/compliance">Compliance</a>
-</footer>
+          <a href="/legal">Legal Center</a>
+          <a href="/privacy">
+            Privacy Policy
+          </a>
+          <a href="/terms">Terms</a>
+          <a href="/delete-account">
+            Delete Account
+          </a>
+          <a href="/aml">AML</a>
+          <a href="/kyc-policy">KYC</a>
+          <a href="/risk">Risk</a>
+          <a href="/cookies">Cookies</a>
+          <a href="/refund">Refund</a>
+          <a href="/compliance">
+            Compliance
+          </a>
+        </footer>
       </main>
     </div>
   );

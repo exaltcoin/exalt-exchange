@@ -1,0 +1,84 @@
+{
+  "settingsTitle": "Settings & Security",
+  "settingsSubtitle": "Manage your account, language, authentication and security.",
+
+  "accountSettings": "Account Settings",
+  "securitySettings": "Security Settings",
+  "notificationSettings": "Notification Settings",
+  "languageSettings": "Language Settings",
+
+  "accountStatus": "Account Status",
+  "active": "Active",
+  "inactive": "Inactive",
+
+  "role": "Role",
+  "owner": "Owner",
+  "administrator": "Administrator",
+  "user": "User",
+
+  "ownerControlCenter": "Owner Control Center",
+
+  "language": "Language",
+  "selectLanguage": "Select Language",
+
+  "theme": "Theme",
+  "lightMode": "Light Mode",
+  "darkMode": "Dark Mode",
+  "systemDefault": "System Default",
+
+  "twoFactorAuthentication": "Google Authenticator (2FA)",
+  "twoFactorDescription": "Protect your account using Google Authenticator.",
+
+  "setup2FA": "Setup Google Authenticator",
+  "verify2FA": "Verify & Enable",
+  "disable2FA": "Disable 2FA",
+
+  "scanQrCode": "Scan this QR Code",
+  "manualSetupKey": "Manual Setup Key",
+
+  "verificationCode": "Verification Code",
+  "enterSixDigitCode": "Enter 6-digit code",
+
+  "backupCodes": "Backup Codes",
+  "downloadBackupCodes": "Download Backup Codes",
+  "copyBackupCodes": "Copy Backup Codes",
+  "regenerateBackupCodes": "Regenerate Backup Codes",
+
+  "backupCodesWarning": "Save these codes securely. Each backup code can only be used once.",
+
+  "twoFactorEnabled": "Two-Factor Authentication Enabled",
+  "twoFactorDisabled": "Two-Factor Authentication Disabled",
+
+  "ownerDisableBlocked": "Owner account cannot disable Google Authenticator.",
+
+  "require2FASetup": "Google Authenticator setup is required before continuing.",
+
+  "securityAlerts": "Security Alerts",
+  "emailNotifications": "Email Notifications",
+  "pushNotifications": "Push Notifications",
+
+  "depositWithdrawalAlerts": "Deposit & Withdrawal Alerts",
+  "p2pAlerts": "P2P Alerts",
+  "loginAlerts": "Login Alerts",
+
+  "changePassword": "Change Password",
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "confirmPassword": "Confirm Password",
+
+  "saveChanges": "Save Changes",
+  "saving": "Saving...",
+
+  "settingsUpdated": "Settings updated successfully.",
+  "settingsUpdateFailed": "Failed to update settings.",
+
+  "invalidVerificationCode": "Invalid verification code.",
+  "twoFactorSetupFailed": "2FA setup failed.",
+  "twoFactorVerified": "Google Authenticator enabled successfully.",
+  "twoFactorDisabledSuccess": "Google Authenticator disabled successfully.",
+
+  "sessionExpired": "Session expired. Please login again.",
+  "serverError": "Server error.",
+
+  "loading": "Loading..."
+}

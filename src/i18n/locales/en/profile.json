@@ -1,0 +1,99 @@
+{
+  "profileTitle": "Profile",
+  "profileSubtitle": "Manage your account profile, security, identity and personal information.",
+
+  "userProfile": "User Profile",
+
+  "owner": "Owner",
+  "admin": "Administrator",
+  "user": "User",
+
+  "ownerBadge": "Owner",
+  "adminBadge": "Admin",
+  "verifiedBadge": "Verified",
+
+  "editProfile": "Edit Profile",
+  "saveProfile": "Save Profile",
+  "savingProfile": "Saving Profile...",
+
+  "profileUpdatedSuccessfully": "Profile updated successfully.",
+  "profileUpdateFailed": "Profile update failed.",
+
+  "profileImage": "Profile Image",
+  "uploadImage": "Upload Image",
+  "changeImage": "Change Image",
+  "removeImage": "Remove Image",
+  "imagePreview": "Image Preview",
+
+  "imageTooLarge": "Maximum image size is 5 MB.",
+  "invalidImageType": "Only JPG, PNG and WEBP images are allowed.",
+
+  "fullName": "Full Name",
+  "displayName": "Display Name",
+  "email": "Email",
+  "phoneNumber": "Phone Number",
+  "country": "Country",
+  "telegram": "Telegram Username",
+  "bio": "Professional Bio",
+
+  "writeProfessionalBio": "Write a professional introduction about yourself.",
+
+  "accountInformation": "Account Information",
+
+  "uid": "UID",
+  "userId": "User ID",
+
+  "role": "Role",
+
+  "accountStatus": "Account Status",
+
+  "active": "Active",
+  "inactive": "Inactive",
+
+  "kycStatus": "KYC Status",
+
+  "verified": "Verified",
+  "pending": "Pending",
+  "rejected": "Rejected",
+  "notSubmitted": "Not Submitted",
+
+  "emailVerification": "Email Verification",
+
+  "verifiedEmail": "Verified",
+  "notVerifiedEmail": "Not Verified",
+
+  "twoFactorStatus": "Two-Factor Authentication",
+
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+
+  "walletAddress": "Wallet Address",
+
+  "connectedWallet": "Connected Wallet",
+
+  "network": "Network",
+
+  "securityLevel": "Security Level",
+
+  "sessionActive": "Session Active",
+
+  "lastLogin": "Last Login",
+
+  "joinedDate": "Joined Date",
+
+  "ownerControlCenter": "Owner Control Center",
+
+  "adminPrivileges": "Administrator Privileges",
+
+  "profileSecurity": "Profile Security",
+
+  "updateSuccessful": "Profile updated successfully.",
+
+  "loadingProfile": "Loading profile...",
+
+  "processing": "Processing...",
+
+  "serverError": "Server error.",
+
+  "sessionExpired": "Session expired. Please login again."
+}

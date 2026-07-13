@@ -1,0 +1,50 @@
+{
+  "dashboardTitle": "Dashboard",
+  "dashboardSubtitle": "Professional Digital Asset Exchange",
+  "refreshDashboard": "Refresh Dashboard",
+
+  "portfolioValue": "Portfolio Value",
+  "marketCap": "Market Cap",
+  "activeMiners": "Active Miners",
+  "miningPool": "Mining Pool",
+  "approvedRewards": "Approved Rewards",
+  "pendingRewards": "Pending Rewards",
+
+  "quickActions": "Quick Actions",
+  "buyExalt": "Buy EXALT",
+  "submitListing": "Submit Listing",
+  "viewMarketBoard": "View Market Board",
+
+  "liveMarketBoard": "● Live Market Board",
+
+  "trendingCoins": "Trending Coins",
+  "topGainer": "Top Gainer",
+  "topLoser": "Top Loser",
+
+  "marketStatus": "Market Status",
+  "live": "LIVE",
+
+  "loading": "Loading...",
+
+  "refresh": "Refresh",
+
+  "totalPortfolioValue": "Total Portfolio Value",
+
+  "estimatedExchangeWalletValue": "Estimated Exchange Wallet Value",
+
+  "readyTradingWithdrawal": "Ready for Trading or Withdrawal",
+
+  "waitingAdminApproval": "Waiting for Admin Approval",
+
+  "walletStatus": "Wallet Status",
+
+  "exchangeActivity": "Exchange Activity",
+
+  "recentActivity": "Recent Activity",
+
+  "noActivityYet": "No Activity Yet",
+
+  "community": "Community",
+
+  "leaderboard": "Leaderboard"
+}

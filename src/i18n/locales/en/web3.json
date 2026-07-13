@@ -1,0 +1,103 @@
+{
+  "web3Wallet": "Exalt Exchange Web3 Wallet",
+  "web3WalletSubtitle": "Secure MetaMask / Trust Wallet • BNB Smart Chain • EXALT Wallet",
+
+  "connectWallet": "Connect Wallet",
+  "connectWeb3Wallet": "Connect Web3 Wallet",
+  "disconnect": "Disconnect",
+
+  "walletNotFound": "Wallet not found.",
+  "walletAppNotFound": "MetaMask / Trust Wallet not found.",
+  "installWallet": "Please install MetaMask or Trust Wallet.",
+
+  "walletConnected": "Wallet connected successfully.",
+  "walletDisconnected": "Wallet disconnected.",
+  "walletConnectionFailed": "Wallet connection failed.",
+
+  "walletAddress": "Wallet Address",
+  "walletAddressCopied": "Wallet address copied.",
+
+  "refreshBalance": "Refresh Balance",
+
+  "totalAssets": "Total Assets",
+
+  "assets": "Assets",
+  "send": "Send",
+  "receive": "Receive",
+  "swap": "Swap",
+  "history": "History",
+
+  "allWeb3Coins": "All Web3 Coins",
+
+  "searchCoin": "Search Coin...",
+
+  "receiverAddress": "Receiver Address",
+
+  "enterAmount": "Enter Amount",
+
+  "sendNow": "Send Now",
+
+  "receiveCrypto": "Receive Crypto",
+
+  "copyAddressReceive": "Copy Address / Receive",
+
+  "swapTrade": "Swap / Trade",
+
+  "fromCoin": "From Coin",
+
+  "toCoin": "To Coin",
+
+  "swapNow": "Swap Now",
+
+  "transactionHistory": "Transaction History",
+
+  "searchTransaction": "Search Transaction...",
+
+  "syncHistory": "Sync History",
+
+  "syncReceive": "Sync Receive",
+
+  "clearHistory": "Clear History",
+
+  "clearHistoryConfirm": "Are you sure you want to clear all transaction history?",
+
+  "noTransactionsYet": "No transactions yet.",
+
+  "bnbBalance": "BNB Balance",
+
+  "insufficientBnbGas": "Insufficient BNB. Keep at least 0.01 BNB for gas fees.",
+
+  "transactionPending": "Transaction pending...",
+
+  "transactionConfirmed": "Transaction confirmed.",
+
+  "bnbSentSuccessfully": "BNB sent successfully.",
+
+  "bnbSendFailed": "BNB send failed.",
+
+  "swapPending": "Swap pending...",
+
+  "swapCompleted": "Swap completed.",
+
+  "swapFailed": "Swap failed.",
+
+  "approvalPending": "Approval pending...",
+
+  "tokenSwapRouteSoon": "Token-to-token swap will be added through BNB route.",
+
+  "receiveTransactionSynced": "Receive transaction synced.",
+
+  "noNewReceiveTransaction": "No new receive transaction found.",
+
+  "viewOnBscScan": "View on BscScan",
+
+  "connectWalletFirst": "Connect wallet first.",
+
+  "processing": "Processing...",
+
+  "loading": "Loading...",
+
+  "serverError": "Server error.",
+
+  "sessionExpired": "Session expired. Please login again."
+}

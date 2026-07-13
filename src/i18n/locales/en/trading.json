@@ -1,0 +1,112 @@
+{
+  "spotTrading": "Spot Trading",
+  "spotTradingSubtitle": "Professional Spot Trading Engine Powered by Exalt Exchange",
+
+  "spotMarkets": "Spot Markets",
+  "searchPair": "Search pair...",
+  "searchMarket": "Search market...",
+  "selectPair": "Select Pair",
+
+  "buy": "Buy",
+  "sell": "Sell",
+  "buyLong": "Buy / Long",
+  "sellShort": "Sell / Short",
+
+  "market": "Market",
+  "limit": "Limit",
+  "marketOrder": "Market Order",
+  "limitOrder": "Limit Order",
+  "orderType": "Order Type",
+
+  "price": "Price",
+  "limitPrice": "Limit Price",
+  "amount": "Amount",
+  "total": "Total",
+  "cost": "Cost",
+  "available": "Available",
+  "availableBalance": "Available Balance",
+
+  "pair": "Pair",
+  "side": "Side",
+  "status": "Status",
+  "action": "Action",
+
+  "placeOrder": "Place Order",
+  "placingOrder": "Placing Order...",
+  "orderPlacedSuccessfully": "Order placed successfully.",
+  "orderFailed": "Order failed.",
+  "cancelOrder": "Cancel Order",
+  "confirmCancelOrder": "Are you sure you want to cancel this order?",
+  "orderCancelledSuccessfully": "Order cancelled successfully.",
+  "cancelOrderFailed": "Cancel order failed.",
+
+  "openOrders": "Open Orders",
+  "filledOrders": "Filled Orders",
+  "cancelledOrders": "Cancelled Orders",
+  "tradeHistory": "Trade History",
+  "orderHistory": "Order History",
+  "positionHistory": "Position History",
+  "transactionHistory": "Transaction History",
+
+  "orderBook": "Order Book",
+  "recentTrades": "Recent Trades",
+  "tradingViewChart": "TradingView Chart",
+  "mobileTradingChart": "Mobile Trading Chart",
+
+  "open": "Open",
+  "filled": "Filled",
+  "cancelled": "Cancelled",
+  "completed": "Completed",
+  "pending": "Pending",
+  "failed": "Failed",
+
+  "noOpenOrders": "No open orders.",
+  "noFilledOrders": "No filled orders.",
+  "noOrdersFound": "No orders found.",
+  "noTradeHistory": "No trade history found.",
+
+  "assetsWallet": "Assets / Wallet",
+  "moreOptions": "More Options",
+  "close": "Close",
+
+  "token": "Token",
+  "quoteCurrency": "Quote Currency",
+  "baseCurrency": "Base Currency",
+
+  "enterAmount": "Enter Amount",
+  "enterPrice": "Enter Price",
+  "enterValidAmount": "Please enter a valid amount.",
+  "enterValidPrice": "Please enter a valid price.",
+  "insufficientBalance": "Insufficient balance.",
+
+  "processing": "Processing...",
+  "loadingOrders": "Loading orders...",
+  "loadingTrades": "Loading trades...",
+
+  "marketPrice": "Market Price",
+  "lastPrice": "Last Price",
+  "change24h": "24H Change",
+  "high24h": "24H High",
+  "low24h": "24H Low",
+  "volume24h": "24H Volume",
+
+  "tpSl": "TP/SL",
+  "takeProfit": "Take Profit",
+  "stopLoss": "Stop Loss",
+  "tpPrice": "TP Price",
+  "slPrice": "SL Price",
+
+  "connectWalletFirst": "Connect wallet first.",
+  "walletConnected": "Wallet connected successfully.",
+  "walletConnectionFailed": "Wallet connection failed.",
+  "installWallet": "Please install MetaMask or Trust Wallet.",
+
+  "buyExalt": "Buy EXALT",
+  "sellExalt": "Sell EXALT",
+  "buyToken": "Buy Token",
+  "swapToExalt": "Swap To EXALT",
+  "officialExaltContract": "Official EXALT Contract",
+
+  "serverError": "Server error.",
+  "sessionExpired": "Session expired. Please login again."
+}

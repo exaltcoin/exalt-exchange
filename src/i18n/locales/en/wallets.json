@@ -1,0 +1,90 @@
+{
+  "walletsTitle": "Wallets",
+  "walletsSubtitle": "Manage crypto wallet, deposits, withdrawals and payment requests.",
+
+  "totalPortfolioValue": "Total Portfolio Value",
+  "estimatedExchangeWalletValue": "Estimated Exchange Wallet Value",
+
+  "walletStatus": "Wallet Status",
+  "walletNotConnected": "Wallet not connected",
+
+  "connectedWallet": "Connected Wallet",
+  "walletAddress": "Wallet Address",
+
+  "bnbWallet": "BNB Wallet",
+  "usdtWallet": "USDT Wallet",
+  "exaltWallet": "EXALT Wallet",
+
+  "balance": "Balance",
+  "availableBalance": "Available Balance",
+  "lockedBalance": "Locked Balance",
+
+  "approvedBalance": "Approved Balance",
+  "pendingRewards": "Pending Rewards",
+  "approvedRewards": "Approved Rewards",
+
+  "deposit": "Deposit",
+  "withdraw": "Withdraw",
+  "depositRequest": "Deposit Request",
+  "withdrawalRequest": "Withdrawal Request",
+
+  "depositAddress": "Deposit Address",
+  "copyAddress": "Copy Address",
+
+  "copyNumber": "Copy Number",
+  "copyIban": "Copy IBAN",
+
+  "accountTitle": "Account Title",
+  "bank": "Bank",
+
+  "yourName": "Your Name",
+
+  "accountWalletName": "Account / Wallet Name",
+
+  "walletBankIbanPlaceholder": "Wallet Address / JazzCash / Easypaisa / Bank Account / IBAN",
+
+  "transactionHashReference": "Transaction Hash / Reference ID",
+
+  "submitDeposit": "Submit Deposit",
+  "submitWithdrawal": "Submit Withdrawal",
+
+  "depositSubmittedSuccessfully": "Deposit request submitted successfully.",
+
+  "withdrawalSubmittedSuccessfully": "Withdrawal request submitted successfully.",
+
+  "depositFailed": "Deposit failed.",
+
+  "withdrawalFailed": "Withdrawal failed.",
+
+  "depositRequiredFields": "Name, account/wallet and amount are required.",
+
+  "withdrawRequiredFields": "Amount, account name and wallet/account number are required.",
+
+  "readyTradingWithdrawal": "Ready for trading or withdrawal.",
+
+  "waitingAdminApproval": "Waiting for admin approval.",
+
+  "securitySystem": "Security System",
+
+  "securityAdminApproval": "Admin approval required before wallet credit.",
+
+  "securityWalletVerification": "Wallet ownership verification protects your assets.",
+
+  "securityBackendApproval": "Deposits and withdrawals are protected through backend approval.",
+
+  "securityNoAutoRelease": "No automatic token release without verification.",
+
+  "securityLicensedGateways": "Payments are processed through licensed gateways.",
+
+  "copied": "Copied",
+
+  "copyFailed": "Copy failed",
+
+  "loadingWallet": "Loading wallet...",
+
+  "refreshBalance": "Refresh Balance",
+
+  "serverError": "Server error.",
+
+  "sessionExpired": "Session expired. Please login again."
+}

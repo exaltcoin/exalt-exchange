@@ -1,0 +1,82 @@
+{
+  "learnEarnTitle": "Learn & Earn",
+  "learnEarnSubtitle": "Watch lessons, complete quizzes and earn EXALT rewards.",
+
+  "totalRewards": "Total Rewards",
+  "completedTasks": "Completed Tasks",
+  "learningLevel": "Learning Level",
+  "learningProgress": "Learning Progress",
+
+  "xpPoints": "XP Points",
+  "dailyStreak": "Daily Streak",
+  "days": "Days",
+
+  "achievements": "Achievements",
+  "noAchievements": "No achievements yet.",
+
+  "downloadCertificate": "Download Certificate",
+
+  "searchLessons": "Search lessons...",
+
+  "dailyReward": "Daily Reward",
+  "claimDailyRewardDescription": "Claim 5 EXALT every day.",
+  "claimedToday": "Claimed Today",
+  "claim5Exalt": "Claim 5 EXALT",
+
+  "topLearners": "Top Learners",
+  "recentActivity": "Recent Activity",
+  "noActivityYet": "No activity yet.",
+
+  "reward": "Reward",
+  "level": "Level",
+  "duration": "Duration",
+
+  "completed": "Completed",
+  "locked": "Locked",
+  "viewAgain": "View Again",
+  "startLesson": "Start Lesson",
+
+  "quiz": "Quiz",
+
+  "correctAnswerRewardAdded": "Correct answer! Reward added.",
+  "wrongAnswerTryAgain": "Wrong answer. Please try again.",
+
+  "submitting": "Submitting...",
+  "submitQuizClaimReward": "Submit Quiz & Claim Reward",
+
+  "beginner": "Beginner",
+  "intermediate": "Intermediate",
+  "advanced": "Advanced",
+
+  "cryptoBasics": "Crypto Basics",
+  "p2pSafety": "P2P Safety",
+  "stakingGuide": "Staking Guide",
+
+  "videoCryptoBasics": "What is crypto and how do exchanges work?",
+  "videoP2pSafety": "How to trade safely with P2P users",
+  "videoStakingGuide": "How staking rewards work",
+
+  "questionCrypto": "What is the safest rule in crypto?",
+  "questionP2p": "When should you release crypto in P2P?",
+  "questionStaking": "What does staking mean?",
+
+  "optionPrivateKey": "Share private key",
+  "optionUnknownLinks": "Use unknown links",
+  "optionProtectWallet": "Protect wallet keys",
+
+  "optionBeforePayment": "Before payment",
+  "optionAfterPayment": "After confirmed payment",
+  "optionAnyTime": "Any time",
+
+  "optionLockTokens": "Lock tokens for rewards",
+  "optionDeleteTokens": "Delete tokens",
+  "optionSendTokens": "Send tokens away",
+
+  "lessonCompleted": "Lesson completed successfully.",
+  "rewardClaimed": "Reward claimed successfully.",
+  "rewardClaimFailed": "Reward claim failed.",
+
+  "loadingLessons": "Loading lessons...",
+  "serverError": "Server error.",
+  "sessionExpired": "Session expired. Please login again."
+}

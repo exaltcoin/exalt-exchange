@@ -1,0 +1,93 @@
+{
+  "futuresTitle": "EXALT Futures Trading",
+  "futuresSubtitle": "Real-Time Futures Exchange Panel",
+
+  "liveFuturesMarket": "Live Futures Market",
+  "perpetualFutures": "Perpetual Futures",
+
+  "buyLong": "Buy / Long",
+  "sellShort": "Sell / Short",
+
+  "cross": "Cross",
+  "isolated": "Isolated",
+
+  "market": "Market",
+  "limit": "Limit",
+
+  "amount": "Amount",
+  "price": "Price",
+  "cost": "Cost",
+  "available": "Available",
+
+  "margin": "Margin",
+  "marginMode": "Margin Mode",
+  "leverage": "Leverage",
+
+  "orderType": "Order Type",
+
+  "entryPrice": "Entry Price",
+  "markPrice": "Mark Price",
+  "liquidation": "Liquidation",
+
+  "takeProfit": "Take Profit",
+  "stopLoss": "Stop Loss",
+
+  "tpPrice": "TP Price",
+  "slPrice": "SL Price",
+
+  "reduceOnly": "Reduce Only",
+
+  "positions": "Positions",
+  "openPositions": "Open Positions",
+  "positionHistory": "Position History",
+
+  "openOrders": "Open Orders",
+  "orderBook": "Order Book",
+
+  "funding": "Funding",
+  "fundingRate": "Funding Rate",
+
+  "riskLevel": "Risk Level",
+
+  "quoteCurrency": "Quote Currency",
+
+  "bots": "Bots",
+
+  "futuresSettings": "Futures Settings",
+
+  "normalCandles": "Normal Candles",
+  "smoothCandles": "Smooth Candles",
+  "volatileCandles": "Volatile Candles",
+
+  "lowVolatility": "Low Volatility",
+  "normalVolatility": "Normal Volatility",
+  "highVolatility": "High Volatility",
+
+  "zoomSmall": "Zoom Small",
+  "zoomMedium": "Zoom Medium",
+  "zoomLarge": "Zoom Large",
+
+  "tradingViewChart": "TradingView Chart",
+  "mobileFuturesChart": "Mobile Futures Chart",
+
+  "searchMarket": "Search Market...",
+  "searchPair": "Search Pair...",
+
+  "noOpenPositions": "No open positions.",
+  "noClosedPositions": "No closed positions.",
+
+  "openLong": "Open Long",
+  "openShort": "Open Short",
+
+  "closePosition": "Close Position",
+
+  "processing": "Processing...",
+  "loading": "Loading...",
+
+  "importantNotice": "Important Notice",
+
+  "priceMovementWarning": "There may be limited price movement and reduced liquidity outside regular trading hours.",
+
+  "serverError": "Server error.",
+  "sessionExpired": "Session expired. Please login again."
+}

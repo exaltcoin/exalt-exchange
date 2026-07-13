@@ -1,0 +1,96 @@
+{
+  "socialTradingTitle": "Social Trading",
+  "socialTradingSubtitle": "Follow expert traders, share market ideas, view signals and grow with the EXALT trading community.",
+
+  "communityFeed": "Community Feed",
+  "topTraders": "Top Traders",
+  "myTraderProfile": "My Trader Profile",
+
+  "totalTraders": "Total Traders",
+  "communityPosts": "Community Posts",
+  "totalLikes": "Total Likes",
+  "totalComments": "Total Comments",
+
+  "createSignalPost": "Create Signal / Market Post",
+  "shareMarketViewPlaceholder": "Share a market view, trading setup, EXALT update or signal...",
+
+  "publishPost": "Publish Post",
+  "posting": "Posting...",
+
+  "noPostsYet": "No posts yet.",
+
+  "exaltTrader": "EXALT Trader",
+  "verified": "Verified",
+
+  "like": "Like",
+  "comment": "Comment",
+  "follow": "Follow",
+  "unfollow": "Unfollow",
+
+  "writeComment": "Write a comment...",
+  "send": "Send",
+
+  "topTradersLeaderboard": "Top Traders Leaderboard",
+  "noTradersFound": "No traders found.",
+
+  "displayName": "Display Name",
+  "username": "Username",
+  "followers": "Followers",
+  "following": "Following",
+
+  "winRate": "Win Rate",
+  "profitLoss": "Profit / Loss",
+  "completedTrades": "Completed Trades",
+
+  "signal": "Signal",
+  "sentiment": "Sentiment",
+  "pair": "Pair",
+  "tradeType": "Trade Type",
+
+  "bullish": "Bullish",
+  "bearish": "Bearish",
+  "neutral": "Neutral",
+
+  "buy": "Buy",
+  "sell": "Sell",
+
+  "failedLoadSocialTrading": "Failed to load Social Trading.",
+  "loadingSocialTrading": "Loading Social Trading...",
+
+  "writeBeforePosting": "Please write something before posting.",
+
+  "failedCreatePost": "Failed to create post.",
+  "likeFailed": "Failed to update like.",
+  "commentFailed": "Failed to add comment.",
+  "followFailed": "Failed to update follow status.",
+
+  "postCreatedSuccessfully": "Post created successfully.",
+  "commentAddedSuccessfully": "Comment added successfully.",
+
+  "reputationCenter": "Community Reputation",
+  "reputationCenterSubtitle": "Build your EXALT identity with trading trust, P2P success, verified badges and community activity.",
+
+  "reputationScore": "Reputation Score",
+  "p2pRating": "P2P Rating",
+  "tradingSuccess": "Trading Success",
+  "p2pOrders": "P2P Orders",
+  "disputes": "Disputes",
+  "fraudFlags": "Fraud Flags",
+
+  "badges": "Badges",
+  "noBadgesYet": "No badges yet.",
+
+  "achievementCenter": "Achievement Center",
+  "achievementCenterSubtitle": "Unlock badges, earn XP, grow your level and build your Exalt Exchange identity.",
+
+  "totalXp": "Total XP",
+  "currentLevel": "Current Level",
+  "unlocked": "Unlocked",
+  "locked": "Locked",
+
+  "levelProgress": "Level Progress",
+
+  "loading": "Loading...",
+  "serverError": "Server error.",
+  "sessionExpired": "Session expired. Please login again."
+}

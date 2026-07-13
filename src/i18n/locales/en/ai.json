@@ -1,0 +1,116 @@
+{
+  "aiCenter": "AI Center",
+  "aiTitle": "Artificial Intelligence",
+  "aiSubtitle": "AI-powered trading, analytics, automation and risk management.",
+
+  "aiTradingAssistant": "AI Trading Assistant",
+  "aiCopyTrading": "AI Copy Trading",
+  "aiPortfolioManager": "AI Portfolio Manager",
+  "aiRiskManager": "AI Risk Manager",
+  "aiProfitCalculator": "AI Profit Calculator",
+  "aiMarketScanner": "AI Market Scanner",
+  "aiNews": "AI News",
+  "aiWhaleTracker": "AI Whale Tracker",
+  "aiArbitrageScanner": "AI Arbitrage Scanner",
+  "aiGridTrading": "AI Grid Trading",
+  "aiSmartAlerts": "AI Smart Alerts",
+  "aiLaunchpad": "AI Launchpad",
+  "aiWhaleHeatmap": "AI Whale Heatmap",
+  "aiTrustScore": "AI Trust Score",
+  "aiWhaleAlerts": "AI Whale Alerts",
+
+  "trend": "Trend",
+  "signal": "Signal",
+  "confidence": "Confidence",
+  "confidenceScore": "Confidence Score",
+
+  "buySignal": "Buy",
+  "sellSignal": "Sell",
+  "neutralSignal": "Neutral",
+
+  "marketSentiment": "Market Sentiment",
+  "fearGreedIndex": "Fear & Greed Index",
+  "btcDominance": "BTC Dominance",
+  "whaleActivity": "Whale Activity",
+
+  "riskScore": "Risk Score",
+  "riskLevel": "Risk Level",
+
+  "highRisk": "High Risk",
+  "mediumRisk": "Medium Risk",
+  "lowRisk": "Low Risk",
+  "safe": "Safe",
+
+  "portfolioExposure": "Portfolio Exposure",
+  "capitalProtection": "Capital Protection",
+  "accountHealth": "Account Health",
+
+  "buyZone": "Buy Zone",
+  "sellZone": "Sell Zone",
+
+  "currentPrice": "Current Price",
+
+  "expectedProfit": "Expected Profit",
+  "expectedLoss": "Expected Loss",
+
+  "roi": "ROI",
+  "riskReward": "Risk / Reward",
+
+  "aiSuggestions": "AI Suggestions",
+  "aiRecommendation": "AI Recommendation",
+
+  "runAiScan": "Run AI Scan",
+  "refreshAiScan": "Refresh AI Scan",
+
+  "topGainers": "Top Gainers",
+  "topLosers": "Top Losers",
+
+  "volatility": "Volatility",
+  "volatilityIndex": "Volatility Index",
+
+  "liquidityScore": "Liquidity Score",
+
+  "holderScore": "Holder Score",
+
+  "communityScore": "Community Score",
+
+  "contractSafety": "Contract Safety",
+
+  "whaleRisk": "Whale Risk",
+
+  "buyPressure": "Buy Pressure",
+
+  "sellPressure": "Sell Pressure",
+
+  "lastUpdated": "Last Updated",
+
+  "favorite": "Favorite",
+
+  "addFavorite": "Add Favorite",
+
+  "processing": "Processing...",
+
+  "loading": "Loading...",
+
+  "loadingAi": "Loading AI data...",
+
+  "refresh": "Refresh",
+
+  "apply": "Apply",
+
+  "scan": "Scan",
+
+  "generate": "Generate",
+
+  "calculate": "Calculate",
+
+  "sync": "Sync",
+
+  "delete": "Delete",
+
+  "serverError": "Server error.",
+
+  "failedToLoadData": "Failed to load AI data.",
+
+  "sessionExpired": "Session expired. Please login again."
+}

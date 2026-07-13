@@ -1,0 +1,81 @@
+{
+  "stakingTitle": "EXALT Staking",
+  "stakingSubtitle": "Stake EXALT and earn secure passive rewards.",
+
+  "estimatedApr": "Estimated APR",
+  "apy": "APY",
+
+  "stakeExalt": "Stake EXALT",
+  "unstake": "Unstake",
+  "claimRewards": "Claim Rewards",
+
+  "enterExaltAmount": "Enter EXALT Amount",
+
+  "activeStakes": "Active Stakes",
+
+  "duration": "Duration",
+  "days": "Days",
+
+  "pendingReward": "Pending Reward",
+
+  "totalStaked": "Total Staked",
+  "totalRewards": "Total Rewards",
+
+  "rewardRate": "Reward Rate",
+
+  "minimumStake": "Minimum Stake",
+
+  "lockPeriod": "Lock Period",
+
+  "nextReward": "Next Reward",
+
+  "estimatedRewards": "Estimated Rewards",
+
+  "stakeNow": "Stake Now",
+
+  "unstakeNow": "Unstake Now",
+
+  "claimNow": "Claim Now",
+
+  "processing": "Processing...",
+
+  "loading": "Loading...",
+
+  "stakingStartedSuccessfully": "Staking started successfully.",
+
+  "stakingFailed": "Staking failed.",
+
+  "unstakedSuccessfully": "Tokens unstaked successfully.",
+
+  "unstakeFailed": "Unstake failed.",
+
+  "rewardsClaimedSuccessfully": "Rewards claimed successfully.",
+
+  "claimRewardsFailed": "Reward claim failed.",
+
+  "enterValidExaltAmount": "Please enter a valid EXALT amount.",
+
+  "insufficientBalance": "Insufficient EXALT balance.",
+
+  "stakeHistory": "Stake History",
+
+  "rewardHistory": "Reward History",
+
+  "noActiveStakesYet": "No active staking positions found.",
+
+  "noRewardHistory": "No reward history available.",
+
+  "securityNotice": "Security Notice",
+
+  "stakingSecurity1": "Rewards are credited after backend verification.",
+
+  "stakingSecurity2": "Early unstaking rules may apply.",
+
+  "stakingSecurity3": "Owner/Admin approval may be required for exceptional cases.",
+
+  "stakingSecurity4": "Blockchain confirmations are verified before processing.",
+
+  "serverError": "Server error.",
+
+  "sessionExpired": "Session expired. Please login again."
+}
