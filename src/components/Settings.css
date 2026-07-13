@@ -1,27 +1,117 @@
+/* =========================================================
+   SETTINGS PAGE
+========================================================= */
+
 .settings-page {
+  width: 100%;
   padding: 24px;
   color: #f5f7fa;
+  box-sizing: border-box;
 }
+
+.settings-page *,
+.settings-page *::before,
+.settings-page *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   GRID LAYOUTS
+========================================================= */
 
 .settings-overview-grid,
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
   margin-bottom: 22px;
 }
 
-.settings-grid {
-  grid-template-columns: repeat(2, 1fr);
+.settings-overview-grid {
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 }
+
+.settings-grid {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
 
 .settings-status-card,
 .settings-card {
-  background: #121826;
-  border: 1px solid rgba(240, 185, 11, 0.15);
-  border-radius: 20px;
+  min-width: 0;
+  overflow: hidden;
   padding: 22px;
+  border: 1px solid
+    rgba(240, 185, 11, 0.15);
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 24, 38, 0.98),
+      rgba(11, 15, 25, 0.98)
+    );
+  box-shadow:
+    0 14px 34px
+      rgba(0, 0, 0, 0.18);
 }
+
+.settings-status-card {
+  position: relative;
+}
+
+.settings-status-card::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  content: "";
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(240, 185, 11, 0.8),
+      transparent
+    );
+}
+
+.settings-status-card.secure {
+  border-color:
+    rgba(34, 197, 94, 0.35);
+}
+
+.settings-status-card.secure::before {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(34, 197, 94, 0.9),
+      transparent
+    );
+}
+
+.settings-status-card.danger {
+  border-color:
+    rgba(239, 68, 68, 0.35);
+}
+
+.settings-status-card.danger::before {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(239, 68, 68, 0.9),
+      transparent
+    );
+}
+
+/* =========================================================
+   TYPOGRAPHY
+========================================================= */
 
 .settings-status-card span,
 .settings-card p,
@@ -32,70 +122,142 @@
 
 .settings-status-card h2,
 .settings-card h2 {
-  color: #f6c56b;
   margin: 8px 0;
+  color: #f6c56b;
+  overflow-wrap: anywhere;
 }
 
-.settings-status-card.secure {
-  border-color: rgba(34, 197, 94, 0.35);
+.settings-card h3 {
+  color: #f0b90b;
 }
 
-.settings-status-card.danger {
-  border-color: rgba(239, 68, 68, 0.35);
+.settings-card p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
-.settings-status-card button,
-.settings-primary-btn {
-  background: #f0b90b;
-  color: #111827;
-  border: none;
-  border-radius: 12px;
-  padding: 11px 16px;
-  font-weight: 900;
-  cursor: pointer;
-  margin-top: 12px;
-}
-
-.settings-danger-btn {
-  background: #ef4444;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 11px 16px;
-  font-weight: 900;
-  cursor: pointer;
-}
+/* =========================================================
+   CARD HEADER
+========================================================= */
 
 .settings-card-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  align-items: flex-start;
   margin-bottom: 16px;
+}
+
+.settings-card-head > div {
+  min-width: 0;
 }
 
 .settings-card-head > span,
 .status-pill {
-  background: rgba(240, 185, 11, 0.12);
-  border: 1px solid rgba(240, 185, 11, 0.25);
-  color: #f0b90b;
-  border-radius: 999px;
+  flex-shrink: 0;
   padding: 7px 12px;
+  border: 1px solid
+    rgba(240, 185, 11, 0.25);
+  border-radius: 999px;
+  color: #f0b90b;
+  background:
+    rgba(240, 185, 11, 0.12);
+  font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
 }
 
 .status-pill.enabled {
-  background: rgba(34, 197, 94, 0.15);
+  border-color:
+    rgba(34, 197, 94, 0.35);
   color: #22c55e;
-  border-color: rgba(34, 197, 94, 0.35);
+  background:
+    rgba(34, 197, 94, 0.15);
 }
 
 .status-pill.disabled {
-  background: rgba(239, 68, 68, 0.15);
+  border-color:
+    rgba(239, 68, 68, 0.35);
   color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.35);
+  background:
+    rgba(239, 68, 68, 0.15);
 }
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.settings-page button {
+  font-family: inherit;
+}
+
+.settings-status-card button,
+.settings-primary-btn,
+.settings-action-row button {
+  min-height: 42px;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 16px;
+  color: #111827;
+  background:
+    linear-gradient(
+      135deg,
+      #f0b90b,
+      #ffcc33
+    );
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.settings-status-card button {
+  margin-top: 12px;
+}
+
+.settings-status-card button:hover,
+.settings-primary-btn:hover,
+.settings-action-row button:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 22px
+      rgba(240, 185, 11, 0.28);
+}
+
+.settings-status-card button:active,
+.settings-primary-btn:active,
+.settings-action-row button:active {
+  transform: scale(0.98);
+}
+
+.settings-page button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.settings-danger-btn {
+  min-height: 42px;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 16px;
+  color: #fff;
+  background:
+    linear-gradient(
+      135deg,
+      #ef4444,
+      #b91c1c
+    );
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* =========================================================
+   INFORMATION LISTS
+========================================================= */
 
 .settings-info-list,
 .settings-toggle-list,
@@ -104,21 +266,99 @@
   gap: 12px;
 }
 
-.settings-info-list div,
-.settings-toggle-list div {
-  background: #0b0f19;
-  border: 1px solid rgba(240, 185, 11, 0.1);
+.settings-info-list > div,
+.settings-toggle-list > div {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid
+    rgba(255, 255, 255, 0.06);
   border-radius: 14px;
-  padding: 13px;
+  background: #0b0f19;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.settings-info-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.settings-info-list > div:hover,
+.settings-toggle-list > div:hover {
+  border-color:
+    rgba(240, 185, 11, 0.38);
+  background: #111827;
 }
 
 .settings-info-list strong,
 .settings-toggle-list b {
   display: block;
+  min-width: 0;
   color: #f5f7fa;
-  margin-top: 6px;
+  text-align: end;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+.settings-toggle-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.settings-rule-list p {
+  margin: 0;
+  color: #cbd5e1;
+}
+
+/* =========================================================
+   USER UID / SECRET VALUES
+========================================================= */
+
+.settings-user-uid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  min-width: 110px;
+  padding: 6px 11px;
+  border: 1px solid
+    rgba(240, 185, 11, 0.35);
+  border-radius: 10px;
+  color: #f0b90b !important;
+  background:
+    rgba(240, 185, 11, 0.08);
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    monospace;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.settings-user-uid:hover {
+  border-color:
+    rgba(240, 185, 11, 0.6);
+  background:
+    rgba(240, 185, 11, 0.13);
+  box-shadow:
+    0 0 0 3px
+      rgba(240, 185, 11, 0.06);
+}
+
+/* =========================================================
+   TWO-FACTOR AUTHENTICATION
+========================================================= */
 
 .twofa-card {
   margin-bottom: 22px;
@@ -131,31 +371,51 @@
 }
 
 .twofa-qr-section {
-  background: #0b0f19;
-  border: 1px solid rgba(240, 185, 11, 0.12);
-  border-radius: 18px;
-  padding: 18px;
   display: grid;
+  width: min(100%, 520px);
   gap: 14px;
-  width: fit-content;
-  max-width: 100%;
+  padding: 18px;
+  border: 1px solid
+    rgba(240, 185, 11, 0.16);
+  border-radius: 18px;
+  background: #0b0f19;
 }
 
 .twofa-qr-section img {
-  max-width: 220px;
-  background: #fff;
-  border-radius: 12px;
+  display: block;
+  width: min(220px, 100%);
+  height: auto;
+  margin-inline: auto;
   padding: 10px;
+  border-radius: 12px;
+  background: #fff;
 }
 
 .twofa-qr-section input,
 .twofa-enabled-box input {
-  background: #0b0f19;
-  color: #fff;
-  border: 1px solid rgba(240, 185, 11, 0.15);
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid
+    rgba(240, 185, 11, 0.2);
   border-radius: 12px;
-  padding: 12px;
   outline: none;
+  color: #fff;
+  background: #0b0f19;
+  font-family: inherit;
+  font-size: 15px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.twofa-qr-section input:focus,
+.twofa-enabled-box input:focus {
+  border-color:
+    rgba(240, 185, 11, 0.75);
+  box-shadow:
+    0 0 0 3px
+      rgba(240, 185, 11, 0.1);
 }
 
 .settings-action-row {
@@ -164,40 +424,172 @@
   gap: 12px;
 }
 
+.settings-action-row > * {
+  max-width: 100%;
+}
+
+/* =========================================================
+   BACKUP CODES
+========================================================= */
+
 .backup-codes-box {
   margin-top: 18px;
-  background: #0b0f19;
-  border: 1px solid rgba(240, 185, 11, 0.3);
-  border-radius: 18px;
   padding: 18px;
+  border: 1px solid
+    rgba(240, 185, 11, 0.3);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      145deg,
+      #0b0f19,
+      #111827
+    );
 }
 
 .backup-codes-box h3 {
-  color: #f0b90b;
   margin-top: 0;
+  color: #f0b90b;
 }
 
 .backup-codes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(140px, 1fr)
+    );
   gap: 10px;
-  margin-top: 14px;
+  margin: 14px 0;
 }
 
 .backup-codes-grid div {
-  background: #111827;
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 11px;
+  border: 1px solid
+    rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  padding: 10px;
-  text-align: center;
+  color: #f5f7fa;
+  background: #111827;
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    monospace;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  overflow-wrap: anywhere;
+  user-select: text;
 }
 
-.settings-rule-list p {
-  color: #cbd5e1;
-  margin: 0;
+/* =========================================================
+   LEGAL LINKS
+========================================================= */
+
+.settings-legal-link {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 92px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 12px;
+  color: #111 !important;
+  background:
+    linear-gradient(
+      135deg,
+      #f0b90b,
+      #ffcc33
+    ) !important;
+  box-shadow:
+    0 6px 18px
+      rgba(240, 185, 11, 0.28);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+.settings-legal-link:hover {
+  transform: translateY(-2px);
+  background:
+    linear-gradient(
+      135deg,
+      #ffd54f,
+      #f0b90b
+    ) !important;
+  box-shadow:
+    0 10px 24px
+      rgba(240, 185, 11, 0.4);
+}
+
+.settings-legal-link:active {
+  transform: scale(0.97);
+}
+
+.settings-legal-link:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px
+      rgba(240, 185, 11, 0.28);
+}
+
+/* =========================================================
+   RTL / URDU / ARABIC SUPPORT
+========================================================= */
+
+[dir="rtl"] .settings-page,
+html[lang="ur"] .settings-page,
+html[lang="ar"] .settings-page {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .settings-card-head,
+html[lang="ur"] .settings-card-head,
+html[lang="ar"] .settings-card-head {
+  flex-direction: row;
+}
+
+[dir="rtl"]
+  .settings-info-list
+  strong,
+[dir="rtl"]
+  .settings-toggle-list
+  b,
+html[lang="ur"]
+  .settings-info-list
+  strong,
+html[lang="ur"]
+  .settings-toggle-list
+  b,
+html[lang="ar"]
+  .settings-info-list
+  strong,
+html[lang="ar"]
+  .settings-toggle-list
+  b {
+  text-align: left;
+}
+
+[dir="rtl"]
+  .settings-action-row,
+html[lang="ur"]
+  .settings-action-row,
+html[lang="ar"]
+  .settings-action-row {
+  justify-content: flex-start;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
 
 @media (max-width: 1100px) {
   .settings-overview-grid,
@@ -206,135 +598,103 @@
   }
 }
 
+/* =========================================================
+   MOBILE
+========================================================= */
+
 @media (max-width: 700px) {
   .settings-page {
     padding: 14px;
   }
 
+  .settings-status-card,
+  .settings-card {
+    padding: 17px;
+    border-radius: 16px;
+  }
+
   .settings-card-head {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .settings-card-head > span,
+  .status-pill {
+    width: fit-content;
+    white-space: normal;
+  }
+
+  .settings-info-list > div,
+  .settings-toggle-list > div {
+    align-items: flex-start;
+  }
+
+  .settings-info-list > div {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .settings-info-list strong,
+  .settings-toggle-list b {
+    text-align: start;
   }
 
   .settings-action-row {
     flex-direction: column;
   }
 
+  .settings-action-row button,
   .settings-primary-btn,
-  .settings-danger-btn {
+  .settings-danger-btn,
+  .settings-status-card button {
     width: 100%;
   }
-}
-.settings-legal-link {
-  color: #f0b90b;
-  font-weight: 900;
-  text-decoration: none;
-  margin-top: 6px;
-  display: inline-block;
-}
 
-.settings-legal-link:hover {
-  color: #ffd76a;
-  text-decoration: underline;
-}
+  .twofa-qr-section {
+    width: 100%;
+    padding: 14px;
+  }
 
-.settings-info-list a.settings-legal-link {
-  background: rgba(240, 185, 11, 0.12);
-  border: 1px solid rgba(240, 185, 11, 0.25);
-  border-radius: 999px;
-  padding: 7px 14px;
-  width: fit-content;
-}
-button.settings-legal-link {
-  appearance: none;
-  cursor: pointer;
-  font-family: inherit;
-  line-height: 1.2;
-}
-/* ===========================
-   Legal Buttons Professional
-   Add at END of Settings.css
-=========================== */
+  .backup-codes-grid {
+    grid-template-columns: 1fr;
+  }
 
-.settings-info-list > div{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:18px;
-  padding:14px 18px;
-  margin-bottom:12px;
-  border-radius:14px;
-  background:#1b2230;
-  border:1px solid rgba(255,255,255,.06);
-  transition:all .25s ease;
-}
+  .settings-legal-link {
+    width: 100%;
+  }
 
-.settings-info-list > div:hover{
-  border-color:#f0b90b;
-  background:#232c3d;
-  transform:translateY(-1px);
-}
-
-.settings-legal-link{
-  min-width:92px !important;
-  height:40px !important;
-  border:none !important;
-  border-radius:12px !important;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:700;
-  color:#111 !important;
-  background:linear-gradient(135deg,#f0b90b,#ffcc33) !important;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none !important;
-  transition:all .25s ease;
-  box-shadow:0 6px 18px rgba(240,185,11,.35);
-}
-
-.settings-legal-link:hover{
-  background:linear-gradient(135deg,#ffd54f,#f0b90b) !important;
-  transform:translateY(-2px);
-  box-shadow:0 10px 24px rgba(240,185,11,.45);
-}
-
-.settings-legal-link:active{
-  transform:scale(.97);
-}
-
-.settings-legal-link:focus{
-  outline:none;
-  box-shadow:0 0 0 3px rgba(240,185,11,.25);
-}
-.settings-user-uid {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 110px;
-  padding: 6px 11px;
-  border: 1px solid rgba(240, 185, 11, 0.35);
-  border-radius: 10px;
-  color: #f0b90b;
-  background: rgba(240, 185, 11, 0.08);
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-  user-select: text;
-}
-
-.settings-user-uid:hover {
-  border-color: rgba(240, 185, 11, 0.6);
-  background: rgba(240, 185, 11, 0.13);
-  box-shadow: 0 0 0 3px rgba(240, 185, 11, 0.06);
-}
-
-@media (max-width: 600px) {
   .settings-user-uid {
-    min-width: 100px;
-    padding: 6px 9px;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
     font-size: 13px;
-    letter-spacing: 0.04em;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+  .settings-page {
+    padding: 10px;
+  }
+
+  .settings-status-card,
+  .settings-card {
+    padding: 14px;
+  }
+
+  .settings-status-card h2,
+  .settings-card h2 {
+    font-size: 19px;
+  }
+
+  .twofa-qr-section img {
+    width: min(190px, 100%);
+  }
+
+  .backup-codes-grid div {
+    font-size: 13px;
   }
 }
