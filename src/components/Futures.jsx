@@ -1,300 +1,755 @@
-import { useEffect, useRef, useState } from "react";
-import { useI18n } from "../i18n";
-import "./Futures.css";
-import { socket } from "../api";
 import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import { useI18n } from "../i18n/index.js";
+import {
+  socket,
   openPosition as apiOpenPosition,
   getPositions,
   getFuturesHistory,
   closePosition as apiClosePosition,
 } from "../api";
 
+import "./Futures.css";
+
+const DEFAULT_PAIR = "BTCUSDT";
+const DEFAULT_PRICE = 68500;
+
+const FALLBACK_PAIRS = [
+  { pair: "BTCUSDT", price: 68500, change: 2.4 },
+  { pair: "ETHUSDT", price: 3800, change: 1.8 },
+  { pair: "BNBUSDT", price: 620, change: 0.9 },
+  { pair: "SOLUSDT", price: 170, change: 3.1 },
+  { pair: "XRPUSDT", price: 0.62, change: 1.2 },
+  { pair: "ADAUSDT", price: 0.45, change: 0.8 },
+  { pair: "DOGEUSDT", price: 0.16, change: 4.2 },
+  { pair: "TRXUSDT", price: 0.12, change: 0.6 },
+  { pair: "TONUSDT", price: 6.5, change: 1.9 },
+  { pair: "AVAXUSDT", price: 36, change: 2.1 },
+  { pair: "DOTUSDT", price: 7.2, change: 1.4 },
+  { pair: "LINKUSDT", price: 18, change: 2.8 },
+  { pair: "LTCUSDT", price: 85, change: 1.1 },
+  { pair: "EXALTUSDT", price: 0.0003, change: 0 },
+];
+
+const TIMEFRAMES = [
+  "1m",
+  "5m",
+  "10m",
+  "15m",
+  "1h",
+  "4h",
+  "24h",
+  "1W",
+  "1M",
+];
+
+const TV_INTERVAL_MAP = {
+  "1m": "1",
+  "5m": "5",
+  "10m": "10",
+  "15m": "15",
+  "1h": "60",
+  "4h": "240",
+  "24h": "D",
+  "1W": "W",
+  "1M": "M",
+};
+
+const LEVERAGE_OPTIONS = ["5", "10", "20", "50", "100"];
+
+const formatPrice = (value) => {
+  const numericValue = Number(value || 0);
+
+  if (!Number.isFinite(numericValue) || numericValue === 0) {
+    return "0.00";
+  }
+
+  if (numericValue < 0.000001) {
+    return numericValue.toFixed(10);
+  }
+
+  if (numericValue < 0.01) {
+    return numericValue.toFixed(8);
+  }
+
+  if (numericValue < 1) {
+    return numericValue.toFixed(6);
+  }
+
+  return numericValue.toFixed(2);
+};
+
 function Futures({ setPage }) {
   const { t } = useI18n();
-  const candleSeriesRef = useRef(null);
-  const lastCandleRef = useRef(null);
 
-  const [selectedPair, setSelectedPair] = useState("BTCUSDT");
-  const [price, setPrice] = useState("");
+  const [selectedPair, setSelectedPair] =
+    useState(DEFAULT_PAIR);
+
+  const [price, setPrice] = useState(
+    String(DEFAULT_PRICE)
+  );
+
   const [amount, setAmount] = useState("");
-  const [leverage, setLeverage] = useState("10x");
+  const [leverage, setLeverage] = useState("10");
+
+  /*
+   * This remains a frontend futures balance until the
+   * production futures wallet engine is completed in Phase 9.
+   */
   const [balance] = useState(5000);
-  const [marketPrice, setMarketPrice] = useState(68500);
+
+  const [marketPrice, setMarketPrice] =
+    useState(DEFAULT_PRICE);
+
   const [positions, setPositions] = useState([]);
+  const [history, setHistory] = useState([]);
+
   const [side, setSide] = useState("long");
   const [tpPrice, setTpPrice] = useState("");
   const [slPrice, setSlPrice] = useState("");
-  const [history, setHistory] = useState([]);
-  const [volume, setVolume] = useState(0);
+
   const [livePrices, setLivePrices] = useState({});
+  const [priceChanges, setPriceChanges] = useState({});
+
   const [timeframe, setTimeframe] = useState("15m");
-  const [candleStyle, setCandleStyle] = useState("normal");
-  const [chartZoom, setChartZoom] = useState("medium");
-  const [volatility, setVolatility] = useState("normal");
-  const [marketSearch, setMarketSearch] = useState("");
+  const [candleStyle, setCandleStyle] =
+    useState("normal");
 
-  const [orderType, setOrderType] = useState("Market");
-  const [marginMode, setMarginMode] = useState("Cross");
-  const [showTPSL, setShowTPSL] = useState(false);
-  const [reduceOnly, setReduceOnly] = useState(false);
-  const [slippage, setSlippage] = useState(false);
-  const [mobileTab, setMobileTab] = useState("positions");
-  const [orderBook, setOrderBook] = useState({ bids: [], asks: [] });
+  const [chartZoom, setChartZoom] =
+    useState("medium");
 
-  const [activeFuturesTab, setActiveFuturesTab] = useState("USDⓈ-M");
-  const [marketDrawerOpen, setMarketDrawerOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [contractMenuOpen, setContractMenuOpen] = useState(false);
-  const [quoteCurrency, setQuoteCurrency] = useState("USDT");
+  const [volatility, setVolatility] =
+    useState("normal");
+
+  const [marketSearch, setMarketSearch] =
+    useState("");
+
+  const [orderType, setOrderType] =
+    useState("Market");
+
+  const [marginMode, setMarginMode] =
+    useState("Cross");
+
+  const [showTPSL, setShowTPSL] =
+    useState(false);
+
+  const [reduceOnly, setReduceOnly] =
+    useState(false);
+
+  const [slippage, setSlippage] =
+    useState(false);
+
+  const [mobileTab, setMobileTab] =
+    useState("positions");
+
+  const [orderBook, setOrderBook] = useState({
+    bids: [],
+    asks: [],
+  });
+
+  const [activeFuturesTab, setActiveFuturesTab] =
+    useState("USDⓈ-M");
+
+  const [
+    marketDrawerOpen,
+    setMarketDrawerOpen,
+  ] = useState(false);
+
+  const [settingsOpen, setSettingsOpen] =
+    useState(false);
+
+  const [moreOpen, setMoreOpen] =
+    useState(false);
+
+  const [
+    contractMenuOpen,
+    setContractMenuOpen,
+  ] = useState(false);
+
+  const [quoteCurrency, setQuoteCurrency] =
+    useState("USDT");
+
+  const [positionsLoading, setPositionsLoading] =
+    useState(false);
+
+  const [submittingPosition, setSubmittingPosition] =
+    useState(false);
+
+  const [closingPositionId, setClosingPositionId] =
+    useState("");
+
+  const translateWithFallback = (
+    key,
+    fallback,
+    namespace = "futures"
+  ) => {
+    try {
+      const translatedValue = t(key, {
+        ns: namespace,
+        defaultValue: fallback,
+      });
+
+      if (
+        translatedValue === undefined ||
+        translatedValue === null ||
+        translatedValue === key ||
+        String(translatedValue).trim() === ""
+      ) {
+        return fallback;
+      }
+
+      return translatedValue;
+    } catch (error) {
+      console.error(
+        `Futures translation failed for "${key}":`,
+        error
+      );
+
+      return fallback;
+    }
+  };
 
   const displayPrice =
     Number(marketPrice) > 0
       ? Number(marketPrice)
       : Number(price) > 0
-      ? Number(price)
-      : 68500;
+        ? Number(price)
+        : DEFAULT_PRICE;
 
-  const timeframes = ["1m", "5m", "10m", "15m", "1h", "4h", "24h", "1W", "1M"];
+  const selectedChange = Number(
+    priceChanges[selectedPair] || 0
+  );
 
-  const tvIntervalMap = {
-    "1m": "1",
-    "5m": "5",
-    "10m": "10",
-    "15m": "15",
-    "1h": "60",
-    "4h": "240",
-    "24h": "D",
-    "1W": "W",
-    "1M": "M",
-  };
+  const tvSymbol = `BINANCE:${selectedPair.replace(
+    "/",
+    ""
+  )}`;
 
-  const tvSymbol = `BINANCE:${selectedPair.replace("/", "")}`;
-  const tvInterval = tvIntervalMap[timeframe] || "15";
+  const tvInterval =
+    TV_INTERVAL_MAP[timeframe] || "15";
 
   const tvChartUrl =
-    `https://www.tradingview.com/widgetembed/?symbol=${tvSymbol}` +
-    `&interval=${tvInterval}` +
-    `&theme=dark&style=1&timezone=Etc/UTC`;
+    `https://www.tradingview.com/widgetembed/?symbol=${encodeURIComponent(
+      tvSymbol
+    )}` +
+    `&interval=${encodeURIComponent(tvInterval)}` +
+    "&theme=dark&style=1&timezone=Etc/UTC";
 
-  const fallbackPairs = [
-    { pair: "BTCUSDT", price: 68500, change: "+2.4%" },
-    { pair: "ETHUSDT", price: 3800, change: "+1.8%" },
-    { pair: "BNBUSDT", price: 620, change: "+0.9%" },
-    { pair: "SOLUSDT", price: 170, change: "+3.1%" },
-    { pair: "XRPUSDT", price: 0.62, change: "+1.2%" },
-    { pair: "ADAUSDT", price: 0.45, change: "+0.8%" },
-    { pair: "DOGEUSDT", price: 0.16, change: "+4.2%" },
-    { pair: "TRXUSDT", price: 0.12, change: "+0.6%" },
-    { pair: "TONUSDT", price: 6.5, change: "+1.9%" },
-    { pair: "AVAXUSDT", price: 36, change: "+2.1%" },
-    { pair: "DOTUSDT", price: 7.2, change: "+1.4%" },
-    { pair: "LINKUSDT", price: 18, change: "+2.8%" },
-    { pair: "LTCUSDT", price: 85, change: "+1.1%" },
-    { pair: "EXALTUSDT", price: 0.0003, change: "+0.0%" },
-  ];
+  const marketPairs = useMemo(() => {
+    const normalizedSearch = marketSearch
+      .trim()
+      .toLowerCase();
 
-  const marketPairs =
-    Object.entries(livePrices).length > 0
-      ? Object.entries(livePrices)
-          .filter(([symbol, price]) => {
-            return (
-              symbol.toLowerCase().includes(marketSearch.toLowerCase()) &&
-              Number(price) > 0
-            );
-          })
-          .sort(([a], [b]) => {
-            if (a === "BTCUSDT") return -1;
-            if (b === "BTCUSDT") return 1;
-            return a.localeCompare(b);
-          })
-          .slice(0, 60)
-          .map(([symbol, price]) => ({
-            pair: symbol,
-            price: Number(price),
-            change: window.realChanges?.[symbol]
-              ? window.realChanges[symbol] + "%"
-              : "+0.00%",
-          }))
-      : fallbackPairs;
+    const liveEntries = Object.entries(livePrices);
 
-  const mobileOrderBook =
-    orderBook.asks.length > 0 || orderBook.bids.length > 0
-      ? [
-          ...orderBook.asks.slice(0, 4).map((item) => ({
-            type: "sell",
-            price: Number(item[0]).toFixed(2),
-            amount: Number(item[1]).toFixed(2),
-          })),
-          ...orderBook.bids.slice(0, 4).map((item) => ({
-            type: "buy",
-            price: Number(item[0]).toFixed(2),
-            amount: Number(item[1]).toFixed(2),
-          })),
-        ]
-      : [
-          { type: "sell", price: (displayPrice + 0.04).toFixed(2), amount: "7.36" },
-          { type: "sell", price: (displayPrice + 0.03).toFixed(2), amount: "143.36" },
-          { type: "sell", price: (displayPrice + 0.02).toFixed(2), amount: "25.73" },
-          { type: "sell", price: (displayPrice + 0.01).toFixed(2), amount: "205.84" },
-          { type: "buy", price: (displayPrice - 0.01).toFixed(2), amount: "7.35" },
-          { type: "buy", price: (displayPrice - 0.02).toFixed(2), amount: "146.97" },
-          { type: "buy", price: (displayPrice - 0.03).toFixed(2), amount: "642.85" },
-          { type: "buy", price: (displayPrice - 0.04).toFixed(2), amount: "3.63K" },
-        ];
+    if (liveEntries.length === 0) {
+      return FALLBACK_PAIRS.filter((coin) =>
+        coin.pair
+          .toLowerCase()
+          .includes(normalizedSearch)
+      );
+    }
 
-  const loadPositions = async () => {
+    return liveEntries
+      .filter(
+        ([symbol, currentPrice]) =>
+          symbol
+            .toLowerCase()
+            .includes(normalizedSearch) &&
+          Number(currentPrice) > 0
+      )
+      .sort(([firstSymbol], [secondSymbol]) => {
+        if (firstSymbol === DEFAULT_PAIR) {
+          return -1;
+        }
+
+        if (secondSymbol === DEFAULT_PAIR) {
+          return 1;
+        }
+
+        return firstSymbol.localeCompare(secondSymbol);
+      })
+      .slice(0, 60)
+      .map(([symbol, currentPrice]) => ({
+        pair: symbol,
+        price: Number(currentPrice),
+        change: Number(priceChanges[symbol] || 0),
+      }));
+  }, [livePrices, marketSearch, priceChanges]);
+
+  const mobileOrderBook = useMemo(() => {
+    if (
+      orderBook.asks.length > 0 ||
+      orderBook.bids.length > 0
+    ) {
+      return [
+        ...orderBook.asks.slice(0, 4).map((item) => ({
+          type: "sell",
+          price: formatPrice(item?.[0]),
+          amount: Number(item?.[1] || 0).toFixed(4),
+        })),
+
+        ...orderBook.bids.slice(0, 4).map((item) => ({
+          type: "buy",
+          price: formatPrice(item?.[0]),
+          amount: Number(item?.[1] || 0).toFixed(4),
+        })),
+      ];
+    }
+
+    return [
+      {
+        type: "sell",
+        price: formatPrice(displayPrice + 0.04),
+        amount: "7.36",
+      },
+      {
+        type: "sell",
+        price: formatPrice(displayPrice + 0.03),
+        amount: "143.36",
+      },
+      {
+        type: "sell",
+        price: formatPrice(displayPrice + 0.02),
+        amount: "25.73",
+      },
+      {
+        type: "sell",
+        price: formatPrice(displayPrice + 0.01),
+        amount: "205.84",
+      },
+      {
+        type: "buy",
+        price: formatPrice(displayPrice - 0.01),
+        amount: "7.35",
+      },
+      {
+        type: "buy",
+        price: formatPrice(displayPrice - 0.02),
+        amount: "146.97",
+      },
+      {
+        type: "buy",
+        price: formatPrice(displayPrice - 0.03),
+        amount: "642.85",
+      },
+      {
+        type: "buy",
+        price: formatPrice(displayPrice - 0.04),
+        amount: "3630.00",
+      },
+    ];
+  }, [displayPrice, orderBook]);
+
+  const loadPositions = useCallback(async () => {
     try {
       const response = await getPositions();
-      if (response.success) setPositions(response.positions || []);
+
+      if (response?.success) {
+        setPositions(
+          Array.isArray(response.positions)
+            ? response.positions
+            : []
+        );
+      }
     } catch (error) {
-      console.log(error);
+      console.error(
+        "Futures positions loading failed:",
+        error
+      );
     }
-  };
-
-  const loadHistory = async () => {
-    try {
-      const response = await getFuturesHistory();
-      if (response.success) setHistory(response.history || []);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    loadPositions();
-    loadHistory();
-
-    const interval = setInterval(loadPositions, 3000);
-    return () => clearInterval(interval);
   }, []);
 
+  const loadHistory = useCallback(async () => {
+    try {
+      const response = await getFuturesHistory();
+
+      if (response?.success) {
+        setHistory(
+          Array.isArray(response.history)
+            ? response.history
+            : []
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Futures history loading failed:",
+        error
+      );
+    }
+  }, []);
+
+  const refreshPositionsData =
+    useCallback(async () => {
+      setPositionsLoading(true);
+
+      try {
+        await Promise.allSettled([
+          loadPositions(),
+          loadHistory(),
+        ]);
+      } finally {
+        setPositionsLoading(false);
+      }
+    }, [loadHistory, loadPositions]);
+
   useEffect(() => {
+    refreshPositionsData();
+
+    const intervalId = window.setInterval(
+      loadPositions,
+      5000
+    );
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [loadPositions, refreshPositionsData]);
+
+  useEffect(() => {
+    let cancelled = false;
+
     const loadLivePrices = async () => {
       try {
-        const res = await fetch("https://api.binance.com/api/v3/ticker/price");
-        const data = await res.json();
+        const [priceResponse, tickerResponse] =
+          await Promise.all([
+            fetch(
+              "https://api.binance.com/api/v3/ticker/price",
+              {
+                headers: {
+                  Accept: "application/json",
+                },
+              }
+            ),
+            fetch(
+              "https://api.binance.com/api/v3/ticker/24hr",
+              {
+                headers: {
+                  Accept: "application/json",
+                },
+              }
+            ),
+          ]);
 
-        const tickerRes = await fetch("https://api.binance.com/api/v3/ticker/24hr");
-        const tickerData = await tickerRes.json();
+        if (
+          !priceResponse.ok ||
+          !tickerResponse.ok
+        ) {
+          throw new Error(
+            "Binance futures market request failed."
+          );
+        }
 
-        const prices = {};
-        const changes = {};
+        const [priceData, tickerData] =
+          await Promise.all([
+            priceResponse.json(),
+            tickerResponse.json(),
+          ]);
 
-        data.forEach((item) => {
-          if (item.symbol.endsWith("USDT")) prices[item.symbol] = Number(item.price);
-        });
+        if (
+          cancelled ||
+          !Array.isArray(priceData) ||
+          !Array.isArray(tickerData)
+        ) {
+          return;
+        }
 
-        tickerData.forEach((item) => {
-          if (item.symbol.endsWith("USDT")) {
-            changes[item.symbol] = Number(item.priceChangePercent).toFixed(2);
+        const nextPrices = {};
+        const nextChanges = {};
+
+        priceData.forEach((item) => {
+          if (
+            item?.symbol?.endsWith("USDT") &&
+            Number(item?.price) > 0
+          ) {
+            nextPrices[item.symbol] = Number(
+              item.price
+            );
           }
         });
 
-        setLivePrices(prices);
-        window.realChanges = changes;
+        tickerData.forEach((item) => {
+          if (item?.symbol?.endsWith("USDT")) {
+            nextChanges[item.symbol] = Number(
+              item.priceChangePercent || 0
+            );
+          }
+        });
 
-        if (prices[selectedPair]) {
-          setMarketPrice(Number(prices[selectedPair]));
-          setPrice(String(Number(prices[selectedPair]).toFixed(2)));
+        setLivePrices(nextPrices);
+        setPriceChanges(nextChanges);
+
+        const selectedLivePrice =
+          nextPrices[selectedPair];
+
+        if (Number(selectedLivePrice) > 0) {
+          setMarketPrice(selectedLivePrice);
+          setPrice(
+            String(
+              Number(selectedLivePrice).toFixed(8)
+            )
+          );
         }
       } catch (error) {
-        console.log("Price load error:", error);
+        console.error(
+          "Futures live price loading failed:",
+          error
+        );
       }
     };
 
     loadLivePrices();
-    const interval = setInterval(loadLivePrices, 5000);
-    return () => clearInterval(interval);
+
+    const intervalId = window.setInterval(
+      loadLivePrices,
+      10000
+    );
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
   }, [selectedPair]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadOrderBook = async () => {
       try {
-        const res = await fetch(
-          `https://api.binance.com/api/v3/depth?symbol=${selectedPair}&limit=20`
+        const response = await fetch(
+          `https://api.binance.com/api/v3/depth?symbol=${encodeURIComponent(
+            selectedPair
+          )}&limit=20`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
         );
-        const data = await res.json();
+
+        const data = await response
+          .json()
+          .catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(
+            data?.msg ||
+              "Futures order book request failed."
+          );
+        }
+
+        if (cancelled) {
+          return;
+        }
 
         setOrderBook({
-          bids: data.bids || [],
-          asks: data.asks || [],
+          bids: Array.isArray(data?.bids)
+            ? data.bids
+            : [],
+
+          asks: Array.isArray(data?.asks)
+            ? data.asks
+            : [],
         });
       } catch (error) {
-        console.log("Orderbook error:", error);
+        console.error(
+          "Futures order book loading failed:",
+          error
+        );
       }
     };
 
     loadOrderBook();
-    const interval = setInterval(loadOrderBook, 2000);
-    return () => clearInterval(interval);
+
+    const intervalId = window.setInterval(
+      loadOrderBook,
+      3000
+    );
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
   }, [selectedPair]);
 
   useEffect(() => {
     const handleMarketUpdate = (data) => {
-      if (!data?.symbol) return;
-
-      const symbol = String(data.symbol).toUpperCase();
-      const currentPrice = Number(data.price || data.candle?.close || 0);
-
-      if (currentPrice > 0) {
-        setLivePrices((prev) => ({ ...prev, [symbol]: currentPrice }));
-
-        if (symbol === selectedPair.toUpperCase()) {
-          setMarketPrice(currentPrice);
-          setPrice(String(currentPrice.toFixed(2)));
-        }
-      }
-    };
-
-    socket.on("marketUpdate", handleMarketUpdate);
-    return () => socket.off("marketUpdate", handleMarketUpdate);
-  }, [selectedPair]);
-
-  useEffect(() => {
-    const handleKlineUpdate = (data) => {
-      if (data.symbol !== selectedPair) return;
-      const c = data.candle;
-
-      setMarketPrice(Number(c.close));
-      setPrice(String(Number(c.close).toFixed(2)));
-      setVolume(Number(c.volume || 0));
-    };
-
-    socket.on("klineUpdate", handleKlineUpdate);
-    return () => socket.off("klineUpdate", handleKlineUpdate);
-  }, [selectedPair]);
-
-  const selectMarket = (coin) => {
-    const coinPrice = Number(coin.price || 0);
-
-    setSelectedPair(coin.pair);
-    setPrice(String(coinPrice));
-    setMarketPrice(coinPrice);
-    lastCandleRef.current = null;
-
-    if (candleSeriesRef.current) {
-      candleSeriesRef.current.setData([]);
-    }
-  };
-
-  const openPosition = async (type) => {
-    try {
-      if (!amount || Number(amount) <= 0) {
-        alert("Please enter amount first");
+      if (!data?.symbol) {
         return;
       }
 
-      const realLeverage = Number(leverage.replace("x", ""));
+      const symbol = String(
+        data.symbol
+      ).toUpperCase();
 
+      const currentPrice = Number(
+        data.price || data?.candle?.close || 0
+      );
+
+      if (
+        !Number.isFinite(currentPrice) ||
+        currentPrice <= 0
+      ) {
+        return;
+      }
+
+      setLivePrices((previousPrices) => ({
+        ...previousPrices,
+        [symbol]: currentPrice,
+      }));
+
+      if (symbol === selectedPair.toUpperCase()) {
+        setMarketPrice(currentPrice);
+        setPrice(
+          String(currentPrice.toFixed(8))
+        );
+      }
+    };
+
+    const handleKlineUpdate = (data) => {
+      if (
+        String(data?.symbol || "").toUpperCase() !==
+        selectedPair.toUpperCase()
+      ) {
+        return;
+      }
+
+      const closePrice = Number(
+        data?.candle?.close || 0
+      );
+
+      if (
+        Number.isFinite(closePrice) &&
+        closePrice > 0
+      ) {
+        setMarketPrice(closePrice);
+        setPrice(
+          String(closePrice.toFixed(8))
+        );
+      }
+    };
+
+    socket.on(
+      "marketUpdate",
+      handleMarketUpdate
+    );
+
+    socket.on(
+      "klineUpdate",
+      handleKlineUpdate
+    );
+
+    return () => {
+      socket.off(
+        "marketUpdate",
+        handleMarketUpdate
+      );
+
+      socket.off(
+        "klineUpdate",
+        handleKlineUpdate
+      );
+    };
+  }, [selectedPair]);
+
+  const selectMarket = (coin) => {
+    const nextPair = String(
+      coin?.pair || DEFAULT_PAIR
+    ).toUpperCase();
+
+    const nextPrice = Number(
+      coin?.price ||
+        livePrices[nextPair] ||
+        DEFAULT_PRICE
+    );
+
+    setSelectedPair(nextPair);
+    setMarketPrice(nextPrice);
+    setPrice(String(nextPrice));
+    setMarketDrawerOpen(false);
+    setContractMenuOpen(false);
+  };
+
+  const setBalancePercentage = (percentage) => {
+    const calculatedAmount =
+      (balance * percentage) / 100;
+
+    setAmount(
+      String(calculatedAmount.toFixed(2))
+    );
+  };
+
+  const openPosition = async (
+    requestedSide = side
+  ) => {
+    const numericAmount = Number(amount);
+    const numericLeverage = Number(leverage);
+    const numericEntryPrice = Number(displayPrice);
+    const numericTakeProfit = Number(tpPrice || 0);
+    const numericStopLoss = Number(slPrice || 0);
+
+    if (
+      !Number.isFinite(numericAmount) ||
+      numericAmount <= 0
+    ) {
+      window.alert(
+        translateWithFallback(
+          "enterValidAmount",
+          "Please enter a valid amount.",
+          "common"
+        )
+      );
+      return;
+    }
+
+    if (
+      !Number.isFinite(numericLeverage) ||
+      numericLeverage <= 0
+    ) {
+      window.alert(
+        translateWithFallback(
+          "invalidLeverage",
+          "Invalid leverage."
+        )
+      );
+      return;
+    }
+
+    if (
+      !Number.isFinite(numericEntryPrice) ||
+      numericEntryPrice <= 0
+    ) {
+      window.alert(
+        translateWithFallback(
+          "marketPriceUnavailable",
+          "Live market price is unavailable."
+        )
+      );
+      return;
+    }
+
+    setSubmittingPosition(true);
+
+    try {
       const payload = {
         symbol: selectedPair,
-        side: type,
-        quantity: Number(amount),
-        leverage: realLeverage,
-        entryPrice: Number(displayPrice),
-        takeProfit: tpPrice ? Number(tpPrice) : 0,
-        stopLoss: slPrice ? Number(slPrice) : 0,
+        side: requestedSide,
+        quantity: numericAmount,
+        leverage: numericLeverage,
+        entryPrice: numericEntryPrice,
+        takeProfit:
+          Number.isFinite(numericTakeProfit)
+            ? numericTakeProfit
+            : 0,
+        stopLoss:
+          Number.isFinite(numericStopLoss)
+            ? numericStopLoss
+            : 0,
         orderType,
         marginMode,
         reduceOnly,
@@ -303,694 +758,1865 @@ function Futures({ setPage }) {
         quoteCurrency,
       };
 
-      const response = await apiOpenPosition(payload);
+      const response =
+        await apiOpenPosition(payload);
 
-      if (response.success) {
-        await loadPositions();
-        await loadHistory();
-        setAmount("");
-        setTpPrice("");
-        setSlPrice("");
-        alert("Position opened successfully");
-      } else {
-        alert(response.message || "Open position failed");
+      if (!response?.success) {
+        throw new Error(
+          response?.message ||
+            "Open position failed."
+        );
       }
+
+      await refreshPositionsData();
+
+      setAmount("");
+      setTpPrice("");
+      setSlPrice("");
+
+      window.alert(
+        translateWithFallback(
+          "positionOpenedSuccessfully",
+          "Position opened successfully."
+        )
+      );
     } catch (error) {
-      console.log(error);
-      alert(error.message || "Open position failed");
+      console.error(
+        "Futures position open failed:",
+        error
+      );
+
+      window.alert(
+        error?.message ||
+          translateWithFallback(
+            "openPositionFailed",
+            "Open position failed."
+          )
+      );
+    } finally {
+      setSubmittingPosition(false);
     }
   };
 
-  const closePosition = async (id) => {
-    try {
-      await apiClosePosition(id);
-      await loadPositions();
-      await loadHistory();
-      alert("Position closed");
-    } catch (error) {
-      console.log(error);
-      alert(error.message || "Close position failed");
+  const closePosition = async (positionId) => {
+    if (!positionId) {
+      return;
     }
+
+    const confirmed = window.confirm(
+      translateWithFallback(
+        "confirmClosePosition",
+        "Are you sure you want to close this position?"
+      )
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setClosingPositionId(positionId);
+
+    try {
+      const response =
+        await apiClosePosition(positionId);
+
+      if (
+        response &&
+        response.success === false
+      ) {
+        throw new Error(
+          response.message ||
+            "Close position failed."
+        );
+      }
+
+      await refreshPositionsData();
+
+      window.alert(
+        translateWithFallback(
+          "positionClosedSuccessfully",
+          "Position closed successfully."
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Futures position close failed:",
+        error
+      );
+
+      window.alert(
+        error?.message ||
+          translateWithFallback(
+            "closePositionFailed",
+            "Close position failed."
+          )
+      );
+    } finally {
+      setClosingPositionId("");
+    }
+  };
+
+  const calculatePositionPnl = (position) => {
+    const markPrice = Number(
+      livePrices[
+        position?.symbol || position?.pair
+      ] ||
+        position?.markPrice ||
+        displayPrice ||
+        0
+    );
+
+    const entryPrice = Number(
+      position?.entryPrice ||
+        position?.entry ||
+        0
+    );
+
+    const quantity = Number(
+      position?.quantity ||
+        position?.amount ||
+        1
+    );
+
+    if (
+      !Number.isFinite(markPrice) ||
+      !Number.isFinite(entryPrice)
+    ) {
+      return 0;
+    }
+
+    const priceDifference =
+      position?.side === "short"
+        ? entryPrice - markPrice
+        : markPrice - entryPrice;
+
+    return priceDifference * quantity;
+  };
+
+  const renderMarketChange = (change) => {
+    const numericChange = Number(change || 0);
+
+    return `${
+      numericChange >= 0 ? "+" : ""
+    }${numericChange.toFixed(2)}%`;
+  };
+
+  const renderPositionCard = (position) => {
+    const positionId =
+      position?._id || position?.id;
+
+    const pnl =
+      calculatePositionPnl(position);
+
+    return (
+      <article
+        key={positionId}
+        className={`position-card ${
+          position?.side === "short"
+            ? "short"
+            : "long"
+        }`}
+      >
+        <div className="position-top">
+          <strong>
+            {position?.symbol || position?.pair}{" "}
+            {String(
+              position?.side || ""
+            ).toUpperCase()}
+          </strong>
+
+          <span
+            className={
+              pnl >= 0 ? "profit" : "loss"
+            }
+          >
+            {pnl.toFixed(2)} USD
+          </span>
+        </div>
+
+        <div className="position-info">
+          <p>
+            {translateWithFallback(
+              "entryPrice",
+              "Entry Price"
+            )}
+            :{" "}
+            {position?.entryPrice ||
+              position?.entry ||
+              "N/A"}
+          </p>
+
+          <p>
+            {translateWithFallback(
+              "markPrice",
+              "Mark Price"
+            )}
+            :{" "}
+            {formatPrice(
+              livePrices[
+                position?.symbol ||
+                  position?.pair
+              ] ||
+                position?.markPrice ||
+                displayPrice
+            )}
+          </p>
+
+          <p>
+            {translateWithFallback(
+              "leverage",
+              "Leverage"
+            )}
+            : {position?.leverage || 1}x
+          </p>
+
+          <p>
+            {translateWithFallback(
+              "margin",
+              "Margin"
+            )}
+            :{" "}
+            {position?.margin ||
+              position?.amount ||
+              position?.quantity ||
+              0}{" "}
+            USDT
+          </p>
+
+          <p>
+            {translateWithFallback(
+              "liquidation",
+              "Liquidation"
+            )}
+            :{" "}
+            {position?.liquidationPrice ||
+              position?.liquidation ||
+              "N/A"}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="close-position"
+          disabled={
+            closingPositionId === positionId
+          }
+          onClick={() =>
+            closePosition(positionId)
+          }
+        >
+          {closingPositionId === positionId
+            ? translateWithFallback(
+                "processing",
+                "Processing...",
+                "common"
+              )
+            : translateWithFallback(
+                "closePosition",
+                "Close Position"
+              )}
+        </button>
+      </article>
+    );
   };
 
   return (
-    <div className="futures-page">
-      <div className="binance-mobile-futures">
+    <main className="futures-page">
+      <section className="binance-mobile-futures">
         <div className="bm-top-tabs">
-          {["USDⓈ-M", "COIN-M", "Options", "Up / D"].map((tab) => (
-            <span
+          {[
+            "USDⓈ-M",
+            "COIN-M",
+            "Options",
+            "Up / D",
+          ].map((tab) => (
+            <button
+              type="button"
               key={tab}
-              className={activeFuturesTab === tab ? "active" : ""}
-              onClick={() => setActiveFuturesTab(tab)}
+              className={
+                activeFuturesTab === tab
+                  ? "active"
+                  : ""
+              }
+              onClick={() =>
+                setActiveFuturesTab(tab)
+              }
             >
               {tab}
-            </span>
+            </button>
           ))}
 
-          <b onClick={() => setMarketDrawerOpen(true)}>☰</b>
+          <button
+            type="button"
+            aria-label={translateWithFallback(
+              "markets",
+              "Markets",
+              "navigation"
+            )}
+            onClick={() =>
+              setMarketDrawerOpen(true)
+            }
+          >
+            ☰
+          </button>
         </div>
 
         <div className="bm-notice">
-       🔔 {t("importantNotice")}
-          <span>×</span>
+          <span>
+            🔔{" "}
+            {translateWithFallback(
+              "importantNotice",
+              "Important Notice: Futures Market Live"
+            )}
+          </span>
         </div>
 
         <div className="bm-pair-head">
-          <div>
-            <h2 onClick={() => setContractMenuOpen(!contractMenuOpen)}>
-              {selectedPair}<small>{t("perp")}</small>
+          <button
+            type="button"
+            className="bm-pair-selector"
+            onClick={() =>
+              setContractMenuOpen(
+                (open) => !open
+              )
+            }
+          >
+            <h2>
+              {selectedPair}
+              <small>
+                {translateWithFallback(
+                  "perp",
+                  "Perp"
+                )}
+              </small>
             </h2>
+
             <p>
-            {t("live")} <span className="green-change">+0.11%</span>
+              {translateWithFallback(
+                "live",
+                "Live",
+                "common"
+              )}{" "}
+              <span
+                className={
+                  selectedChange >= 0
+                    ? "green-change"
+                    : "red-change"
+                }
+              >
+                {renderMarketChange(
+                  selectedChange
+                )}
+              </span>
             </p>
-          </div>
+          </button>
 
           <div className="bm-icons">
-            <span onClick={() => setSettingsOpen(!settingsOpen)}>⚙️</span>
-            <span onClick={() => setMoreOpen(!moreOpen)}>⋯</span>
+            <button
+              type="button"
+              aria-label={translateWithFallback(
+                "futuresSettings",
+                "Futures Settings"
+              )}
+              onClick={() =>
+                setSettingsOpen(
+                  (open) => !open
+                )
+              }
+            >
+              ⚙️
+            </button>
+
+            <button
+              type="button"
+              aria-label={translateWithFallback(
+                "moreOptions",
+                "More Options",
+                "common"
+              )}
+              onClick={() =>
+                setMoreOpen(
+                  (open) => !open
+                )
+              }
+            >
+              ⋯
+            </button>
           </div>
         </div>
 
         <div className="bm-trade-order-grid">
-          <div className="bm-trade-box">
+          <section className="bm-trade-box">
             <div className="bm-buy-sell">
               <button
-                className={side === "long" ? "active-buy" : ""}
+                type="button"
+                className={
+                  side === "long"
+                    ? "active-buy"
+                    : ""
+                }
                 onClick={() => setSide("long")}
               >
-               {t("buy")} 
+                {translateWithFallback(
+                  "buy",
+                  "Buy",
+                  "trading"
+                )}
               </button>
 
               <button
-                className={side === "short" ? "active-sell" : ""}
-                onClick={() => setSide("short")}
+                type="button"
+                className={
+                  side === "short"
+                    ? "active-sell"
+                    : ""
+                }
+                onClick={() =>
+                  setSide("short")
+                }
               >
-                {t("sell")}
+                {translateWithFallback(
+                  "sell",
+                  "Sell",
+                  "trading"
+                )}
               </button>
             </div>
 
             <div className="bm-mini-row">
-              <select value={marginMode} onChange={(e) => setMarginMode(e.target.value)}>
-               <option value="Cross">{t("cross")}</option>
-<option value="Isolated">{t("isolated")}</option>
+              <select
+                value={marginMode}
+                onChange={(event) =>
+                  setMarginMode(
+                    event.target.value
+                  )
+                }
+              >
+                <option value="Cross">
+                  {translateWithFallback(
+                    "cross",
+                    "Cross"
+                  )}
+                </option>
+
+                <option value="Isolated">
+                  {translateWithFallback(
+                    "isolated",
+                    "Isolated"
+                  )}
+                </option>
               </select>
 
-              <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
-                <option value="5">5x</option>
-                <option value="10">10x</option>
-                <option value="20">20x</option>
-                <option value="50">50x</option>
-                <option value="100">100x</option>
+              <select
+                value={leverage}
+                onChange={(event) =>
+                  setLeverage(
+                    event.target.value
+                  )
+                }
+              >
+                {LEVERAGE_OPTIONS.map(
+                  (option) => (
+                    <option
+                      key={option}
+                      value={option}
+                    >
+                      {option}x
+                    </option>
+                  )
+                )}
               </select>
-
-              <button>S</button>
             </div>
 
             <select
               className="bm-full-input"
               value={orderType}
-              onChange={(e) => setOrderType(e.target.value)}
+              onChange={(event) =>
+                setOrderType(
+                  event.target.value
+                )
+              }
             >
-             <option value="Market">{t("market")}</option>
-             <option value="Limit">{t("limit")}</option>
+              <option value="Market">
+                {translateWithFallback(
+                  "market",
+                  "Market"
+                )}
+              </option>
+
+              <option value="Limit">
+                {translateWithFallback(
+                  "limit",
+                  "Limit"
+                )}
+              </option>
             </select>
 
-           <div className="bm-amount-box">
-  <input
-    value={amount}
-    onChange={(e) => setAmount(e.target.value)}
-    placeholder={t("amount")}
-  />
+            <div className="bm-amount-box">
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={amount}
+                placeholder={translateWithFallback(
+                  "amount",
+                  "Amount",
+                  "common"
+                )}
+                onChange={(event) =>
+                  setAmount(
+                    event.target.value
+                  )
+                }
+              />
 
-  <span
-    onClick={() =>
-      setQuoteCurrency(quoteCurrency === "USDT" ? "BUSD" : "USDT")
-    }
-  >
-    {quoteCurrency} ▾
-  </span>
-</div>
+              <button
+                type="button"
+                onClick={() =>
+                  setQuoteCurrency(
+                    quoteCurrency === "USDT"
+                      ? "BUSD"
+                      : "USDT"
+                  )
+                }
+              >
+                {quoteCurrency} ▾
+              </button>
+            </div>
 
             <div className="bm-slider">
-              <span onClick={() => setAmount(String((balance * 0.25).toFixed(2)))}></span>
-              <span onClick={() => setAmount(String((balance * 0.5).toFixed(2)))}></span>
-              <span onClick={() => setAmount(String((balance * 0.75).toFixed(2)))}></span>
-              <span onClick={() => setAmount(String(balance))}></span>
+              {[25, 50, 75, 100].map(
+                (percentage) => (
+                  <button
+                    type="button"
+                    key={percentage}
+                    onClick={() =>
+                      setBalancePercentage(
+                        percentage
+                      )
+                    }
+                  >
+                    {percentage}%
+                  </button>
+                )
+              )}
             </div>
 
             <p className="bm-avbl">
-             {t("available")} <b>{balance} USDT</b> ⇆
+              {translateWithFallback(
+                "available",
+                "Available",
+                "common"
+              )}{" "}
+              <b>{balance} USDT</b>
             </p>
 
-           <label className="bm-check">
-  <input
-    type="checkbox"
-    checked={slippage}
-    onChange={(e) => setSlippage(e.target.checked)}
-  />
-  {t("slippageTolerance")}
-</label>
+            <label className="bm-check">
+              <input
+                type="checkbox"
+                checked={slippage}
+                onChange={(event) =>
+                  setSlippage(
+                    event.target.checked
+                  )
+                }
+              />
 
-<label className="bm-check">
-  <input
-    type="checkbox"
-    checked={showTPSL}
-    onChange={(e) => setShowTPSL(e.target.checked)}
-  />
-  {t("tpSl")}
-</label>
+              {translateWithFallback(
+                "slippageTolerance",
+                "Slippage Tolerance"
+              )}
+            </label>
+
+            <label className="bm-check">
+              <input
+                type="checkbox"
+                checked={showTPSL}
+                onChange={(event) =>
+                  setShowTPSL(
+                    event.target.checked
+                  )
+                }
+              />
+
+              {translateWithFallback(
+                "tpSl",
+                "TP/SL"
+              )}
+            </label>
 
             {showTPSL && (
               <div className="bm-tpsl-mobile">
                 <input
-                placeholder={t("takeProfit")}
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder={translateWithFallback(
+                    "takeProfit",
+                    "Take Profit"
+                  )}
                   value={tpPrice}
-                  onChange={(e) => setTpPrice(e.target.value)}
+                  onChange={(event) =>
+                    setTpPrice(
+                      event.target.value
+                    )
+                  }
                 />
+
                 <input
-                  placeholder={t("stopLoss")}
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder={translateWithFallback(
+                    "stopLoss",
+                    "Stop Loss"
+                  )}
                   value={slPrice}
-                  onChange={(e) => setSlPrice(e.target.value)}
+                  onChange={(event) =>
+                    setSlPrice(
+                      event.target.value
+                    )
+                  }
                 />
               </div>
             )}
-                  
 
             <label className="bm-check">
               <input
                 type="checkbox"
                 checked={reduceOnly}
-                onChange={(e) => setReduceOnly(e.target.checked)}
+                onChange={(event) =>
+                  setReduceOnly(
+                    event.target.checked
+                  )
+                }
               />
-              {t("reduceOnly")}
+
+              {translateWithFallback(
+                "reduceOnly",
+                "Reduce Only"
+              )}
             </label>
 
             <div className="bm-cost-row">
               <span>
-                Max
+                {translateWithFallback(
+                  "max",
+                  "Max"
+                )}
                 <br />
                 {balance} USDT
               </span>
+
               <span>
-                Cost
+                {translateWithFallback(
+                  "cost",
+                  "Cost"
+                )}
                 <br />
-                {Number(amount || 0).toFixed(2)} USDT
+                {Number(amount || 0).toFixed(2)}{" "}
+                USDT
               </span>
             </div>
 
             <button
-              className={side === "long" ? "bm-main-buy" : "bm-main-sell"}
-              onClick={() => openPosition(side)}
+              type="button"
+              disabled={submittingPosition}
+              className={
+                side === "long"
+                  ? "bm-main-buy"
+                  : "bm-main-sell"
+              }
+              onClick={() =>
+                openPosition(side)
+              }
             >
-              {side === "long" ? t("buyLong") : t("sellShort")}
+              {submittingPosition
+                ? translateWithFallback(
+                    "processing",
+                    "Processing...",
+                    "common"
+                  )
+                : side === "long"
+                  ? translateWithFallback(
+                      "buyLong",
+                      "Buy / Long"
+                    )
+                  : translateWithFallback(
+                      "sellShort",
+                      "Sell / Short"
+                    )}
             </button>
-          </div>
+          </section>
 
-          <div className="bm-orderbook">
+          <section className="bm-orderbook">
             <div className="bm-funding">
-              <span>Funding (8h)</span>
+              <span>
+                {translateWithFallback(
+                  "funding",
+                  "Funding"
+                )}{" "}
+                (8h)
+              </span>
               <b>0.00000%</b>
             </div>
 
             <div className="bm-ob-head">
               <span>
-                Price
+                {translateWithFallback(
+                  "price",
+                  "Price",
+                  "common"
+                )}
                 <br />
                 (USDT)
               </span>
+
               <span>
-                Amount
+                {translateWithFallback(
+                  "amount",
+                  "Amount",
+                  "common"
+                )}
                 <br />
                 (USDT)
               </span>
             </div>
 
-            {mobileOrderBook.slice(0, 4).map((item, index) => (
-              <div className="bm-ob-row" key={`sell-${index}`}>
-                <strong className="bm-red">{item.price}</strong>
-                <span>{item.amount}</span>
-              </div>
-            ))}
+            {mobileOrderBook
+              .filter(
+                (item) =>
+                  item.type === "sell"
+              )
+              .map((item, index) => (
+                <div
+                  className="bm-ob-row"
+                  key={`sell-${index}`}
+                >
+                  <strong className="bm-red">
+                    {item.price}
+                  </strong>
+                  <span>{item.amount}</span>
+                </div>
+              ))}
 
             <div className="bm-mid-price">
-              {Number(displayPrice).toFixed(2)}
-              <small>{Number(displayPrice).toFixed(2)}</small>
+              {formatPrice(displayPrice)}
+              <small>
+                {formatPrice(displayPrice)}
+              </small>
             </div>
 
-            {mobileOrderBook.slice(4).map((item, index) => (
-              <div className="bm-ob-row" key={`buy-${index}`}>
-                <strong className="bm-green">{item.price}</strong>
-                <span>{item.amount}</span>
-              </div>
-            ))}
-
-            <div className="bm-ratio">
-              <span></span>
-              <b>66.16%</b>
-              <b>33.84%</b>
-            </div>
-          </div>
+            {mobileOrderBook
+              .filter(
+                (item) =>
+                  item.type === "buy"
+              )
+              .map((item, index) => (
+                <div
+                  className="bm-ob-row"
+                  key={`buy-${index}`}
+                >
+                  <strong className="bm-green">
+                    {item.price}
+                  </strong>
+                  <span>{item.amount}</span>
+                </div>
+              ))}
+          </section>
         </div>
 
         <div className="bm-warning">
-          ℹ There may be limited price movement and reduced liquidity outside regular trading hours.
+          ℹ{" "}
+          {translateWithFallback(
+            "priceMovementWarning",
+            "There may be limited price movement and reduced liquidity outside regular trading hours."
+          )}
         </div>
 
         <div className="bm-bottom-tabs">
-          <span
-            className={mobileTab === "positions" ? "active" : ""}
-            onClick={() => setMobileTab("positions")}
+          <button
+            type="button"
+            className={
+              mobileTab === "positions"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setMobileTab("positions")
+            }
           >
-            Positions ({positions.length})
-          </span>
-          <span
-            className={mobileTab === "orders" ? "active" : ""}
-            onClick={() => setMobileTab("orders")}
+            {translateWithFallback(
+              "positions",
+              "Positions"
+            )}{" "}
+            ({positions.length})
+          </button>
+
+          <button
+            type="button"
+            className={
+              mobileTab === "orders"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setMobileTab("orders")
+            }
           >
-            Open Orders (0)
-          </span>
-          <span
-            className={mobileTab === "bots" ? "active" : ""}
-            onClick={() => setMobileTab("bots")}
+            {translateWithFallback(
+              "openOrders",
+              "Open Orders"
+            )}{" "}
+            (0)
+          </button>
+
+          <button
+            type="button"
+            className={
+              mobileTab === "bots"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setMobileTab("bots")
+            }
           >
-            Bots
-          </span>
+            {translateWithFallback(
+              "bots",
+              "Bots"
+            )}
+          </button>
         </div>
 
-        <div className="bm-chart-section">
-          <h3>{selectedPair} Perp Chart</h3>
+        {mobileTab === "positions" && (
+          <section className="bm-mobile-positions">
+            {positionsLoading ? (
+              <p>
+                {translateWithFallback(
+                  "loading",
+                  "Loading...",
+                  "common"
+                )}
+              </p>
+            ) : positions.length === 0 ? (
+              <p>
+                {translateWithFallback(
+                  "noOpenPositions",
+                  "No open positions"
+                )}
+              </p>
+            ) : (
+              positions.map(renderPositionCard)
+            )}
+          </section>
+        )}
+
+        <section className="bm-chart-section">
+          <h3>
+            {selectedPair}{" "}
+            {translateWithFallback(
+              "perpetualFutures",
+              "Perpetual Futures"
+            )}
+          </h3>
 
           <div className="bm-timeframes">
-            {timeframes.slice(0, 6).map((tf) => (
-              <button
-                key={tf}
-                className={timeframe === tf ? "active" : ""}
-                onClick={() => setTimeframe(tf)}
-              >
-                {tf}
-              </button>
-            ))}
+            {TIMEFRAMES.slice(0, 6).map(
+              (selectedTimeframe) => (
+                <button
+                  type="button"
+                  key={selectedTimeframe}
+                  className={
+                    timeframe ===
+                    selectedTimeframe
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    setTimeframe(
+                      selectedTimeframe
+                    )
+                  }
+                >
+                  {selectedTimeframe}
+                </button>
+              )
+            )}
           </div>
 
           <iframe
             key={`mobile-${tvSymbol}-${tvInterval}`}
-            title="Mobile Futures Chart"
+            title={translateWithFallback(
+              "mobileFuturesChart",
+              "Mobile Futures Chart"
+            )}
             src={tvChartUrl}
             className="bm-chart-frame"
             allowFullScreen
           />
-        </div>
+        </section>
 
         {marketDrawerOpen && (
-          <div className="bm-drawer-overlay" onClick={() => setMarketDrawerOpen(false)}>
-            <div className="bm-market-drawer" onClick={(e) => e.stopPropagation()}>
-              <h3>Markets</h3>
+          <div
+            className="bm-drawer-overlay"
+            role="presentation"
+            onClick={() =>
+              setMarketDrawerOpen(false)
+            }
+          >
+            <section
+              className="bm-market-drawer"
+              role="dialog"
+              aria-modal="true"
+              onClick={(event) =>
+                event.stopPropagation()
+              }
+            >
+              <h3>
+                {translateWithFallback(
+                  "markets",
+                  "Markets",
+                  "navigation"
+                )}
+              </h3>
 
               <input
-                placeholder="Search pair..."
+                type="search"
+                placeholder={translateWithFallback(
+                  "searchPair",
+                  "Search pair..."
+                )}
                 value={marketSearch}
-                onChange={(e) => setMarketSearch(e.target.value)}
+                onChange={(event) =>
+                  setMarketSearch(
+                    event.target.value
+                  )
+                }
               />
 
-              {marketPairs.slice(0, 40).map((coin) => (
-                <div
-                  className="bm-drawer-market"
-                  key={coin.pair}
-                  onClick={() => {
-                    selectMarket(coin);
-                    setMarketDrawerOpen(false);
-                  }}
-                >
-                  <strong>{coin.pair}</strong>
-                  <span className={String(coin.change).includes("-") ? "bm-red" : "bm-green"}>
-                    {coin.change}
-                  </span>
-                </div>
-              ))}
-            </div>
+              {marketPairs
+                .slice(0, 40)
+                .map((coin) => (
+                  <button
+                    type="button"
+                    className="bm-drawer-market"
+                    key={coin.pair}
+                    onClick={() =>
+                      selectMarket(coin)
+                    }
+                  >
+                    <strong>{coin.pair}</strong>
+
+                    <span
+                      className={
+                        Number(coin.change) >= 0
+                          ? "bm-green"
+                          : "bm-red"
+                      }
+                    >
+                      {renderMarketChange(
+                        coin.change
+                      )}
+                    </span>
+                  </button>
+                ))}
+            </section>
           </div>
         )}
 
         {settingsOpen && (
-          <div className="bm-popup">
-            <h3>Futures Settings</h3>
+          <section className="bm-popup">
+            <h3>
+              {translateWithFallback(
+                "futuresSettings",
+                "Futures Settings"
+              )}
+            </h3>
 
-            <label>Margin Mode</label>
-            <select value={marginMode} onChange={(e) => setMarginMode(e.target.value)}>
-              <option>Cross</option>
-              <option>Isolated</option>
+            <label>
+              {translateWithFallback(
+                "marginMode",
+                "Margin Mode"
+              )}
+            </label>
+
+            <select
+              value={marginMode}
+              onChange={(event) =>
+                setMarginMode(
+                  event.target.value
+                )
+              }
+            >
+              <option value="Cross">
+                {translateWithFallback(
+                  "cross",
+                  "Cross"
+                )}
+              </option>
+
+              <option value="Isolated">
+                {translateWithFallback(
+                  "isolated",
+                  "Isolated"
+                )}
+              </option>
             </select>
 
-            <label>Leverage</label>
-            <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
-              <option>5x</option>
-              <option>10x</option>
-              <option>20x</option>
-              <option>50x</option>
-              <option>100x</option>
+            <label>
+              {translateWithFallback(
+                "leverage",
+                "Leverage"
+              )}
+            </label>
+
+            <select
+              value={leverage}
+              onChange={(event) =>
+                setLeverage(
+                  event.target.value
+                )
+              }
+            >
+              {LEVERAGE_OPTIONS.map(
+                (option) => (
+                  <option
+                    key={option}
+                    value={option}
+                  >
+                    {option}x
+                  </option>
+                )
+              )}
             </select>
 
-            <label>Quote Currency</label>
-            <select value={quoteCurrency} onChange={(e) => setQuoteCurrency(e.target.value)}>
-              <option>USDT</option>
-              <option>BUSD</option>
+            <label>
+              {translateWithFallback(
+                "quoteCurrency",
+                "Quote Currency"
+              )}
+            </label>
+
+            <select
+              value={quoteCurrency}
+              onChange={(event) =>
+                setQuoteCurrency(
+                  event.target.value
+                )
+              }
+            >
+              <option value="USDT">
+                USDT
+              </option>
+              <option value="BUSD">
+                BUSD
+              </option>
             </select>
 
-            <button onClick={() => setSettingsOpen(false)}>Close</button>
-          </div>
+            <button
+              type="button"
+              onClick={() =>
+                setSettingsOpen(false)
+              }
+            >
+              {translateWithFallback(
+                "close",
+                "Close",
+                "common"
+              )}
+            </button>
+          </section>
         )}
 
         {moreOpen && (
-          <div className="bm-popup">
-            <h3>More Options</h3>
-            <p onClick={() => setPage && setPage("orders")}>Open Orders</p>
-            <p onClick={() => setPage && setPage("transactions")}>Transaction History</p>
-            <p onClick={() => setPage && setPage("wallets")}>Assets / Wallet</p>
-            <p onClick={() => setPage && setPage("support")}>Support</p>
-            <button onClick={() => setMoreOpen(false)}>Close</button>
-          </div>
+          <section className="bm-popup">
+            <h3>
+              {translateWithFallback(
+                "moreOptions",
+                "More Options",
+                "common"
+              )}
+            </h3>
+
+            {[
+              [
+                "orders",
+                "openOrders",
+                "Open Orders",
+              ],
+              [
+                "transactions",
+                "transactionHistory",
+                "Transaction History",
+              ],
+              [
+                "wallets",
+                "assetsWallet",
+                "Assets / Wallet",
+              ],
+              [
+                "support",
+                "support",
+                "Support",
+              ],
+            ].map(
+              ([
+                pageName,
+                translationKey,
+                fallback,
+              ]) => (
+                <button
+                  type="button"
+                  key={pageName}
+                  onClick={() =>
+                    setPage?.(pageName)
+                  }
+                >
+                  {translateWithFallback(
+                    translationKey,
+                    fallback
+                  )}
+                </button>
+              )
+            )}
+
+            <button
+              type="button"
+              onClick={() =>
+                setMoreOpen(false)
+              }
+            >
+              {translateWithFallback(
+                "close",
+                "Close",
+                "common"
+              )}
+            </button>
+          </section>
         )}
 
         {contractMenuOpen && (
-          <div className="bm-popup">
-            <h3>Select Contract</h3>
+          <section className="bm-popup">
+            <h3>
+              {translateWithFallback(
+                "selectContract",
+                "Select Contract"
+              )}
+            </h3>
 
-            {marketPairs.slice(0, 20).map((coin) => (
-              <p
-                key={coin.pair}
-                onClick={() => {
-                  selectMarket(coin);
-                  setContractMenuOpen(false);
-                }}
-              >
-                {coin.pair} Perpetual
-              </p>
-            ))}
+            {marketPairs
+              .slice(0, 20)
+              .map((coin) => (
+                <button
+                  type="button"
+                  key={coin.pair}
+                  onClick={() =>
+                    selectMarket(coin)
+                  }
+                >
+                  {coin.pair}{" "}
+                  {translateWithFallback(
+                    "perpetualFutures",
+                    "Perpetual"
+                  )}
+                </button>
+              ))}
 
-            <button onClick={() => setContractMenuOpen(false)}>Close</button>
-          </div>
+            <button
+              type="button"
+              onClick={() =>
+                setContractMenuOpen(false)
+              }
+            >
+              {translateWithFallback(
+                "close",
+                "Close",
+                "common"
+              )}
+            </button>
+          </section>
         )}
 
-        <div className="bm-bottom-nav">
-          <button onClick={() => setPage && setPage("dashboard")}>
-            ⌂<span>Home</span>
-          </button>
-          <button onClick={() => setPage && setPage("markets")}>
-            ⌁<span>Markets</span>
-          </button>
-          <button onClick={() => setPage && setPage("trade")}>
-            ⇄<span>Trade</span>
-          </button>
-          <button className="active" onClick={() => setPage && setPage("futures")}>
-            ▣<span>Futures</span>
-          </button>
-          <button onClick={() => setPage && setPage("wallets")}>
-            ▤<span>Assets</span>
-          </button>
-        </div>
-      </div>
+        <nav className="bm-bottom-nav">
+          {[
+            ["⌂", "dashboard", "Home"],
+            ["⌁", "markets", "Markets"],
+            ["⇄", "trade", "Trade"],
+            ["▣", "futures", "Futures"],
+            ["▤", "wallets", "Assets"],
+          ].map(
+            ([icon, pageName, fallback]) => (
+              <button
+                type="button"
+                key={pageName}
+                className={
+                  pageName === "futures"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setPage?.(pageName)
+                }
+              >
+                {icon}
+                <span>
+                  {translateWithFallback(
+                    pageName,
+                    fallback,
+                    "navigation"
+                  )}
+                </span>
+              </button>
+            )
+          )}
+        </nav>
+      </section>
 
-      <div className="futures-header">
-        <div>
-          <h1>{t("futuresTitle")}</h1>
-          <p>{t("futuresSubtitle")}</p>
-        </div>
+      <section className="futures-desktop-view">
+        <header className="futures-header">
+          <div>
+            <h1>
+              {translateWithFallback(
+                "futuresTitle",
+                "EXALT Futures Trading"
+              )}
+            </h1>
 
-        <div className="futures-badge">
-          <span className="live-dot"></span>
-          {t("liveFuturesMarket")}
-        </div>
-      </div>
+            <p>
+              {translateWithFallback(
+                "futuresSubtitle",
+                "Real-Time Futures Exchange Panel"
+              )}
+            </p>
+          </div>
 
-      <div className="futures-container">
-        <div className="market-panel markets-list">
-       <h2>{t("markets")}</h2>
-          <input
-            className="futures-search"
-          placeholder={t("searchMarket")}
-            value={marketSearch}
-            onChange={(e) => setMarketSearch(e.target.value)}
-          />
+          <div className="futures-badge">
+            <span className="live-dot" />
 
-          {marketPairs.map((coin, index) => {
-            const coinPrice = Number(coin.price || 0);
+            {translateWithFallback(
+              "liveFuturesMarket",
+              "Live Futures Market"
+            )}
+          </div>
+        </header>
 
-            return (
-              <div
+        <div className="futures-container">
+          <aside className="market-panel markets-list">
+            <h2>
+              {translateWithFallback(
+                "markets",
+                "Markets",
+                "navigation"
+              )}
+            </h2>
+
+            <input
+              type="search"
+              className="futures-search"
+              placeholder={translateWithFallback(
+                "searchMarket",
+                "Search market..."
+              )}
+              value={marketSearch}
+              onChange={(event) =>
+                setMarketSearch(
+                  event.target.value
+                )
+              }
+            />
+
+            {marketPairs.map((coin, index) => (
+              <button
+                type="button"
                 key={coin.pair || index}
-                className={`market-item ${selectedPair === coin.pair ? "active-market" : ""}`}
-                onClick={() => selectMarket(coin)}
+                className={`market-item ${
+                  selectedPair === coin.pair
+                    ? "active-market"
+                    : ""
+                }`}
+                onClick={() =>
+                  selectMarket(coin)
+                }
               >
                 <div>
                   <strong>{coin.pair}</strong>
-                  <p>${coinPrice > 1 ? coinPrice.toFixed(2) : coinPrice.toFixed(6)}</p>
+                  <p>
+                    ${formatPrice(coin.price)}
+                  </p>
                 </div>
 
-                <span className={String(coin.change).includes("-") ? "red-change" : "green-change"}>
-                  {coin.change || "+0.0%"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="chart-panel">
-          <div className="pair-header">
-            <div>
-              <h2>{selectedPair}</h2>
-              <p>Perpetual Futures</p>
-            </div>
-
-            <span>${Number(displayPrice).toFixed(2)}</span>
-
-            <div className="timeframe-tabs">
-              {timeframes.map((tf) => (
-                <button
-                  key={tf}
-                  className={timeframe === tf ? "active-timeframe" : ""}
-                  onClick={() => setTimeframe(tf)}
+                <span
+                  className={
+                    Number(coin.change) >= 0
+                      ? "green-change"
+                      : "red-change"
+                  }
                 >
-                  {tf}
-                </button>
-              ))}
-            </div>
+                  {renderMarketChange(
+                    coin.change
+                  )}
+                </span>
+              </button>
+            ))}
+          </aside>
 
-            <div className="candle-settings">
-              <select value={candleStyle} onChange={(e) => setCandleStyle(e.target.value)}>
-              <option value="normal">{t("normalCandles")}</option>
-
-<option value="smooth">{t("smoothCandles")}</option>
-
-<option value="volatile">{t("volatileCandles")}</option>
-              </select>
-
-              <select value={volatility} onChange={(e) => setVolatility(e.target.value)}>
-                <option value="low">{t("lowVolatility")}</option>
-                <option value="normal">{t("normalVolatility")}</option>
-                <option value="high">{t("highVolatility")}</option>
-              </select>
-
-              <select value={chartZoom} onChange={(e) => setChartZoom(e.target.value)}>
-                <option value="small">{t("zoomSmall")}</option>
-                <option value="medium">{t("zoomMedium")}</option>
-                <option value="large">{t("zoomLarge")}</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="real-chart">
-            <iframe
-              key={`${tvSymbol}-${tvInterval}-${chartZoom}`}
-             title={t("tradingViewChart")}
-              src={tvChartUrl}
-              style={{
-                width: "100%",
-                height:
-                  chartZoom === "large"
-                    ? "650px"
-                    : chartZoom === "small"
-                    ? "420px"
-                    : "520px",
-                border: "0",
-                borderRadius: "14px",
-              }}
-              allowFullScreen
-            />
-          </div>
-
-          <h3>{t("orderBook")}</h3>
-
-          {mobileOrderBook.map((order, index) => (
-            <div key={index} className={`order-row ${order.type}`}>
-              <span>{order.price}</span>
-              <span>{order.amount}</span>
-            </div>
-          ))}
-
-          <div className="positions-panel">
-            <h3>{t("openPositions")}</h3>
-
-            {positions.length === 0 ? (
-             <p className="no-position">{t("noOpenPositions")}</p>
-            ) : (
-              positions.map((position) => {
-                const mark = Number(
-                  livePrices[position.symbol || position.pair] ||
-                    position.markPrice ||
-                    displayPrice ||
-                    0
-                );
-
-                const entry = Number(position.entryPrice || position.entry || 0);
-                const pnl = position.side === "long" ? mark - entry : entry - mark;
-
-                return (
-                  <div
-                    key={position._id || position.id}
-                    className={`position-card ${position.side === "long" ? "long" : "short"}`}
-                  >
-                    <div className="position-top">
-                      <strong>
-                        {position.symbol || position.pair} {String(position.side).toUpperCase()}
-                      </strong>
-
-                      <span className={pnl >= 0 ? "profit" : "loss"}>
-                        {pnl.toFixed(2)} USD
-                      </span>
-                    </div>
-
-                    <div className="position-info">
-                      <p>Entry Price: {position.entryPrice || position.entry}</p>
-                      <p>Mark Price: {position.markPrice || displayPrice}</p>
-                      <p>Leverage: {position.leverage}x</p>
-                      <p>Margin: {position.margin || position.amount} USDT</p>
-                      <p>Liquidation: {position.liquidationPrice || position.liquidation || "N/A"}</p>
-                    </div>
-
-                    <button
-                      className="close-position"
-                      onClick={() => closePosition(position._id || position.id)}
-                    >
-                      Close Position
-                    </button>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        <div className="trade-panel">
-         <h2>{t("trade")}</h2>
-          <div className="trade-tabs">
-            <button
-              className={side === "long" ? "buy-btn active-side" : "buy-btn"}
-              onClick={() => setSide("long")}
-            >
-            {t("buyLong")}
-            </button>
-
-            <button
-              className={side === "short" ? "sell-btn active-side" : "sell-btn"}
-              onClick={() => setSide("short")}
-            >
-              {t("sellShort")}
-            </button>
-          </div>
-
-          <label>{t("leverage")}</label>
-          <select value={leverage} onChange={(e) => setLeverage(e.target.value)}>
-            <option value="5">5x</option>
-            <option value="10">10x</option>
-            <option value="20">20x</option>
-            <option value="50">50x</option>
-            <option value="100">100x</option>
-          </select>
-
-          <label>{t("price")}</label>
-          <input
-            type="text"
-            value={Number.isFinite(Number(price)) ? price : ""}
-            onChange={(e) => setPrice(e.target.value)}
-          />
-
-          <label>{t("amount")}</label>
-          <input
-            type="text"
-            placeholder={t("enterAmount")}
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-
-          <div className="tpsl-box">
-            <label>{t("takeProfit")}</label>
-            <input
-              type="text"
-              placeholder={t("enterTPPrice")}
-              value={tpPrice}
-              onChange={(e) => setTpPrice(e.target.value)}
-            />
-
-            <label>{t("stopLoss")}</label>
-            <input
-              type="text"
-              placeholder={t("enterSLPrice")}
-              value={slPrice}
-              onChange={(e) => setSlPrice(e.target.value)}
-            />
-          </div>
-
-          <button className="execute-buy" onClick={() => openPosition("long")}>
-            {t("openLong")}
-          </button>
-
-          <button className="execute-sell" onClick={() => openPosition("short")}>
-            {t("openShort")}
-          </button>
-
-          <div className="trade-info">
-            <p>Available Balance: {balance} USDT</p>
-            <p>Margin Mode: {marginMode}</p>
-            <p>Order Type: {orderType}</p>
-            <p>Quote: {quoteCurrency}</p>
-            <p>Funding Rate: 0.01%</p>
-            <p>Risk Level: Normal</p>
-          </div>
-        </div>
-
-        <div className="history-panel">
-          <h3>{t("positionHistory")}</h3>
-
-          {history.length === 0 ? (
-            <p className="no-position">No closed positions</p>
-          ) : (
-            history.map((item) => (
-              <div
-                key={item._id}
-                className={`history-card ${item.side === "long" ? "long" : "short"}`}
-              >
-                <div className="history-left">
-                  <strong>
-                    {item.symbol} {String(item.side).toUpperCase()}
-                  </strong>
-
-                  <span className={Number(item.pnl) >= 0 ? "profit" : "loss"}>
-                    ${Number(item.pnl || 0).toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="history-right">
-                  <p>Entry: {item.entryPrice}</p>
-                  <p>Close: {item.markPrice}</p>
-                  <p>Leverage: {item.leverage}x</p>
-                  <p>Status: {item.status}</p>
-                </div>
+          <section className="chart-panel">
+            <div className="pair-header">
+              <div>
+                <h2>{selectedPair}</h2>
+                <p>
+                  {translateWithFallback(
+                    "perpetualFutures",
+                    "Perpetual Futures"
+                  )}
+                </p>
               </div>
-            ))
-          )}
+
+              <span>
+                ${formatPrice(displayPrice)}
+              </span>
+
+              <div className="timeframe-tabs">
+                {TIMEFRAMES.map(
+                  (selectedTimeframe) => (
+                    <button
+                      type="button"
+                      key={selectedTimeframe}
+                      className={
+                        timeframe ===
+                        selectedTimeframe
+                          ? "active-timeframe"
+                          : ""
+                      }
+                      onClick={() =>
+                        setTimeframe(
+                          selectedTimeframe
+                        )
+                      }
+                    >
+                      {selectedTimeframe}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <div className="candle-settings">
+                <select
+                  value={candleStyle}
+                  onChange={(event) =>
+                    setCandleStyle(
+                      event.target.value
+                    )
+                  }
+                >
+                  <option value="normal">
+                    {translateWithFallback(
+                      "normalCandles",
+                      "Normal Candles"
+                    )}
+                  </option>
+
+                  <option value="smooth">
+                    {translateWithFallback(
+                      "smoothCandles",
+                      "Smooth Candles"
+                    )}
+                  </option>
+
+                  <option value="volatile">
+                    {translateWithFallback(
+                      "volatileCandles",
+                      "Volatile Candles"
+                    )}
+                  </option>
+                </select>
+
+                <select
+                  value={volatility}
+                  onChange={(event) =>
+                    setVolatility(
+                      event.target.value
+                    )
+                  }
+                >
+                  <option value="low">
+                    {translateWithFallback(
+                      "lowVolatility",
+                      "Low Volatility"
+                    )}
+                  </option>
+
+                  <option value="normal">
+                    {translateWithFallback(
+                      "normalVolatility",
+                      "Normal Volatility"
+                    )}
+                  </option>
+
+                  <option value="high">
+                    {translateWithFallback(
+                      "highVolatility",
+                      "High Volatility"
+                    )}
+                  </option>
+                </select>
+
+                <select
+                  value={chartZoom}
+                  onChange={(event) =>
+                    setChartZoom(
+                      event.target.value
+                    )
+                  }
+                >
+                  <option value="small">
+                    {translateWithFallback(
+                      "zoomSmall",
+                      "Zoom Small"
+                    )}
+                  </option>
+
+                  <option value="medium">
+                    {translateWithFallback(
+                      "zoomMedium",
+                      "Zoom Medium"
+                    )}
+                  </option>
+
+                  <option value="large">
+                    {translateWithFallback(
+                      "zoomLarge",
+                      "Zoom Large"
+                    )}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div className="real-chart">
+              <iframe
+                key={`${tvSymbol}-${tvInterval}-${chartZoom}`}
+                title={translateWithFallback(
+                  "tradingViewChart",
+                  "TradingView Chart"
+                )}
+                src={tvChartUrl}
+                style={{
+                  width: "100%",
+                  height:
+                    chartZoom === "large"
+                      ? "650px"
+                      : chartZoom === "small"
+                        ? "420px"
+                        : "520px",
+                  border: "0",
+                  borderRadius: "14px",
+                }}
+                allowFullScreen
+              />
+            </div>
+
+            <h3>
+              {translateWithFallback(
+                "orderBook",
+                "Order Book"
+              )}
+            </h3>
+
+            {mobileOrderBook.map(
+              (order, index) => (
+                <div
+                  key={`${order.type}-${index}`}
+                  className={`order-row ${order.type}`}
+                >
+                  <span>{order.price}</span>
+                  <span>{order.amount}</span>
+                </div>
+              )
+            )}
+
+            <section className="positions-panel">
+              <h3>
+                {translateWithFallback(
+                  "openPositions",
+                  "Open Positions"
+                )}
+              </h3>
+
+              {positionsLoading ? (
+                <p className="no-position">
+                  {translateWithFallback(
+                    "loading",
+                    "Loading...",
+                    "common"
+                  )}
+                </p>
+              ) : positions.length === 0 ? (
+                <p className="no-position">
+                  {translateWithFallback(
+                    "noOpenPositions",
+                    "No open positions"
+                  )}
+                </p>
+              ) : (
+                positions.map(renderPositionCard)
+              )}
+            </section>
+          </section>
+
+          <aside className="trade-panel">
+            <h2>
+              {translateWithFallback(
+                "trade",
+                "Trade",
+                "trading"
+              )}
+            </h2>
+
+            <div className="trade-tabs">
+              <button
+                type="button"
+                className={`buy-btn ${
+                  side === "long"
+                    ? "active-side"
+                    : ""
+                }`}
+                onClick={() => setSide("long")}
+              >
+                {translateWithFallback(
+                  "buyLong",
+                  "Buy / Long"
+                )}
+              </button>
+
+              <button
+                type="button"
+                className={`sell-btn ${
+                  side === "short"
+                    ? "active-side"
+                    : ""
+                }`}
+                onClick={() =>
+                  setSide("short")
+                }
+              >
+                {translateWithFallback(
+                  "sellShort",
+                  "Sell / Short"
+                )}
+              </button>
+            </div>
+
+            <label>
+              {translateWithFallback(
+                "leverage",
+                "Leverage"
+              )}
+            </label>
+
+            <select
+              value={leverage}
+              onChange={(event) =>
+                setLeverage(
+                  event.target.value
+                )
+              }
+            >
+              {LEVERAGE_OPTIONS.map(
+                (option) => (
+                  <option
+                    key={option}
+                    value={option}
+                  >
+                    {option}x
+                  </option>
+                )
+              )}
+            </select>
+
+            <label>
+              {translateWithFallback(
+                "price",
+                "Price",
+                "common"
+              )}
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={
+                Number.isFinite(
+                  Number(price)
+                )
+                  ? price
+                  : ""
+              }
+              onChange={(event) =>
+                setPrice(
+                  event.target.value
+                )
+              }
+            />
+
+            <label>
+              {translateWithFallback(
+                "amount",
+                "Amount",
+                "common"
+              )}
+            </label>
+
+            <input
+              type="number"
+              min="0"
+              step="any"
+              placeholder={translateWithFallback(
+                "enterAmount",
+                "Enter Amount"
+              )}
+              value={amount}
+              onChange={(event) =>
+                setAmount(
+                  event.target.value
+                )
+              }
+            />
+
+            <div className="tpsl-box">
+              <label>
+                {translateWithFallback(
+                  "takeProfit",
+                  "Take Profit"
+                )}
+              </label>
+
+              <input
+                type="number"
+                min="0"
+                step="any"
+                placeholder={translateWithFallback(
+                  "tpPrice",
+                  "TP Price"
+                )}
+                value={tpPrice}
+                onChange={(event) =>
+                  setTpPrice(
+                    event.target.value
+                  )
+                }
+              />
+
+              <label>
+                {translateWithFallback(
+                  "stopLoss",
+                  "Stop Loss"
+                )}
+              </label>
+
+              <input
+                type="number"
+                min="0"
+                step="any"
+                placeholder={translateWithFallback(
+                  "slPrice",
+                  "SL Price"
+                )}
+                value={slPrice}
+                onChange={(event) =>
+                  setSlPrice(
+                    event.target.value
+                  )
+                }
+              />
+            </div>
+
+            <button
+              type="button"
+              className="execute-buy"
+              disabled={submittingPosition}
+              onClick={() =>
+                openPosition("long")
+              }
+            >
+              {submittingPosition
+                ? translateWithFallback(
+                    "processing",
+                    "Processing...",
+                    "common"
+                  )
+                : translateWithFallback(
+                    "openLong",
+                    "Open Long"
+                  )}
+            </button>
+
+            <button
+              type="button"
+              className="execute-sell"
+              disabled={submittingPosition}
+              onClick={() =>
+                openPosition("short")
+              }
+            >
+              {submittingPosition
+                ? translateWithFallback(
+                    "processing",
+                    "Processing...",
+                    "common"
+                  )
+                : translateWithFallback(
+                    "openShort",
+                    "Open Short"
+                  )}
+            </button>
+
+            <div className="trade-info">
+              <p>
+                {translateWithFallback(
+                  "availableBalance",
+                  "Available Balance"
+                )}
+                : {balance} USDT
+              </p>
+
+              <p>
+                {translateWithFallback(
+                  "marginMode",
+                  "Margin Mode"
+                )}
+                : {marginMode}
+              </p>
+
+              <p>
+                {translateWithFallback(
+                  "orderType",
+                  "Order Type"
+                )}
+                : {orderType}
+              </p>
+
+              <p>
+                {translateWithFallback(
+                  "quote",
+                  "Quote"
+                )}
+                : {quoteCurrency}
+              </p>
+
+              <p>
+                {translateWithFallback(
+                  "fundingRate",
+                  "Funding Rate"
+                )}
+                : 0.01%
+              </p>
+
+              <p>
+                {translateWithFallback(
+                  "riskLevel",
+                  "Risk Level"
+                )}
+                :{" "}
+                {translateWithFallback(
+                  "normal",
+                  "Normal"
+                )}
+              </p>
+            </div>
+          </aside>
+
+          <section className="history-panel">
+            <h3>
+              {translateWithFallback(
+                "positionHistory",
+                "Position History"
+              )}
+            </h3>
+
+            {history.length === 0 ? (
+              <p className="no-position">
+                {translateWithFallback(
+                  "noClosedPositions",
+                  "No closed positions"
+                )}
+              </p>
+            ) : (
+              history.map((item) => (
+                <article
+                  key={item._id}
+                  className={`history-card ${
+                    item.side === "short"
+                      ? "short"
+                      : "long"
+                  }`}
+                >
+                  <div className="history-left">
+                    <strong>
+                      {item.symbol}{" "}
+                      {String(
+                        item.side || ""
+                      ).toUpperCase()}
+                    </strong>
+
+                    <span
+                      className={
+                        Number(item.pnl) >= 0
+                          ? "profit"
+                          : "loss"
+                      }
+                    >
+                      $
+                      {Number(
+                        item.pnl || 0
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="history-right">
+                    <p>
+                      {translateWithFallback(
+                        "entryPrice",
+                        "Entry"
+                      )}
+                      : {item.entryPrice}
+                    </p>
+
+                    <p>
+                      {translateWithFallback(
+                        "close",
+                        "Close",
+                        "common"
+                      )}
+                      : {item.markPrice}
+                    </p>
+
+                    <p>
+                      {translateWithFallback(
+                        "leverage",
+                        "Leverage"
+                      )}
+                      : {item.leverage}x
+                    </p>
+
+                    <p>
+                      {translateWithFallback(
+                        "status",
+                        "Status",
+                        "common"
+                      )}
+                      : {item.status}
+                    </p>
+                  </div>
+                </article>
+              ))
+            )}
+          </section>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
 
