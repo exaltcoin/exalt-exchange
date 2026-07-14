@@ -9,7 +9,10 @@ import {
   SUPPORTED_LANGUAGE_CODES,
   normalizeLanguageCode,
 } from "./languages";
-import { applyLanguageDirection } from "./direction";
+
+import {
+  applyLanguageDirection,
+} from "./direction";
 
 export const AVAILABLE_NAMESPACES = Object.freeze([
   "common",
@@ -30,104 +33,175 @@ export const AVAILABLE_NAMESPACES = Object.freeze([
   "settings",
 ]);
 
-const englishNamespaceLoaders = Object.freeze({
-  common: () => import("./locales/en/common.json"),
-  navigation: () => import("./locales/en/navigation.json"),
-  auth: () => import("./locales/en/auth.json"),
-  dashboard: () => import("./locales/en/dashboard.json"),
-  markets: () => import("./locales/en/markets.json"),
-  trading: () => import("./locales/en/trading.json"),
-  futures: () => import("./locales/en/futures.json"),
-  wallets: () => import("./locales/en/wallets.json"),
-  web3: () => import("./locales/en/web3.json"),
-  p2p: () => import("./locales/en/p2p.json"),
-  staking: () => import("./locales/en/staking.json"),
-  learnEarn: () => import("./locales/en/learnEarn.json"),
-  social: () => import("./locales/en/social.json"),
-  ai: () => import("./locales/en/ai.json"),
-  profile: () => import("./locales/en/profile.json"),
-  settings: () => import("./locales/en/settings.json"),
-});
+/*
+ * Vite automatically discovers all locale JSON files.
+ *
+ * Required structure:
+ *
+ * src/i18n/locales/en/common.json
+ * src/i18n/locales/ar/common.json
+ * src/i18n/locales/ur/common.json
+ * src/i18n/locales/hi/common.json
+ *
+ * The same structure applies to every namespace.
+ */
+const localeModules = import.meta.glob(
+  "./locales/*/*.json"
+);
 
-const normalizeImportedResource = (module) => {
-  const resource = module?.default ?? module;
+const normalizeImportedResource = (
+  importedModule
+) => {
+  const resource =
+    importedModule?.default ??
+    importedModule;
 
-  if (!resource || typeof resource !== "object") {
+  if (
+    !resource ||
+    typeof resource !== "object" ||
+    Array.isArray(resource)
+  ) {
     return {};
   }
 
   return resource;
 };
 
-const loadLocalNamespace = async (
+const loadNamespaceFile = async (
   languageCode,
   namespace
 ) => {
-  const language = normalizeLanguageCode(languageCode);
+  const language =
+    normalizeLanguageCode(languageCode);
 
-  if (!AVAILABLE_NAMESPACES.includes(namespace)) {
+  if (
+    !AVAILABLE_NAMESPACES.includes(namespace)
+  ) {
     console.warn(
-      `Unsupported translation namespace requested: "${namespace}"`
+      `Unsupported translation namespace: "${namespace}"`
     );
 
     return {};
   }
 
+  const requestedPath =
+    `./locales/${language}/${namespace}.json`;
+
+  const englishFallbackPath =
+    `./locales/${DEFAULT_LANGUAGE}/${namespace}.json`;
+
   /*
-   * English namespace files are the permanent fallback source.
-   * Other languages continue using the legacy translation object
-   * through the compatibility provider until their JSON resources
-   * are migrated.
+   * First load the selected language.
    */
-  if (language !== DEFAULT_LANGUAGE) {
-    const englishLoader =
-      englishNamespaceLoaders[namespace];
+  const requestedLoader =
+    localeModules[requestedPath];
 
-    if (!englishLoader) {
-      return {};
+  if (requestedLoader) {
+    try {
+      const requestedModule =
+        await requestedLoader();
+
+      return normalizeImportedResource(
+        requestedModule
+      );
+    } catch (error) {
+      console.error(
+        `Failed to load ${language}/${namespace}.json:`,
+        error
+      );
     }
-
-    const englishModule = await englishLoader();
-
-    return normalizeImportedResource(englishModule);
   }
 
-  const loader = englishNamespaceLoaders[namespace];
+  /*
+   * If the selected language file does not exist,
+   * safely fall back to English.
+   */
+  const englishLoader =
+    localeModules[englishFallbackPath];
 
-  if (!loader) {
-    return {};
+  if (englishLoader) {
+    try {
+      const englishModule =
+        await englishLoader();
+
+      return normalizeImportedResource(
+        englishModule
+      );
+    } catch (error) {
+      console.error(
+        `Failed to load English fallback ${namespace}.json:`,
+        error
+      );
+    }
   }
 
-  const module = await loader();
+  console.warn(
+    `No translation resource found for ${language}/${namespace}`
+  );
 
-  return normalizeImportedResource(module);
+  return {};
 };
 
-const detectedLanguage = normalizeLanguageCode(
-  typeof window !== "undefined"
-    ? window.localStorage.getItem(LANGUAGE_STORAGE_KEY) ||
-        window.navigator.languages?.[0] ||
-        window.navigator.language ||
-        DEFAULT_LANGUAGE
-    : DEFAULT_LANGUAGE
-);
+const getDetectedLanguage = () => {
+  if (typeof window === "undefined") {
+    return DEFAULT_LANGUAGE;
+  }
 
-applyLanguageDirection(detectedLanguage);
+  let storedLanguage = "";
+
+  try {
+    storedLanguage =
+      window.localStorage.getItem(
+        LANGUAGE_STORAGE_KEY
+      ) || "";
+  } catch (error) {
+    console.error(
+      "Failed to read stored language:",
+      error
+    );
+  }
+
+  return normalizeLanguageCode(
+    storedLanguage ||
+      window.navigator.languages?.[0] ||
+      window.navigator.language ||
+      DEFAULT_LANGUAGE
+  );
+};
+
+const detectedLanguage =
+  getDetectedLanguage();
+
+applyLanguageDirection(
+  detectedLanguage
+);
 
 if (!i18n.isInitialized) {
   i18n
     .use(LanguageDetector)
+
     .use(
       resourcesToBackend(
-        async (language, namespace) =>
-          loadLocalNamespace(language, namespace)
+        async (
+          languageCode,
+          namespace
+        ) =>
+          loadNamespaceFile(
+            languageCode,
+            namespace
+          )
       )
     )
+
     .use(initReactI18next)
+
     .init({
+      lng: detectedLanguage,
+
       fallbackLng: DEFAULT_LANGUAGE,
 
-      supportedLngs: SUPPORTED_LANGUAGE_CODES,
+      supportedLngs:
+        SUPPORTED_LANGUAGE_CODES,
 
       nonExplicitSupportedLngs: true,
 
@@ -144,8 +218,6 @@ if (!i18n.isInitialized) {
 
       preload: [],
 
-      partialBundledLanguages: true,
-
       cleanCode: true,
 
       lowerCaseLng: true,
@@ -160,21 +232,32 @@ if (!i18n.isInitialized) {
           "navigator",
         ],
 
-        lookupLocalStorage: LANGUAGE_STORAGE_KEY,
+        lookupLocalStorage:
+          LANGUAGE_STORAGE_KEY,
 
         caches: [
           "localStorage",
         ],
 
-        convertDetectedLanguage: (languageCode) =>
-          normalizeLanguageCode(languageCode),
+        convertDetectedLanguage: (
+          languageCode
+        ) =>
+          normalizeLanguageCode(
+            languageCode
+          ),
       },
 
       react: {
         useSuspense: false,
-        bindI18n: "languageChanged loaded",
-        bindI18nStore: "added removed",
-        transSupportBasicHtmlNodes: true,
+
+        bindI18n:
+          "languageChanged loaded",
+
+        bindI18nStore:
+          "added removed",
+
+        transSupportBasicHtmlNodes:
+          true,
       },
 
       returnNull: false,
@@ -183,44 +266,62 @@ if (!i18n.isInitialized) {
 
       saveMissing: false,
 
-      debug: import.meta.env.DEV,
+      debug: Boolean(
+        import.meta.env.DEV
+      ),
 
       initImmediate: true,
     })
+
     .catch((error) => {
       console.error(
-        "Failed to initialize the global translation system:",
+        "Failed to initialize translation system:",
         error
       );
     });
 }
 
-i18n.on("languageChanged", (languageCode) => {
-  const normalizedLanguage =
-    normalizeLanguageCode(languageCode);
+i18n.on(
+  "languageChanged",
+  (languageCode) => {
+    const normalizedLanguage =
+      normalizeLanguageCode(
+        languageCode
+      );
 
-  try {
-    window.localStorage.setItem(
-      LANGUAGE_STORAGE_KEY,
+    try {
+      window.localStorage.setItem(
+        LANGUAGE_STORAGE_KEY,
+        normalizedLanguage
+      );
+    } catch (error) {
+      console.error(
+        "Failed to save selected language:",
+        error
+      );
+    }
+
+    applyLanguageDirection(
       normalizedLanguage
     );
-  } catch (error) {
-    console.error(
-      "Failed to persist the selected language:",
-      error
-    );
   }
-
-  applyLanguageDirection(normalizedLanguage);
-});
+);
 
 export const changeGlobalLanguage = async (
   languageCode
 ) => {
   const normalizedLanguage =
-    normalizeLanguageCode(languageCode);
+    normalizeLanguageCode(
+      languageCode
+    );
 
-  await i18n.changeLanguage(normalizedLanguage);
+  await i18n.changeLanguage(
+    normalizedLanguage
+  );
+
+  applyLanguageDirection(
+    normalizedLanguage
+  );
 
   return normalizedLanguage;
 };
