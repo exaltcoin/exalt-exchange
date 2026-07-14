@@ -313,15 +313,27 @@ const getPublicUid = (record) => {
   );
 };
  
-  if (!user || user.role !== "admin") {
-    return (
-      <div className="panel">
-        <h2>ADMIN</h2>
-        <p>Access Denied</p>
-        <p>Only admin can access this panel.</p>
-      </div>
-    );
-  }
+ const hasAdminAccess =
+  user &&
+  (
+    user.role === "admin" ||
+    user.role === "super_admin" ||
+    user.role === "owner" ||
+    user.isAdmin === true ||
+    user.isOwner === true
+  );
+
+if (!hasAdminAccess) {
+  return (
+    <div className="panel">
+      <h2>ADMIN</h2>
+      <p>Access Denied</p>
+      <p>
+        Only Admin, Super Admin or Owner can access this panel.
+      </p>
+    </div>
+  );
+}
 
   const loadAdminData = async () => {
     try {
