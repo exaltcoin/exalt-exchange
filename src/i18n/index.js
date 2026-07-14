@@ -6,30 +6,27 @@ import React, {
   useMemo,
   useState,
 } from "react";
+
 import { useTranslation } from "react-i18next";
 
 import i18n from "./config";
+
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
   getLanguageConfig,
   normalizeLanguageCode,
 } from "./languages";
+
 import {
   readLanguageFromStorage,
   saveLanguageToStorage,
 } from "./storage";
+
 import {
   applyLanguageDirection,
   resolveLanguageDirection,
 } from "./direction";
-
-/*
- * Temporary compatibility source.
- * Keep the legacy i18n.jsx file until all translations
- * have been migrated to namespace-based JSON resources.
- */
-import { translations as legacyTranslations } from "../i18n.jsx";
 
 export const ACTIVE_NAMESPACES = Object.freeze([
   "common",
@@ -50,14 +47,9 @@ export const ACTIVE_NAMESPACES = Object.freeze([
   "settings",
 ]);
 
-const I18nCompatibilityContext = createContext(null);
+const I18nContext = createContext(null);
 
-const isUsableTranslation = (value) =>
-  value !== undefined &&
-  value !== null &&
-  String(value).trim() !== "";
-
-const normalizeTranslationOptions = (options) => {
+const normalizeOptions = (options) => {
   if (typeof options === "string") {
     return {
       defaultValue: options,
@@ -71,36 +63,9 @@ const normalizeTranslationOptions = (options) => {
   return options;
 };
 
-const getLegacyTranslation = (
-  languageCode,
-  key,
-  fallbackValue = null
-) => {
-  if (!key || typeof key !== "string") {
-    return fallbackValue;
-  }
-
-  const normalizedLanguage =
-    normalizeLanguageCode(languageCode);
-
-  const selectedLanguageValue =
-    legacyTranslations?.[normalizedLanguage]?.[key];
-
-  if (isUsableTranslation(selectedLanguageValue)) {
-    return selectedLanguageValue;
-  }
-
-  const englishValue = legacyTranslations?.en?.[key];
-
-  if (isUsableTranslation(englishValue)) {
-    return englishValue;
-  }
-
-  return fallbackValue;
-};
-
 const resolveInitialLanguage = () => {
-  const storedLanguage = readLanguageFromStorage();
+  const storedLanguage =
+    readLanguageFromStorage();
 
   return normalizeLanguageCode(
     storedLanguage ||
@@ -114,65 +79,91 @@ export function I18nProvider({ children }) {
   const { t: i18nextTranslate } =
     useTranslation(ACTIVE_NAMESPACES);
 
-  const [currentLanguage, setCurrentLanguage] = useState(
-    resolveInitialLanguage
-  );
+  const [currentLanguage, setCurrentLanguage] =
+    useState(resolveInitialLanguage);
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
     const initializeLanguage = async () => {
-      const preferredLanguage = resolveInitialLanguage();
+      const language =
+        resolveInitialLanguage();
 
-      saveLanguageToStorage(preferredLanguage);
-      applyLanguageDirection(preferredLanguage);
+      saveLanguageToStorage(language);
+      applyLanguageDirection(language);
 
-      const activeLanguage = normalizeLanguageCode(
-        i18n.resolvedLanguage || i18n.language
-      );
+      const activeLanguage =
+        normalizeLanguageCode(
+          i18n.resolvedLanguage ||
+            i18n.language
+        );
 
-      if (activeLanguage !== preferredLanguage) {
-        await i18n.changeLanguage(preferredLanguage);
+      if (activeLanguage !== language) {
+        await i18n.changeLanguage(language);
       }
 
-      if (isMounted) {
-        setCurrentLanguage(preferredLanguage);
+      if (mounted) {
+        setCurrentLanguage(language);
       }
     };
 
     initializeLanguage().catch((error) => {
       console.error(
-        "Failed to initialize the global language:",
+        "Language initialization failed:",
         error
       );
 
-      if (isMounted) {
-        setCurrentLanguage(DEFAULT_LANGUAGE);
-        applyLanguageDirection(DEFAULT_LANGUAGE);
+      if (mounted) {
+        saveLanguageToStorage(
+          DEFAULT_LANGUAGE
+        );
+
+        applyLanguageDirection(
+          DEFAULT_LANGUAGE
+        );
+
+        setCurrentLanguage(
+          DEFAULT_LANGUAGE
+        );
       }
     });
 
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
 
   useEffect(() => {
-    const handleLanguageChanged = (languageCode) => {
+    const handleLanguageChange = (
+      languageCode
+    ) => {
       const normalizedLanguage =
-        normalizeLanguageCode(languageCode);
+        normalizeLanguageCode(
+          languageCode
+        );
 
-      saveLanguageToStorage(normalizedLanguage);
-      applyLanguageDirection(normalizedLanguage);
-      setCurrentLanguage(normalizedLanguage);
+      saveLanguageToStorage(
+        normalizedLanguage
+      );
+
+      applyLanguageDirection(
+        normalizedLanguage
+      );
+
+      setCurrentLanguage(
+        normalizedLanguage
+      );
     };
 
-    i18n.on("languageChanged", handleLanguageChanged);
+    i18n.on(
+      "languageChanged",
+      handleLanguageChange
+    );
 
     return () => {
       i18n.off(
         "languageChanged",
-        handleLanguageChanged
+        handleLanguageChange
       );
     };
   }, []);
@@ -180,20 +171,25 @@ export function I18nProvider({ children }) {
   const changeLanguage = useCallback(
     async (languageCode) => {
       const normalizedLanguage =
-        normalizeLanguageCode(languageCode);
-
-      saveLanguageToStorage(normalizedLanguage);
-      applyLanguageDirection(normalizedLanguage);
-
-      if (
         normalizeLanguageCode(
-          i18n.resolvedLanguage || i18n.language
-        ) !== normalizedLanguage
-      ) {
-        await i18n.changeLanguage(normalizedLanguage);
-      } else {
-        setCurrentLanguage(normalizedLanguage);
-      }
+          languageCode
+        );
+
+      saveLanguageToStorage(
+        normalizedLanguage
+      );
+
+      applyLanguageDirection(
+        normalizedLanguage
+      );
+
+      await i18n.changeLanguage(
+        normalizedLanguage
+      );
+
+      setCurrentLanguage(
+        normalizedLanguage
+      );
 
       return normalizedLanguage;
     },
@@ -202,92 +198,122 @@ export function I18nProvider({ children }) {
 
   const translate = useCallback(
     (key, rawOptions = {}) => {
-      if (!key || typeof key !== "string") {
+      if (
+        !key ||
+        typeof key !== "string"
+      ) {
         return "";
       }
 
       const options =
-        normalizeTranslationOptions(rawOptions);
+        normalizeOptions(rawOptions);
 
-      const requestedNamespaces = options.ns
+      const namespaces = options.ns
         ? Array.isArray(options.ns)
           ? options.ns
           : [options.ns]
         : ACTIVE_NAMESPACES;
 
-      const legacyFallback = getLegacyTranslation(
-        currentLanguage,
-        key,
-        null
-      );
-
-      const englishLegacyFallback =
-        getLegacyTranslation(
-          DEFAULT_LANGUAGE,
-          key,
-          key
-        );
-
       const fallbackValue =
-        options.defaultValue ??
-        legacyFallback ??
-        englishLegacyFallback ??
-        key;
-
-      /*
-       * Preserve existing non-English translations while
-       * namespace resources are migrated incrementally.
-       */
-      if (currentLanguage !== DEFAULT_LANGUAGE) {
-        const selectedLegacyValue =
-          legacyTranslations?.[currentLanguage]?.[key];
-
-        if (isUsableTranslation(selectedLegacyValue)) {
-          return selectedLegacyValue;
-        }
-      }
+        options.defaultValue ?? key;
 
       try {
-        const translationExists = requestedNamespaces.some(
-          (namespace) =>
-            i18n.exists(key, {
+        for (const namespace of namespaces) {
+          const exists = i18n.exists(key, {
+            lng: currentLanguage,
+            ns: namespace,
+          });
+
+          if (!exists) {
+            continue;
+          }
+
+          const translatedValue =
+            i18nextTranslate(key, {
+              ...options,
               lng: currentLanguage,
               ns: namespace,
-            })
-        );
+              defaultValue:
+                fallbackValue,
+            });
 
-        if (!translationExists) {
-          return fallbackValue;
+          if (
+            translatedValue !== undefined &&
+            translatedValue !== null &&
+            String(
+              translatedValue
+            ).trim() !== "" &&
+            translatedValue !== key
+          ) {
+            return translatedValue;
+          }
         }
 
-        const translatedValue = i18nextTranslate(key, {
-          ...options,
-          ns: requestedNamespaces,
-          defaultValue: fallbackValue,
-        });
+        /*
+         * English fallback when the selected
+         * language does not contain a key.
+         */
+        for (const namespace of namespaces) {
+          const englishExists =
+            i18n.exists(key, {
+              lng: DEFAULT_LANGUAGE,
+              ns: namespace,
+            });
 
-        return isUsableTranslation(translatedValue)
-          ? translatedValue
-          : fallbackValue;
+          if (!englishExists) {
+            continue;
+          }
+
+          const englishValue =
+            i18n.getFixedT(
+              DEFAULT_LANGUAGE,
+              namespace
+            )(key, {
+              ...options,
+              defaultValue:
+                fallbackValue,
+            });
+
+          if (
+            englishValue !== undefined &&
+            englishValue !== null &&
+            String(
+              englishValue
+            ).trim() !== ""
+          ) {
+            return englishValue;
+          }
+        }
+
+        return fallbackValue;
       } catch (error) {
         console.error(
-          `Translation failed for key "${key}":`,
+          `Translation failed for "${key}":`,
           error
         );
 
         return fallbackValue;
       }
     },
-    [currentLanguage, i18nextTranslate]
+    [
+      currentLanguage,
+      i18nextTranslate,
+    ]
   );
 
   const languageConfig = useMemo(
-    () => getLanguageConfig(currentLanguage),
+    () =>
+      getLanguageConfig(
+        currentLanguage
+      ),
     [currentLanguage]
   );
 
   const direction = useMemo(
-    () => resolveLanguageDirection(currentLanguage),
+    () =>
+      resolveLanguageDirection(
+        currentLanguage
+      ),
     [currentLanguage]
   );
 
@@ -304,6 +330,7 @@ export function I18nProvider({ children }) {
 
       direction,
       dir: direction,
+
       isRTL: direction === "rtl",
       isRtl: direction === "rtl",
 
@@ -323,18 +350,17 @@ export function I18nProvider({ children }) {
   );
 
   return React.createElement(
-    I18nCompatibilityContext.Provider,
-    {
-      value: contextValue,
-    },
-    children
-  );
+  I18nContext.Provider,
+  {
+    value: contextValue,
+  },
+  children
+);
 }
 
 export function useI18n() {
-  const context = useContext(
-    I18nCompatibilityContext
-  );
+  const context =
+    useContext(I18nContext);
 
   if (!context) {
     throw new Error(
