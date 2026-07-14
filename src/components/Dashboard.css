@@ -816,3 +816,216 @@ html[dir="rtl"] .reward-stat-card::after {
     transition: none !important;
   }
 }
+
+/* =========================================================
+   FINAL RESPONSIVE FIXES
+   Keeps desktop, tablet, mobile and RTL layouts stable.
+========================================================= */
+
+.dashboard-page,
+.dashboard-page *,
+.mobile-home-view,
+.mobile-home-view * {
+  box-sizing: border-box;
+}
+
+.dashboard-page,
+.desktop-dashboard-view {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Prevent the global .action-btn width:100% rule from stretching
+   the desktop refresh button across the complete hero banner. */
+.hero-banner .hero-refresh-btn,
+.hero-refresh-btn.action-btn {
+  width: auto !important;
+  min-width: 170px;
+  max-width: 220px;
+  margin: 0 !important;
+  padding: 13px 20px;
+  align-self: center;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Desktop layout */
+@media (min-width: 1201px) {
+  .hero-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .hero-content {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Tablet layout */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .hero-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .hero-banner .hero-refresh-btn,
+  .hero-refresh-btn.action-btn {
+    min-width: 150px;
+    max-width: 190px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile dashboard */
+@media (max-width: 768px) {
+  .desktop-dashboard-view {
+    display: none !important;
+  }
+
+  .mobile-home-view {
+    display: block !important;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 100dvh;
+    margin: 0;
+    padding:
+      0 14px
+      calc(92px + env(safe-area-inset-bottom));
+    overflow-x: clip;
+  }
+
+  .mobile-premium-header,
+  .mobile-balance-card,
+  .mobile-action-grid,
+  .mobile-feature-row,
+  .mobile-trending-section {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .mobile-brand-row {
+    width: 100%;
+  }
+
+  .mobile-brand-logo {
+    width: min(150px, 42vw);
+    max-height: 40px;
+  }
+
+  .mobile-header-actions {
+    gap: 7px;
+  }
+
+  .mobile-profile-btn,
+  .mobile-logout-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 12px;
+  }
+
+  .mobile-tabs {
+    width: 100%;
+    justify-content: center;
+    gap: clamp(24px, 10vw, 44px);
+  }
+
+  .mobile-balance-card {
+    padding: 18px;
+  }
+
+  .mobile-action-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .mobile-action-grid button {
+    width: 100%;
+    min-height: 86px;
+    padding: 11px 6px;
+  }
+
+  .mobile-feature-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .mobile-feature-card {
+    min-width: 0;
+  }
+
+  .mobile-coin-row {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* This must be grid, not block, otherwise the five buttons collapse. */
+  .mobile-bottom-nav {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    width: 100%;
+    max-width: none;
+    left: 0;
+    right: 0;
+    transform: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .mobile-home-view {
+    padding-inline: 11px;
+  }
+
+  .mobile-brand-logo {
+    width: min(135px, 40vw);
+  }
+
+  .mobile-action-grid {
+    gap: 8px;
+  }
+
+  .mobile-action-label {
+    font-size: 10px;
+  }
+
+  .mobile-feature-card {
+    padding: 16px 10px;
+  }
+}
+
+/* Keep long Urdu, Arabic, Hindi and English labels inside cards. */
+.hero-banner,
+.stat-card,
+.big-panel,
+.mobile-balance-card,
+.mobile-action-grid button,
+.mobile-feature-card,
+.mobile-coin-row {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+html[dir="rtl"] .hero-banner .hero-refresh-btn,
+html[dir="rtl"] .hero-refresh-btn.action-btn {
+  justify-self: start;
+}
