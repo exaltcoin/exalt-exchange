@@ -70,7 +70,9 @@ import CookiePolicy from "./pages/legal/CookiePolicy.jsx";
 import RefundPolicy from "./pages/legal/RefundPolicy.jsx";
 import Compliance from "./pages/legal/Compliance.jsx";
 import DeleteAccount from "./pages/legal/DeleteAccount.jsx";
-
+import OwnerControl from "./components/OwnerControl";
+import SuperAdminPanel from "./components/SuperAdminPanel";
+import ModeratorPanel from "./components/ModeratorPanel";
 const DEFAULT_API_BASE =
   "https://exalt-real-backend-6b6v.onrender.com";
 
@@ -135,6 +137,24 @@ function App() {
   const token = localStorage.getItem("token");
   const isLoggedIn = Boolean(token);
   const hasAdminAccess = checkAdminAccess(currentUser);
+
+  const currentRole = String(currentUser?.role || "")
+    .trim()
+    .toLowerCase();
+
+  const hasOwnerAccess =
+    currentRole === "owner" &&
+    currentUser?.isOwner === true;
+
+  const hasSuperAdminAccess =
+    hasOwnerAccess ||
+    currentRole === "super_admin";
+
+  const hasModeratorAccess =
+    hasSuperAdminAccess ||
+    currentRole === "admin" ||
+    currentRole === "moderator" ||
+    currentUser?.isAdmin === true;
 
   const translateWithFallback = (
     key,
@@ -432,6 +452,126 @@ function App() {
     return <Component {...componentProps} />;
   };
 
+  const ownerOnlyPanel = (
+    Component,
+    componentProps = {}
+  ) => {
+    if (!hasOwnerAccess) {
+      return (
+        <div className="panel">
+          <h2>
+            {translateWithFallback(
+              "accessDenied",
+              "Access Denied",
+              "common"
+            )}
+          </h2>
+
+          <p>
+            Only the verified Exalt Exchange Owner can access
+            this control center.
+          </p>
+
+          <button
+            type="button"
+            className="buy-btn"
+            onClick={() => setPage("dashboard")}
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <Component
+        setPage={setPage}
+        currentUser={currentUser}
+        {...componentProps}
+      />
+    );
+  };
+
+  const superAdminOnlyPanel = (
+    Component,
+    componentProps = {}
+  ) => {
+    if (!hasSuperAdminAccess) {
+      return (
+        <div className="panel">
+          <h2>
+            {translateWithFallback(
+              "accessDenied",
+              "Access Denied",
+              "common"
+            )}
+          </h2>
+
+          <p>
+            Only the Owner or Super Admin can access this
+            operations panel.
+          </p>
+
+          <button
+            type="button"
+            className="buy-btn"
+            onClick={() => setPage("dashboard")}
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <Component
+        setPage={setPage}
+        currentUser={currentUser}
+        {...componentProps}
+      />
+    );
+  };
+
+  const moderatorOnlyPanel = (
+    Component,
+    componentProps = {}
+  ) => {
+    if (!hasModeratorAccess) {
+      return (
+        <div className="panel">
+          <h2>
+            {translateWithFallback(
+              "accessDenied",
+              "Access Denied",
+              "common"
+            )}
+          </h2>
+
+          <p>
+            This panel is restricted to authorized management
+            and moderator accounts.
+          </p>
+
+          <button
+            type="button"
+            className="buy-btn"
+            onClick={() => setPage("dashboard")}
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <Component
+        setPage={setPage}
+        currentUser={currentUser}
+        {...componentProps}
+      />
+    );
+  };
+
   const renderPage = () => {
     if (page === "dashboard") {
       return (
@@ -627,6 +767,18 @@ function App() {
       return adminOnlyPanel(AdminReferrals);
     }
 
+    if (page === "owner-control") {
+      return ownerOnlyPanel(OwnerControl);
+    }
+
+    if (page === "super-admin") {
+      return superAdminOnlyPanel(SuperAdminPanel);
+    }
+
+    if (page === "moderator-panel") {
+      return moderatorOnlyPanel(ModeratorPanel);
+    }
+
     if (page === "settings") {
       return <Settings setPage={setPage} />;
     }
@@ -717,6 +869,18 @@ function App() {
     ["admin-referrals", "🤝 Admin Referrals"],
     ["admin-rewards", "🎁 Admin Rewards"],
     ["admin", "⚙️ Admin Panel"],
+  ];
+
+  const ownerMenuItems = [
+    ["owner-control", "👑 Owner Control"],
+  ];
+
+  const superAdminMenuItems = [
+    ["super-admin", "🛡️ Super Admin"],
+  ];
+
+  const moderatorMenuItems = [
+    ["moderator-panel", "🧰 Moderator Panel"],
   ];
 
   const openPage = (pageName) => {
@@ -886,6 +1050,105 @@ function App() {
                   <span aria-hidden="true">
                     {icon}
                   </span>{" "}
+                  {translateWithFallback(
+                    key,
+                    fallbackLabel,
+                    "navigation"
+                  )}
+                </button>
+              );
+            })}
+
+          {hasOwnerAccess &&
+            ownerMenuItems.map(([key, label]) => {
+              const firstSpaceIndex = label.indexOf(" ");
+
+              const icon =
+                firstSpaceIndex >= 0
+                  ? label.slice(0, firstSpaceIndex)
+                  : "";
+
+              const fallbackLabel =
+                firstSpaceIndex >= 0
+                  ? label.slice(firstSpaceIndex + 1)
+                  : label;
+
+              return (
+                <button
+                  type="button"
+                  key={key}
+                  className={`menu-btn ${
+                    page === key ? "active" : ""
+                  }`}
+                  onClick={() => openPage(key)}
+                >
+                  <span aria-hidden="true">{icon}</span>{" "}
+                  {translateWithFallback(
+                    key,
+                    fallbackLabel,
+                    "navigation"
+                  )}
+                </button>
+              );
+            })}
+
+          {hasSuperAdminAccess &&
+            superAdminMenuItems.map(([key, label]) => {
+              const firstSpaceIndex = label.indexOf(" ");
+
+              const icon =
+                firstSpaceIndex >= 0
+                  ? label.slice(0, firstSpaceIndex)
+                  : "";
+
+              const fallbackLabel =
+                firstSpaceIndex >= 0
+                  ? label.slice(firstSpaceIndex + 1)
+                  : label;
+
+              return (
+                <button
+                  type="button"
+                  key={key}
+                  className={`menu-btn ${
+                    page === key ? "active" : ""
+                  }`}
+                  onClick={() => openPage(key)}
+                >
+                  <span aria-hidden="true">{icon}</span>{" "}
+                  {translateWithFallback(
+                    key,
+                    fallbackLabel,
+                    "navigation"
+                  )}
+                </button>
+              );
+            })}
+
+          {hasModeratorAccess &&
+            moderatorMenuItems.map(([key, label]) => {
+              const firstSpaceIndex = label.indexOf(" ");
+
+              const icon =
+                firstSpaceIndex >= 0
+                  ? label.slice(0, firstSpaceIndex)
+                  : "";
+
+              const fallbackLabel =
+                firstSpaceIndex >= 0
+                  ? label.slice(firstSpaceIndex + 1)
+                  : label;
+
+              return (
+                <button
+                  type="button"
+                  key={key}
+                  className={`menu-btn ${
+                    page === key ? "active" : ""
+                  }`}
+                  onClick={() => openPage(key)}
+                >
+                  <span aria-hidden="true">{icon}</span>{" "}
                   {translateWithFallback(
                     key,
                     fallbackLabel,

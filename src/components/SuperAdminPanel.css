@@ -1,0 +1,918 @@
+.super-admin-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 22px;
+  padding-bottom: 100px;
+  box-sizing: border-box;
+  color: #ffffff;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.13),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at top left,
+      rgba(240, 185, 11, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #07101f 0%,
+      #050914 100%
+    );
+}
+
+/* =========================================================
+   TOP HEADER
+========================================================= */
+
+.super-admin-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.super-admin-top > div:first-child > span {
+  display: block;
+  color: #60a5fa;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.super-admin-top h1 {
+  margin: 6px 0 0;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.super-admin-profile-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 250px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: rgba(17, 24, 39, 0.94);
+  border: 1px solid rgba(96, 165, 250, 0.24);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.super-admin-profile-chip > div:first-child {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #60a5fa
+  );
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.super-admin-profile-chip strong,
+.super-admin-profile-chip span {
+  display: block;
+}
+
+.super-admin-profile-chip strong {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.super-admin-profile-chip span {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 12px;
+  word-break: break-word;
+}
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.super-admin-alert {
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.super-admin-alert.success {
+  color: #b7f7d3;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.super-admin-alert.error {
+  color: #ffc1c9;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.super-admin-tabs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 14px;
+  margin-bottom: 18px;
+}
+
+.super-admin-tabs::-webkit-scrollbar {
+  height: 5px;
+}
+
+.super-admin-tabs::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 999px;
+}
+
+.super-admin-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(17, 24, 39, 0.8);
+  color: #aeb7c9;
+  font-weight: 900;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.super-admin-tabs button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #ffffff;
+}
+
+.super-admin-tabs button.active {
+  color: #ffffff;
+  border-color: transparent;
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.24);
+}
+
+/* =========================================================
+   SHARED CARDS
+========================================================= */
+
+.super-admin-hero,
+.super-admin-panel,
+.super-admin-stat-card,
+.super-admin-report-card,
+.super-admin-access-card,
+.super-admin-loading-card {
+  background: linear-gradient(
+    145deg,
+    rgba(17, 24, 39, 0.95),
+    rgba(8, 13, 24, 0.98)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.super-admin-hero {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 28px;
+  margin-bottom: 18px;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.super-admin-hero::after {
+  content: "";
+  position: absolute;
+  width: 230px;
+  height: 230px;
+  right: -70px;
+  top: -70px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.23),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.super-admin-eyebrow {
+  color: #60a5fa;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.7px;
+}
+
+.super-admin-hero h1 {
+  margin: 8px 0 10px;
+  color: #ffffff;
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.super-admin-hero p {
+  max-width: 720px;
+  margin: 0;
+  color: #aab4c7;
+  line-height: 1.6;
+}
+
+.super-admin-primary-btn {
+  min-height: 44px;
+  padding: 12px 17px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.super-admin-primary-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.super-admin-primary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
+   STAT CARDS
+========================================================= */
+
+.super-admin-stat-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.super-admin-stat-card {
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.super-admin-stat-card span {
+  display: block;
+  color: #93a0b7;
+  font-size: 12px;
+}
+
+.super-admin-stat-card strong {
+  display: block;
+  margin-top: 9px;
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.super-admin-stat-card p {
+  margin: 8px 0 0;
+  color: #7f8aa0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.super-admin-dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.super-admin-panel {
+  padding: 20px;
+  border-radius: 22px;
+}
+
+.super-admin-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.super-admin-panel-head h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 22px;
+}
+
+.super-admin-panel-head p {
+  margin: 6px 0 0;
+  color: #8f9bb0;
+  font-size: 13px;
+}
+
+/* =========================================================
+   QUICK OPERATIONS
+========================================================= */
+
+.super-admin-quick-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.super-admin-quick-grid button {
+  min-height: 94px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-weight: 900;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.super-admin-quick-grid button:hover {
+  transform: translateY(-3px);
+  border-color: rgba(96, 165, 250, 0.38);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.super-admin-quick-grid button span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 25px;
+}
+
+/* =========================================================
+   SECURITY LIST
+========================================================= */
+
+.super-admin-security-list {
+  display: grid;
+  gap: 10px;
+}
+
+.super-admin-security-list div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.07);
+}
+
+.super-admin-security-list div:last-child {
+  border-bottom: none;
+}
+
+.super-admin-security-list span {
+  color: #8d98ab;
+  font-size: 13px;
+}
+
+.super-admin-security-list strong {
+  color: #ffffff;
+  font-size: 13px;
+}
+
+/* =========================================================
+   TOOLS
+========================================================= */
+
+.super-admin-tools {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.super-admin-tools input,
+.super-admin-tools select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 0 13px;
+  border-radius: 13px;
+  border:
+    1px solid rgba(255, 255, 255, 0.09);
+  background: #0f172a;
+  color: #ffffff;
+  outline: none;
+}
+
+.super-admin-tools input:focus,
+.super-admin-tools select:focus {
+  border-color: #3b82f6;
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, 0.13);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.super-admin-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 16px;
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+}
+
+.super-admin-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.super-admin-table th {
+  padding: 13px 14px;
+  background: rgba(15, 23, 42, 0.94);
+  color: #60a5fa;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.super-admin-table td {
+  padding: 13px 14px;
+  border-top:
+    1px solid rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  font-size: 13px;
+}
+
+.super-admin-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.055);
+}
+
+.super-admin-table td strong,
+.super-admin-table td span {
+  display: block;
+}
+
+.super-admin-table td strong {
+  color: #ffffff;
+}
+
+.super-admin-table td span:not(.super-admin-badge) {
+  margin-top: 4px;
+  color: #8793a7;
+  font-size: 11px;
+}
+
+/* =========================================================
+   OPERATION LISTS
+========================================================= */
+
+.super-admin-list {
+  display: grid;
+  gap: 11px;
+}
+
+.super-admin-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px;
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.045);
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+  transition: 0.22s ease;
+}
+
+.super-admin-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.26);
+}
+
+.super-admin-item > div:first-child {
+  min-width: 0;
+}
+
+.super-admin-item > div:last-child {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.super-admin-item strong,
+.super-admin-item span,
+.super-admin-item small {
+  display: block;
+}
+
+.super-admin-item strong {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.super-admin-item span:not(.super-admin-badge) {
+  margin-top: 5px;
+  color: #b3bdce;
+  font-size: 13px;
+}
+
+.super-admin-item small {
+  margin-top: 5px;
+  color: #7f8b9f;
+  font-size: 11px;
+}
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.super-admin-badge {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 10px !important;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.super-admin-badge.success,
+.super-admin-badge.active,
+.super-admin-badge.approved,
+.super-admin-badge.completed,
+.super-admin-badge.resolved {
+  color: #8af1b5 !important;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(34, 197, 94, 0.32);
+}
+
+.super-admin-badge.pending,
+.super-admin-badge.warning,
+.super-admin-badge.inactive,
+.super-admin-badge.open {
+  color: #ffd978 !important;
+  background: rgba(245, 158, 11, 0.14);
+  border:
+    1px solid rgba(245, 158, 11, 0.32);
+}
+
+.super-admin-badge.danger,
+.super-admin-badge.blocked,
+.super-admin-badge.rejected,
+.super-admin-badge.cancelled,
+.super-admin-badge.disputed {
+  color: #ff9ca8 !important;
+  background: rgba(239, 68, 68, 0.14);
+  border:
+    1px solid rgba(239, 68, 68, 0.32);
+}
+
+.super-admin-badge.processing,
+.super-admin-badge.paid {
+  color: #93c5fd !important;
+  background: rgba(59, 130, 246, 0.14);
+  border:
+    1px solid rgba(59, 130, 246, 0.32);
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.super-admin-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.super-admin-actions button {
+  min-height: 32px;
+  padding: 7px 11px;
+  border: none;
+  border-radius: 9px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.super-admin-actions button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.super-admin-actions .approve {
+  background: linear-gradient(
+    135deg,
+    #22c55e,
+    #16a34a
+  );
+}
+
+.super-admin-actions .reject {
+  background: linear-gradient(
+    135deg,
+    #ef4444,
+    #dc2626
+  );
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.super-admin-empty {
+  padding: 30px 18px;
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.035);
+  border:
+    1px dashed rgba(255, 255, 255, 0.13);
+  color: #8f9bad;
+  text-align: center;
+}
+
+/* =========================================================
+   REPORTS
+========================================================= */
+
+.super-admin-report-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.super-admin-report-card {
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.super-admin-report-card span {
+  display: block;
+  color: #8f9bad;
+  font-size: 12px;
+}
+
+.super-admin-report-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #ffffff;
+  font-size: 26px;
+}
+
+/* =========================================================
+   ACCESS AND LOADING
+========================================================= */
+
+.super-admin-access-card,
+.super-admin-loading-card {
+  max-width: 570px;
+  margin: 90px auto 0;
+  padding: 34px;
+  border-radius: 24px;
+  text-align: center;
+}
+
+.super-admin-access-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 17px;
+  border-radius: 20px;
+  background: rgba(59, 130, 246, 0.14);
+  color: #60a5fa;
+  font-size: 32px;
+}
+
+.super-admin-access-card h1,
+.super-admin-loading-card h2 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.super-admin-access-card p,
+.super-admin-loading-card p {
+  margin: 11px 0 19px;
+  color: #9aa5b8;
+  line-height: 1.6;
+}
+
+.super-admin-access-card button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.super-admin-loader {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  border:
+    4px solid rgba(255, 255, 255, 0.08);
+  border-top-color: #3b82f6;
+  animation:
+    superAdminSpin 0.85s linear infinite;
+}
+
+@keyframes superAdminSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   RTL SUPPORT
+========================================================= */
+
+[dir="rtl"] .super-admin-page {
+  direction: rtl;
+}
+
+[dir="rtl"] .super-admin-top,
+[dir="rtl"] .super-admin-hero,
+[dir="rtl"] .super-admin-panel-head,
+[dir="rtl"] .super-admin-item,
+[dir="rtl"] .super-admin-security-list div {
+  text-align: right;
+}
+
+[dir="rtl"] .super-admin-table th {
+  text-align: right;
+}
+
+[dir="rtl"] .super-admin-quick-grid button {
+  text-align: right;
+}
+
+[dir="rtl"] .super-admin-item > div:last-child {
+  align-items: flex-start;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1200px) {
+  .super-admin-stat-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .super-admin-report-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .super-admin-page {
+    padding: 16px;
+    padding-bottom: 100px;
+  }
+
+  .super-admin-top,
+  .super-admin-hero,
+  .super-admin-panel-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .super-admin-profile-chip {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .super-admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .super-admin-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .super-admin-panel-head .super-admin-primary-btn {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 640px) {
+  .super-admin-page {
+    padding: 12px;
+    padding-bottom: 96px;
+  }
+
+  .super-admin-top h1 {
+    font-size: 25px;
+  }
+
+  .super-admin-hero {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .super-admin-hero h1 {
+    font-size: 27px;
+  }
+
+  .super-admin-stat-grid,
+  .super-admin-report-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .super-admin-quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .super-admin-panel {
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  .super-admin-panel-head h2 {
+    font-size: 19px;
+  }
+
+  .super-admin-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .super-admin-item > div:last-child {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .super-admin-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .super-admin-actions button {
+    flex: 1;
+  }
+
+  .super-admin-security-list div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
