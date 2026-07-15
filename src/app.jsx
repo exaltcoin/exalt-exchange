@@ -889,8 +889,8 @@ function App() {
   };
 
   if (authChecking && isLoggedIn) {
-   return (
-  <div className={`app page-${page}`}>
+  return (
+  <div className="app">
         <main className="main auth-only">
           <div className="panel">
             <h2>Verifying secure session...</h2>
@@ -934,8 +934,8 @@ function App() {
     );
   }
 
-  return (
-    <div className="app">
+ return (
+  <div className={`app page-${page}`}>
       {page !== "dashboard" &&
         page !== "web3wallet" && (
           <button
