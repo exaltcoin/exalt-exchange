@@ -889,8 +889,8 @@ function App() {
   };
 
   if (authChecking && isLoggedIn) {
-    return (
-      <div className="app">
+   return (
+  <div className={`app page-${page}`}>
         <main className="main auth-only">
           <div className="panel">
             <h2>Verifying secure session...</h2>
@@ -1232,15 +1232,16 @@ function App() {
             <LanguageSwitcher />
           </div>
         </div>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            flexWrap: "wrap",
-            marginBottom: "12px",
-          }}
-        >
+<div
+  className="topbar-account-actions"
+  style={{
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    marginBottom: "12px",
+  }}
+>
+       
           {!wallet && (
             <button
               type="button"

@@ -4687,3 +4687,49 @@ body,
   border-color: rgba(240, 185, 11, 0.62);
   background: rgba(240, 185, 11, 0.14);
 }
+/* =========================================================
+   DASHBOARD MOBILE GLOBAL HEADER FIX
+========================================================= */
+
+@media (max-width: 768px) {
+  /* Dashboard has its own professional mobile header */
+  .page-dashboard .topbar {
+    display: none !important;
+  }
+
+  /* Remove duplicate Connect/Logout row */
+  .page-dashboard .topbar-account-actions {
+    display: none !important;
+  }
+
+  /* Keep dashboard full width */
+  .page-dashboard .main {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding:
+      70px 0
+      calc(88px + env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Hamburger remains available for sidebar */
+  .page-dashboard .mobile-menu-btn {
+    position: fixed !important;
+    top: calc(12px + env(safe-area-inset-top)) !important;
+    left: 12px !important;
+    z-index: 10001 !important;
+  }
+
+  html[dir="rtl"] .page-dashboard .mobile-menu-btn {
+    left: auto !important;
+    right: 12px !important;
+  }
+
+  .page-dashboard .mobile-home-view {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+}
