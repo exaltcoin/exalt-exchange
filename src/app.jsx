@@ -1242,19 +1242,6 @@ function App() {
   }}
 >
        
-          {!wallet && (
-            <button
-              type="button"
-              className="connect-btn"
-              onClick={connectWallet}
-            >
-              {translateWithFallback(
-                "connectWallet",
-                "Connect Wallet",
-                "web3"
-              )}
-            </button>
-          )}
 
           <button
             type="button"
