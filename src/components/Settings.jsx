@@ -561,6 +561,7 @@ function Settings({
           });
 
         setTwoFaEnabled(true);
+        await refreshCurrentUser();
         setQrCode("");
         setManualSecret("");
         setTwoFaToken("");
@@ -766,6 +767,7 @@ function Settings({
         });
 
         setTwoFaEnabled(false);
+        await refreshCurrentUser();
         setQrCode("");
         setManualSecret("");
         setTwoFaToken("");
