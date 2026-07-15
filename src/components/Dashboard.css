@@ -882,3 +882,53 @@ html[dir="rtl"] .reward-stat-card::after {
     transition: none !important;
   }
 }
+/* =========================================================
+   MOBILE LANGUAGE SWITCHER
+========================================================= */
+
+.mobile-language-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  max-width: 90px;
+}
+
+.mobile-language-switcher select,
+.mobile-language-switcher button {
+  max-width: 90px;
+  min-height: 38px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .mobile-brand-row {
+    gap: 8px;
+  }
+
+  .mobile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mobile-language-switcher {
+    min-width: 46px;
+    max-width: 70px;
+  }
+
+  .mobile-language-switcher select,
+  .mobile-language-switcher button {
+    max-width: 70px;
+    min-height: 36px;
+    padding: 6px;
+    font-size: 10px;
+  }
+}
+
+html[dir="rtl"] .mobile-header-actions {
+  direction: rtl;
+}
