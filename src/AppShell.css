@@ -656,3 +656,31 @@ html[dir="rtl"] .app > .main > .topbar-account-actions {
     transition: none;
   }
 }
+.desktop-back-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 99999;
+  padding: 10px 16px;
+  color: #111;
+  background: #f5a623;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .desktop-back-btn {
+    display: none !important;
+  }
+
+  .app:not(.page-dashboard) > .main {
+    padding-top: calc(70px + env(safe-area-inset-top)) !important;
+  }
+}
+
+html[dir="rtl"] .desktop-back-btn {
+  right: 12px;
+  left: auto;
+}
