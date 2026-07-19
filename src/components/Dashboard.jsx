@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import { useI18n } from "../i18n/index.js";
+import LanguageSwitcher from "./LanguageSwitcher";
 import "./Dashboard.css";
 
 const DEFAULT_API_BASE =
@@ -562,6 +563,74 @@ function Dashboard({ setPage }) {
         )}
 
 
+
+        <header className="mobile-premium-header">
+          <div className="mobile-brand-row">
+            <div className="mobile-brand">
+              <img
+                src={exchangeLogo}
+                alt="Exalt Exchange"
+                className="mobile-brand-logo"
+              />
+
+              <div className="mobile-brand-copy">
+                <h2>
+                  {translateWithFallback(
+                    "dashboardTitle",
+                    "Dashboard"
+                  )}
+                </h2>
+
+                <p>
+                  {translateWithFallback(
+                    "exchangeTagline",
+                    "Secure • Fast • Global Digital Asset Exchange"
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="mobile-header-actions">
+              <button
+                type="button"
+                className="mobile-profile-btn"
+                aria-label={translateWithFallback(
+                  "profile",
+                  "Profile",
+                  "navigation"
+                )}
+                title={
+                  storedUser?.name ||
+                  translateWithFallback(
+                    "profile",
+                    "Profile",
+                    "navigation"
+                  )
+                }
+                onClick={() => setPage("profile")}
+              >
+                👤
+              </button>
+
+              <button
+                type="button"
+                className="mobile-logout-btn"
+                aria-label={translateWithFallback(
+                  "logout",
+                  "Logout",
+                  "auth"
+                )}
+                onClick={handleLogout}
+              >
+                ⏻
+              </button>
+            </div>
+          </div>
+
+          <div className="mobile-language-switcher">
+            <LanguageSwitcher />
+          </div>
+        </header>
 
         <div className="mobile-balance-card">
           <p>
