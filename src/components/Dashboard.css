@@ -1008,3 +1008,118 @@ html[dir="rtl"] .mobile-brand-row {
 html[dir="rtl"] .mobile-header-actions {
   direction: rtl;
 }
+/* ===== DASHBOARD MOBILE HEADER FINAL ALIGNMENT ===== */
+
+@media (max-width: 768px) {
+  .mobile-home-view {
+    padding-top: 0;
+  }
+
+  .mobile-premium-header {
+    display: block;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 14px;
+    background: linear-gradient(
+      145deg,
+      rgba(17, 24, 39, 0.98),
+      rgba(8, 13, 24, 0.98)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+  }
+
+  .mobile-brand-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .mobile-brand-logo {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    object-fit: contain;
+  }
+
+  .mobile-brand-copy {
+    min-width: 0;
+  }
+
+  .mobile-brand-copy h2 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .mobile-brand-copy p {
+    margin: 3px 0 0;
+    font-size: 9px;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  .mobile-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    width: auto;
+  }
+
+  .mobile-profile-btn,
+  .mobile-logout-btn {
+    position: static !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin: 0;
+    border-radius: 10px;
+  }
+
+  .mobile-profile-btn {
+    background: rgba(59, 130, 246, 0.16);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    color: #fff;
+  }
+
+  .mobile-logout-btn {
+    background: linear-gradient(135deg, #facc15, #f59e0b);
+    border: none;
+    color: #111827;
+    font-size: 16px;
+  }
+
+  .mobile-language-switcher {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .mobile-language-switcher .language-box {
+    width: 100%;
+  }
+
+  .mobile-language-switcher .language-select-wrapper,
+  .mobile-language-switcher .language-select {
+    width: 100%;
+  }
+
+  .mobile-tabs {
+    margin-top: 12px;
+  }
+}
