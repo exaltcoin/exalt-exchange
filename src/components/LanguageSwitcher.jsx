@@ -23,37 +23,43 @@ function LanguageSwitcher({
     [languages, currentLanguage]
   );
 
-  const handleLanguageChange = (event) => {
-    const nextLanguage =
-      event.target.value;
+  const handleLanguageChange = async (event) => {
+    const nextLanguage = String(
+      event.target.value || ""
+    ).trim();
 
-    if (
-      typeof changeLanguage !==
-      "function"
-    ) {
+    if (!nextLanguage) {
+      return;
+    }
+
+    if (typeof changeLanguage !== "function") {
       console.error(
         "LanguageSwitcher: changeLanguage is unavailable."
       );
       return;
     }
 
-    if (!nextLanguage) {
-      return;
+    try {
+      await changeLanguage(nextLanguage);
+    } catch (error) {
+      console.error(
+        "LanguageSwitcher: failed to change language.",
+        error
+      );
     }
-
-    changeLanguage(nextLanguage);
   };
 
   const translatedLanguageLabel =
     typeof t === "function"
-      ? t("language")
+      ? t("language", {
+          defaultValue: "Language",
+        })
       : "Language";
 
   if (!Array.isArray(languages)) {
     console.error(
       "LanguageSwitcher: languages must be an array."
     );
-
     return null;
   }
 
@@ -90,53 +96,43 @@ function LanguageSwitcher({
           id="global-language-select"
           className="language-select"
           value={currentLanguage}
-          onChange={
-            handleLanguageChange
-          }
-          aria-label={
-            translatedLanguageLabel
-          }
-          disabled={
-            languages.length === 0
-          }
+          onChange={handleLanguageChange}
+          aria-label={translatedLanguageLabel}
+          disabled={languages.length === 0}
         >
-          {languages.map(
-            (language) => {
-              const code =
-                String(
-                  language.code || ""
-                ).trim();
+          {languages.map((language) => {
+            const code = String(
+              language.code || ""
+            ).trim();
 
-              if (!code) {
-                return null;
-              }
-
-              const nativeName =
-                language.native ||
-                language.name ||
-                code.toUpperCase();
-
-              const englishName =
-                language.name &&
-                language.name !==
-                  nativeName
-                  ? ` — ${language.name}`
-                  : "";
-
-              return (
-                <option
-                  key={code}
-                  value={code}
-                >
-                  {language.flag
-                    ? `${language.flag} `
-                    : ""}
-                  {nativeName}
-                  {englishName}
-                </option>
-              );
+            if (!code) {
+              return null;
             }
-          )}
+
+            const nativeName =
+              language.native ||
+              language.name ||
+              code.toUpperCase();
+
+            const englishName =
+              language.name &&
+              language.name !== nativeName
+                ? ` — ${language.name}`
+                : "";
+
+            return (
+              <option
+                key={code}
+                value={code}
+              >
+                {language.flag
+                  ? `${language.flag} `
+                  : ""}
+                {nativeName}
+                {englishName}
+              </option>
+            );
+          })}
         </select>
 
         <span
@@ -150,11 +146,8 @@ function LanguageSwitcher({
       {showActiveLanguage &&
         activeLanguage && (
           <small className="language-active">
-            <span
-              aria-hidden="true"
-            >
-              {activeLanguage.flag ||
-                "🌐"}
+            <span aria-hidden="true">
+              {activeLanguage.flag || "🌐"}
             </span>
 
             <span>
