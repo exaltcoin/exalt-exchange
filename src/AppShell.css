@@ -684,3 +684,19 @@ html[dir="rtl"] .desktop-back-btn {
   right: 12px;
   left: auto;
 }
+/* Final fallback: global header must appear only on Dashboard */
+.app:not(.page-dashboard) > .main > .topbar,
+.app:not(.page-dashboard) > .main > .topbar-account-actions {
+  display: none !important;
+}
+
+/* Prevent mobile content from hiding behind menu button */
+@media (max-width: 768px) {
+  .app:not(.page-dashboard) > .main {
+    padding-top: calc(70px + env(safe-area-inset-top)) !important;
+  }
+
+  .desktop-back-btn {
+    display: none !important;
+  }
+}
