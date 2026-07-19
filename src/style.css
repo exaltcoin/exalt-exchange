@@ -4733,3 +4733,715 @@ body,
     margin: 0 !important;
   }
 }
+
+/* ========================================================================
+   EXALT EXCHANGE — FINAL STABLE APP LAYOUT OVERRIDES
+   Keep this block at the VERY END of style.css.
+   It safely overrides duplicated legacy shell rules without deleting them.
+======================================================================== */
+
+/* ---------- Root safety ---------- */
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  background: #050816;
+  color: #ffffff;
+}
+
+img,
+svg,
+canvas,
+video,
+iframe {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* ---------- Main application shell ---------- */
+
+.app {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  background:
+    radial-gradient(circle at top, #111827 0%, #070b16 48%, #020617 100%) !important;
+  overflow-x: hidden !important;
+}
+
+.app > .sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  left: auto !important;
+  z-index: 5000 !important;
+
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  height: 100vh !important;
+
+  padding: 20px 18px 120px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(17, 24, 39, 0.99),
+      rgba(5, 10, 20, 0.99)
+    ) !important;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 12px 0 35px rgba(0, 0, 0, 0.28) !important;
+}
+
+.app > .sidebar .main-logo {
+  display: block !important;
+  width: 150px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 0 auto 24px !important;
+  padding: 0 !important;
+  object-fit: contain !important;
+  background: transparent !important;
+}
+
+.app > .main {
+  flex: 1 1 auto !important;
+  width: calc(100% - 260px) !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 22px !important;
+  overflow-x: hidden !important;
+}
+
+/* ---------- Sidebar menu ---------- */
+
+.app > .sidebar .menu {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+}
+
+.app > .sidebar .menu button {
+  width: 100% !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 11px 13px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  color: #e5e7eb !important;
+  background: rgba(255, 255, 255, 0.045) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 12px !important;
+
+  text-align: left !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+
+  cursor: pointer !important;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease !important;
+}
+
+.app > .sidebar .menu button:hover,
+.app > .sidebar .menu button.active {
+  transform: translateX(4px) !important;
+  color: #111827 !important;
+  background: linear-gradient(135deg, #facc15, #f59e0b) !important;
+  border-color: rgba(250, 204, 21, 0.65) !important;
+  box-shadow: 0 8px 22px rgba(245, 158, 11, 0.18) !important;
+}
+
+/* ---------- Dashboard global header only ---------- */
+
+.dashboard-app-shell > .main > .topbar,
+.page-dashboard > .main > .topbar {
+  position: relative !important;
+  z-index: 100 !important;
+
+  display: block !important;
+  width: 100% !important;
+
+  margin: 0 0 14px !important;
+  padding: 16px 18px !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17, 24, 39, 0.97),
+      rgba(7, 12, 23, 0.99)
+    ) !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28) !important;
+
+  text-align: initial !important;
+}
+
+.dashboard-app-shell .topbar-main-row,
+.page-dashboard .topbar-main-row {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 12px !important;
+}
+
+.dashboard-app-shell .topbar-brand,
+.page-dashboard .topbar-brand {
+  display: flex !important;
+  align-items: center !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  gap: 12px !important;
+  text-align: left !important;
+}
+
+.dashboard-app-shell .topbar-brand > div,
+.page-dashboard .topbar-brand > div {
+  min-width: 0 !important;
+  text-align: left !important;
+}
+
+.dashboard-app-shell .topbar-logo,
+.page-dashboard .topbar-logo {
+  display: block !important;
+  flex: 0 0 auto !important;
+
+  width: 56px !important;
+  min-width: 56px !important;
+  height: 56px !important;
+
+  padding: 4px !important;
+  object-fit: contain !important;
+
+  background: rgba(8, 13, 24, 0.78) !important;
+  border: 1px solid rgba(245, 158, 11, 0.28) !important;
+  border-radius: 14px !important;
+}
+
+.dashboard-app-shell .topbar h2,
+.dashboard-app-shell .topbar-brand h2,
+.page-dashboard .topbar h2,
+.page-dashboard .topbar-brand h2 {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  color: #ffffff !important;
+  font-size: clamp(21px, 3vw, 28px) !important;
+  line-height: 1.2 !important;
+
+  text-align: left !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.dashboard-app-shell .topbar p,
+.dashboard-app-shell .topbar-brand p,
+.page-dashboard .topbar p,
+.page-dashboard .topbar-brand p {
+  width: auto !important;
+  margin: 5px 0 0 !important;
+  padding: 0 !important;
+
+  color: #aeb7d0 !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+
+  text-align: left !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* language row stays under brand, never floating off-screen */
+.dashboard-app-shell .topbar-language-row,
+.page-dashboard .topbar-language-row {
+  position: static !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  width: 100% !important;
+  max-width: 100% !important;
+
+  margin: 12px 0 0 !important;
+  padding: 12px 0 0 !important;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+}
+
+.dashboard-app-shell .topbar-language-row::-webkit-scrollbar,
+.page-dashboard .topbar-language-row::-webkit-scrollbar {
+  display: none !important;
+}
+
+.dashboard-app-shell .topbar-language-row > *,
+.page-dashboard .topbar-language-row > * {
+  position: static !important;
+  max-width: 100% !important;
+}
+
+/* notification/profile */
+.dashboard-app-shell .topbar-profile-btn,
+.page-dashboard .topbar-profile-btn {
+  position: static !important;
+
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+
+  width: 42px !important;
+  height: 42px !important;
+
+  color: #ffffff !important;
+  background: rgba(59, 130, 246, 0.15) !important;
+
+  border: 1px solid rgba(96, 165, 250, 0.3) !important;
+  border-radius: 12px !important;
+
+  font-size: 17px !important;
+  cursor: pointer !important;
+}
+
+/* logout row */
+.dashboard-app-shell > .main > .topbar-account-actions,
+.page-dashboard > .main > .topbar-account-actions {
+  position: static !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+
+  width: 100% !important;
+  gap: 10px !important;
+
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+}
+
+.dashboard-app-shell > .main > .topbar-account-actions .connect-btn,
+.page-dashboard > .main > .topbar-account-actions .connect-btn {
+  position: static !important;
+
+  width: auto !important;
+  min-width: 108px !important;
+  height: auto !important;
+
+  margin: 0 !important;
+  padding: 11px 18px !important;
+
+  color: #111827 !important;
+  background: linear-gradient(135deg, #facc15, #f59e0b) !important;
+
+  border: none !important;
+  border-radius: 11px !important;
+
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+
+  cursor: pointer !important;
+}
+
+/* ---------- Inner pages ---------- */
+
+/*
+  Inner pages already render their own page headers.
+  Hide any old App-level toolbar/topbar that may still exist.
+*/
+.inner-page-shell > .main > .inner-page-toolbar,
+.app:not(.page-dashboard) > .main > .inner-page-toolbar,
+.app:not(.page-dashboard) > .main > .topbar,
+.app:not(.page-dashboard) > .main > .topbar-account-actions {
+  display: none !important;
+}
+
+/* keep every page inside the viewport */
+.inner-page-shell > .main,
+.app:not(.page-dashboard) > .main {
+  min-width: 0 !important;
+}
+
+.inner-page-shell > .main > *,
+.app:not(.page-dashboard) > .main > * {
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* do not globally center page component content */
+.inner-page-shell h1,
+.inner-page-shell h2,
+.inner-page-shell h3,
+.inner-page-shell p,
+.inner-page-shell div,
+.inner-page-shell span,
+.app:not(.page-dashboard) h1,
+.app:not(.page-dashboard) h2,
+.app:not(.page-dashboard) h3,
+.app:not(.page-dashboard) p {
+  text-align: initial;
+}
+
+/* ---------- Generic page protection ---------- */
+
+.dashboard-page,
+.markets-page,
+.trade-page,
+.futures-page,
+.wallet-page,
+.wallets-page,
+.web3-wallet-page,
+.profile-page,
+.p2p-page,
+.settings-page,
+.admin-page,
+.panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+table {
+  max-width: 100%;
+}
+
+pre,
+code,
+.contract-text,
+.break-text,
+.coin-value {
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+/* ---------- Mobile menu ---------- */
+
+.mobile-menu-btn {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .app {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+  }
+
+  .app > .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: -100% !important;
+    z-index: 99998 !important;
+
+    width: min(84vw, 330px) !important;
+    min-width: 0 !important;
+    max-width: min(84vw, 330px) !important;
+    height: 100dvh !important;
+
+    padding: 78px 16px 120px !important;
+
+    transition: left 0.28s ease !important;
+    box-shadow: 20px 0 55px rgba(0, 0, 0, 0.58) !important;
+  }
+
+  .app > .sidebar.open {
+    left: 0 !important;
+  }
+
+  .mobile-menu-btn {
+    position: fixed !important;
+    top: calc(12px + env(safe-area-inset-top)) !important;
+    left: 12px !important;
+    z-index: 99999 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 46px !important;
+    height: 46px !important;
+
+    padding: 0 !important;
+
+    color: #111827 !important;
+    background: linear-gradient(135deg, #facc15, #f59e0b) !important;
+
+    border: none !important;
+    border-radius: 12px !important;
+
+    font-size: 22px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+    box-shadow: 0 8px 26px rgba(245, 158, 11, 0.3) !important;
+  }
+
+  .app > .main {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    padding:
+      calc(70px + env(safe-area-inset-top))
+      10px
+      calc(82px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* Dashboard mobile header */
+  .dashboard-app-shell > .main > .topbar,
+  .page-dashboard > .main > .topbar {
+    width: 100% !important;
+    margin: 0 0 10px !important;
+    padding: 12px !important;
+    border-radius: 15px !important;
+  }
+
+  .dashboard-app-shell .topbar-main-row,
+  .page-dashboard .topbar-main-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .dashboard-app-shell .topbar-brand,
+  .page-dashboard .topbar-brand {
+    min-width: 0 !important;
+    gap: 8px !important;
+  }
+
+  .dashboard-app-shell .topbar-logo,
+  .page-dashboard .topbar-logo {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    padding: 3px !important;
+    border-radius: 10px !important;
+  }
+
+  .dashboard-app-shell .topbar h2,
+  .dashboard-app-shell .topbar-brand h2,
+  .page-dashboard .topbar h2,
+  .page-dashboard .topbar-brand h2 {
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+    padding: 0 !important;
+  }
+
+  .dashboard-app-shell .topbar p,
+  .dashboard-app-shell .topbar-brand p,
+  .page-dashboard .topbar p,
+  .page-dashboard .topbar-brand p {
+    font-size: 10px !important;
+    line-height: 1.3 !important;
+  }
+
+  .dashboard-app-shell .topbar-profile-btn,
+  .page-dashboard .topbar-profile-btn {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    font-size: 15px !important;
+  }
+
+  .dashboard-app-shell .topbar-language-row,
+  .page-dashboard .topbar-language-row {
+    justify-content: flex-start !important;
+    margin-top: 9px !important;
+    padding-top: 9px !important;
+  }
+
+  .dashboard-app-shell > .main > .topbar-account-actions,
+  .page-dashboard > .main > .topbar-account-actions {
+    justify-content: flex-end !important;
+    margin-bottom: 10px !important;
+  }
+
+  .dashboard-app-shell > .main > .topbar-account-actions .connect-btn,
+  .page-dashboard > .main > .topbar-account-actions .connect-btn {
+    min-width: 92px !important;
+    min-height: 38px !important;
+    padding: 8px 13px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Inner pages use their own component headers */
+  .inner-page-shell > .main,
+  .app:not(.page-dashboard) > .main {
+    padding-top: calc(70px + env(safe-area-inset-top)) !important;
+  }
+
+  .trade-layout,
+  .trade-page,
+  .futures-page,
+  .markets-page,
+  .wallets-page,
+  .web3-wallet-page,
+  .profile-page,
+  .p2p-page,
+  .admin-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .trade-layout {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .trade-sidebar,
+  .trade-main,
+  .spot-order-panel,
+  .orderbook-card,
+  .mobile-orderbook-box,
+  .coin-details-box,
+  .mobile-chart-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .chart-box {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .listing-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .legal-footer-links {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+}
+
+/* ---------- Small phones ---------- */
+
+@media (max-width: 420px) {
+  .app > .main {
+    padding-inline: 8px !important;
+  }
+
+  .dashboard-app-shell .topbar-main-row,
+  .page-dashboard .topbar-main-row {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  .dashboard-app-shell .topbar-logo,
+  .page-dashboard .topbar-logo {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+  }
+
+  .dashboard-app-shell .topbar h2,
+  .dashboard-app-shell .topbar-brand h2,
+  .page-dashboard .topbar h2,
+  .page-dashboard .topbar-brand h2 {
+    font-size: 16px !important;
+  }
+
+  .dashboard-app-shell .topbar p,
+  .dashboard-app-shell .topbar-brand p,
+  .page-dashboard .topbar p,
+  .page-dashboard .topbar-brand p {
+    font-size: 9px !important;
+  }
+}
+
+/* ---------- RTL ---------- */
+
+html[dir="rtl"] .app > .sidebar {
+  right: 0 !important;
+  left: auto !important;
+  border-right: none !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[dir="rtl"] .dashboard-app-shell .topbar-main-row,
+html[dir="rtl"] .dashboard-app-shell .topbar-brand,
+html[dir="rtl"] .page-dashboard .topbar-main-row,
+html[dir="rtl"] .page-dashboard .topbar-brand {
+  direction: rtl !important;
+}
+
+html[dir="rtl"] .dashboard-app-shell .topbar-brand,
+html[dir="rtl"] .dashboard-app-shell .topbar-brand > div,
+html[dir="rtl"] .dashboard-app-shell .topbar h2,
+html[dir="rtl"] .dashboard-app-shell .topbar p,
+html[dir="rtl"] .page-dashboard .topbar-brand,
+html[dir="rtl"] .page-dashboard .topbar-brand > div,
+html[dir="rtl"] .page-dashboard .topbar h2,
+html[dir="rtl"] .page-dashboard .topbar p {
+  text-align: right !important;
+}
+
+@media (max-width: 900px) {
+  html[dir="rtl"] .app > .sidebar {
+    right: -100% !important;
+    left: auto !important;
+  }
+
+  html[dir="rtl"] .app > .sidebar.open {
+    right: 0 !important;
+    left: auto !important;
+  }
+
+  html[dir="rtl"] .mobile-menu-btn {
+    right: 12px !important;
+    left: auto !important;
+  }
+}
+
+/* ---------- Focus and reduced motion ---------- */
+
+.mobile-menu-btn:focus-visible,
+.topbar-profile-btn:focus-visible,
+.connect-btn:focus-visible,
+.menu button:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 3px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app > .sidebar,
+  .mobile-menu-btn,
+  .menu button,
+  .topbar-profile-btn,
+  .connect-btn {
+    transition: none !important;
+  }
+}
