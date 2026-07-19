@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import { useI18n } from "../i18n/index.js";
-import AppHeader from "./AppHeader";
 import "./Dashboard.css";
 
 const DEFAULT_API_BASE =
@@ -562,16 +561,7 @@ function Dashboard({ setPage }) {
           </div>
         )}
 
-        <AppHeader
-          title="Exalt Exchange"
-          subtitle={translateWithFallback(
-            "exchangeTagline",
-            "Secure • Fast • Global"
-          )}
-          setPage={setPage}
-          onLogout={handleLogout}
-          compact
-        />
+
 
         <div className="mobile-balance-card">
           <p>
