@@ -176,7 +176,7 @@ const DEFAULT_ASSETS = [
  *
  * فی الحال موجودہ exchange addresses محفوظ رکھے گئے ہیں۔
  */
-const DEPOSIT_ADDRESSES = {
+const FALLBACK_DEPOSIT_ADDRESSES = {
   EXALT: {
     BEP20:
       "0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9",
@@ -213,6 +213,12 @@ const DEPOSIT_ADDRESSES = {
       "TLRQbNZsLbqRHPDSk3EMfBpnhVz9ZfXnRt",
   },
 };
+
+const API_DEPOSIT_NETWORKS = Object.freeze({
+  USDT: ["BEP20"],
+  BNB: ["BEP20"],
+  EXALT: ["BEP20"],
+});
 
 /*
  * ان details کو launch سے پہلے حقیقی verified details
@@ -379,6 +385,18 @@ function Wallets() {
     selectedNetwork,
     setSelectedNetwork,
   ] = useState("BEP20");
+
+  const [liveDepositAddress, setLiveDepositAddress] =
+    useState("");
+
+  const [depositAddressLoading, setDepositAddressLoading] =
+    useState(false);
+
+  const [depositAddressError, setDepositAddressError] =
+    useState("");
+
+  const [depositAddressMeta, setDepositAddressMeta] =
+    useState(null);
 
   const [depositForm, setDepositForm] =
     useState({
@@ -550,22 +568,108 @@ function Wallets() {
     }
   };
 
-  const activeDepositAddress =
-    DEPOSIT_ADDRESSES[selectedCoin]?.[
+  const fallbackDepositAddress =
+    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]?.[
       selectedNetwork
     ] ||
-    DEPOSIT_ADDRESSES[selectedCoin]
+    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]
       ?.BEP20 ||
-    DEPOSIT_ADDRESSES[selectedCoin]
+    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]
       ?.ERC20 ||
-    DEPOSIT_ADDRESSES[selectedCoin]
+    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]
       ?.TRC20 ||
-    DEPOSIT_ADDRESSES[selectedCoin]?.BTC ||
+    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]?.BTC ||
     "";
 
-  const activeNetworkMeta =
+  const loadDepositAddress = useCallback(async () => {
+    const token = localStorage.getItem("token");
+
+    setDepositAddressError("");
+    setDepositAddressMeta(null);
+
+    const apiEnabled =
+      API_DEPOSIT_NETWORKS[selectedCoin]?.includes(
+        selectedNetwork
+      );
+
+    if (!apiEnabled || !token) {
+      setLiveDepositAddress("");
+      setDepositAddressLoading(false);
+      return;
+    }
+
+    setDepositAddressLoading(true);
+
+    try {
+      const data = await requestJson(
+        `${API}/api/wallets/deposit-address?coin=${encodeURIComponent(
+          selectedCoin
+        )}&network=${encodeURIComponent(selectedNetwork)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const address = String(
+        data?.data?.address || data?.address || ""
+      ).trim();
+
+      if (!data?.success || !address) {
+        throw new Error(
+          data?.message || "Deposit address is unavailable."
+        );
+      }
+
+      setLiveDepositAddress(address);
+      setDepositAddressMeta(data?.data || data);
+    } catch (error) {
+      console.error(
+        "Live deposit address loading failed:",
+        error
+      );
+
+      setLiveDepositAddress("");
+      setDepositAddressError(
+        error?.message || "Unable to load live deposit address."
+      );
+    } finally {
+      setDepositAddressLoading(false);
+    }
+  }, [
+    API,
+    requestJson,
+    selectedCoin,
+    selectedNetwork,
+  ]);
+
+  useEffect(() => {
+    loadDepositAddress();
+  }, [loadDepositAddress]);
+
+  const activeDepositAddress =
+    liveDepositAddress || fallbackDepositAddress;
+
+  const defaultNetworkMeta =
     NETWORK_META[selectedNetwork] ||
     NETWORK_META.BEP20;
+
+  const activeNetworkMeta = {
+    ...defaultNetworkMeta,
+    minDeposit: Number(
+      depositAddressMeta?.minimumDeposit ??
+        defaultNetworkMeta.minDeposit
+    ),
+    confirmations: Number(
+      depositAddressMeta?.confirmations ??
+        defaultNetworkMeta.confirmations
+    ),
+    time:
+      depositAddressMeta?.estimatedArrival ||
+      defaultNetworkMeta.time,
+  };
 
   const withdrawFee = useMemo(() => {
     const networkMeta =
@@ -2122,7 +2226,7 @@ function Wallets() {
 
               const availableNetworks =
                 Object.keys(
-                  DEPOSIT_ADDRESSES[
+                  FALLBACK_DEPOSIT_ADDRESSES[
                     nextCoin
                   ] || {}
                 );
@@ -2142,7 +2246,7 @@ function Wallets() {
             }}
           >
             {Object.keys(
-              DEPOSIT_ADDRESSES
+              FALLBACK_DEPOSIT_ADDRESSES
             ).map((coin) => (
               <option
                 key={coin}
@@ -2162,7 +2266,7 @@ function Wallets() {
             }
           >
             {Object.keys(
-              DEPOSIT_ADDRESSES[
+              FALLBACK_DEPOSIT_ADDRESSES[
                 selectedCoin
               ] || {}
             ).map((network) => (
@@ -2176,7 +2280,31 @@ function Wallets() {
           </select>
         </div>
 
-        {activeDepositAddress ? (
+        {depositAddressLoading && (
+          <div className="wallet-v2-empty">
+            <h3>
+              {translateWithFallback(
+                "loadingDepositAddress",
+                "Loading secure deposit address..."
+              )}
+            </h3>
+          </div>
+        )}
+
+        {!depositAddressLoading && depositAddressError && (
+          <div className="wallet-v2-warning">
+            <strong>
+              {translateWithFallback(
+                "depositAddressFallback",
+                "Fallback Address Active"
+              )}
+            </strong>
+
+            <p>{depositAddressError}</p>
+          </div>
+        )}
+
+        {!depositAddressLoading && activeDepositAddress ? (
           <div className="wallet-v2-address-card">
             <div className="deposit-coin-head">
               <img
@@ -2236,6 +2364,18 @@ function Wallets() {
               <strong>
                 {activeDepositAddress}
               </strong>
+
+              <small>
+                {liveDepositAddress
+                  ? translateWithFallback(
+                      "liveBackendAddress",
+                      "Live exchange address"
+                    )
+                  : translateWithFallback(
+                      "configuredFallbackAddress",
+                      "Configured fallback address"
+                    )}
+              </small>
             </div>
 
             <div className="wallet-v2-action-row">
