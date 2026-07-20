@@ -628,7 +628,9 @@ function Dashboard({ setPage }) {
           </div>
 
           <div className="mobile-language-switcher">
-            <LanguageSwitcher />
+         <LanguageSwitcher
+  showActiveLanguage={false}
+/>
           </div>
         </header>
 
