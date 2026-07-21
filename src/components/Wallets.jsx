@@ -179,38 +179,38 @@ const DEFAULT_ASSETS = [
 const FALLBACK_DEPOSIT_ADDRESSES = {
   EXALT: {
     BEP20:
-      "0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9",
+      "0x0Aaa68665517eC192Ae796b42eBc4ab7BbE50C31",
   },
 
   USDT: {
     BEP20:
-      "0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9",
+      "0x0Aaa68665517eC192Ae796b42eBc4ab7BbE50C31",
 
     ERC20:
-      "0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9",
+      "0x0Aaa68665517eC192Ae796b42eBc4ab7BbE50C31",
 
     TRC20:
-      "TLRQbNZsLbqRHPDSk3EMfBpnhVz9ZfXnRt",
+      "TNYUR7wq97dzRpWLHKCwBR8KMNZJu2N3Qd",
   },
 
   BNB: {
     BEP20:
-      "0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9",
+     "0x0Aaa68665517eC192Ae796b42eBc4ab7BbE50C31" ,
   },
 
   ETH: {
     ERC20:
-      "0x55E6a52Af8b31efa7FA926F650EC45419c76b3b9",
+     "0x0Aaa68665517eC192Ae796b42eBc4ab7BbE50C31" ,
   },
 
   BTC: {
     BTC:
-      "bc1qzpqsd2t0mnwvatetsxpk4gyxnhpuvaru2wpt95",
+     "bc1q5pwt4zc4rv2rk5xtew8jms65n2h8wscyunt0s0" ,
   },
 
   TRX: {
     TRC20:
-      "TLRQbNZsLbqRHPDSk3EMfBpnhVz9ZfXnRt",
+      "TNYUR7wq97dzRpWLHKCwBR8KMNZJu2N3Qd",
   },
 };
 
@@ -220,10 +220,6 @@ const API_DEPOSIT_NETWORKS = Object.freeze({
   EXALT: ["BEP20"],
 });
 
-/*
- * ان details کو launch سے پہلے حقیقی verified details
- * سے replace کرنا ضروری ہے۔
- */
 const BANK_INFO = {
   jazzCash:
     import.meta.env.VITE_JAZZCASH_NUMBER ||
@@ -639,7 +635,9 @@ function Wallets() {
   }, [loadDepositAddress]);
 
  const activeDepositAddress =
-  liveDepositAddress;
+  liveDepositAddress ||
+  FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]?.[selectedNetwork] ||
+  "";
 
   const defaultNetworkMeta =
     NETWORK_META[selectedNetwork] ||
