@@ -568,18 +568,7 @@ function Wallets() {
     }
   };
 
-  const fallbackDepositAddress =
-    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]?.[
-      selectedNetwork
-    ] ||
-    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]
-      ?.BEP20 ||
-    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]
-      ?.ERC20 ||
-    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]
-      ?.TRC20 ||
-    FALLBACK_DEPOSIT_ADDRESSES[selectedCoin]?.BTC ||
-    "";
+  
 
   const loadDepositAddress = useCallback(async () => {
     const token = localStorage.getItem("token");
@@ -649,8 +638,8 @@ function Wallets() {
     loadDepositAddress();
   }, [loadDepositAddress]);
 
-  const activeDepositAddress =
-    liveDepositAddress || fallbackDepositAddress;
+ const activeDepositAddress =
+  liveDepositAddress;
 
   const defaultNetworkMeta =
     NETWORK_META[selectedNetwork] ||
