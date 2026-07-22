@@ -4309,8 +4309,7 @@ img {
 .reset-card button[type="button"],
 .forgot-card button[type="button"],
 .verify-card button[type="button"],
-.secondary-btn,
-.forgot-password {
+.secondary-btn {
   background: transparent !important;
   box-shadow: none !important;
   color: #ffd700 !important;
