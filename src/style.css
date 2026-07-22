@@ -5511,3 +5511,76 @@ html[dir="rtl"] .page-dashboard .topbar p {
 .forgot-password:active{
   transform:scale(.98);
 }
+/* =================================
+   AUTH ACTION BUTTON FINAL OVERRIDE
+================================= */
+
+.auth-card .auth-submit[type="button"] {
+  width: 100% !important;
+  min-height: 54px !important;
+  margin-top: 14px !important;
+  padding: 14px 20px !important;
+
+  border: none !important;
+  border-radius: 15px !important;
+
+  background: linear-gradient(
+    135deg,
+    #ffb300,
+    #ff8a00
+  ) !important;
+
+  color: #111827 !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+
+  box-shadow:
+    0 12px 30px rgba(255, 179, 0, 0.28) !important;
+
+  transition: all 0.25s ease !important;
+}
+
+.auth-card .auth-submit[type="button"]:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(
+    135deg,
+    #ffc62b,
+    #ff9900
+  ) !important;
+
+  box-shadow:
+    0 16px 36px rgba(255, 179, 0, 0.42) !important;
+}
+
+.auth-card .forgot-password[type="button"] {
+  width: 100% !important;
+  min-height: 50px !important;
+  margin-top: 14px !important;
+  padding: 12px 20px !important;
+
+  border: 1px solid rgba(255, 179, 0, 0.55) !important;
+  border-radius: 15px !important;
+
+  background: rgba(255, 179, 0, 0.07) !important;
+  color: #ffb300 !important;
+
+  font-size: 15px !important;
+  font-weight: 800 !important;
+
+  box-shadow: none !important;
+  transition: all 0.25s ease !important;
+}
+
+.auth-card .forgot-password[type="button"]:hover {
+  background: linear-gradient(
+    135deg,
+    #ffb300,
+    #ff8a00
+  ) !important;
+
+  color: #111827 !important;
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 28px rgba(255, 179, 0, 0.25) !important;
+}
