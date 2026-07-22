@@ -1181,7 +1181,7 @@ export default function AuthPanel({
 
           <button
             type="button"
-            className="auth-submit"
+          className="exalt-auth-primary"
             onClick={
               mode === "signup"
                 ? signup
@@ -1217,7 +1217,7 @@ export default function AuthPanel({
             "login" && (
             <button
               type="button"
-              className="forgot-password"
+           className="exalt-auth-secondary"
               onClick={() => {
                 if (
                   setPage

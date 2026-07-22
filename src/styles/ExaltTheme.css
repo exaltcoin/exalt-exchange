@@ -500,3 +500,116 @@ a {
     padding: 11px 12px !important;
   }
 }
+/* =========================================================
+   EXALT AUTH ACTION BUTTONS — UNIQUE FINAL STYLES
+========================================================= */
+
+button.exalt-auth-primary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  min-height: 56px !important;
+  margin-top: 14px !important;
+  padding: 14px 20px !important;
+
+  border: 1px solid #f0b90b !important;
+  border-radius: 16px !important;
+
+  background: linear-gradient(
+    135deg,
+    #ffd34e 0%,
+    #f0b90b 48%,
+    #ff8a00 100%
+  ) !important;
+
+  color: #111827 !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.3px !important;
+
+  box-shadow:
+    0 12px 30px rgba(240, 185, 11, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+button.exalt-auth-primary:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.01) !important;
+  filter: brightness(1.08) !important;
+
+  box-shadow:
+    0 18px 42px rgba(240, 185, 11, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+button.exalt-auth-primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+button.exalt-auth-primary:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Forgot Password */
+
+button.exalt-auth-secondary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: 100% !important;
+  min-height: 50px !important;
+  margin-top: 14px !important;
+  padding: 12px 18px !important;
+
+  border: 1px solid rgba(240, 185, 11, 0.6) !important;
+  border-radius: 15px !important;
+
+  background: rgba(240, 185, 11, 0.08) !important;
+  color: #ffd56a !important;
+
+  font-size: 15px !important;
+  font-weight: 800 !important;
+
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease !important;
+}
+
+button.exalt-auth-secondary:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+
+  background: linear-gradient(
+    135deg,
+    #f0b90b,
+    #ffd56a
+  ) !important;
+
+  color: #111827 !important;
+
+  box-shadow:
+    0 14px 32px rgba(240, 185, 11, 0.32) !important;
+}
+
+button.exalt-auth-secondary:active:not(:disabled) {
+  transform: scale(0.98) !important;
+}
