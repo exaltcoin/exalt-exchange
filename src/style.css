@@ -4304,12 +4304,12 @@ img {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 .auth-card button[type="button"],
 .reset-card button[type="button"],
 .forgot-card button[type="button"],
 .verify-card button[type="button"],
-.secondary-btn {
+.secondary-btn,
+.forgot-password {
   background: transparent !important;
   box-shadow: none !important;
   color: #ffd700 !important;
