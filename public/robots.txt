@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /admin-p2p
+Disallow: /admin-rewards
+Disallow: /admin-learn
+Disallow: /admin-referrals
+Disallow: /owner-control
+Disallow: /super-admin
+Disallow: /moderator-panel
+Disallow: /verify-email/
+Disallow: /reset-password/
+
+Sitemap: https://exaltexchange.io/sitemap.xml
