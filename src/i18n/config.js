@@ -46,9 +46,12 @@ export const AVAILABLE_NAMESPACES = Object.freeze([
  * The same structure applies to every namespace.
  */
 const localeModules = import.meta.glob(
-  "./locales/*/*.json"
+  "./locales/*/*.json",
+  {
+    eager: true,
+    import: "default",
+  }
 );
-
 const normalizeImportedResource = (
   importedModule
 ) => {
@@ -93,18 +96,15 @@ const loadNamespaceFile = async (
   /*
    * First load the selected language.
    */
-  const requestedLoader =
-    localeModules[requestedPath];
+  const requestedResource =
+  localeModules[requestedPath];
 
-  if (requestedLoader) {
-    try {
-      const requestedModule =
-        await requestedLoader();
-
-      return normalizeImportedResource(
-        requestedModule
-      );
-    } catch (error) {
+if (requestedResource) {
+  try {
+    return normalizeImportedResource(
+      requestedResource
+    );
+  } catch (error) {
       console.error(
         `Failed to load ${language}/${namespace}.json:`,
         error
@@ -116,18 +116,15 @@ const loadNamespaceFile = async (
    * If the selected language file does not exist,
    * safely fall back to English.
    */
-  const englishLoader =
-    localeModules[englishFallbackPath];
+  const englishResource =
+  localeModules[englishFallbackPath];
 
-  if (englishLoader) {
-    try {
-      const englishModule =
-        await englishLoader();
-
-      return normalizeImportedResource(
-        englishModule
-      );
-    } catch (error) {
+if (englishResource) {
+  try {
+    return normalizeImportedResource(
+      englishResource
+    );
+  } catch (error) {
       console.error(
         `Failed to load English fallback ${namespace}.json:`,
         error
