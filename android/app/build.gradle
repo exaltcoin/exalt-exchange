@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "io.exaltexchange.app"
-    compileSdk rootProject.ext.compileSdkVersion
+    compileSdk 36
 
     defaultConfig {
         applicationId "io.exaltexchange.app"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion 23
+        targetSdkVersion 36
 
-        versionCode 14
-        versionName "1.0.14"
+        versionCode 17
+        versionName "1.0.17"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -22,7 +22,9 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile(
+                'proguard-android.txt'
+            ), 'proguard-rules.pro'
         }
     }
 }
@@ -45,7 +47,6 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
-
     implementation "androidx.browser:browser:1.8.0"
 
     implementation project(':capacitor-android')
