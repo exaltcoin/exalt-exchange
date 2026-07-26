@@ -1,5 +1,5 @@
 import { useState } from "react";
-import exchangeLogo from "../assets/exalt-exchange.png";
+import exchangeLogo from "../assets/exalt-exchange-logo.png";
 function Sidebar({ activePage, setActivePage }) {
   const [mobileOpen, setMobileOpen] = useState(false);
  const menuItems = [
