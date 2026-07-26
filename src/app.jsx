@@ -5,7 +5,6 @@ import exchangeLogo from "./assets/exalt-exchange-logo.png";
 import { useI18n } from "./i18n/index.js";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import "./style.css";
-
 import Dashboard from "./components/Dashboard";
 import Markets from "./components/Markets";
 import Trade from "./components/Trade";
@@ -73,6 +72,7 @@ import DeleteAccount from "./pages/legal/DeleteAccount.jsx";
 import OwnerControl from "./components/OwnerControl";
 import SuperAdminPanel from "./components/SuperAdminPanel";
 import ModeratorPanel from "./components/ModeratorPanel";
+import SEO from "./components/SEO";
 const DEFAULT_API_BASE =
   "https://exalt-real-backend-6b6v.onrender.com";
 
@@ -110,13 +110,81 @@ const checkAdminAccess = (user) =>
   user?.role === "owner" ||
   user?.isAdmin === true ||
   user?.isOwner === true;
+const PUBLIC_ROUTE_SEO = {
+  "/": {
+    title: "Exalt Exchange | Global Cryptocurrency Exchange",
+    description:
+      "Exalt Exchange is a secure cryptocurrency exchange offering Spot Trading, Futures, P2P, Web3 Wallet, Staking and EXALT Coin ecosystem.",
+  },
 
+  "/legal": {
+    title: "Legal Center | Exalt Exchange",
+    description:
+      "Legal information, compliance, policies and regulations of Exalt Exchange.",
+  },
+
+  "/privacy": {
+    title: "Privacy Policy | Exalt Exchange",
+    description:
+      "Read the official Privacy Policy of Exalt Exchange.",
+  },
+
+  "/terms": {
+    title: "Terms of Service | Exalt Exchange",
+    description:
+      "Official Terms of Service of Exalt Exchange.",
+  },
+
+  "/aml": {
+    title: "AML Policy | Exalt Exchange",
+    description:
+      "Anti Money Laundering policy of Exalt Exchange.",
+  },
+
+  "/kyc-policy": {
+    title: "KYC Policy | Exalt Exchange",
+    description:
+      "Know Your Customer verification policy.",
+  },
+
+  "/risk": {
+    title: "Risk Disclosure | Exalt Exchange",
+    description:
+      "Understand cryptocurrency trading risks.",
+  },
+
+  "/cookies": {
+    title: "Cookie Policy | Exalt Exchange",
+    description:
+      "Cookie usage policy of Exalt Exchange.",
+  },
+
+  "/refund": {
+    title: "Refund Policy | Exalt Exchange",
+    description:
+      "Refund and cancellation policy.",
+  },
+
+  "/compliance": {
+    title: "Compliance Statement | Exalt Exchange",
+    description:
+      "Compliance standards followed by Exalt Exchange.",
+  },
+
+  "/delete-account": {
+    title: "Delete Account | Exalt Exchange",
+    description:
+      "Request permanent deletion of your account.",
+  },
+};
 function App() {
   const { t } = useI18n();
 
   const path =
     window.location.pathname.replace(/\/+$/, "") || "/";
-
+const publicSeo =
+  PUBLIC_ROUTE_SEO[path] ||
+  PUBLIC_ROUTE_SEO["/"];
   const API_BASE = useMemo(
     () => normalizeApiBase(import.meta.env.VITE_API_URL),
     []
@@ -252,44 +320,141 @@ function App() {
   }, [API_BASE]);
 
   if (path === "/legal") {
-    return <LegalHome />;
-  }
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
 
-  if (path === "/privacy") {
-    return <PrivacyPolicy />;
-  }
+      <LegalHome />
+    </>
+  );
+}
 
-  if (path === "/terms") {
-    return <TermsOfService />;
-  }
+if (path === "/privacy") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
 
-  if (path === "/aml") {
-    return <AMLPolicy />;
-  }
+      <PrivacyPolicy />
+    </>
+  );
+}
+if (path === "/terms") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
 
-  if (path === "/kyc-policy") {
-    return <KYCPolicy />;
-  }
+      <TermsOfService />
+    </>
+  );
+}
+if (path === "/aml") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
 
-  if (path === "/risk") {
-    return <RiskDisclosure />;
-  }
+      <AMLPolicy />
+    </>
+  );
+}
+ 
+ if (path === "/kyc-policy") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
 
-  if (path === "/cookies") {
-    return <CookiePolicy />;
-  }
+      <KYCPolicy />
+    </>
+  );
+}
+
+if (path === "/risk") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <RiskDisclosure />
+    </>
+  );
+}  
+
+if (path === "/cookies") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <CookiePolicy />
+    </>
+  );
+}
 
   if (path === "/refund") {
-    return <RefundPolicy />;
-  }
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
 
-  if (path === "/compliance") {
-    return <Compliance />;
-  }
+      <RefundPolicy />
+    </>
+  );
+}
 
-  if (path === "/delete-account") {
-    return <DeleteAccount />;
-  }
+ if (path === "/compliance") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <Compliance />
+    </>
+  );
+}
+ if (path === "/delete-account") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <DeleteAccount />
+    </>
+  );
+}
 
   if (path.startsWith("/verify-email/")) {
     return <VerifyEmail />;
@@ -888,23 +1053,49 @@ function App() {
     setMenuOpen(false);
   };
 
-  if (authChecking && isLoggedIn) {
+if (authChecking && isLoggedIn) {
   return (
-  <div className="app">
+    <>
+      <SEO
+        title="Secure Session | Exalt Exchange"
+        description="Secure Exalt Exchange account verification."
+        path="/"
+        noIndex
+      />
+
+      <div className="app">
         <main className="main auth-only">
           <div className="panel">
             <h2>Verifying secure session...</h2>
+
             <p>
               Please wait while your account is verified.
             </p>
           </div>
         </main>
       </div>
-    );
-  }
+    </>
+  );
+}
+ if (!isLoggedIn) {
+  const authTitle =
+    page === "forgot-password"
+      ? "Forgot Password | Exalt Exchange"
+      : page === "verify-reset-code"
+        ? "Verify Reset Code | Exalt Exchange"
+        : page === "reset-password"
+          ? "Reset Password | Exalt Exchange"
+          : "Login | Exalt Exchange";
 
-  if (!isLoggedIn) {
-    return (
+  return (
+    <>
+      <SEO
+        title={authTitle}
+        description="Secure account access and password recovery for Exalt Exchange users."
+        path="/"
+        noIndex
+      />
+
       <div className="app">
         <main className="main auth-only">
           {page === "forgot-password" && (
@@ -931,34 +1122,26 @@ function App() {
           )}
         </main>
       </div>
-    );
-  }
+    </>
+  );
+}
+return (
+  <>
+    <SEO
+      title="Exalt Exchange Dashboard"
+      description="Secure cryptocurrency trading dashboard for authenticated Exalt Exchange users."
+      path="/"
+      noIndex
+    />
 
- return (
-  <div className={`app page-${page}`}>
-      {page !== "dashboard" &&
-        page !== "web3wallet" && (
-          <button
-            type="button"
-            onClick={() => setPage("dashboard")}
-            style={{
-              position: "fixed",
-              top: "12px",
-              left: "12px",
-              zIndex: 99999,
-              background: "#f5a623",
-              color: "#111",
-              border: "none",
-              padding: "10px 16px",
-              borderRadius: "8px",
-              fontWeight: "600",
-              cursor: "pointer",
-            }}
-          >
-            ← Back
-          </button>
-        )}
-
+    <div
+      className={`app page-${page} ${
+        page === "dashboard"
+          ? "dashboard-app-shell"
+          : "inner-page-shell"
+      }`}
+    >
+ 
       <button
         type="button"
         className="mobile-menu-btn"
@@ -1170,91 +1353,7 @@ function App() {
       </aside>
 
       <main className="main">
-        <div className="topbar">
-          <div className="topbar-main-row">
-            <div className="topbar-brand">
-              <img
-                src={exchangeLogo}
-                alt="Exalt Exchange"
-                className="topbar-logo"
-              />
 
-              <div>
-                <h2>
-                  {page === "trade"
-                    ? translateWithFallback(
-                        "spotTrading",
-                        "Spot Trading",
-                        "trading"
-                      )
-                    : translateWithFallback(
-                        page,
-                        String(
-                          page || "Dashboard"
-                        ).toUpperCase(),
-                        "navigation"
-                      )}
-                </h2>
-
-                <p>
-                  {page === "trade"
-                    ? translateWithFallback(
-                        "spotTradingSubtitle",
-                        "Professional Spot Trading Engine Powered by Exalt Exchange",
-                        "trading"
-                      )
-                    : "Secure • Fast • Global Digital Asset Exchange"}
-                </p>
-
-                {wallet && (
-                  <p>
-                    BNB Balance: {bnbBalance} BNB
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <NotificationBell
-              setPage={setPage}
-            />
-
-            <button
-              type="button"
-              className="topbar-profile-btn"
-              aria-label="Open profile"
-              onClick={() => setPage("profile")}
-            >
-              👤
-            </button>
-          </div>
-
-          <div className="topbar-language-row">
-            <LanguageSwitcher />
-          </div>
-        </div>
-<div
-  className="topbar-account-actions"
-  style={{
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-    marginBottom: "12px",
-  }}
->
-       
-
-          <button
-            type="button"
-            className="connect-btn"
-            onClick={logout}
-          >
-            {translateWithFallback(
-              "logout",
-              "Logout",
-              "auth"
-            )}
-          </button>
-        </div>
 
         {renderPage()}
 
@@ -1276,8 +1375,9 @@ function App() {
             Compliance
           </a>
         </footer>
-      </main>
+          </main>
     </div>
+  </>
   );
 }
 
