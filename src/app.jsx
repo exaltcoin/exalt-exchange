@@ -1,58 +1,134 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { ethers } from "ethers";
 
 import exchangeLogo from "./assets/exalt-exchange-logo.png";
 import { useI18n } from "./i18n/index.js";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import "./style.css";
-import Dashboard from "./components/Dashboard";
-import Markets from "./components/Markets";
-import Trade from "./components/Trade";
-import BuyCrypto from "./components/BuyCrypto";
-import ListingForm from "./components/ListingForm";
-import Orders from "./components/Orders";
-import Referral from "./components/Referral";
-import Support from "./components/Support";
-import AdminPanel from "./AdminPanel";
-import Wallets from "./components/Wallets";
-import Web3Wallet from "./components/Web3Wallet";
-import Settings from "./components/Settings";
-import Transactions from "./components/Transactions";
-import AuthPanel from "./components/AuthPanel";
-import TradingPanel from "./components/TradingPanel";
-import OrderBook from "./components/OrderBook";
-import P2P from "./components/P2P";
-import AdminKycPanel from "./components/AdminKycPanel";
-import KycVerification from "./components/kycVerification";
-import AdminP2P from "./components/AdminP2P";
-import Futures from "./components/Futures";
-import ReplitRewards from "./replit_ui/Rewards";
-import Profile from "./components/Profile";
-import Staking from "./components/Staking";
-import LearnEarn from "./components/LearnEarn";
-import AITradingAssistant from "./components/AITradingAssistant";
-import AICopyTrading from "./components/AICopyTrading";
-import AIPortfolioManager from "./components/AIPortfolioManager";
-import SocialTrading from "./components/SocialTrading";
-import AIRiskManager from "./components/AIRiskManager";
-import AIProfitCalculator from "./components/AIProfitCalculator";
-import AIMarketScanner from "./components/AIMarketScanner";
-import AINews from "./components/AINews";
-import AIWhaleTracker from "./components/AIWhaleTracker";
-import AIArbitrageScanner from "./components/AIArbitrageScanner";
-import AIGridTrading from "./components/AIGridTrading";
-import AISmartAlerts from "./components/AISmartAlerts";
-import AILaunchpad from "./components/AILaunchpad";
-import AIWhaleHeatmap from "./components/AIWhaleHeatmap";
-import AITrustScore from "./components/AITrustScore";
-import AIWhaleAlert from "./components/AIWhaleAlert";
-import ExaltUtilityCenter from "./components/ExaltUtilityCenter";
-import AdminLearnEarn from "./components/AdminLearnEarn";
-import AdminReferrals from "./components/AdminReferrals";
-import ReputationCenter from "./components/ReputationCenter";
-import AchievementCenter from "./components/AchievementCenter";
-import AdminRewards from "./components/AdminRewards";
-import NotificationCenter from "./components/NotificationCenter";
+const Dashboard = lazy(() =>
+  import("./components/Dashboard")
+);
+
+const Markets = lazy(() =>
+  import("./components/Markets")
+);
+
+const Trade = lazy(() =>
+  import("./components/Trade")
+);
+
+const BuyCrypto = lazy(() =>
+  import("./components/BuyCrypto")
+);
+
+const ListingForm = lazy(() =>
+  import("./components/ListingForm")
+);
+
+const Orders = lazy(() =>
+  import("./components/Orders")
+);
+
+const Referral = lazy(() =>
+  import("./components/Referral")
+);
+
+const Support = lazy(() =>
+  import("./components/Support")
+);
+
+const AdminPanel = lazy(() =>
+  import("./AdminPanel")
+);
+
+const Wallets = lazy(() =>
+  import("./components/Wallets")
+);
+
+const Web3Wallet = lazy(() =>
+  import("./components/Web3Wallet")
+);
+
+const Settings = lazy(() =>
+  import("./components/Settings")
+);
+
+const Transactions = lazy(() =>
+  import("./components/Transactions")
+);
+
+const TradingPanel = lazy(() =>
+  import("./components/TradingPanel")
+);
+
+const OrderBook = lazy(() =>
+  import("./components/OrderBook")
+);
+
+const P2P = lazy(() =>
+  import("./components/P2P")
+);
+
+const AdminKycPanel = lazy(() =>
+  import("./components/AdminKycPanel")
+);
+
+const KycVerification = lazy(() =>
+  import("./components/kycVerification")
+);
+
+const AdminP2P = lazy(() =>
+  import("./components/AdminP2P")
+);
+
+const Futures = lazy(() =>
+  import("./components/Futures")
+);
+
+const ReplitRewards = lazy(() =>
+  import("./replit_ui/Rewards")
+);
+
+const Profile = lazy(() =>
+  import("./components/Profile")
+);
+
+const Staking = lazy(() =>
+  import("./components/Staking")
+);
+
+const LearnEarn = lazy(() =>
+  import("./components/LearnEarn")
+);
+const AITradingAssistant = lazy(() => import("./components/AITradingAssistant"));
+const AICopyTrading = lazy(() => import("./components/AICopyTrading"));
+const AIPortfolioManager = lazy(() => import("./components/AIPortfolioManager"));
+const SocialTrading = lazy(() => import("./components/SocialTrading"));
+const AIRiskManager = lazy(() => import("./components/AIRiskManager"));
+const AIProfitCalculator = lazy(() => import("./components/AIProfitCalculator"));
+const AIMarketScanner = lazy(() => import("./components/AIMarketScanner"));
+const AINews = lazy(() => import("./components/AINews"));
+const AIWhaleTracker = lazy(() => import("./components/AIWhaleTracker"));
+const AIArbitrageScanner = lazy(() => import("./components/AIArbitrageScanner"));
+const AIGridTrading = lazy(() => import("./components/AIGridTrading"));
+const AISmartAlerts = lazy(() => import("./components/AISmartAlerts"));
+const AILaunchpad = lazy(() => import("./components/AILaunchpad"));
+const AIWhaleHeatmap = lazy(() => import("./components/AIWhaleHeatmap"));
+const AITrustScore = lazy(() => import("./components/AITrustScore"));
+const AIWhaleAlert = lazy(() => import("./components/AIWhaleAlert"));
+const ExaltUtilityCenter = lazy(() => import("./components/ExaltUtilityCenter"));
+const AdminLearnEarn = lazy(() => import("./components/AdminLearnEarn"));
+const AdminReferrals = lazy(() => import("./components/AdminReferrals"));
+const ReputationCenter = lazy(() => import("./components/ReputationCenter"));
+const AchievementCenter = lazy(() => import("./components/AchievementCenter"));
+const AdminRewards = lazy(() => import("./components/AdminRewards"));
+const NotificationCenter = lazy(() => import("./components/NotificationCenter"));
 import NotificationBell from "./components/NotificationBell";
 import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
@@ -69,9 +145,9 @@ import CookiePolicy from "./pages/legal/CookiePolicy.jsx";
 import RefundPolicy from "./pages/legal/RefundPolicy.jsx";
 import Compliance from "./pages/legal/Compliance.jsx";
 import DeleteAccount from "./pages/legal/DeleteAccount.jsx";
-import OwnerControl from "./components/OwnerControl";
-import SuperAdminPanel from "./components/SuperAdminPanel";
-import ModeratorPanel from "./components/ModeratorPanel";
+const OwnerControl = lazy(() => import("./components/OwnerControl"));
+const SuperAdminPanel = lazy(() => import("./components/SuperAdminPanel"));
+const ModeratorPanel = lazy(() => import("./components/ModeratorPanel"));
 import SEO from "./components/SEO";
 const DEFAULT_API_BASE =
   "https://exalt-real-backend-6b6v.onrender.com";
@@ -1115,6 +1191,7 @@ if (authChecking && isLoggedIn) {
             "verify-reset-code",
             "reset-password",
           ].includes(page) && (
+        
             <AuthPanel
               setPage={setPage}
               setCurrentUser={setCurrentUser}
@@ -1354,8 +1431,17 @@ return (
 
       <main className="main">
 
-
-        {renderPage()}
+<Suspense
+  fallback={
+    <div className="panel">
+      <h2>Loading Exalt Exchange...</h2>
+      <p>Please wait while this section loads.</p>
+    </div>
+  }
+>
+  {renderPage()}
+</Suspense>
+      
 
         <footer className="legal-footer-links">
           <a href="/legal">Legal Center</a>
