@@ -873,20 +873,23 @@ export default function AuthPanel({
             rewards and admin
             approval system.
           </p>
+<div className="qr-box">
+  <img
+    src="/exalt-exchange-qr.png"
+    alt="Exalt Exchange QR"
+    width="160"
+    height="160"
+    loading="eager"
+    fetchPriority="high"
+    decoding="async"
+  />
 
-          <div className="qr-box">
-            <img
-              src={`https://quickchart.io/qr?text=${encodeURIComponent(
-                "https://exaltexchange.io"
-              )}&size=160`}
-              alt="Exalt Exchange QR"
-            />
-
-            <span>
-              Scan QR To Open
-              Exalt Exchange
-            </span>
-          </div>
+  <span>
+    Scan QR To Open
+    Exalt Exchange
+  </span>
+</div>
+         
         </div>
 
         <div className="auth-right">
