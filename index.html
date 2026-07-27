@@ -8,9 +8,7 @@
       content="width=device-width, initial-scale=1.0"
     />
 
-    <title>
-      Exalt Exchange | Global Cryptocurrency Exchange
-    </title>
+    <title>Exalt Exchange | Global Cryptocurrency Exchange</title>
 
     <meta
       name="description"
@@ -46,7 +44,12 @@
       rel="apple-touch-icon"
       href="/favicon.png"
     />
-<link rel="manifest" href="/manifest.json" />
+
+    <link
+      rel="manifest"
+      href="/manifest.json"
+    />
+
     <meta property="og:type" content="website" />
 
     <meta
@@ -79,7 +82,10 @@
       content="Exalt Exchange Logo"
     />
 
-    <meta property="og:locale" content="en_US" />
+    <meta
+      property="og:locale"
+      content="en_US"
+    />
 
     <meta
       name="twitter:card"
@@ -106,22 +112,33 @@
       content="Exalt Exchange Logo"
     />
 
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-KH2DXXY6D6"
-    ></script>
+   <!-- Google Analytics: delayed for performance -->
+<script>
+  window.dataLayer = window.dataLayer || [];
 
-    <script>
-      window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
 
-      function gtag() {
-        dataLayer.push(arguments);
-      }
+  gtag("js", new Date());
 
-      gtag("js", new Date());
-      gtag("config", "G-KH2DXXY6D6");
-    </script>
+  window.addEventListener("load", function () {
+    window.setTimeout(function () {
+      const script = document.createElement("script");
+      script.async = true;
+      script.src =
+        "https://www.googletagmanager.com/gtag/js?id=G-KH2DXXY6D6";
+
+      script.onload = function () {
+        gtag("config", "G-KH2DXXY6D6", {
+          send_page_view: true,
+        });
+      };
+
+      document.head.appendChild(script);
+    }, 2500);
+  });
+</script>
 
     <script type="application/ld+json">
       {
@@ -161,9 +178,6 @@
   <body>
     <div id="root"></div>
 
-    <script
-      type="module"
-      src="/src/main.jsx"
-    ></script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
