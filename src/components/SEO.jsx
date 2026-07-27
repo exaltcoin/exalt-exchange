@@ -11,43 +11,43 @@ const DEFAULT_IMAGE =
 
 const SITE_URL = "https://exaltexchange.io";
 
-const updateMetaTag = (selector, attribute, value) => {
+const ROBOTS_INDEX =
+  "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+
+const ROBOTS_NOINDEX = "noindex, nofollow";
+
+function getOrCreateMetaTag({
+  selector,
+  attribute,
+  attributeValue,
+}) {
   let element = document.head.querySelector(selector);
 
   if (!element) {
     element = document.createElement("meta");
-    element.setAttribute(attribute, value);
-
-    if (selector.includes("property=")) {
-      const propertyMatch = selector.match(
-        /property="([^"]+)"/
-      );
-
-      if (propertyMatch?.[1]) {
-        element.setAttribute(
-          "property",
-          propertyMatch[1]
-        );
-      }
-    }
-
-    if (selector.includes("name=")) {
-      const nameMatch = selector.match(
-        /name="([^"]+)"/
-      );
-
-      if (nameMatch?.[1]) {
-        element.setAttribute("name", nameMatch[1]);
-      }
-    }
-
+    element.setAttribute(attribute, attributeValue);
     document.head.appendChild(element);
   }
 
-  element.setAttribute("content", value);
-};
+  return element;
+}
 
-const updateCanonical = (url) => {
+function setMetaContent({
+  selector,
+  attribute,
+  attributeValue,
+  content,
+}) {
+  const element = getOrCreateMetaTag({
+    selector,
+    attribute,
+    attributeValue,
+  });
+
+  element.setAttribute("content", content);
+}
+
+function updateCanonical(url) {
   let canonical = document.head.querySelector(
     'link[rel="canonical"]'
   );
@@ -59,7 +59,15 @@ const updateCanonical = (url) => {
   }
 
   canonical.setAttribute("href", url);
-};
+}
+
+function normalizePath(path) {
+  if (!path || path === "/") {
+    return "/";
+  }
+
+  return path.startsWith("/") ? path : `/${path}`;
+}
 
 function SEO({
   title = DEFAULT_TITLE,
@@ -69,9 +77,7 @@ function SEO({
   noIndex = false,
 }) {
   useEffect(() => {
-    const normalizedPath = path.startsWith("/")
-      ? path
-      : `/${path}`;
+    const normalizedPath = normalizePath(path);
 
     const canonicalUrl =
       normalizedPath === "/"
@@ -80,107 +86,72 @@ function SEO({
 
     document.title = title;
 
-    updateMetaTag(
-      'meta[name="description"]',
-      "name",
-      "description"
-    );
+    setMetaContent({
+      selector: 'meta[name="description"]',
+      attribute: "name",
+      attributeValue: "description",
+      content: description,
+    });
 
-    const descriptionMeta =
-      document.head.querySelector(
-        'meta[name="description"]'
-      );
-
-    if (descriptionMeta) {
-      descriptionMeta.setAttribute(
-        "content",
-        description
-      );
-    }
-
-    updateMetaTag(
-      'meta[name="robots"]',
-      "name",
-      "robots"
-    );
-
-    const robotsMeta = document.head.querySelector(
-      'meta[name="robots"]'
-    );
-
-    if (robotsMeta) {
-      robotsMeta.setAttribute(
-        "content",
-        noIndex
-          ? "noindex, nofollow"
-          : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-      );
-    }
+    setMetaContent({
+      selector: 'meta[name="robots"]',
+      attribute: "name",
+      attributeValue: "robots",
+      content: noIndex
+        ? ROBOTS_NOINDEX
+        : ROBOTS_INDEX,
+    });
 
     updateCanonical(canonicalUrl);
 
-    updateMetaTag(
-      'meta[property="og:title"]',
-      "property",
-      "og:title"
-    );
+    setMetaContent({
+      selector: 'meta[property="og:title"]',
+      attribute: "property",
+      attributeValue: "og:title",
+      content: title,
+    });
 
-    updateMetaTag(
-      'meta[property="og:description"]',
-      "property",
-      "og:description"
-    );
+    setMetaContent({
+      selector: 'meta[property="og:description"]',
+      attribute: "property",
+      attributeValue: "og:description",
+      content: description,
+    });
 
-    updateMetaTag(
-      'meta[property="og:url"]',
-      "property",
-      "og:url"
-    );
+    setMetaContent({
+      selector: 'meta[property="og:url"]',
+      attribute: "property",
+      attributeValue: "og:url",
+      content: canonicalUrl,
+    });
 
-    updateMetaTag(
-      'meta[property="og:image"]',
-      "property",
-      "og:image"
-    );
+    setMetaContent({
+      selector: 'meta[property="og:image"]',
+      attribute: "property",
+      attributeValue: "og:image",
+      content: image,
+    });
 
-    updateMetaTag(
-      'meta[name="twitter:title"]',
-      "name",
-      "twitter:title"
-    );
+    setMetaContent({
+      selector: 'meta[name="twitter:title"]',
+      attribute: "name",
+      attributeValue: "twitter:title",
+      content: title,
+    });
 
-    updateMetaTag(
-      'meta[name="twitter:description"]',
-      "name",
-      "twitter:description"
-    );
+    setMetaContent({
+      selector: 'meta[name="twitter:description"]',
+      attribute: "name",
+      attributeValue: "twitter:description",
+      content: description,
+    });
 
-    updateMetaTag(
-      'meta[name="twitter:image"]',
-      "name",
-      "twitter:image"
-    );
-
-    const values = {
-      'meta[property="og:title"]': title,
-      'meta[property="og:description"]': description,
-      'meta[property="og:url"]': canonicalUrl,
-      'meta[property="og:image"]': image,
-      'meta[name="twitter:title"]': title,
-      'meta[name="twitter:description"]': description,
-      'meta[name="twitter:image"]': image,
-    };
-
-    Object.entries(values).forEach(
-      ([selector, value]) => {
-        const element =
-          document.head.querySelector(selector);
-
-        if (element) {
-          element.setAttribute("content", value);
-        }
-      }
-    );
+    setMetaContent({
+      selector: 'meta[name="twitter:image"]',
+      attribute: "name",
+      attributeValue: "twitter:image",
+      content: image,
+    });
   }, [description, image, noIndex, path, title]);
 
   return null;
