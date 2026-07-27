@@ -1064,13 +1064,12 @@ if (authChecking && isLoggedIn) {
           : "Login | Exalt Exchange";
 
   return (
-    <>
-      <SEO
-        title={authTitle}
-        description="Secure account access and password recovery for Exalt Exchange users."
-        path="/"
-        noIndex
-      />
+<>
+   <SEO
+  title={authTitle}
+  description="Secure account access and password recovery for Exalt Exchange users."
+  path="/"
+/>
 
       <div className="app">
         <main className="main auth-only">
