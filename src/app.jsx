@@ -1,54 +1,242 @@
-import { useEffect, useMemo, useState } from "react";
-import { ethers } from "ethers";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 
 import exchangeLogo from "./assets/exalt-exchange-logo.png";
 import { useI18n } from "./i18n/index.js";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import "./style.css";
-import Dashboard from "./components/Dashboard";
-import Markets from "./components/Markets";
-import Trade from "./components/Trade";
-import BuyCrypto from "./components/BuyCrypto";
-import ListingForm from "./components/ListingForm";
-import Orders from "./components/Orders";
-import Referral from "./components/Referral";
-import Support from "./components/Support";
-import AdminPanel from "./AdminPanel";
-import Wallets from "./components/Wallets";
-import Web3Wallet from "./components/Web3Wallet";
-import Settings from "./components/Settings";
-import Transactions from "./components/Transactions";
-import TradingPanel from "./components/TradingPanel";
-import OrderBook from "./components/OrderBook";
-import P2P from "./components/P2P";
-import AdminKycPanel from "./components/AdminKycPanel";
-import KycVerification from "./components/kycVerification";
-import AdminP2P from "./components/AdminP2P";
-import Futures from "./components/Futures";
-import ReplitRewards from "./replit_ui/Rewards";
-import Profile from "./components/Profile";
-import Staking from "./components/Staking";
-import LearnEarn from "./components/LearnEarn";
 import NotificationBell from "./components/NotificationBell";
 import VerifyEmail from "./components/VerifyEmail";
 import ResetPassword from "./components/ResetPassword";
 import ForgotPassword from "./components/ForgotPassword";
 import VerifyResetCode from "./components/VerifyResetCode";
 import AuthPanel from "./components/AuthPanel";
-import LegalHome from "./pages/legal/LegalHome.jsx";
-import PrivacyPolicy from "./pages/legal/PrivacyPolicy.jsx";
-import TermsOfService from "./pages/legal/TermsOfService.jsx";
-import AMLPolicy from "./pages/legal/AMLPolicy.jsx";
-import KYCPolicy from "./pages/legal/KYCPolicy.jsx";
-import RiskDisclosure from "./pages/legal/RiskDisclosure.jsx";
-import CookiePolicy from "./pages/legal/CookiePolicy.jsx";
-import RefundPolicy from "./pages/legal/RefundPolicy.jsx";
-import Compliance from "./pages/legal/Compliance.jsx";
-import DeleteAccount from "./pages/legal/DeleteAccount.jsx";
-import OwnerControl from "./components/OwnerControl";
-import SuperAdminPanel from "./components/SuperAdminPanel";
-import ModeratorPanel from "./components/ModeratorPanel";
+
+const Dashboard = lazy(() =>
+  import("./components/Dashboard").then((module) => ({
+    default: module.default || module.Dashboard,
+  }))
+);
+
+const Markets = lazy(() =>
+  import("./components/Markets").then((module) => ({
+    default: module.default || module.Markets,
+  }))
+);
+
+const Trade = lazy(() =>
+  import("./components/Trade").then((module) => ({
+    default: module.default || module.Trade,
+  }))
+);
+
+const Futures = lazy(() =>
+  import("./components/Futures").then((module) => ({
+    default: module.default || module.Futures,
+  }))
+);
+const Wallets = lazy(() =>
+  import("./components/Wallets").then((module) => ({
+    default: module.default || module.Wallets,
+  }))
+);
+
+const Web3Wallet = lazy(() =>
+  import("./components/Web3Wallet").then((module) => ({
+    default: module.default || module.Web3Wallet,
+  }))
+);
+
+const Transactions = lazy(() =>
+  import("./components/Transactions").then((module) => ({
+    default: module.default || module.Transactions,
+  }))
+);
+
+const Orders = lazy(() =>
+  import("./components/Orders").then((module) => ({
+    default: module.default || module.Orders,
+  }))
+);
+const BuyCrypto = lazy(() =>
+  import("./components/BuyCrypto").then((module) => ({
+    default: module.default || module.BuyCrypto,
+  }))
+);
+
+const P2P = lazy(() =>
+  import("./components/P2P").then((module) => ({
+    default: module.default || module.P2P,
+  }))
+);
+
+const Profile = lazy(() =>
+  import("./components/Profile").then((module) => ({
+    default: module.default || module.Profile,
+  }))
+);
+
+const Settings = lazy(() =>
+  import("./components/Settings").then((module) => ({
+    default: module.default || module.Settings,
+  }))
+);
+
+const Support = lazy(() =>
+  import("./components/Support").then((module) => ({
+    default: module.default || module.Support,
+  }))
+);
+
+const Referral = lazy(() =>
+  import("./components/Referral").then((module) => ({
+    default: module.default || module.Referral,
+  }))
+);
+const ListingForm = lazy(() =>
+  import("./components/ListingForm").then((module) => ({
+    default: module.default || module.ListingForm,
+  }))
+);
+
+const TradingPanel = lazy(() =>
+  import("./components/TradingPanel").then((module) => ({
+    default: module.default || module.TradingPanel,
+  }))
+);
+
+const OrderBook = lazy(() =>
+  import("./components/OrderBook").then((module) => ({
+    default: module.default || module.OrderBook,
+  }))
+);
+
+const KycVerification = lazy(() =>
+  import("./components/kycVerification").then((module) => ({
+    default:
+      module.default || module.KycVerification,
+  }))
+);
+
+const ReplitRewards = lazy(() =>
+  import("./replit_ui/Rewards").then((module) => ({
+    default: module.default || module.ReplitRewards,
+  }))
+);
+
+const Staking = lazy(() =>
+  import("./components/Staking").then((module) => ({
+    default: module.default || module.Staking,
+  }))
+);
+
+const LearnEarn = lazy(() =>
+  import("./components/LearnEarn").then((module) => ({
+    default: module.default || module.LearnEarn,
+  }))
+);
+const LegalHome = lazy(() =>
+  import("./pages/legal/LegalHome.jsx").then((module) => ({
+    default: module.default || module.LegalHome,
+  }))
+);
+
+const PrivacyPolicy = lazy(() =>
+  import("./pages/legal/PrivacyPolicy.jsx").then((module) => ({
+    default: module.default || module.PrivacyPolicy,
+  }))
+);
+
+const TermsOfService = lazy(() =>
+  import("./pages/legal/TermsOfService.jsx").then((module) => ({
+    default: module.default || module.TermsOfService,
+  }))
+);
+
+const AMLPolicy = lazy(() =>
+  import("./pages/legal/AMLPolicy.jsx").then((module) => ({
+    default: module.default || module.AMLPolicy,
+  }))
+);
+
+const KYCPolicy = lazy(() =>
+  import("./pages/legal/KYCPolicy.jsx").then((module) => ({
+    default: module.default || module.KYCPolicy,
+  }))
+);
+
+const RiskDisclosure = lazy(() =>
+  import("./pages/legal/RiskDisclosure.jsx").then((module) => ({
+    default: module.default || module.RiskDisclosure,
+  }))
+);
+
+const CookiePolicy = lazy(() =>
+  import("./pages/legal/CookiePolicy.jsx").then((module) => ({
+    default: module.default || module.CookiePolicy,
+  }))
+);
+
+const RefundPolicy = lazy(() =>
+  import("./pages/legal/RefundPolicy.jsx").then((module) => ({
+    default: module.default || module.RefundPolicy,
+  }))
+);
+
+const Compliance = lazy(() =>
+  import("./pages/legal/Compliance.jsx").then((module) => ({
+    default: module.default || module.Compliance,
+  }))
+);
+
+const DeleteAccount = lazy(() =>
+  import("./pages/legal/DeleteAccount.jsx").then((module) => ({
+    default: module.default || module.DeleteAccount,
+  }))
+);
+const AdminPanel = lazy(() =>
+  import("./AdminPanel").then((module) => ({
+    default: module.default || module.AdminPanel,
+  }))
+);
+
+const AdminKycPanel = lazy(() =>
+  import("./components/AdminKycPanel").then((module) => ({
+    default: module.default || module.AdminKycPanel,
+  }))
+);
+
+const AdminP2P = lazy(() =>
+  import("./components/AdminP2P").then((module) => ({
+    default: module.default || module.AdminP2P,
+  }))
+);
+
+const OwnerControl = lazy(() =>
+  import("./components/OwnerControl").then((module) => ({
+    default: module.default || module.OwnerControl,
+  }))
+);
+
+const SuperAdminPanel = lazy(() =>
+  import("./components/SuperAdminPanel").then((module) => ({
+    default: module.default || module.SuperAdminPanel,
+  }))
+);
+
+const ModeratorPanel = lazy(() =>
+  import("./components/ModeratorPanel").then((module) => ({
+    default: module.default || module.ModeratorPanel,
+  }))
+);
 import SEO from "./components/SEO";
+
 const DEFAULT_API_BASE =
   "https://exalt-real-backend-6b6v.onrender.com";
 
@@ -295,7 +483,7 @@ const publicSeo =
     checkAuth();
   }, [API_BASE]);
 
-  if (path === "/legal") {
+ if (path === "/legal") {
   return (
     <>
       <SEO
@@ -304,11 +492,19 @@ const publicSeo =
         path={path}
       />
 
-      <LegalHome />
+      <Suspense
+        fallback={
+          <div className="panel">
+            <h2>Loading Legal Page...</h2>
+            <p>Please wait while the page loads.</p>
+          </div>
+        }
+      >
+        <LegalHome />
+      </Suspense>
     </>
   );
 }
-
 if (path === "/privacy") {
   return (
     <>
@@ -318,7 +514,15 @@ if (path === "/privacy") {
         path={path}
       />
 
-      <PrivacyPolicy />
+      <Suspense
+  fallback={
+    <div className="panel">
+      Loading...
+    </div>
+  }
+>
+  <PrivacyPolicy />
+</Suspense>
     </>
   );
 }
@@ -331,7 +535,9 @@ if (path === "/terms") {
         path={path}
       />
 
-      <TermsOfService />
+    <Suspense fallback={<div className="panel">Loading...</div>}>
+  <TermsOfService />
+</Suspense>
     </>
   );
 }
@@ -344,7 +550,9 @@ if (path === "/aml") {
         path={path}
       />
 
-      <AMLPolicy />
+     <Suspense fallback={<div className="panel">Loading...</div>}>
+  <AMLPolicy />
+</Suspense>
     </>
   );
 }
@@ -358,7 +566,9 @@ if (path === "/aml") {
         path={path}
       />
 
-      <KYCPolicy />
+     <Suspense fallback={<div className="panel">Loading...</div>}>
+  <KYCPolicy />
+</Suspense>
     </>
   );
 }
@@ -372,7 +582,9 @@ if (path === "/risk") {
         path={path}
       />
 
-      <RiskDisclosure />
+    <Suspense fallback={<div className="panel">Loading...</div>}>
+  <RiskDisclosure />
+</Suspense>
     </>
   );
 }  
@@ -386,7 +598,9 @@ if (path === "/cookies") {
         path={path}
       />
 
-      <CookiePolicy />
+    <Suspense fallback={<div className="panel">Loading...</div>}>
+  <CookiePolicy />
+</Suspense>
     </>
   );
 }
@@ -399,8 +613,10 @@ if (path === "/cookies") {
         description={publicSeo.description}
         path={path}
       />
-
-      <RefundPolicy />
+<Suspense fallback={<div className="panel">Loading...</div>}>
+  <RefundPolicy />
+</Suspense>
+     
     </>
   );
 }
@@ -414,7 +630,9 @@ if (path === "/cookies") {
         path={path}
       />
 
-      <Compliance />
+     <Suspense fallback={<div className="panel">Loading...</div>}>
+  <Compliance />
+</Suspense>
     </>
   );
 }
@@ -426,8 +644,9 @@ if (path === "/cookies") {
         description={publicSeo.description}
         path={path}
       />
-
-      <DeleteAccount />
+<Suspense fallback={<div className="panel">Loading...</div>}>
+  <DeleteAccount />
+</Suspense>
     </>
   );
 }
@@ -518,14 +737,17 @@ if (path === "/cookies") {
         }
       }
 
-      const provider = new ethers.BrowserProvider(
-        window.ethereum
-      );
+      const { BrowserProvider, formatEther } =
+  await import("ethers");
 
-      const accounts = await provider.send(
-        "eth_requestAccounts",
-        []
-      );
+const provider = new BrowserProvider(
+  window.ethereum
+);
+
+const accounts = await provider.send(
+  "eth_requestAccounts",
+  []
+);
 
       if (!accounts?.length) {
         window.alert("No wallet account found");
@@ -536,10 +758,9 @@ if (path === "/cookies") {
       const balance = await provider.getBalance(address);
 
       setWallet(address);
-      setBnbBalance(
-        Number(ethers.formatEther(balance)).toFixed(4)
-      );
-
+    setBnbBalance(
+  Number(formatEther(balance)).toFixed(4)
+);
       window.alert("Wallet Connected Successfully");
     } catch (error) {
       console.error(
@@ -589,8 +810,19 @@ if (path === "/cookies") {
         </div>
       );
     }
-
-    return <Component {...componentProps} />;
+return (
+  <Suspense
+    fallback={
+      <div className="panel">
+        <h2>Loading Admin Panel...</h2>
+        <p>Please wait while the secure panel loads.</p>
+      </div>
+    }
+  >
+    <Component {...componentProps} />
+  </Suspense>
+);
+  
   };
 
   const ownerOnlyPanel = (
@@ -624,15 +856,23 @@ if (path === "/cookies") {
       );
     }
 
-    return (
-      <Component
-        setPage={setPage}
-        currentUser={currentUser}
-        {...componentProps}
-      />
-    );
-  };
-
+  return (
+  <Suspense
+    fallback={
+      <div className="panel">
+        <h2>Loading Owner Control...</h2>
+        <p>Please wait while the secure panel loads.</p>
+      </div>
+    }
+  >
+    <Component
+      setPage={setPage}
+      currentUser={currentUser}
+      {...componentProps}
+    />
+  </Suspense>
+);
+};
   const superAdminOnlyPanel = (
     Component,
     componentProps = {}
@@ -664,15 +904,23 @@ if (path === "/cookies") {
       );
     }
 
-    return (
-      <Component
-        setPage={setPage}
-        currentUser={currentUser}
-        {...componentProps}
-      />
-    );
+   return (
+  <Suspense
+    fallback={
+      <div className="panel">
+        <h2>Loading Secure Panel...</h2>
+        <p>Please wait while the secure panel loads.</p>
+      </div>
+    }
+  >
+    <Component
+      setPage={setPage}
+      currentUser={currentUser}
+      {...componentProps}
+    />
+  </Suspense>
+);
   };
-
   const moderatorOnlyPanel = (
     Component,
     componentProps = {}
@@ -1328,12 +1576,19 @@ return (
         </div>
       </aside>
 
-      <main className="main">
+    <main className="main">
+  <Suspense
+    fallback={
+      <div className="panel">
+        <h2>Loading Exalt Exchange...</h2>
+        <p>Please wait while this section loads.</p>
+      </div>
+    }
+  >
+    {renderPage()}
+  </Suspense>
 
-{renderPage()}
-      
-
-        <footer className="legal-footer-links">
+  <footer className="legal-footer-links">
           <a href="/legal">Legal Center</a>
           <a href="/privacy">
             Privacy Policy

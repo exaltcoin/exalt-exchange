@@ -58,7 +58,8 @@ body {
   border: 1px solid var(--ex-border) !important;
   border-radius: var(--ex-radius) !important;
   box-shadow: var(--ex-shadow);
-  backdrop-filter: blur(16px);
+ backdrop-filter: blur(8px);
+-webkit-backdrop-filter: blur(8px);
 }
 
 button,
@@ -319,4 +320,30 @@ label {
 
 a {
   color: #f0b90b;
+}
+@media (max-width: 768px) {
+  .admin-card,
+  .stat-card,
+  .wallet-v2-card,
+  .trade-panel,
+  .chart-panel,
+  .market-panel,
+  .history-panel,
+  .positions-panel,
+  .orderbook-card,
+  .request-card,
+  .coin-details-box,
+  .ms-info-card,
+  .ms-live-section,
+  .trade-live-section,
+  .card,
+  .wallet-v2-hero,
+  .wallet-v2-asset-row,
+  .futures-container > div,
+  .dashboard-card,
+  .market-card,
+  .p2p-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
