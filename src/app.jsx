@@ -1,31 +1,13 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 
 import exchangeLogo from "./assets/exalt-exchange-logo.png";
 import { useI18n } from "./i18n/index.js";
 import LanguageSwitcher from "./components/LanguageSwitcher";
 import "./style.css";
-const Dashboard = lazy(() =>
-  import("./components/Dashboard")
-);
-
-const Markets = lazy(() =>
-  import("./components/Markets")
-);
-
-const Trade = lazy(() =>
-  import("./components/Trade")
-);
-
-const Futures = lazy(() =>
-  import("./components/Futures")
-);
+import Dashboard from "./components/Dashboard";
+import Markets from "./components/Markets";
+import Trade from "./components/Trade";
 import BuyCrypto from "./components/BuyCrypto";
 import ListingForm from "./components/ListingForm";
 import Orders from "./components/Orders";
@@ -42,6 +24,7 @@ import P2P from "./components/P2P";
 import AdminKycPanel from "./components/AdminKycPanel";
 import KycVerification from "./components/kycVerification";
 import AdminP2P from "./components/AdminP2P";
+import Futures from "./components/Futures";
 import ReplitRewards from "./replit_ui/Rewards";
 import Profile from "./components/Profile";
 import Staking from "./components/Staking";
@@ -1348,17 +1331,8 @@ return (
 
       <main className="main">
 
-
-      <Suspense
-  fallback={
-    <div className="panel">
-      <h2>Loading Exalt Exchange...</h2>
-      <p>Please wait while this section loads.</p>
-    </div>
-  }
->
-  {renderPage()}
-</Suspense>
+{renderPage()}
+      
 
         <footer className="legal-footer-links">
           <a href="/legal">Legal Center</a>
