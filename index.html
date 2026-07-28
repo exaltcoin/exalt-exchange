@@ -5,19 +5,16 @@
 
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
 
-    <title>Exalt Exchange | Global Cryptocurrency Exchange</title>
+    <title>
+      Exalt Exchange | Secure Crypto Trading, Web3 Wallet & P2P
+    </title>
 
     <meta
       name="description"
-      content="Exalt Exchange is a secure global digital asset platform offering spot trading, futures trading, P2P services, Web3 wallet access, staking, KYC, and cryptocurrency management."
-    />
-
-    <meta
-      name="keywords"
-      content="Exalt Exchange, cryptocurrency exchange, crypto trading, spot trading, futures trading, P2P exchange, Web3 wallet, EXALT Coin, Bitcoin, Ethereum, BNB, digital assets"
+      content="Exalt Exchange is a global digital asset platform offering secure spot trading, futures, P2P services, Web3 wallet access, staking, KYC, and cryptocurrency management."
     />
 
     <meta name="author" content="Exalt Exchange" />
@@ -27,19 +24,53 @@
       content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     />
 
+    <meta
+      name="googlebot"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <meta
+      name="format-detection"
+      content="telephone=no, email=no, address=no"
+    />
+
     <meta name="theme-color" content="#0b1220" />
+
+    <meta
+      name="application-name"
+      content="Exalt Exchange"
+    />
+
+    <meta
+      name="apple-mobile-web-app-title"
+      content="Exalt Exchange"
+    />
+
+    <meta
+      name="apple-mobile-web-app-capable"
+      content="yes"
+    />
+
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
 
     <link
       rel="canonical"
       href="https://exaltexchange.io/"
     />
-<link
-  rel="preload"
-  href="/exalt-exchange-qr.png"
-  as="image"
-  type="image/png"
-  fetchpriority="high"
-/>
+
+    <link
+      rel="preload"
+      href="/exalt-exchange-qr.png"
+      as="image"
+      type="image/png"
+      fetchpriority="high"
+    />
+
     <link
       rel="icon"
       type="image/png"
@@ -56,6 +87,7 @@
       href="/manifest.json"
     />
 
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
 
     <meta
@@ -65,12 +97,12 @@
 
     <meta
       property="og:title"
-      content="Exalt Exchange | Global Cryptocurrency Exchange"
+      content="Exalt Exchange | Secure Crypto Trading, Web3 Wallet & P2P"
     />
 
     <meta
       property="og:description"
-      content="Trade digital assets securely with spot trading, futures, P2P services, Web3 wallet access, staking, and the EXALT ecosystem."
+      content="Access secure spot trading, futures, P2P services, Web3 wallet features, staking, and the growing EXALT ecosystem."
     />
 
     <meta
@@ -84,8 +116,18 @@
     />
 
     <meta
+      property="og:image:secure_url"
+      content="https://exaltexchange.io/exalt-exchange-logo.png"
+    />
+
+    <meta
+      property="og:image:type"
+      content="image/png"
+    />
+
+    <meta
       property="og:image:alt"
-      content="Exalt Exchange Logo"
+      content="Exalt Exchange official logo"
     />
 
     <meta
@@ -93,19 +135,25 @@
       content="en_US"
     />
 
+    <!-- X / Twitter -->
     <meta
       name="twitter:card"
       content="summary_large_image"
     />
 
     <meta
+      name="twitter:site"
+      content="@exaltcoin2"
+    />
+
+    <meta
       name="twitter:title"
-      content="Exalt Exchange | Global Cryptocurrency Exchange"
+      content="Exalt Exchange | Secure Crypto Trading, Web3 Wallet & P2P"
     />
 
     <meta
       name="twitter:description"
-      content="Secure cryptocurrency trading with spot, futures, P2P services, Web3 wallet access, staking, and the EXALT ecosystem."
+      content="Access secure spot trading, futures, P2P services, Web3 wallet features, staking, and the growing EXALT ecosystem."
     />
 
     <meta
@@ -115,44 +163,57 @@
 
     <meta
       name="twitter:image:alt"
-      content="Exalt Exchange Logo"
+      content="Exalt Exchange official logo"
     />
 
-   <!-- Google Analytics: delayed for performance -->
-<script>
-  window.dataLayer = window.dataLayer || [];
+    <!-- Google Analytics: delayed to protect initial performance -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
 
-  function gtag() {
-    dataLayer.push(arguments);
-  }
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
 
-  gtag("js", new Date());
+      window.addEventListener("load", function () {
+        window.setTimeout(function () {
+          const script = document.createElement("script");
 
-  window.addEventListener("load", function () {
-    window.setTimeout(function () {
-      const script = document.createElement("script");
-      script.async = true;
-      script.src =
-        "https://www.googletagmanager.com/gtag/js?id=G-KH2DXXY6D6";
+          script.async = true;
+          script.src =
+            "https://www.googletagmanager.com/gtag/js?id=G-KH2DXXY6D6";
 
-      script.onload = function () {
-        gtag("config", "G-KH2DXXY6D6", {
-          send_page_view: true,
-        });
-      };
+          script.onload = function () {
+            gtag("js", new Date());
 
-      document.head.appendChild(script);
-    }, 2500);
-  });
-</script>
+            gtag("config", "G-KH2DXXY6D6", {
+              send_page_view: true,
+              anonymize_ip: true,
+            });
+          };
 
+          document.head.appendChild(script);
+        }, 2500);
+      });
+    </script>
+
+    <!-- Organization structured data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
+        "@id": "https://exaltexchange.io/#organization",
         "name": "Exalt Exchange",
         "url": "https://exaltexchange.io/",
-        "logo": "https://exaltexchange.io/exalt-exchange-logo.png",
+        "logo": {
+          "@type": "ImageObject",
+          "@id": "https://exaltexchange.io/#logo",
+          "url": "https://exaltexchange.io/exalt-exchange-logo.png",
+          "contentUrl": "https://exaltexchange.io/exalt-exchange-logo.png",
+          "caption": "Exalt Exchange"
+        },
+        "image": {
+          "@id": "https://exaltexchange.io/#logo"
+        },
         "description": "Exalt Exchange is a global digital asset platform offering spot trading, futures trading, P2P services, Web3 wallet access, staking, KYC, and cryptocurrency management.",
         "sameAs": [
           "https://x.com/exaltcoin2",
@@ -163,20 +224,41 @@
       }
     </script>
 
+    <!-- Website structured data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "Exalt Exchange",
+        "@id": "https://exaltexchange.io/#website",
         "url": "https://exaltexchange.io/",
+        "name": "Exalt Exchange",
+        "description": "A global digital asset platform for spot trading, futures, P2P services, Web3 wallet access, staking, and cryptocurrency management.",
         "publisher": {
-          "@type": "Organization",
-          "name": "Exalt Exchange",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://exaltexchange.io/exalt-exchange-logo.png"
-          }
-        }
+          "@id": "https://exaltexchange.io/#organization"
+        },
+        "inLanguage": "en"
+      }
+    </script>
+
+    <!-- Homepage structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": "https://exaltexchange.io/#webpage",
+        "url": "https://exaltexchange.io/",
+        "name": "Exalt Exchange | Secure Crypto Trading, Web3 Wallet & P2P",
+        "description": "Exalt Exchange is a global digital asset platform offering secure spot trading, futures, P2P services, Web3 wallet access, staking, KYC, and cryptocurrency management.",
+        "isPartOf": {
+          "@id": "https://exaltexchange.io/#website"
+        },
+        "about": {
+          "@id": "https://exaltexchange.io/#organization"
+        },
+        "primaryImageOfPage": {
+          "@id": "https://exaltexchange.io/#logo"
+        },
+        "inLanguage": "en"
       }
     </script>
   </head>
@@ -184,6 +266,9 @@
   <body>
     <div id="root"></div>
 
-    <script type="module" src="/src/main.jsx"></script>
+    <script
+      type="module"
+      src="/src/main.jsx"
+    ></script>
   </body>
 </html>
