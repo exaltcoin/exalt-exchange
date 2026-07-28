@@ -276,69 +276,102 @@ const checkAdminAccess = (user) =>
   user?.isOwner === true;
 const PUBLIC_ROUTE_SEO = {
   "/": {
-    title: "Exalt Exchange | Global Cryptocurrency Exchange",
+    title:
+      "Exalt Exchange | Secure Crypto Trading, Web3 Wallet & P2P",
     description:
-      "Exalt Exchange is a secure cryptocurrency exchange offering Spot Trading, Futures, P2P, Web3 Wallet, Staking and EXALT Coin ecosystem.",
+      "Trade digital assets securely with Exalt Exchange through spot trading, futures, P2P services, Web3 wallet access, staking, KYC, and the EXALT ecosystem.",
+    imageAlt:
+      "Exalt Exchange secure cryptocurrency trading platform",
   },
 
   "/legal": {
-    title: "Legal Center | Exalt Exchange",
+    title:
+      "Legal Center | Policies and Compliance | Exalt Exchange",
     description:
-      "Legal information, compliance, policies and regulations of Exalt Exchange.",
+      "Access the official legal policies, compliance standards, user protections, risk disclosures, and regulatory information of Exalt Exchange.",
+    imageAlt:
+      "Exalt Exchange official Legal Center",
   },
 
   "/privacy": {
-    title: "Privacy Policy | Exalt Exchange",
+    title:
+      "Privacy Policy | Data Protection | Exalt Exchange",
     description:
-      "Read the official Privacy Policy of Exalt Exchange.",
+      "Learn how Exalt Exchange collects, uses, protects, stores, and manages personal information and account data.",
+    imageAlt:
+      "Exalt Exchange Privacy Policy and data protection",
   },
 
   "/terms": {
-    title: "Terms of Service | Exalt Exchange",
+    title:
+      "Terms of Service | User Agreement | Exalt Exchange",
     description:
-      "Official Terms of Service of Exalt Exchange.",
+      "Read the official Exalt Exchange Terms of Service covering platform access, user responsibilities, trading services, and account usage.",
+    imageAlt:
+      "Exalt Exchange Terms of Service",
   },
 
   "/aml": {
-    title: "AML Policy | Exalt Exchange",
+    title:
+      "AML Policy | Anti-Money Laundering | Exalt Exchange",
     description:
-      "Anti Money Laundering policy of Exalt Exchange.",
+      "Review the Exalt Exchange Anti-Money Laundering policy, transaction monitoring standards, compliance procedures, and prohibited activities.",
+    imageAlt:
+      "Exalt Exchange Anti-Money Laundering Policy",
   },
 
   "/kyc-policy": {
-    title: "KYC Policy | Exalt Exchange",
+    title:
+      "KYC Policy | Identity Verification | Exalt Exchange",
     description:
-      "Know Your Customer verification policy.",
+      "Understand the Exalt Exchange Know Your Customer policy, identity verification requirements, account checks, and compliance procedures.",
+    imageAlt:
+      "Exalt Exchange KYC identity verification policy",
   },
 
   "/risk": {
-    title: "Risk Disclosure | Exalt Exchange",
+    title:
+      "Crypto Risk Disclosure | Exalt Exchange",
     description:
-      "Understand cryptocurrency trading risks.",
+      "Review important risks related to cryptocurrency trading, price volatility, futures, liquidity, digital wallets, and digital assets.",
+    imageAlt:
+      "Exalt Exchange cryptocurrency risk disclosure",
   },
 
   "/cookies": {
-    title: "Cookie Policy | Exalt Exchange",
+    title:
+      "Cookie Policy | Website Data Usage | Exalt Exchange",
     description:
-      "Cookie usage policy of Exalt Exchange.",
+      "Learn how Exalt Exchange uses cookies and similar technologies to provide security, functionality, analytics, and user preferences.",
+    imageAlt:
+      "Exalt Exchange Cookie Policy",
   },
 
   "/refund": {
-    title: "Refund Policy | Exalt Exchange",
+    title:
+      "Refund and Cancellation Policy | Exalt Exchange",
     description:
-      "Refund and cancellation policy.",
+      "Read the official Exalt Exchange refund and cancellation policy for applicable services, payments, fees, and digital asset transactions.",
+    imageAlt:
+      "Exalt Exchange Refund and Cancellation Policy",
   },
 
   "/compliance": {
-    title: "Compliance Statement | Exalt Exchange",
+    title:
+      "Compliance Statement | Exalt Exchange",
     description:
-      "Compliance standards followed by Exalt Exchange.",
+      "Explore the compliance principles, security standards, user verification practices, and operational controls followed by Exalt Exchange.",
+    imageAlt:
+      "Exalt Exchange compliance standards",
   },
 
   "/delete-account": {
-    title: "Delete Account | Exalt Exchange",
+    title:
+      "Delete Your Account | Exalt Exchange",
     description:
-      "Request permanent deletion of your account.",
+      "Review the process for requesting permanent deletion of your Exalt Exchange account and associated personal information.",
+    imageAlt:
+      "Exalt Exchange account deletion information",
   },
 };
 function App() {
@@ -490,6 +523,7 @@ const publicSeo =
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+          imageAlt={publicSeo.imageAlt}
       />
 
       <Suspense
