@@ -236,7 +236,9 @@ const ModeratorPanel = lazy(() =>
   }))
 );
 import SEO from "./components/SEO";
-
+import WebPageSchema from "./components/SEO/WebPageSchema";
+import BreadcrumbSchema from "./components/SEO/BreadcrumbSchema";
+import FAQSchema from "./components/SEO/FAQSchema";
 const DEFAULT_API_BASE =
   "https://exalt-real-backend-6b6v.onrender.com";
 
@@ -516,14 +518,33 @@ const publicSeo =
     checkAuth();
   }, [API_BASE]);
 
- if (path === "/legal") {
+if (path === "/legal") {
   return (
     <>
       <SEO
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
-          imageAlt={publicSeo.imageAlt}
+        imageAlt={publicSeo.imageAlt}
+      />
+
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+        ]}
       />
 
       <Suspense
@@ -546,17 +567,41 @@ if (path === "/privacy") {
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
+      />
+
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "Privacy Policy",
+            path: "/privacy",
+          },
+        ]}
       />
 
       <Suspense
-  fallback={
-    <div className="panel">
-      Loading...
-    </div>
-  }
->
-  <PrivacyPolicy />
-</Suspense>
+        fallback={
+          <div className="panel">
+            Loading...
+          </div>
+        }
+      >
+        <PrivacyPolicy />
+      </Suspense>
     </>
   );
 }
@@ -567,11 +612,35 @@ if (path === "/terms") {
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
 
-    <Suspense fallback={<div className="panel">Loading...</div>}>
-  <TermsOfService />
-</Suspense>
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "Terms of Service",
+            path: "/terms",
+          },
+        ]}
+      />
+
+      <Suspense fallback={<div className="panel">Loading...</div>}>
+        <TermsOfService />
+      </Suspense>
     </>
   );
 }
@@ -582,11 +651,35 @@ if (path === "/aml") {
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
 
-     <Suspense fallback={<div className="panel">Loading...</div>}>
-  <AMLPolicy />
-</Suspense>
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "AML Policy",
+            path: "/aml",
+          },
+        ]}
+      />
+
+      <Suspense fallback={<div className="panel">Loading...</div>}>
+        <AMLPolicy />
+      </Suspense>
     </>
   );
 }
@@ -598,15 +691,44 @@ if (path === "/aml") {
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
 
-     <Suspense fallback={<div className="panel">Loading...</div>}>
-  <KYCPolicy />
-</Suspense>
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "KYC Policy",
+            path: "/kyc-policy",
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            Loading...
+          </div>
+        }
+      >
+        <KYCPolicy />
+      </Suspense>
     </>
   );
 }
-
 if (path === "/risk") {
   return (
     <>
@@ -614,14 +736,44 @@ if (path === "/risk") {
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
 
-    <Suspense fallback={<div className="panel">Loading...</div>}>
-  <RiskDisclosure />
-</Suspense>
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "Risk Disclosure",
+            path: "/risk",
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            Loading...
+          </div>
+        }
+      >
+        <RiskDisclosure />
+      </Suspense>
     </>
   );
-}  
+}
 
 if (path === "/cookies") {
   return (
@@ -630,46 +782,137 @@ if (path === "/cookies") {
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
 
-    <Suspense fallback={<div className="panel">Loading...</div>}>
-  <CookiePolicy />
-</Suspense>
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "Cookie Policy",
+            path: "/cookies",
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            Loading...
+          </div>
+        }
+      >
+        <CookiePolicy />
+      </Suspense>
     </>
   );
 }
 
-  if (path === "/refund") {
+if (path === "/refund") {
   return (
     <>
       <SEO
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
-<Suspense fallback={<div className="panel">Loading...</div>}>
-  <RefundPolicy />
-</Suspense>
-     
+
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "Refund Policy",
+            path: "/refund",
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            Loading...
+          </div>
+        }
+      >
+        <RefundPolicy />
+      </Suspense>
     </>
   );
 }
-
- if (path === "/compliance") {
+ 
+if (path === "/compliance") {
   return (
     <>
       <SEO
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
 
-     <Suspense fallback={<div className="panel">Loading...</div>}>
-  <Compliance />
-</Suspense>
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "Compliance",
+            path: "/compliance",
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            Loading...
+          </div>
+        }
+      >
+        <Compliance />
+      </Suspense>
     </>
   );
 }
+
  if (path === "/delete-account") {
   return (
     <>
@@ -677,10 +920,41 @@ if (path === "/cookies") {
         title={publicSeo.title}
         description={publicSeo.description}
         path={path}
+        imageAlt={publicSeo.imageAlt}
       />
-<Suspense fallback={<div className="panel">Loading...</div>}>
-  <DeleteAccount />
-</Suspense>
+
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Legal Center",
+            path: "/legal",
+          },
+          {
+            name: "Delete Account",
+            path: "/delete-account",
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            Loading...
+          </div>
+        }
+      >
+        <DeleteAccount />
+      </Suspense>
     </>
   );
 }
