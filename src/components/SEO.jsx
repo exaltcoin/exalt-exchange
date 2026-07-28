@@ -1,20 +1,25 @@
 import { useEffect } from "react";
 
+const SITE_NAME = "Exalt Exchange";
+const SITE_URL = "https://exaltexchange.io";
+
 const DEFAULT_TITLE =
-  "Exalt Exchange | Global Cryptocurrency Exchange";
+  "Exalt Exchange | Secure Crypto Trading, Web3 Wallet & P2P";
 
 const DEFAULT_DESCRIPTION =
   "Exalt Exchange is a secure global digital asset platform offering spot trading, futures trading, P2P services, Web3 wallet access, staking, KYC, and cryptocurrency management.";
 
 const DEFAULT_IMAGE =
-  "https://exaltexchange.io/exalt-exchange-logo.png";
+  `${SITE_URL}/exalt-exchange-logo.png`;
 
-const SITE_URL = "https://exaltexchange.io";
+const DEFAULT_IMAGE_ALT =
+  "Exalt Exchange official logo";
 
 const ROBOTS_INDEX =
   "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 
-const ROBOTS_NOINDEX = "noindex, nofollow";
+const ROBOTS_NOINDEX =
+  "noindex, nofollow";
 
 function getOrCreateMetaTag({
   selector,
@@ -62,11 +67,28 @@ function updateCanonical(url) {
 }
 
 function normalizePath(path) {
-  if (!path || path === "/") {
+  const rawPath = String(path || "/")
+    .split("?")[0]
+    .split("#")[0]
+    .trim();
+
+  if (!rawPath || rawPath === "/") {
     return "/";
   }
 
-  return path.startsWith("/") ? path : `/${path}`;
+  const withLeadingSlash = rawPath.startsWith("/")
+    ? rawPath
+    : `/${rawPath}`;
+
+  return withLeadingSlash.replace(/\/+$/, "");
+}
+
+function createCanonicalUrl(path) {
+  const normalizedPath = normalizePath(path);
+
+  return normalizedPath === "/"
+    ? `${SITE_URL}/`
+    : `${SITE_URL}${normalizedPath}`;
 }
 
 function SEO({
@@ -74,15 +96,16 @@ function SEO({
   description = DEFAULT_DESCRIPTION,
   path = "/",
   image = DEFAULT_IMAGE,
+  imageAlt = DEFAULT_IMAGE_ALT,
+  type = "website",
   noIndex = false,
 }) {
   useEffect(() => {
-    const normalizedPath = normalizePath(path);
+    const canonicalUrl = createCanonicalUrl(path);
 
-    const canonicalUrl =
-      normalizedPath === "/"
-        ? `${SITE_URL}/`
-        : `${SITE_URL}${normalizedPath}`;
+    const robotsContent = noIndex
+      ? ROBOTS_NOINDEX
+      : ROBOTS_INDEX;
 
     document.title = title;
 
@@ -97,12 +120,31 @@ function SEO({
       selector: 'meta[name="robots"]',
       attribute: "name",
       attributeValue: "robots",
-      content: noIndex
-        ? ROBOTS_NOINDEX
-        : ROBOTS_INDEX,
+      content: robotsContent,
+    });
+
+    setMetaContent({
+      selector: 'meta[name="googlebot"]',
+      attribute: "name",
+      attributeValue: "googlebot",
+      content: robotsContent,
     });
 
     updateCanonical(canonicalUrl);
+
+    setMetaContent({
+      selector: 'meta[property="og:type"]',
+      attribute: "property",
+      attributeValue: "og:type",
+      content: type,
+    });
+
+    setMetaContent({
+      selector: 'meta[property="og:site_name"]',
+      attribute: "property",
+      attributeValue: "og:site_name",
+      content: SITE_NAME,
+    });
 
     setMetaContent({
       selector: 'meta[property="og:title"]',
@@ -133,6 +175,20 @@ function SEO({
     });
 
     setMetaContent({
+      selector: 'meta[property="og:image:alt"]',
+      attribute: "property",
+      attributeValue: "og:image:alt",
+      content: imageAlt,
+    });
+
+    setMetaContent({
+      selector: 'meta[name="twitter:card"]',
+      attribute: "name",
+      attributeValue: "twitter:card",
+      content: "summary_large_image",
+    });
+
+    setMetaContent({
       selector: 'meta[name="twitter:title"]',
       attribute: "name",
       attributeValue: "twitter:title",
@@ -152,7 +208,22 @@ function SEO({
       attributeValue: "twitter:image",
       content: image,
     });
-  }, [description, image, noIndex, path, title]);
+
+    setMetaContent({
+      selector: 'meta[name="twitter:image:alt"]',
+      attribute: "name",
+      attributeValue: "twitter:image:alt",
+      content: imageAlt,
+    });
+  }, [
+    description,
+    image,
+    imageAlt,
+    noIndex,
+    path,
+    title,
+    type,
+  ]);
 
   return null;
 }
