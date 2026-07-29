@@ -200,6 +200,17 @@ const DeleteAccount = lazy(() =>
     default: module.default || module.DeleteAccount,
   }))
 );
+const BlogHome = lazy(() =>
+  import("./pages/blog/BlogHome.jsx").then((module) => ({
+    default: module.default || module.BlogHome,
+  }))
+);
+
+const BlogArticle = lazy(() =>
+  import("./pages/blog/BlogArticle.jsx").then((module) => ({
+    default: module.default || module.BlogArticle,
+  }))
+);
 const AdminPanel = lazy(() =>
   import("./AdminPanel").then((module) => ({
     default: module.default || module.AdminPanel,
@@ -239,6 +250,7 @@ import SEO from "./components/SEO";
 import WebPageSchema from "./components/SEO/WebPageSchema";
 import BreadcrumbSchema from "./components/SEO/BreadcrumbSchema";
 import FAQSchema from "./components/SEO/FAQSchema";
+import { getBlogPostBySlug } from "./pages/blog/blogData";
 const DEFAULT_API_BASE =
   "https://exalt-real-backend-6b6v.onrender.com";
 
@@ -958,7 +970,114 @@ if (path === "/compliance") {
     </>
   );
 }
+if (path === "/blog") {
+  return (
+    <>
+      <SEO
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+        imageAlt={publicSeo.imageAlt}
+      />
 
+      <WebPageSchema
+        title={publicSeo.title}
+        description={publicSeo.description}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Blog",
+            path: "/blog",
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            <h2>Loading Blog...</h2>
+            <p>Please wait while articles load.</p>
+          </div>
+        }
+      >
+        <BlogHome
+          onOpenArticle={(slug) => {
+            window.location.href = `/blog/${slug}`;
+          }}
+        />
+      </Suspense>
+    </>
+  );
+}
+if (path.startsWith("/blog/")) {
+  const slug = decodeURIComponent(
+    path.replace("/blog/", "")
+  );
+
+  const post = getBlogPostBySlug(slug);
+
+  if (!post) {
+    window.location.replace("/blog");
+    return null;
+  }
+
+  return (
+    <>
+      <SEO
+        title={post.seoTitle}
+        description={post.seoDescription}
+        path={path}
+        imageAlt={post.imageAlt}
+      />
+
+      <WebPageSchema
+        title={post.seoTitle}
+        description={post.seoDescription}
+        path={path}
+      />
+
+      <BreadcrumbSchema
+        items={[
+          {
+            name: "Home",
+            path: "/",
+          },
+          {
+            name: "Blog",
+            path: "/blog",
+          },
+          {
+            name: post.title,
+            path: path,
+          },
+        ]}
+      />
+
+      <Suspense
+        fallback={
+          <div className="panel">
+            <h2>Loading Article...</h2>
+            <p>Please wait while the article loads.</p>
+          </div>
+        }
+      >
+        <BlogArticle
+          slug={slug}
+          onBack={() => {
+            window.location.href = "/blog";
+          }}
+        />
+      </Suspense>
+    </>
+  );
+}
   if (path.startsWith("/verify-email/")) {
     return <VerifyEmail />;
   }
