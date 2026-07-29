@@ -1628,6 +1628,7 @@ return (
     ["p2p", "🌍 P2P"],
     ["staking", "🔒 Staking"],
     ["learnearn", "🎓 Learn & Earn"],
+    ["blog", "📰 Blog"],
     ["ai-assistant", "🤖 AI Trading Assistant"],
     ["ai-copy-trading", "🔁 AI Copy Trading"],
     ["ai-portfolio", "📂 AI Portfolio Manager"],
@@ -1698,11 +1699,15 @@ return (
   const moderatorMenuItems = [
     ["moderator-panel", "🧰 Moderator Panel"],
   ];
+const openPage = (pageName) => {
+  if (pageName === "blog") {
+    window.location.href = "/blog";
+    return;
+  }
 
-  const openPage = (pageName) => {
-    setPage(pageName);
-    setMenuOpen(false);
-  };
+  setPage(pageName);
+  setMenuOpen(false);
+};
 
 if (authChecking && isLoggedIn) {
   return (

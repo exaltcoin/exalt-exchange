@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import { useI18n } from "../i18n/index.js";
+import { getLatestBlogPosts } from "../pages/blog/blogData.js";
 import LanguageSwitcher from "./LanguageSwitcher";
 import "./Dashboard.css";
 
@@ -15,7 +16,7 @@ const EXALT_ADDRESS =
 const EXALT_ABI = [
   "function balanceOf(address owner) view returns (uint256)",
 ];
-
+const LATEST_BLOG_POSTS = getLatestBlogPosts(3);
 const normalizeApiBase = (value) => {
   const normalizedBase = String(value || DEFAULT_API_BASE)
     .trim()
@@ -395,7 +396,19 @@ function Dashboard({ setPage }) {
 
     window.location.href = "/";
   };
+  const openBlogArticle = (slug) => {
+    if (!slug) {
+      return;
+    }
 
+    window.location.href = `/blog/${encodeURIComponent(
+      slug
+    )}`;
+  };
+
+  const openBlogHome = () => {
+    window.location.href = "/blog";
+  };
   const mobileActions = [
     ["👤", "profile", "Profile"],
     ["📊", "markets", "Markets"],
@@ -794,6 +807,73 @@ function Dashboard({ setPage }) {
             </p>
           )}
         </section>
+                <section className="dashboard-blog-section mobile-dashboard-blog">
+          <div className="dashboard-blog-header">
+            <div>
+              <span className="dashboard-blog-eyebrow">
+                Exalt Insights
+              </span>
+
+              <h3>Latest from Our Blog</h3>
+            </div>
+
+            <button
+              type="button"
+              className="dashboard-blog-view-all"
+              onClick={openBlogHome}
+            >
+              View All
+            </button>
+          </div>
+
+          <div className="dashboard-blog-grid">
+            {LATEST_BLOG_POSTS.map((post) => (
+              <article
+                className="dashboard-blog-card"
+                key={post.slug}
+              >
+                {post.image && (
+                  <button
+                    type="button"
+                    className="dashboard-blog-image-button"
+                    onClick={() =>
+                      openBlogArticle(post.slug)
+                    }
+                    aria-label={`Read ${post.title}`}
+                  >
+                    <img
+                      src={post.image}
+                      alt={post.imageAlt || post.title}
+                      className="dashboard-blog-image"
+                      loading="lazy"
+                    />
+                  </button>
+                )}
+
+                <div className="dashboard-blog-card-content">
+                  <div className="dashboard-blog-meta">
+                    <span>{post.category}</span>
+                    <span>{post.readTime}</span>
+                  </div>
+
+                  <h4>{post.title}</h4>
+
+                  <p>{post.excerpt}</p>
+
+                  <button
+                    type="button"
+                    className="dashboard-blog-read-more"
+                    onClick={() =>
+                      openBlogArticle(post.slug)
+                    }
+                  >
+                    Read Article →
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
       </section>
 
       <nav
@@ -1167,6 +1247,79 @@ function Dashboard({ setPage }) {
               </button>
             </section>
           </div>
+                    <section className="dashboard-blog-section desktop-dashboard-blog">
+            <div className="dashboard-blog-header">
+              <div>
+                <span className="dashboard-blog-eyebrow">
+                  Exalt Exchange Insights
+                </span>
+
+                <h2>Latest from Our Blog</h2>
+
+                <p>
+                  Explore cryptocurrency education, trading
+                  guides, Web3 insights, and Exalt ecosystem
+                  updates.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="dashboard-blog-view-all"
+                onClick={openBlogHome}
+              >
+                View All Articles
+              </button>
+            </div>
+
+            <div className="dashboard-blog-grid">
+              {LATEST_BLOG_POSTS.map((post) => (
+                <article
+                  className="dashboard-blog-card"
+                  key={post.slug}
+                >
+                  {post.image && (
+                    <button
+                      type="button"
+                      className="dashboard-blog-image-button"
+                      onClick={() =>
+                        openBlogArticle(post.slug)
+                      }
+                      aria-label={`Read ${post.title}`}
+                    >
+                      <img
+                        src={post.image}
+                        alt={post.imageAlt || post.title}
+                        className="dashboard-blog-image"
+                        loading="lazy"
+                      />
+                    </button>
+                  )}
+
+                  <div className="dashboard-blog-card-content">
+                    <div className="dashboard-blog-meta">
+                      <span>{post.category}</span>
+                      <span>{post.readTime}</span>
+                    </div>
+
+                    <h3>{post.title}</h3>
+
+                    <p>{post.excerpt}</p>
+
+                    <button
+                      type="button"
+                      className="dashboard-blog-read-more"
+                      onClick={() =>
+                        openBlogArticle(post.slug)
+                      }
+                    >
+                      Read Article →
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
         </div>
       </section>
     </>
