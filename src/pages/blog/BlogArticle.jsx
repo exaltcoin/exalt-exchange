@@ -1,12 +1,241 @@
+import { useEffect } from "react";
 import BlogLayout from "./BlogLayout";
 import { getBlogPostBySlug } from "./blogData";
 import "./Blog.css";
+
+const SITE_URL = "https://exaltexchange.io";
+const SITE_NAME = "Exalt Exchange";
+
+function setMetaTag(attribute, value, content) {
+  let element = document.head.querySelector(
+    `meta[${attribute}="${value}"]`
+  );
+
+  if (!element) {
+    element = document.createElement("meta");
+    element.setAttribute(attribute, value);
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute("content", content);
+
+  return element;
+}
+
+function setCanonicalLink(url) {
+  let canonical = document.head.querySelector(
+    'link[rel="canonical"]'
+  );
+
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.setAttribute("rel", "canonical");
+    document.head.appendChild(canonical);
+  }
+
+  canonical.setAttribute("href", url);
+
+  return canonical;
+}
 
 function BlogArticle({
   slug,
   onBack,
 }) {
   const post = getBlogPostBySlug(slug);
+
+  useEffect(() => {
+    if (!post) {
+      return undefined;
+    }
+
+    const articleUrl = `${SITE_URL}/blog/${post.slug}`;
+
+    const articleImage = post.image.startsWith("http")
+      ? post.image
+      : `${window.location.origin}${post.image}`;
+
+    const previousTitle = document.title;
+
+    document.title = post.seoTitle || post.title;
+
+    const managedMetaTags = [
+      setMetaTag(
+        "name",
+        "description",
+        post.seoDescription || post.excerpt
+      ),
+      setMetaTag(
+        "property",
+        "og:type",
+        "article"
+      ),
+      setMetaTag(
+        "property",
+        "og:site_name",
+        SITE_NAME
+      ),
+      setMetaTag(
+        "property",
+        "og:title",
+        post.seoTitle || post.title
+      ),
+      setMetaTag(
+        "property",
+        "og:description",
+        post.seoDescription || post.excerpt
+      ),
+      setMetaTag(
+        "property",
+        "og:url",
+        articleUrl
+      ),
+      setMetaTag(
+        "property",
+        "og:image",
+        articleImage
+      ),
+      setMetaTag(
+        "property",
+        "og:image:alt",
+        post.imageAlt
+      ),
+      setMetaTag(
+        "property",
+        "article:published_time",
+        post.publishedAt
+      ),
+      setMetaTag(
+        "property",
+        "article:modified_time",
+        post.updatedAt
+      ),
+      setMetaTag(
+        "property",
+        "article:author",
+        post.author
+      ),
+      setMetaTag(
+        "property",
+        "article:section",
+        post.category
+      ),
+      setMetaTag(
+        "name",
+        "twitter:card",
+        "summary_large_image"
+      ),
+      setMetaTag(
+        "name",
+        "twitter:title",
+        post.seoTitle || post.title
+      ),
+      setMetaTag(
+        "name",
+        "twitter:description",
+        post.seoDescription || post.excerpt
+      ),
+      setMetaTag(
+        "name",
+        "twitter:image",
+        articleImage
+      ),
+      setMetaTag(
+        "name",
+        "twitter:image:alt",
+        post.imageAlt
+      ),
+    ];
+
+    const canonicalLink = setCanonicalLink(articleUrl);
+
+    const articleSchema = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.seoDescription || post.excerpt,
+      image: [articleImage],
+      datePublished: post.publishedAt,
+      dateModified: post.updatedAt,
+      author: {
+        "@type": "Organization",
+        name: post.author,
+        url: SITE_URL,
+      },
+      publisher: {
+        "@type": "Organization",
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_URL}/exalt-exchange-logo.png`,
+        },
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": articleUrl,
+      },
+      articleSection: post.category,
+      keywords: post.tags.join(", "),
+      url: articleUrl,
+    };
+
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: SITE_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Blog",
+          item: `${SITE_URL}/blog`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: post.title,
+          item: articleUrl,
+        },
+      ],
+    };
+
+    const articleSchemaScript =
+      document.createElement("script");
+
+    articleSchemaScript.type = "application/ld+json";
+    articleSchemaScript.dataset.blogArticleSchema = "true";
+    articleSchemaScript.textContent =
+      JSON.stringify(articleSchema);
+
+    const breadcrumbSchemaScript =
+      document.createElement("script");
+
+    breadcrumbSchemaScript.type = "application/ld+json";
+    breadcrumbSchemaScript.dataset.blogBreadcrumbSchema = "true";
+    breadcrumbSchemaScript.textContent =
+      JSON.stringify(breadcrumbSchema);
+
+    document.head.appendChild(articleSchemaScript);
+    document.head.appendChild(breadcrumbSchemaScript);
+
+    return () => {
+      document.title = previousTitle;
+
+      managedMetaTags.forEach((tag) => {
+        tag.remove();
+      });
+
+      canonicalLink.remove();
+      articleSchemaScript.remove();
+      breadcrumbSchemaScript.remove();
+    };
+  }, [post]);
 
   if (!post) {
     return (
@@ -36,11 +265,33 @@ function BlogArticle({
       onBack={onBack}
     >
       <article className="blog-article">
+        <nav
+          className="blog-breadcrumb"
+          aria-label="Breadcrumb"
+        >
+          <button
+            type="button"
+            onClick={onBack}
+            className="blog-breadcrumb-link"
+          >
+            Blog
+          </button>
+
+          <span aria-hidden="true">/</span>
+
+          <span aria-current="page">
+            {post.title}
+          </span>
+        </nav>
 
         <img
           src={post.image}
           alt={post.imageAlt}
           className="blog-article-image"
+          width="1200"
+          height="630"
+          loading="eager"
+          fetchPriority="high"
         />
 
         <div className="blog-meta">
@@ -52,7 +303,9 @@ function BlogArticle({
 
           <span>•</span>
 
-          <span>{post.publishedAt}</span>
+          <time dateTime={post.publishedAt}>
+            {post.publishedAt}
+          </time>
 
           <span>•</span>
 
@@ -64,10 +317,13 @@ function BlogArticle({
         </h1>
 
         {post.content.map((block, index) => {
+          const blockKey =
+            `${block.type}-${index}-${block.text.slice(0, 20)}`;
+
           if (block.type === "heading") {
             return (
               <h2
-                key={index}
+                key={blockKey}
                 className="blog-section-title"
               >
                 {block.text}
@@ -77,14 +333,13 @@ function BlogArticle({
 
           return (
             <p
-              key={index}
+              key={blockKey}
               className="blog-paragraph"
             >
               {block.text}
             </p>
           );
         })}
-
       </article>
     </BlogLayout>
   );
