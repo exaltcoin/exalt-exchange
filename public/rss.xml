@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+
+    <title>Exalt Exchange Blog</title>
+
+    <link>https://exaltexchange.io/blog</link>
+
+    <description>
+      Official Exalt Exchange Blog covering cryptocurrency,
+      blockchain, Web3 wallet, spot trading, futures, P2P,
+      Exalt Coin and platform updates.
+    </description>
+
+    <language>en-us</language>
+
+    <lastBuildDate>Wed, 29 Jul 2026 00:00:00 GMT</lastBuildDate>
+
+    <generator>Exalt Exchange</generator>
+
+    <item>
+      <title>Exalt Exchange Platform Overview</title>
+      <link>https://exaltexchange.io/blog/exalt-exchange-platform-overview</link>
+      <guid>https://exaltexchange.io/blog/exalt-exchange-platform-overview</guid>
+      <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+      <description>
+        Complete overview of Exalt Exchange services.
+      </description>
+    </item>
+
+    <item>
+      <title>What Is Spot Trading?</title>
+      <link>https://exaltexchange.io/blog/what-is-spot-trading</link>
+      <guid>https://exaltexchange.io/blog/what-is-spot-trading</guid>
+      <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+      <description>
+        Learn how cryptocurrency spot trading works.
+      </description>
+    </item>
+
+    <item>
+      <title>Cryptocurrency P2P Trading Guide</title>
+      <link>https://exaltexchange.io/blog/crypto-p2p-trading-guide</link>
+      <guid>https://exaltexchange.io/blog/crypto-p2p-trading-guide</guid>
+      <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+      <description>
+        Beginner guide to secure peer-to-peer trading.
+      </description>
+    </item>
+
+    <item>
+      <title>How to Protect Your Web3 Wallet</title>
+      <link>https://exaltexchange.io/blog/web3-wallet-security-guide</link>
+      <guid>https://exaltexchange.io/blog/web3-wallet-security-guide</guid>
+      <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+      <description>
+        Web3 wallet security best practices.
+      </description>
+    </item>
+
+    <item>
+      <title>Understanding Crypto Futures Risk</title>
+      <link>https://exaltexchange.io/blog/understanding-crypto-futures-risk</link>
+      <guid>https://exaltexchange.io/blog/understanding-crypto-futures-risk</guid>
+      <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+      <description>
+        Learn leverage, liquidation and futures risk.
+      </description>
+    </item>
+
+    <item>
+      <title>What Is Exalt Coin?</title>
+      <link>https://exaltexchange.io/blog/what-is-exalt-coin</link>
+      <guid>https://exaltexchange.io/blog/what-is-exalt-coin</guid>
+      <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+      <description>
+        Learn about Exalt Coin and its ecosystem.
+      </description>
+    </item>
+
+  </channel>
+</rss>

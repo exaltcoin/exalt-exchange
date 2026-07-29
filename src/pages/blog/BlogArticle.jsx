@@ -1,6 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import BlogLayout from "./BlogLayout";
-import { getBlogPostBySlug } from "./blogData";
+import {
+  getBlogPostBySlug,
+  getRelatedBlogPosts,
+} from "./blogData";
 import "./Blog.css";
 
 const SITE_URL = "https://exaltexchange.io";
@@ -43,12 +46,50 @@ function BlogArticle({
   onBack,
 }) {
   const post = getBlogPostBySlug(slug);
-
+const [readingProgress, setReadingProgress] = useState(0);
+const relatedPosts = post
+  ? getRelatedBlogPosts(post.slug, post.category, 3)
+  : [];
   useEffect(() => {
     if (!post) {
       return undefined;
     }
+useEffect(() => {
+  const updateReadingProgress = () => {
+    const scrollTop =
+      document.documentElement.scrollTop ||
+      document.body.scrollTop;
 
+    const scrollHeight =
+      document.documentElement.scrollHeight -
+      document.documentElement.clientHeight;
+
+    if (scrollHeight <= 0) {
+      setReadingProgress(0);
+      return;
+    }
+
+    setReadingProgress(
+      Math.min(
+        100,
+        (scrollTop / scrollHeight) * 100
+      )
+    );
+  };
+
+  window.addEventListener(
+    "scroll",
+    updateReadingProgress
+  );
+
+  updateReadingProgress();
+
+  return () =>
+    window.removeEventListener(
+      "scroll",
+      updateReadingProgress
+    );
+}, []);
     const articleUrl = `${SITE_URL}/blog/${post.slug}`;
 
     const articleImage = post.image.startsWith("http")
@@ -264,6 +305,12 @@ function BlogArticle({
       showBackButton
       onBack={onBack}
     >
+      <div
+  className="blog-reading-progress"
+  style={{
+    width: `${readingProgress}%`,
+  }}
+/>
       <article className="blog-article">
         <nav
           className="blog-breadcrumb"
@@ -340,6 +387,62 @@ function BlogArticle({
             </p>
           );
         })}
+        {relatedPosts.length > 0 && (
+  <section className="blog-related">
+    <h2 className="blog-related-title">
+      Related Articles
+    </h2>
+
+    <div className="blog-grid">
+      {relatedPosts.map((article) => (
+        <article
+          key={article.slug}
+          className="blog-card"
+        >
+          <div className="blog-card-image">
+            <img
+              src={article.image}
+              alt={article.imageAlt}
+              loading="lazy"
+            />
+          </div>
+
+          <div className="blog-card-content">
+            <span className="blog-category">
+              {article.category}
+            </span>
+
+            <h3 className="blog-title">
+              {article.title}
+            </h3>
+
+            <p className="blog-excerpt">
+              {article.excerpt}
+            </p>
+
+            <div className="blog-meta">
+              <span>{article.readTime}</span>
+            </div>
+
+            <button
+              type="button"
+              className="blog-read-btn"
+              onClick={() => {
+                window.location.hash = `/blog/${article.slug}`;
+                window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }}
+            >
+              Read Article
+            </button>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+)}
       </article>
     </BlogLayout>
   );

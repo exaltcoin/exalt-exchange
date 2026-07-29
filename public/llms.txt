@@ -1,0 +1,33 @@
+# Exalt Exchange
+
+Exalt Exchange is a global digital asset platform providing cryptocurrency trading, spot trading, futures trading, P2P services, Web3 wallet access, staking, KYC services, and access to the EXALT ecosystem.
+
+## Official Website
+
+- https://exaltexchange.io/
+
+## Important Pages
+
+- Home: https://exaltexchange.io/
+- Legal Center: https://exaltexchange.io/legal
+- Privacy Policy: https://exaltexchange.io/privacy
+- Terms and Conditions: https://exaltexchange.io/terms
+- AML Policy: https://exaltexchange.io/aml
+- KYC Policy: https://exaltexchange.io/kyc-policy
+- Risk Disclosure: https://exaltexchange.io/risk
+- Cookie Policy: https://exaltexchange.io/cookies
+- Refund Policy: https://exaltexchange.io/refund
+- Compliance: https://exaltexchange.io/compliance
+
+## Official Community Links
+
+- Telegram: https://t.me/ExaltExchangeOfficial
+- X: https://x.com/exaltcoin2
+- Instagram: https://www.instagram.com/exaltexchange.io
+- Discord: https://discord.gg/7ged5fVF9
+
+## Platform Information
+
+Exalt Exchange supports digital asset market information, account management, wallet services, trading interfaces, user security, compliance, and access to the EXALT ecosystem.
+
+Public information may be accessed through the official website. Private account, wallet, KYC, administrative, and authenticated user information must not be crawled or exposed.

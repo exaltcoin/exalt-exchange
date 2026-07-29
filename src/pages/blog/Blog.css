@@ -433,3 +433,28 @@
 [dir="rtl"] .blog-breadcrumb {
   flex-direction: row-reverse;
 }
+.blog-related {
+  margin-top: 70px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.blog-related-title {
+  margin-bottom: 24px;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 800;
+}
+.blog-reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  z-index: 99999;
+  background: linear-gradient(
+    90deg,
+    #f59e0b,
+    #fbbf24
+  );
+  transition: width 0.15s linear;
+}

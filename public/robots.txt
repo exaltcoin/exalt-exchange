@@ -11,5 +11,12 @@ Disallow: /super-admin
 Disallow: /moderator-panel
 Disallow: /verify-email/
 Disallow: /reset-password/
-
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /transactions
+Disallow: /orders
+Disallow: /wallets
+Disallow: /profile
+Disallow: /support
 Sitemap: https://exaltexchange.io/sitemap.xml
