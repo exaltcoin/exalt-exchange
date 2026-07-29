@@ -1,3 +1,9 @@
+import platformOverview from "../../assets/blog/platform-overview.jpg";
+import spotTrading from "../../assets/blog/spot-trading.jpg";
+import p2pSecurity from "../../assets/blog/p2p-security.jpg";
+import web3Wallet from "../../assets/blog/web3-wallet.jpg";
+import futuresRisk from "../../assets/blog/futures-risk.jpg";
+import exaltCoin from "../../assets/blog/exalt-coin.jpg";
 export const BLOG_CATEGORIES = [
   "All",
   "Exchange Updates",
@@ -24,7 +30,7 @@ export const blogPosts = [
     updatedAt: "2026-07-29",
     readTime: "6 min read",
     featured: true,
-    image: "/exalt-exchange-logo.png",
+   image: platformOverview,
     imageAlt: "Exalt Exchange digital asset platform",
     seoTitle:
       "Exalt Exchange Platform Overview | Trading, Wallet & P2P",
@@ -91,7 +97,7 @@ export const blogPosts = [
     updatedAt: "2026-07-29",
     readTime: "5 min read",
     featured: false,
-    image: "/exalt-exchange-logo.png",
+   image: spotTrading,
     imageAlt: "Cryptocurrency spot trading guide",
     seoTitle: "What Is Crypto Spot Trading? | Exalt Exchange Guide",
     seoDescription:
@@ -149,7 +155,7 @@ export const blogPosts = [
     updatedAt: "2026-07-29",
     readTime: "6 min read",
     featured: false,
-    image: "/exalt-exchange-logo.png",
+   image: p2pSecurity,
     imageAlt: "Cryptocurrency peer-to-peer trading guide",
     seoTitle: "Cryptocurrency P2P Trading Guide | Exalt Exchange",
     seoDescription:
@@ -207,7 +213,7 @@ export const blogPosts = [
     updatedAt: "2026-07-29",
     readTime: "7 min read",
     featured: false,
-    image: "/exalt-exchange-logo.png",
+   image: web3Wallet,
     imageAlt: "Web3 wallet security guide",
     seoTitle: "How to Protect Your Web3 Wallet | Security Guide",
     seoDescription:
@@ -265,7 +271,7 @@ export const blogPosts = [
     updatedAt: "2026-07-29",
     readTime: "7 min read",
     featured: false,
-    image: "/exalt-exchange-logo.png",
+   image: futuresRisk,
     imageAlt: "Cryptocurrency futures trading risk guide",
     seoTitle: "Crypto Futures Trading Risks | Exalt Exchange Guide",
     seoDescription:
@@ -323,7 +329,7 @@ export const blogPosts = [
     updatedAt: "2026-07-29",
     readTime: "5 min read",
     featured: false,
-    image: "/exalt-exchange-logo.png",
+   image: exaltCoin,
     imageAlt: "Exalt Coin ecosystem guide",
     seoTitle: "What Is Exalt Coin? | EXALT Ecosystem Guide",
     seoDescription:
