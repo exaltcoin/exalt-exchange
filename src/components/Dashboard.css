@@ -5,16 +5,28 @@
 ========================================================= */
 
 :root {
+  /* Phase 4/5 design-system consolidation, see MASTER-AUDIT.md section
+     5.3 and 5.12. This file used to hardcode its own copies of colors
+     that exactly match the canonical tokens in styles/ExaltTheme.css,
+     which loads globally in main.jsx before this file's lazy-loaded
+     component ever paints. Rederiving the matching ones here removes
+     the duplicate token system for the values that were already
+     identical, with zero visual change since the resolved colors are
+     unchanged. The remaining dash prefixed tokens above and below are
+     left as their own values since they do not have an exact canonical
+     match, so unifying them would be a real unverified color decision,
+     not a mechanical dedup, and is deliberately out of scope for this
+     pass. */
   --dash-bg: #0b0f1a;
   --dash-panel: #151b2b;
   --dash-panel-2: #101624;
   --dash-border: rgba(255, 255, 255, 0.08);
-  --dash-text: #ffffff;
+  --dash-text: var(--ex-text, #ffffff);
   --dash-muted: #9ca3af;
-  --dash-yellow: #f0b90b;
-  --dash-green: #22c55e;
+  --dash-yellow: var(--ex-gold, #f0b90b);
+  --dash-green: var(--ex-green, #22c55e);
   --dash-blue: #3b82f6;
-  --dash-red: #ef4444;
+  --dash-red: var(--ex-red, #ef4444);
 }
 
 .dashboard-page,
@@ -246,6 +258,25 @@
   overflow-wrap: anywhere;
 }
 
+.stat-card-web3-note {
+  margin-top: 10px;
+  color: #6b7280;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.stat-card-web3-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #f0b90b;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .glow-yellow {
   box-shadow: 0 0 25px rgba(240, 185, 11, 0.12);
 }
@@ -288,11 +319,36 @@
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
 }
 
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .panel-header h2 {
   margin: 0 0 16px;
   color: #fff;
   font-size: 20px;
   overflow-wrap: anywhere;
+}
+
+.panel-header-link {
+  margin: 0 0 16px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--dash-border);
+  border-radius: 999px;
+  color: var(--dash-yellow, #f0b90b);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.panel-header-link:hover {
+  border-color: var(--dash-yellow, #f0b90b);
 }
 
 .coin-row {
@@ -603,16 +659,52 @@
     overflow-wrap: anywhere;
   }
 
-  .mobile-balance-card button {
-    width: auto;
+  .mobile-balance-available {
+    margin: 0 0 14px !important;
+    color: #22c55e !important;
+    font-size: 13px !important;
+  }
+
+  .mobile-balance-web3-note {
+    margin: -6px 0 14px !important;
+    color: #7c8496 !important;
+    font-size: 11px !important;
+  }
+
+  .mobile-balance-web3-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #f0b90b;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .mobile-balance-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .mobile-balance-actions button {
+    width: 100%;
+    min-width: 0;
     margin: 0;
-    padding: 11px 16px;
+    padding: 10px 6px;
     border: none;
     border-radius: 12px;
     background: var(--dash-yellow);
     color: #111;
-    font-weight: 900;
+    font-weight: 800;
+    font-size: 12px;
     cursor: pointer;
+  }
+
+  .mobile-balance-actions button:nth-child(2) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
   }
 
   .mobile-action-grid {
@@ -750,7 +842,7 @@
     width: 100%;
     max-width: none;
     display: grid !important;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     padding:
       8px 6px
       calc(8px + env(safe-area-inset-bottom));
@@ -875,7 +967,7 @@ html[dir="rtl"] .reward-stat-card::after {
   .stat-card,
   .mobile-action-grid button,
   .mobile-feature-card,
-  .mobile-balance-card button,
+  .mobile-balance-actions button,
   .exchange-welcome-logo,
   .exchange-welcome-overlay {
     animation: none !important;

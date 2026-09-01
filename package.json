@@ -7,6 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "test:navigation": "node --test tests/navigationParity.test.mjs",
+    "test:security": "node --test tests/web3Security.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

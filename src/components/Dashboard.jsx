@@ -1,31 +1,37 @@
 import { useCallback, useEffect, useState } from "react";
-import { ethers } from "ethers";
 
 import exchangeLogo from "../assets/exalt-exchange-logo.png";
 import { useI18n } from "../i18n/index.js";
 import { getLatestBlogPosts } from "../pages/blog/blogData.js";
 import LanguageSwitcher from "./LanguageSwitcher";
 import "./Dashboard.css";
+import { API_ORIGIN } from "../lib/apiClient";
 
-const DEFAULT_API_BASE =
-  "https://exalt-real-backend-6b6v.onrender.com";
+const TRUSTED_MESSAGE_STATUSES = new Set([
+  400, 401, 403, 404, 409, 422, 423, 429, 503,
+]);
+const INFRA_NOT_FOUND_PATTERN = /^Route not found\s*-/i;
+
+const describeRequestError = (error, fallback, context = "Request") => {
+  console.error(`[${context}]`, error);
+  const status = error && typeof error === "object" ? error.status : undefined;
+  const message =
+    error && typeof error === "object" && typeof error.message === "string"
+      ? error.message
+      : null;
+
+  return typeof status === "number" &&
+    TRUSTED_MESSAGE_STATUSES.has(status) &&
+    message &&
+    !INFRA_NOT_FOUND_PATTERN.test(message)
+    ? message
+    : fallback;
+};
 
 const EXALT_ADDRESS =
   "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
 
-const EXALT_ABI = [
-  "function balanceOf(address owner) view returns (uint256)",
-];
 const LATEST_BLOG_POSTS = getLatestBlogPosts(3);
-const normalizeApiBase = (value) => {
-  const normalizedBase = String(value || DEFAULT_API_BASE)
-    .trim()
-    .replace(/\/+$/, "");
-
-  return normalizedBase.endsWith("/api")
-    ? normalizedBase.slice(0, -4)
-    : normalizedBase;
-};
 
 const readStoredUser = () => {
   try {
@@ -39,13 +45,22 @@ const readStoredUser = () => {
 function Dashboard({ setPage }) {
   const { t } = useI18n();
 
-  const API = normalizeApiBase(
-    import.meta.env.VITE_API_URL
-  );
+  const API = API_ORIGIN;
 
   const [coins, setCoins] = useState([]);
+  // Phase 4/17 fix: this used to default to a hardcoded 0.02456 - a
+  // fabricated EXALT price that passes the `> 0` "do we have a real
+  // price" guard below (coinPriceMap) even before any live fetch
+  // succeeds, and stays in place forever if both price sources
+  // (internal /api/coins market data and the external DexScreener
+  // call) fail, as DexScreener does in this sandbox (no route to
+  // external hosts) and can in production too (rate limits, an
+  // outage). A holder's real EXALT balance would then be valued
+  // using that fake price with nothing to show it wasn't live. null
+  // correctly falls through the existing `> 0` guard as "no price
+  // yet" until a real fetch sets a genuine value.
   const [exaltPrice, setExaltPrice] =
-    useState(0.02456);
+    useState(null);
   const [exaltHoldings, setExaltHoldings] =
     useState(0);
   const [marketCap, setMarketCap] = useState(0);
@@ -65,9 +80,62 @@ function Dashboard({ setPage }) {
     miningRemaining: 0,
   });
 
+  // Batch K: real, account-level dashboard data (directive section 7 -
+  // "total/available balance ... recent transactions, open orders,
+  // security status, referral/rewards summary"). All sourced from the
+  // same authenticated endpoints the dedicated Wallets/Orders/
+  // Transactions/Referral pages already use - nothing here is invented.
+  const [walletBalances, setWalletBalances] = useState({
+    USDT: 0,
+    BNB: 0,
+    EXALT: 0,
+  });
+  const [walletLocked, setWalletLocked] = useState({
+    USDT: 0,
+    BNB: 0,
+    EXALT: 0,
+  });
+  const [bnbPrice, setBnbPrice] = useState(0);
+  const [openOrders, setOpenOrders] = useState([]);
+  const [recentTx, setRecentTx] = useState([]);
+  const [referralSummary, setReferralSummary] =
+    useState(null);
+
   const portfolioValue =
     Number(exaltHoldings || 0) *
     Number(exaltPrice || 0);
+
+  // Only value a held coin if we actually have a real, live price for
+  // it (USDT is definitionally $1). A coin with no matched price is
+  // left out of the total rather than assumed to be worth $0 or
+  // fabricated - consistent with the project's "Unavailable, not fake
+  // values" rule.
+  const coinPriceMap = {
+    USDT: 1,
+    BNB: Number(bnbPrice || 0) > 0 ? Number(bnbPrice) : null,
+    EXALT: Number(exaltPrice || 0) > 0 ? Number(exaltPrice) : null,
+  };
+
+  const valueBalances = (balancesMap) =>
+    Object.entries(balancesMap || {}).reduce(
+      (sum, [coin, amount]) => {
+        const price = coinPriceMap[coin];
+
+        if (!Number.isFinite(price) || price === null) {
+          return sum;
+        }
+
+        return sum + Number(amount || 0) * price;
+      },
+      0
+    );
+
+  const totalBalanceValue = valueBalances(walletBalances);
+  const lockedBalanceValue = valueBalances(walletLocked);
+  const availableBalanceValue = Math.max(
+    0,
+    totalBalanceValue - lockedBalanceValue
+  );
 
   const translateWithFallback = (
     key,
@@ -145,6 +213,20 @@ function Dashboard({ setPage }) {
         setExaltPrice(
           Number(exaltPair.priceUsd) || 0
         );
+      }
+
+      // Batch K: BNB is one of the 3 coins the exchange actually
+      // custodies (SUPPORTED_COINS in walletController.js), so its
+      // live price is needed to value real BNB wallet balances - the
+      // full (unsliced) pairs list is searched since BNB may not be
+      // in the top-6 "trending" slice above.
+      const bnbPair = normalizedPairs.find(
+        (coin) =>
+          coin?.baseToken?.symbol?.toUpperCase() === "BNB"
+      );
+
+      if (bnbPair?.priceUsd) {
+        setBnbPrice(Number(bnbPair.priceUsd) || 0);
       }
     } catch (error) {
       console.error(
@@ -273,65 +355,231 @@ function Dashboard({ setPage }) {
     }
   }, [API]);
 
+  /*
+    Batch F - non-negotiable Web3 architecture fix (see
+    _audit/EXALT-BATCH-F-REPORT.md). This previously read the
+    user's EXALT holdings from whatever wallet happened to be
+    injected into the browser via window.ethereum/ethers.
+    BrowserProvider - reading a private balance from a third-party
+    injected wallet on every dashboard load has no place in a
+    centralized-exchange architecture. EXALT holdings now come from
+    the user's real internal custodial wallet (the same
+    GET /api/wallets/me endpoint the Wallets page itself uses),
+    which is also the number that is actually accurate for what the
+    user can trade/withdraw on this exchange.
+  */
   const loadExaltWalletBalance =
     useCallback(async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setExaltHoldings(0);
+        return;
+      }
+
       try {
-        if (!window.ethereum) {
-          setExaltHoldings(0);
-          return;
-        }
-
-        const provider =
-          new ethers.BrowserProvider(
-            window.ethereum
-          );
-
-        const network = await provider.getNetwork();
-
-        if (Number(network.chainId) !== 56) {
-          setExaltHoldings(0);
-          return;
-        }
-
-        const accounts = await provider.send(
-          "eth_accounts",
-          []
+        const response = await fetch(
+          `${API}/api/wallets/me`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
-        if (!accounts?.length) {
-          setExaltHoldings(0);
-          return;
-        }
+        const data = await response
+          .json()
+          .catch(() => ({}));
 
-        const contract = new ethers.Contract(
-          EXALT_ADDRESS,
-          EXALT_ABI,
-          provider
+        const rawBalance = Number(
+          data?.wallet?.balances?.EXALT || 0
         );
-
-        const rawBalance =
-          await contract.balanceOf(accounts[0]);
-
-        const formattedBalance =
-          ethers.formatUnits(rawBalance, 18);
-
-        const numericBalance =
-          Number(formattedBalance || 0);
 
         setExaltHoldings(
-          Number.isFinite(numericBalance)
-            ? Number(numericBalance.toFixed(2))
+          Number.isFinite(rawBalance)
+            ? Number(rawBalance.toFixed(2))
             : 0
         );
+
+        // Batch K: capture the full multi-coin balance/locked maps
+        // (not just EXALT) so the dashboard can show a real total
+        // account balance across every coin the exchange custodies.
+        if (data?.wallet?.balances) {
+          setWalletBalances({
+            USDT: Number(data.wallet.balances.USDT || 0),
+            BNB: Number(data.wallet.balances.BNB || 0),
+            EXALT: Number(data.wallet.balances.EXALT || 0),
+          });
+        }
+
+        if (data?.wallet?.locked) {
+          setWalletLocked({
+            USDT: Number(data.wallet.locked.USDT || 0),
+            BNB: Number(data.wallet.locked.BNB || 0),
+            EXALT: Number(data.wallet.locked.EXALT || 0),
+          });
+        }
       } catch (error) {
-        console.error(
-          "Dashboard EXALT balance fallback:",
-          error?.message || error
+        // RC2 fix (directive - never let a raw error object reach a
+        // user-facing surface, where it would stringify to the
+        // literal text "[object Object]"): describeRequestError logs
+        // the real error for debugging and returns a safe string.
+        // Nothing here currently displays that string to the user
+        // (this widget just falls back to a zero balance), but this
+        // keeps the derivation safe defense-in-depth, consistent with
+        // every other request-error site in this file.
+        describeRequestError(
+          error,
+          "Unable to load your EXALT balance right now.",
+          "Dashboard EXALT balance"
         );
 
         setExaltHoldings(0);
       }
-    }, []);
+    }, [API]);
+
+  // Batch K: user's own open Spot orders - GET /api/orders/my is the
+  // same authenticated, ownership-scoped endpoint the Orders page can
+  // use; scoped here to open/partial only and capped small since this
+  // is a dashboard summary, not the full Orders page.
+  const loadOpenOrders = useCallback(async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setOpenOrders([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API}/api/orders/my?status=open,partial&limit=5`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response
+        .json()
+        .catch(() => ({}));
+
+      if (!response.ok || !data?.success) {
+        setOpenOrders([]);
+        return;
+      }
+
+      setOpenOrders(
+        Array.isArray(data?.orders) ? data.orders : []
+      );
+    } catch (error) {
+      // RC2 fix - see loadExaltWalletBalance above for the full
+      // rationale: route the caught error through the shared
+      // describeRequestError helper instead of falling back to the
+      // raw `error` object (which stringifies as "[object Object]").
+      describeRequestError(
+        error,
+        "Unable to load your open orders right now.",
+        "Dashboard open orders"
+      );
+
+      setOpenOrders([]);
+    }
+  }, [API]);
+
+  // Batch K: user's own recent transactions (deposits/withdrawals/
+  // trades/etc.) - same GET /api/transactions endpoint the dedicated
+  // Transactions page uses, capped to the 5 most recent for a summary.
+  const loadRecentTransactions = useCallback(async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setRecentTx([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API}/api/transactions?limit=5`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response
+        .json()
+        .catch(() => ({}));
+
+      if (!response.ok || !data?.success) {
+        setRecentTx([]);
+        return;
+      }
+
+      setRecentTx(
+        Array.isArray(data?.transactions)
+          ? data.transactions
+          : []
+      );
+    } catch (error) {
+      // RC2 fix - see loadExaltWalletBalance above for the full
+      // rationale.
+      describeRequestError(
+        error,
+        "Unable to load your recent transactions right now.",
+        "Dashboard transactions"
+      );
+
+      setRecentTx([]);
+    }
+  }, [API]);
+
+  // Batch K: referral summary - same GET /api/referrals/me endpoint
+  // the dedicated Referral page uses.
+  const loadReferralSummary = useCallback(async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setReferralSummary(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API}/api/referrals/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response
+        .json()
+        .catch(() => ({}));
+
+      if (!response.ok || !data?.success) {
+        setReferralSummary(null);
+        return;
+      }
+
+      setReferralSummary(data?.referral || null);
+    } catch (error) {
+      // RC2 fix - see loadExaltWalletBalance above for the full
+      // rationale.
+      describeRequestError(
+        error,
+        "Unable to load your referral summary right now.",
+        "Dashboard referral summary"
+      );
+
+      setReferralSummary(null);
+    }
+  }, [API]);
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
@@ -342,6 +590,9 @@ function Dashboard({ setPage }) {
         loadDexData(),
         loadRewardStats(),
         loadExaltWalletBalance(),
+        loadOpenOrders(),
+        loadRecentTransactions(),
+        loadReferralSummary(),
       ]);
     } finally {
       setLoading(false);
@@ -351,6 +602,9 @@ function Dashboard({ setPage }) {
     loadExaltWalletBalance,
     loadLiveMarkets,
     loadRewardStats,
+    loadOpenOrders,
+    loadRecentTransactions,
+    loadReferralSummary,
   ]);
 
   useEffect(() => {
@@ -409,129 +663,35 @@ function Dashboard({ setPage }) {
   const openBlogHome = () => {
     window.location.href = "/blog";
   };
-  const mobileActions = [
-    ["👤", "profile", "Profile"],
-    ["📊", "markets", "Markets"],
-    ["📈", "trade", "Spot Trading"],
-    ["⚡", "futures", "Futures"],
-    ["💳", "buy", "Buy Crypto"],
-    ["🔁", "p2p", "P2P"],
-    ["🔒", "staking", "Staking"],
-    ["🎓", "learnearn", "Learn & Earn"],
-    [
-      "🤖",
-      "ai-assistant",
-      "AI Trading Assistant",
-    ],
-    [
-      "🔁",
-      "ai-copy-trading",
-      "AI Copy Trading",
-    ],
-    [
-      "📂",
-      "ai-portfolio",
-      "AI Portfolio Manager",
-    ],
-    [
-      "👥",
-      "social-trading",
-      "Social Trading",
-    ],
-    [
-      "🛡️",
-      "ai-risk-manager",
-      "AI Risk Manager",
-    ],
-    [
-      "💰",
-      "ai-profit-calculator",
-      "AI Profit Calculator",
-    ],
-    [
-      "🔎",
-      "ai-market-scanner",
-      "AI Market Scanner",
-    ],
-    ["📰", "ai-news", "AI News"],
-    [
-      "🐋",
-      "ai-whale-tracker",
-      "AI Whale Tracker",
-    ],
-    [
-      "⚡",
-      "ai-arbitrage-scanner",
-      "AI Arbitrage Scanner",
-    ],
-    [
-      "🧮",
-      "ai-grid-trading",
-      "AI Grid Trading",
-    ],
-    [
-      "🚨",
-      "ai-smart-alerts",
-      "AI Smart Alerts",
-    ],
-    ["🚀", "ai-launchpad", "AI Launchpad"],
-    [
-      "🔥",
-      "ai-whale-heatmap",
-      "AI Whale Heatmap",
-    ],
-    [
-      "✅",
-      "ai-trust-score",
-      "AI Trust Score",
-    ],
-    [
-      "🐳",
-      "ai-whale-alerts",
-      "AI Whale Alerts",
-    ],
-    [
-      "🧰",
-      "exalt-utility-center",
-      "Exalt Utility Center",
-    ],
-    [
-      "⭐",
-      "reputation-center",
-      "Community Reputation",
-    ],
-    [
-      "🏆",
-      "achievement-center",
-      "Achievement Center",
-    ],
-    [
-      "🔔",
-      "notification-center",
-      "Notification Center",
-    ],
-    ["💼", "wallets", "Wallets"],
-    ["🌐", "web3wallet", "Web3 Wallet"],
-    ["📦", "orders", "Orders"],
-    ["📝", "kyc-submit", "Submit KYC"],
-    ["📌", "listings", "Submit Listing"],
-    ["🤝", "referral", "Referral"],
-    [
-      "📜",
-      "transactions",
-      "Transaction History",
-    ],
-    ["🎁", "rewards", "Rewards"],
-    ["🎧", "support", "Support"],
-    ["⚙️", "settings", "Settings"],
-  ];
+  // RC2 (directive §5/§6): the dense 35-item `mobileActions` icon
+  // grid that used to be defined here was removed from the render
+  // below - see the comment at its former call site for the full
+  // rationale. Every item it listed remains reachable via the
+  // hamburger sidebar (app.jsx's menuGroups) and/or `bottomNavigation`
+  // just below.
 
+  // Release blocker fix (see MASTER-AUDIT.md "Web3 missing from
+  // mobile navigation"): the desktop sidebar's "Wallet & Web3" group
+  // includes a web3wallet item, but this mobile bottom nav - the only
+  // primary navigation surface on small screens - never did. Added
+  // web3wallet as a 6th item; see Dashboard.css's
+  // .mobile-bottom-nav grid-template-columns for the matching layout
+  // change (5 -> 6 columns).
+  // Phase 5 shell rebuild: aligned to the directive's required primary
+  // priority (Markets, Trade, Assets, Orders, P2P, Security) for this
+  // 6-slot quick-access bar. Web3 and Futures moved out of this
+  // specific quick bar to make room - both remain fully reachable on
+  // mobile via the hamburger sidebar (app.jsx's "web3" and "trade"
+  // menu groups), so the Phase 3 "Web3 missing from mobile
+  // navigation" fix is not being regressed, only moved out of this
+  // one 6-icon shortcut row to match the new priority order.
   const bottomNavigation = [
     ["🏠", "dashboard", "Home"],
     ["📊", "markets", "Markets"],
     ["📈", "trade", "Trade"],
-    ["⚡", "futures", "Futures"],
     ["💼", "wallets", "Assets"],
+    ["📦", "orders", "Orders"],
+    ["🌍", "p2p", "P2P"],
   ];
 
   const storedUser = readStoredUser();
@@ -650,100 +810,120 @@ function Dashboard({ setPage }) {
         <div className="mobile-balance-card">
           <p>
             {translateWithFallback(
-              "portfolioValue",
-              "Portfolio Value"
+              "totalBalance",
+              "Total Balance"
             )}{" "}
-            (USDT)
+            (USD)
           </p>
 
-          <h1>${formatUsd(portfolioValue, 2)}</h1>
+          <h1>${formatUsd(totalBalanceValue, 2)}</h1>
 
-          <button
-            type="button"
-            onClick={() => setPage("buy")}
-          >
+          <p className="mobile-balance-available">
             {translateWithFallback(
-              "buy",
-              "Buy Crypto",
-              "navigation"
+              "availableBalance",
+              "Available"
             )}
-          </button>
-        </div>
+            : ${formatUsd(availableBalanceValue, 2)}
+          </p>
 
-        <div className="mobile-action-grid">
-          {mobileActions.map(
-            ([icon, pageName, fallbackLabel]) => (
-              <button
-                type="button"
-                key={pageName}
-                onClick={() => setPage(pageName)}
-              >
-                <span
-                  className="mobile-action-icon"
-                  aria-hidden="true"
-                >
-                  {icon}
-                </span>
-
-                <span className="mobile-action-label">
-                  {translateWithFallback(
-                    pageName,
-                    fallbackLabel,
-                    "navigation"
-                  )}
-                </span>
-              </button>
-            )
-          )}
-        </div>
-
-        <div className="mobile-feature-row">
-          <button
-            type="button"
-            onClick={() => setPage("p2p")}
-            className="mobile-feature-card"
-          >
-            <span className="icon" aria-hidden="true">
-              🔁
-            </span>
-
-            <h3>P2P</h3>
-
-            <p>
+          <p className="mobile-balance-web3-note">
+            {translateWithFallback(
+              "excludesWeb3Note",
+              "Excludes Web3 wallet assets",
+              "wallets"
+            )}
+            {" — "}
+            <button
+              type="button"
+              className="mobile-balance-web3-link"
+              onClick={() => setPage("web3wallet")}
+            >
               {translateWithFallback(
-                "buySellCrypto",
-                "Buy and Sell Crypto",
-                "p2p"
+                "viewWeb3Wallet",
+                "View Web3 Wallet",
+                "wallets"
               )}
-            </p>
-          </button>
+            </button>
+          </p>
 
-          <button
-            type="button"
-            onClick={() => setPage("wallets")}
-            className="mobile-feature-card"
-          >
-            <span className="icon" aria-hidden="true">
-              💳
-            </span>
-
-            <h3>
+          <div className="mobile-balance-actions">
+            <button
+              type="button"
+              onClick={() => setPage("wallets")}
+            >
               {translateWithFallback(
                 "deposit",
                 "Deposit",
                 "wallets"
               )}
-            </h3>
+            </button>
 
-            <p>
+            <button
+              type="button"
+              onClick={() => setPage("wallets")}
+            >
               {translateWithFallback(
-                "bankTransferCrypto",
-                "Bank Transfer / Crypto",
+                "withdraw",
+                "Withdraw",
                 "wallets"
               )}
-            </p>
-          </button>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPage("buy")}
+            >
+              {translateWithFallback(
+                "buy",
+                "Buy Crypto",
+                "navigation"
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPage("trade")}
+            >
+              {translateWithFallback(
+                "trade",
+                "Spot Trading",
+                "navigation"
+              )}
+            </button>
+          </div>
         </div>
+
+        {
+          /*
+             RC2 fix (directive §5/§6 - "Do NOT solve mobile navigation
+             by placing dozens of modules into one giant grid" /
+             "Dashboard should prioritize financial/trading information
+             instead of looking like an application launcher"): this
+             used to render a 35-button icon grid (every AI tool,
+             community feature, secondary module - `mobileActions`
+             below) directly in the main scroll flow, immediately
+             after the balance card and before any real portfolio/
+             market content - exactly the "app launcher" pattern real
+             manual mobile testing flagged. A redundant 2-card
+             "feature row" (P2P, Deposit) duplicating both the balance
+             card's own quick actions and the bottom nav sat right
+             after it.
+
+             Removed both. Every single item that was in that grid
+             remains fully reachable on mobile through two other
+             surfaces that already existed and were already correct:
+             the hamburger sidebar (app.jsx's `menuGroups` - verified
+             by cross-checking every `mobileActions` entry against it,
+             all 35 present) and the curated 6-item `bottomNavigation`
+             bar below (Home/Markets/Trade/Assets/Orders/P2P, matching
+             the directive's required mobile priority order exactly).
+             Nothing became unreachable; the dashboard now goes
+             straight from the balance card into real financial
+             content (Trending Coins), matching the required hierarchy
+             (portfolio overview -> assets/market info -> recent
+             activity -> quick actions via the bottom nav + sidebar).
+          */
+        }
 
         <section className="mobile-trending-section">
           <h3>
@@ -959,21 +1139,40 @@ function Dashboard({ setPage }) {
             <div className="stat-card glow-yellow">
               <h3>
                 {translateWithFallback(
-                  "portfolioValue",
-                  "Portfolio Value"
+                  "totalBalance",
+                  "Total Balance"
                 )}
               </h3>
 
-              <h1>${formatUsd(portfolioValue, 2)}</h1>
+              <h1>${formatUsd(totalBalanceValue, 2)}</h1>
 
               <span className="green-text">
                 {translateWithFallback(
-                  "exaltPrice",
-                  "EXALT Price"
+                  "availableBalance",
+                  "Available"
                 )}
-                : $
-                {Number(exaltPrice || 0).toFixed(8)}
+                : ${formatUsd(availableBalanceValue, 2)}
               </span>
+
+              <div className="stat-card-web3-note">
+                {translateWithFallback(
+                  "excludesWeb3Note",
+                  "Excludes Web3 wallet assets",
+                  "wallets"
+                )}
+                {" — "}
+                <button
+                  type="button"
+                  className="stat-card-web3-link"
+                  onClick={() => setPage("web3wallet")}
+                >
+                  {translateWithFallback(
+                    "viewWeb3Wallet",
+                    "View Web3 Wallet",
+                    "wallets"
+                  )}
+                </button>
+              </div>
             </div>
 
             <div className="stat-card glow-blue">
@@ -996,6 +1195,8 @@ function Dashboard({ setPage }) {
                   "liveWalletBalance",
                   "Live Wallet Balance"
                 )}
+                {" · $"}
+                {formatUsd(portfolioValue, 2)}
               </span>
             </div>
 
@@ -1205,20 +1406,50 @@ function Dashboard({ setPage }) {
                 </h2>
               </div>
 
+              {/*
+                Batch F fix: this button previously sent users off
+                to an external PancakeSwap DEX link to buy EXALT -
+                EXALT bought there sits in an external wallet, not
+                the user's EXALT Exchange custodial balance, which
+                is confusing at best and undermines the centralized-
+                exchange architecture at worst. It now opens the
+                real internal Spot trading page instead, the same
+                canonical buy/sell path used everywhere else in the
+                app.
+              */}
               <button
                 type="button"
-                onClick={() =>
-                  window.open(
-                    `https://pancakeswap.finance/swap?outputCurrency=${EXALT_ADDRESS}`,
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
-                }
+                onClick={() => setPage("wallets")}
                 className="action-btn yellow-btn"
               >
                 {translateWithFallback(
-                  "buyExalt",
-                  "Buy EXALT"
+                  "deposit",
+                  "Deposit",
+                  "wallets"
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPage("wallets")}
+                className="action-btn"
+              >
+                {translateWithFallback(
+                  "withdraw",
+                  "Withdraw",
+                  "wallets"
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPage("buy")}
+                className="action-btn"
+              >
+                {translateWithFallback(
+                  "buy",
+                  "Buy Crypto",
+                  "navigation"
                 )}
               </button>
 
@@ -1257,6 +1488,331 @@ function Dashboard({ setPage }) {
               </button>
             </section>
           </div>
+
+          {/*
+            Batch K: real account-activity panels (directive section 7 -
+            "recent transactions, open orders, security status,
+            referral/rewards summary"). Every value below comes from the
+            same authenticated endpoints the dedicated Orders/
+            Transactions/Referral/Settings pages already use; nothing is
+            invented, and each panel shows an honest empty state instead
+            of a fabricated one when there is nothing to show.
+          */}
+          <div className="dashboard-row">
+            <section className="big-panel">
+              <div className="panel-header">
+                <h2>
+                  {translateWithFallback(
+                    "openOrders",
+                    "Open Orders",
+                    "trading"
+                  )}
+                </h2>
+
+                <button
+                  type="button"
+                  className="panel-header-link"
+                  onClick={() => setPage("orders")}
+                >
+                  {translateWithFallback(
+                    "viewAll",
+                    "View All",
+                    "common"
+                  )}
+                </button>
+              </div>
+
+              {openOrders.length > 0 ? (
+                openOrders.map((order) => (
+                  <div
+                    className="coin-row"
+                    key={order?._id || order?.id}
+                  >
+                    <span>
+                      {order?.pair || "—"}
+                      {" · "}
+                      <span
+                        className={
+                          order?.side === "sell"
+                            ? "red-text"
+                            : "green-text"
+                        }
+                      >
+                        {String(
+                          order?.side || ""
+                        ).toUpperCase()}
+                      </span>
+                    </span>
+
+                    <span>
+                      {Number(
+                        order?.remaining ??
+                          order?.amount ??
+                          0
+                      )}{" "}
+                      @ $
+                      {Number(
+                        order?.price || 0
+                      )}
+                    </span>
+
+                    <span>
+                      {String(
+                        order?.status || ""
+                      ).toUpperCase()}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="dashboard-empty-state">
+                  {translateWithFallback(
+                    "noOpenOrders",
+                    "No open orders.",
+                    "trading"
+                  )}
+                </p>
+              )}
+            </section>
+
+            <section className="big-panel">
+              <div className="panel-header">
+                <h2>
+                  {translateWithFallback(
+                    "recentTransactions",
+                    "Recent Transactions"
+                  )}
+                </h2>
+
+                <button
+                  type="button"
+                  className="panel-header-link"
+                  onClick={() => setPage("transactions")}
+                >
+                  {translateWithFallback(
+                    "viewAll",
+                    "View All",
+                    "common"
+                  )}
+                </button>
+              </div>
+
+              {recentTx.length > 0 ? (
+                recentTx.map((tx) => (
+                  <div
+                    className="coin-row"
+                    key={tx?._id || tx?.id}
+                  >
+                    <span>
+                      {String(
+                        tx?.type || ""
+                      ).toUpperCase()}{" "}
+                      {tx?.coin || ""}
+                    </span>
+
+                    <span>
+                      {Number(tx?.amount || 0)}
+                    </span>
+
+                    <span
+                      className={
+                        [
+                          "completed",
+                          "confirmed",
+                          "success",
+                          "filled",
+                        ].includes(
+                          String(
+                            tx?.status || ""
+                          ).toLowerCase()
+                        )
+                          ? "green-text"
+                          : [
+                                "failed",
+                                "cancelled",
+                                "rejected",
+                              ].includes(
+                                String(
+                                  tx?.status || ""
+                                ).toLowerCase()
+                              )
+                            ? "red-text"
+                            : ""
+                      }
+                    >
+                      {String(
+                        tx?.status || ""
+                      ).toUpperCase()}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="dashboard-empty-state">
+                  {translateWithFallback(
+                    "noTransactionsYet",
+                    "No transactions yet.",
+                    "web3"
+                  )}
+                </p>
+              )}
+            </section>
+          </div>
+
+          <div className="dashboard-row">
+            <section className="big-panel">
+              <div className="panel-header">
+                <h2>
+                  {translateWithFallback(
+                    "securityStatus",
+                    "Security Status",
+                    "profile"
+                  )}
+                </h2>
+
+                <button
+                  type="button"
+                  className="panel-header-link"
+                  onClick={() => setPage("settings")}
+                >
+                  {translateWithFallback(
+                    "manage",
+                    "Manage",
+                    "common"
+                  )}
+                </button>
+              </div>
+
+              <div className="coin-row">
+                <span>
+                  {translateWithFallback(
+                    "emailVerification",
+                    "Email Verification",
+                    "profile"
+                  )}
+                </span>
+
+                <span
+                  className={
+                    storedUser?.isEmailVerified
+                      ? "green-text"
+                      : "red-text"
+                  }
+                >
+                  {storedUser?.isEmailVerified
+                    ? translateWithFallback(
+                        "verified",
+                        "Verified",
+                        "profile"
+                      )
+                    : translateWithFallback(
+                        "notVerified",
+                        "Not Verified",
+                        "profile"
+                      )}
+                </span>
+              </div>
+
+              <div className="coin-row">
+                <span>
+                  {translateWithFallback(
+                    "twoFactorAuth",
+                    "Two-Factor Authentication",
+                    "profile"
+                  )}
+                </span>
+
+                <span
+                  className={
+                    storedUser?.twoFactorEnabled
+                      ? "green-text"
+                      : "red-text"
+                  }
+                >
+                  {storedUser?.twoFactorEnabled
+                    ? translateWithFallback(
+                        "enabled",
+                        "Enabled",
+                        "profile"
+                      )
+                    : translateWithFallback(
+                        "disabled",
+                        "Disabled",
+                        "profile"
+                      )}
+                </span>
+              </div>
+            </section>
+
+            <section className="big-panel">
+              <div className="panel-header">
+                <h2>
+                  {translateWithFallback(
+                    "referralRewardsSummary",
+                    "Referral & Rewards"
+                  )}
+                </h2>
+
+                <button
+                  type="button"
+                  className="panel-header-link"
+                  onClick={() => setPage("referral")}
+                >
+                  {translateWithFallback(
+                    "viewAll",
+                    "View All",
+                    "common"
+                  )}
+                </button>
+              </div>
+
+              {referralSummary ? (
+                <>
+                  <div className="coin-row">
+                    <span>
+                      {translateWithFallback(
+                        "referralCount",
+                        "Referrals",
+                        "dashboard"
+                      )}
+                    </span>
+
+                    <span>
+                      {Number(
+                        referralSummary.referralCount ||
+                          0
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="coin-row">
+                    <span>
+                      {translateWithFallback(
+                        "approvedReferralRewards",
+                        "Approved Rewards",
+                        "dashboard"
+                      )}
+                    </span>
+
+                    <span className="green-text">
+                      {Number(
+                        referralSummary.approvedReferralRewards ||
+                          0
+                      ).toLocaleString()}{" "}
+                      EXALT
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="dashboard-empty-state">
+                  {translateWithFallback(
+                    "loading",
+                    "Loading...",
+                    "common"
+                  )}
+                </p>
+              )}
+            </section>
+          </div>
+
                     <section className="dashboard-blog-section desktop-dashboard-blog">
             <div className="dashboard-blog-header">
               <div>

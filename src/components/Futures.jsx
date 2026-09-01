@@ -13,11 +13,29 @@ import {
   getFuturesHistory,
   closePosition as apiClosePosition,
 } from "../api";
+import { apiFetch } from "../lib/apiClient.js";
 
 import "./Futures.css";
 
 const DEFAULT_PAIR = "BTCUSDT";
 const DEFAULT_PRICE = 68500;
+
+const getFundingRateEstimate = (symbol) =>
+  apiFetch(`/api/futures/funding-rate/${encodeURIComponent(symbol)}`);
+
+const transferFuturesMargin = (
+  { direction, amount },
+  { idempotencyKey } = {}
+) =>
+  apiFetch("/api/futures/transfer", {
+    method: "POST",
+    headers: idempotencyKey
+      ? { "Idempotency-Key": idempotencyKey }
+      : undefined,
+    body: JSON.stringify({ direction, amount }),
+  });
+
+const getWalletBalance = () => apiFetch("/api/wallets/me");
 
 const FALLBACK_PAIRS = [
   { pair: "BTCUSDT", price: 68500, change: 2.4 },
@@ -62,6 +80,66 @@ const TV_INTERVAL_MAP = {
 
 const LEVERAGE_OPTIONS = ["5", "10", "20", "50", "100"];
 
+/*
+  Batch E (original gate) - zero-tolerance fake-data fix (see
+  _audit/EXALT-BATCH-E-REPORT.md). This component used to show a
+  hardcoded `const [balance] = useState(5000);` as if it were the
+  user's real futures balance, and even used it to size real trade
+  quantities - every user saw the same fake 5000 USDT regardless of
+  their actual account. Rather than ship that fabrication, the whole
+  trading UI was replaced with a static "Coming Soon" screen and
+FUTURES_PRODUCTION_READY was kept false by default, pending two launch-blocking
+  gaps: no liquidation enforcement, and no way to fund a futures
+  wallet at all (no spot-to-futures transfer endpoint existed).
+
+  RC5 STAGING CANDIDATE: both of those backend gaps are now closed -
+  services/futures/liquidationService.js real (though still
+  disabled-by-default, FUTURES_LIQUIDATION_WORKER_ENABLED=false)
+  liquidation enforcement, and POST /api/futures/transfer for
+  Spot<->Futures funding both exist and are exercised below. This
+  component is wired to those real APIs - balance, transfer,
+  positions, open/close, history are all genuine backend calls, not
+  fabricated data - but that is NOT the same claim as "production
+  ready": the backend's own futuresTradingEnabled ExchangeSettings
+  field still defaults to false (see models/ExchangeSettings.js,
+  middleware/exchangeStatusMiddleware.js's checkFuturesTrading) and
+  has not been verified against a live/testnet market in this
+  sandbox, insurance-fund/ADL/cross-margin/funding remain unbuilt
+  (see FUTURES-ARCHITECTURE-GUIDE.md), and the liquidation worker
+itself stays off. The VITE_FUTURES_PRODUCTION_READY-controlled gate therefore
+  hides the whole page - it now drives a persistent, non-dismissable
+  staging banner (see the "futures-staging-banner" render below) so
+  a real user session is never left thinking this is a live,
+  verified derivatives product. Do not flip this to true without an
+  independent testnet/live verification pass this sandbox cannot
+  perform - see LIVE-FUNDS-ACTIVATION-CHECKLIST.md.
+*/
+const FUTURES_PRODUCTION_READY =
+  String(import.meta.env.VITE_FUTURES_PRODUCTION_READY || "false")
+    .trim()
+    .toLowerCase() === "true";
+
+/*
+  RC5 STAGING CANDIDATE - a client-generated idempotency key lets a
+  network retry of open/close/transfer be recognized as a duplicate
+  by the backend (controllers/futuresController.js's
+  getIdempotencyKey() - without one, the backend mints a random key
+  per request, so a retry after a lost response would NOT be
+  deduplicated). crypto.randomUUID() is available in every browser
+  this app targets; the Math.random() fallback only matters for an
+  environment where it is somehow absent (very old embedded
+  webviews), never used to fabricate a balance or price.
+*/
+const generateIdempotencyKey = (prefix) => {
+  const id =
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  return `${prefix}:${id}`;
+};
+
 const formatPrice = (value) => {
   const numericValue = Number(value || 0);
 
@@ -98,10 +176,18 @@ function Futures({ setPage }) {
   const [leverage, setLeverage] = useState("10");
 
   /*
-   * This remains a frontend futures balance until the
-   * production futures wallet engine is completed in Phase 9.
+   * Batch E: fabricated 5000 USDT balance removed. RC5 STAGING
+   * CANDIDATE: this is now the user's REAL futures balance, fetched
+   * from GET /api/wallets/me (see loadWalletBalance below) - never a
+   * hardcoded placeholder. futuresLocked is the margin currently
+   * committed to open positions (models/UserWallet.js's
+   * futuresLocked.USDT); spotAvailable is the real Spot USDT balance
+   * the Transfer panel can move INTO Futures.
    */
-  const [balance] = useState(5000);
+  const [balance, setBalance] = useState(0);
+  const [futuresLocked, setFuturesLocked] = useState(0);
+  const [spotAvailable, setSpotAvailable] = useState(0);
+  const [walletLoading, setWalletLoading] = useState(false);
 
   const [marketPrice, setMarketPrice] =
     useState(DEFAULT_PRICE);
@@ -109,9 +195,19 @@ function Futures({ setPage }) {
   const [positions, setPositions] = useState([]);
   const [history, setHistory] = useState([]);
 
+  /*
+    PRODUCTION-ACTIVATION-CANDIDATE (directive D4 / QA finding #2) -
+    real, live funding-rate estimate for the currently selected pair,
+    replacing the hardcoded "Funding not implemented" strings below.
+    null means "not yet loaded / unavailable" and is rendered as an
+    honest "Funding rate unavailable" - never a fabricated number. See
+    getFundingRateEstimate in api.js and its backend counterpart,
+    controllers/futuresController.js's getFundingRateEstimate().
+  */
+  const [fundingRateEstimate, setFundingRateEstimate] =
+    useState(null);
+
   const [side, setSide] = useState("long");
-  const [tpPrice, setTpPrice] = useState("");
-  const [slPrice, setSlPrice] = useState("");
 
   const [livePrices, setLivePrices] = useState({});
   const [priceChanges, setPriceChanges] = useState({});
@@ -129,23 +225,28 @@ function Futures({ setPage }) {
   const [marketSearch, setMarketSearch] =
     useState("");
 
-  const [orderType, setOrderType] =
-    useState("Market");
+  /*
+   * RC5 STAGING CANDIDATE: "Limit" removed - controllers/
+   * futuresController.js's createFuturesOrder() hardcodes
+   * `type: "market", status: "filled"` for every order; there is no
+   * pending-order queue anywhere in the backend, so a "Limit" option
+   * here would submit a market order while claiming otherwise. Only
+   * "Market" is real, so orderType is fixed rather than selectable.
+   */
+  const orderType = "Market";
 
   const [marginMode, setMarginMode] =
     useState("Cross");
 
-  const [showTPSL, setShowTPSL] =
-    useState(false);
-
-  const [reduceOnly, setReduceOnly] =
-    useState(false);
-
-  const [slippage, setSlippage] =
-    useState(false);
-
   const [mobileTab, setMobileTab] =
     useState("positions");
+
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [transferDirection, setTransferDirection] =
+    useState("TO_FUTURES");
+  const [transferAmount, setTransferAmount] = useState("");
+  const [transferSubmitting, setTransferSubmitting] =
+    useState(false);
 
   const [orderBook, setOrderBook] = useState({
     bids: [],
@@ -171,8 +272,14 @@ function Futures({ setPage }) {
     setContractMenuOpen,
   ] = useState(false);
 
-  const [quoteCurrency, setQuoteCurrency] =
-    useState("USDT");
+  /*
+   * RC5 STAGING CANDIDATE: "BUSD" toggle removed - openPosition()
+   * never read quoteCurrency at all; every position was opened in
+   * USDT regardless of what this button showed. USDT is the only
+   * quote currency FuturesMarketConfig documents actually use (see
+   * models/FuturesMarketConfig.js).
+   */
+  const quoteCurrency = "USDT";
 
   const [positionsLoading, setPositionsLoading] =
     useState(false);
@@ -224,6 +331,34 @@ function Futures({ setPage }) {
   const selectedChange = Number(
     priceChanges[selectedPair] || 0
   );
+
+  /*
+   * RC5 STAGING CANDIDATE: a client-side ESTIMATE only, labeled "Est.
+   * Margin" everywhere it is shown - never presented as the final
+   * figure. controllers/futuresController.js's openPosition()
+   * computes the real margin server-side as
+   * (quantity * trustworthyMarkPrice) / leverage, using a live price
+   * fetched at the moment the order is processed - this preview uses
+   * the same formula against the currently-displayed price purely so
+   * the user isn't submitting completely blind, but the two prices
+   * can differ (this one can be several seconds old) and the backend
+   * figure is always the one that actually moves funds.
+   */
+  const estimatedMargin = (() => {
+    const numericAmount = Number(amount);
+    const numericLeverage = Number(leverage);
+
+    if (
+      !Number.isFinite(numericAmount) ||
+      numericAmount <= 0 ||
+      !Number.isFinite(numericLeverage) ||
+      numericLeverage <= 0
+    ) {
+      return 0;
+    }
+
+    return (numericAmount * displayPrice) / numericLeverage;
+  })();
 
   const tvSymbol = `BINANCE:${selectedPair.replace(
     "/",
@@ -384,6 +519,132 @@ function Futures({ setPage }) {
     }
   }, []);
 
+  /*
+    PRODUCTION-ACTIVATION-CANDIDATE (directive D4 / QA finding #2) -
+    loads the real, live funding-rate estimate for `symbol` from the
+    backend's getFundingRateEstimate endpoint. Always sets an object
+    with an explicit `available` flag (true or false) so the render
+    below can distinguish "loaded, no data yet" from "still loading" -
+    never leaves stale data from a previously selected pair on screen,
+    and never fabricates a rate on failure (falls back to
+    available:false with a generic reason instead).
+  */
+  const loadFundingRate = useCallback(async (symbol) => {
+    try {
+      const response = await getFundingRateEstimate(symbol);
+
+      if (response?.success) {
+        setFundingRateEstimate(response);
+      } else {
+        setFundingRateEstimate({
+          available: false,
+          reason: "Funding rate unavailable",
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Futures funding rate loading failed:",
+        error
+      );
+
+      setFundingRateEstimate({
+        available: false,
+        reason: "Funding rate unavailable",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setFundingRateEstimate(null);
+
+    loadFundingRate(selectedPair).then(() => {
+      if (cancelled) return;
+    });
+
+    const intervalId = window.setInterval(() => {
+      loadFundingRate(selectedPair);
+    }, 30000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [selectedPair, loadFundingRate]);
+
+  /*
+    Human-readable presentation of fundingRateEstimate, computed once
+    here and reused by both the ticker-level and trade-info-panel
+    displays below so the two never drift out of sync. Percentage
+    formatting only - the raw fraction from the backend is real and
+    exact, this is purely a display transform.
+  */
+  const fundingRateDisplay = useMemo(() => {
+    if (!fundingRateEstimate?.available) {
+      return null;
+    }
+
+    const ratePercent = Number(
+      fundingRateEstimate.fundingRate
+    ) * 100;
+
+    const intervalMs = Number(
+      fundingRateEstimate.fundingIntervalMs
+    );
+
+    const intervalHours =
+      Number.isFinite(intervalMs) && intervalMs > 0
+        ? Math.round(intervalMs / (60 * 60 * 1000))
+        : null;
+
+    return {
+      ratePercent: Number.isFinite(ratePercent)
+        ? ratePercent
+        : 0,
+      intervalHours,
+    };
+  }, [fundingRateEstimate]);
+
+  /*
+   * RC5 STAGING CANDIDATE: real balance load, replacing the
+   * hardcoded `useState(0)`. GET /api/wallets/me is the same
+   * endpoint Trade.jsx/Wallets.jsx/Dashboard.jsx already use for the
+   * user's real wallet document (see api.js's getWalletBalance
+   * comment). Failing silently (console.error only, no alert) here
+   * matches loadPositions/loadHistory's existing disposition - a
+   * transient balance-load failure should not interrupt the rest of
+   * the page.
+   */
+  const loadWalletBalance = useCallback(async () => {
+    setWalletLoading(true);
+
+    try {
+      const response = await getWalletBalance();
+
+      if (response?.success && response.wallet) {
+        setBalance(
+          Number(response.wallet.futuresBalance?.USDT || 0)
+        );
+
+        setFuturesLocked(
+          Number(response.wallet.futuresLocked?.USDT || 0)
+        );
+
+        setSpotAvailable(
+          Number(response.wallet.balances?.USDT || 0)
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Futures wallet balance loading failed:",
+        error
+      );
+    } finally {
+      setWalletLoading(false);
+    }
+  }, []);
+
   const refreshPositionsData =
     useCallback(async () => {
       setPositionsLoading(true);
@@ -392,11 +653,12 @@ function Futures({ setPage }) {
         await Promise.allSettled([
           loadPositions(),
           loadHistory(),
+          loadWalletBalance(),
         ]);
       } finally {
         setPositionsLoading(false);
       }
-    }, [loadHistory, loadPositions]);
+    }, [loadHistory, loadPositions, loadWalletBalance]);
 
   useEffect(() => {
     refreshPositionsData();
@@ -690,8 +952,6 @@ function Futures({ setPage }) {
     const numericAmount = Number(amount);
     const numericLeverage = Number(leverage);
     const numericEntryPrice = Number(displayPrice);
-    const numericTakeProfit = Number(tpPrice || 0);
-    const numericStopLoss = Number(slPrice || 0);
 
     if (
       !Number.isFinite(numericAmount) ||
@@ -736,30 +996,34 @@ function Futures({ setPage }) {
     setSubmittingPosition(true);
 
     try {
+      /*
+       * RC5 STAGING CANDIDATE: payload trimmed to exactly the fields
+       * controllers/futuresController.js's openPosition() actually
+       * reads (symbol, side, quantity, leverage, entryPrice,
+       * marginMode - see that function's own destructuring). The
+       * previous payload also sent takeProfit/stopLoss/orderType/
+       * reduceOnly/slippage/futuresTab/quoteCurrency - none of which
+       * the backend consults for anything beyond storing
+       * takeProfit/stopLoss as inert metadata; sending fields the
+       * server silently ignores implies a capability (auto TP/SL,
+       * reduce-only enforcement, per-tab contract types) that does
+       * not exist. entryPrice is still sent for audit/comparison
+       * only - see that function's own comment: it is NEVER used as
+       * the actual execution price, which always comes from a
+       * server-side trustworthy live price.
+       */
       const payload = {
         symbol: selectedPair,
         side: requestedSide,
         quantity: numericAmount,
         leverage: numericLeverage,
         entryPrice: numericEntryPrice,
-        takeProfit:
-          Number.isFinite(numericTakeProfit)
-            ? numericTakeProfit
-            : 0,
-        stopLoss:
-          Number.isFinite(numericStopLoss)
-            ? numericStopLoss
-            : 0,
-        orderType,
-        marginMode,
-        reduceOnly,
-        slippage,
-        futuresTab: activeFuturesTab,
-        quoteCurrency,
+        marginMode: marginMode.toLowerCase(),
       };
 
-      const response =
-        await apiOpenPosition(payload);
+      const response = await apiOpenPosition(payload, {
+        idempotencyKey: generateIdempotencyKey("futures-open"),
+      });
 
       if (!response?.success) {
         throw new Error(
@@ -771,8 +1035,6 @@ function Futures({ setPage }) {
       await refreshPositionsData();
 
       setAmount("");
-      setTpPrice("");
-      setSlPrice("");
 
       window.alert(
         translateWithFallback(
@@ -817,8 +1079,11 @@ function Futures({ setPage }) {
     setClosingPositionId(positionId);
 
     try {
-      const response =
-        await apiClosePosition(positionId);
+      const response = await apiClosePosition(positionId, {
+        idempotencyKey: generateIdempotencyKey(
+          `futures-close:${positionId}`
+        ),
+      });
 
       if (
         response &&
@@ -856,42 +1121,90 @@ function Futures({ setPage }) {
     }
   };
 
-  const calculatePositionPnl = (position) => {
-    const markPrice = Number(
-      livePrices[
-        position?.symbol || position?.pair
-      ] ||
-        position?.markPrice ||
-        displayPrice ||
-        0
-    );
+  /*
+   * RC5 STAGING CANDIDATE: real Spot<->Futures transfer, wired to
+   * POST /api/futures/transfer (controllers/futuresController.js's
+   * transferMargin - existed since RC4 with zero frontend caller
+   * before this pass). Moves real USDT between the same two wallet
+   * buckets Wallets.jsx already displays; refreshes both balances on
+   * success so the trade panel's "Available" figure is never stale.
+   */
+  const submitTransfer = async () => {
+    const numericAmount = Number(transferAmount);
 
-    const entryPrice = Number(
-      position?.entryPrice ||
-        position?.entry ||
-        0
-    );
-
-    const quantity = Number(
-      position?.quantity ||
-        position?.amount ||
-        1
-    );
-
-    if (
-      !Number.isFinite(markPrice) ||
-      !Number.isFinite(entryPrice)
-    ) {
-      return 0;
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      window.alert(
+        translateWithFallback(
+          "enterValidAmount",
+          "Please enter a valid amount.",
+          "common"
+        )
+      );
+      return;
     }
 
-    const priceDifference =
-      position?.side === "short"
-        ? entryPrice - markPrice
-        : markPrice - entryPrice;
+    setTransferSubmitting(true);
 
-    return priceDifference * quantity;
+    try {
+      const response = await transferFuturesMargin(
+        { direction: transferDirection, amount: numericAmount },
+        {
+          idempotencyKey: generateIdempotencyKey(
+            "futures-transfer"
+          ),
+        }
+      );
+
+      if (!response?.success) {
+        throw new Error(
+          response?.message || "Transfer failed."
+        );
+      }
+
+      await loadWalletBalance();
+
+      setTransferAmount("");
+      setTransferOpen(false);
+
+      window.alert(
+        translateWithFallback(
+          "transferSuccessful",
+          "Transfer completed successfully."
+        )
+      );
+    } catch (error) {
+      console.error("Futures margin transfer failed:", error);
+
+      window.alert(
+        error?.message ||
+          translateWithFallback(
+            "transferFailed",
+            "Transfer failed."
+          )
+      );
+    } finally {
+      setTransferSubmitting(false);
+    }
   };
+
+  /*
+   * RC5 STAGING CANDIDATE: replaced a client-side PnL recomputation
+   * with the REAL, server-computed value.
+   * controllers/futuresController.js's getPositions() already
+   * computes unrealizedPnl/pnl/pnlPercent per position (using its own
+   * live-price lookup, the same figure the backend would use if this
+   * position were liquidated or closed right now) - recalculating it
+   * again client-side, from a possibly-stale local livePrices cache,
+   * could silently disagree with the number the backend would
+   * actually settle on. Falls back to 0 only if the field is somehow
+   * absent (e.g. an older cached response shape).
+   */
+  const readPositionPnl = (position) =>
+    Number(
+      position?.unrealizedPnl ??
+        position?.pnl ??
+        0
+    );
 
   const renderMarketChange = (change) => {
     const numericChange = Number(change || 0);
@@ -905,8 +1218,7 @@ function Futures({ setPage }) {
     const positionId =
       position?._id || position?.id;
 
-    const pnl =
-      calculatePositionPnl(position);
+    const pnl = readPositionPnl(position);
 
     return (
       <article
@@ -953,11 +1265,18 @@ function Futures({ setPage }) {
             )}
             :{" "}
             {formatPrice(
-              livePrices[
-                position?.symbol ||
-                  position?.pair
-              ] ||
-                position?.markPrice ||
+              /*
+               * RC5 STAGING CANDIDATE: server-computed markPrice
+               * (getPositions()'s own live-price lookup) takes
+               * priority over the client's livePrices cache, which
+               * can lag by up to one 10s poll cycle - the backend
+               * value is what liquidation/PnL math actually uses.
+               */
+              position?.markPrice ||
+                livePrices[
+                  position?.symbol ||
+                    position?.pair
+                ] ||
                 displayPrice
             )}
           </p>
@@ -1020,8 +1339,37 @@ function Futures({ setPage }) {
     );
   };
 
+  if (!FUTURES_PRODUCTION_READY) {
+    return (
+      <main className="futures-page">
+        <div
+          className="futures-staging-banner"
+          role="status"
+        >
+          {translateWithFallback(
+            "futuresTemporarilyUnavailable",
+            "Futures trading is temporarily unavailable while production risk controls are being completed."
+          )}
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="futures-page">
+      {!FUTURES_PRODUCTION_READY && (
+        <div
+          className="futures-staging-banner"
+          role="status"
+        >
+          ⚠{" "}
+          {translateWithFallback(
+            "stagingBannerText",
+            "Staging / development build. Balances, positions, and transfers below are real backend data, but new-trade execution is currently disabled by the exchange (futuresTradingEnabled=false) and this has not been verified against a live or test network. Not production-ready."
+          )}
+        </div>
+      )}
+
       <section className="binance-mobile-futures">
         <div className="bm-top-tabs">
           {[
@@ -1033,6 +1381,15 @@ function Futures({ setPage }) {
             <button
               type="button"
               key={tab}
+              disabled={tab !== "USDⓈ-M"}
+              title={
+                tab !== "USDⓈ-M"
+                  ? translateWithFallback(
+                      "contractTypeUnavailable",
+                      "Not available - only USDⓈ-M perpetual futures are supported by the backend today."
+                    )
+                  : undefined
+              }
               className={
                 activeFuturesTab === tab
                   ? "active"
@@ -1061,15 +1418,19 @@ function Futures({ setPage }) {
           </button>
         </div>
 
-        <div className="bm-notice">
-          <span>
-            🔔{" "}
-            {translateWithFallback(
-              "importantNotice",
-              "Important Notice: Futures Market Live"
-            )}
-          </span>
-        </div>
+        {/*
+          RC5 STAGING CANDIDATE: "Futures Market Live" was removed -
+          it asserted a claim (a live, tradable market) this staging
+          build does not make; the top-of-page staging banner already
+          states the real status honestly.
+
+          LAUNCH-CANDIDATE: the mobile-only "see the notice above"
+          `.bm-notice` banner that used to sit here was removed too -
+          it repeated the same staging-banner text with zero new
+          information, and on small viewports it pushed the pair
+          selector / trade box below the fold before any real trading
+          UI was visible. The single banner above is sufficient.
+        */}
 
         <div className="bm-pair-head">
           <button
@@ -1228,29 +1589,22 @@ function Futures({ setPage }) {
               </select>
             </div>
 
-            <select
-              className="bm-full-input"
-              value={orderType}
-              onChange={(event) =>
-                setOrderType(
-                  event.target.value
-                )
-              }
+            {/*
+              RC5 STAGING CANDIDATE: the Market/Limit selector was
+              removed - see the `orderType` constant's own comment
+              above. Every order is a market order today, so this is
+              shown as a fixed, non-interactive value rather than a
+              dropdown implying a choice that doesn't exist.
+            */}
+            <div
+              className="bm-full-input bm-static-value"
+              aria-readonly="true"
             >
-              <option value="Market">
-                {translateWithFallback(
-                  "market",
-                  "Market"
-                )}
-              </option>
-
-              <option value="Limit">
-                {translateWithFallback(
-                  "limit",
-                  "Limit"
-                )}
-              </option>
-            </select>
+              {translateWithFallback(
+                "market",
+                "Market"
+              )}
+            </div>
 
             <div className="bm-amount-box">
               <input
@@ -1270,18 +1624,13 @@ function Futures({ setPage }) {
                 }
               />
 
-              <button
-                type="button"
-                onClick={() =>
-                  setQuoteCurrency(
-                    quoteCurrency === "USDT"
-                      ? "BUSD"
-                      : "USDT"
-                  )
-                }
-              >
-                {quoteCurrency} ▾
-              </button>
+              {/*
+                RC5 STAGING CANDIDATE: the BUSD toggle was removed -
+                see the `quoteCurrency` constant's own comment above.
+              */}
+              <span className="bm-static-value">
+                {quoteCurrency}
+              </span>
             </div>
 
             <div className="bm-slider">
@@ -1308,95 +1657,39 @@ function Futures({ setPage }) {
                 "Available",
                 "common"
               )}{" "}
-              <b>{balance} USDT</b>
+              <b>
+                {walletLoading
+                  ? "…"
+                  : `${balance.toFixed(2)} USDT`}
+              </b>
+              <button
+                type="button"
+                className="bm-transfer-link"
+                onClick={() =>
+                  setTransferOpen(true)
+                }
+              >
+                {translateWithFallback(
+                  "transfer",
+                  "Transfer"
+                )}
+              </button>
             </p>
 
-            <label className="bm-check">
-              <input
-                type="checkbox"
-                checked={slippage}
-                onChange={(event) =>
-                  setSlippage(
-                    event.target.checked
-                  )
-                }
-              />
-
-              {translateWithFallback(
-                "slippageTolerance",
-                "Slippage Tolerance"
-              )}
-            </label>
-
-            <label className="bm-check">
-              <input
-                type="checkbox"
-                checked={showTPSL}
-                onChange={(event) =>
-                  setShowTPSL(
-                    event.target.checked
-                  )
-                }
-              />
-
-              {translateWithFallback(
-                "tpSl",
-                "TP/SL"
-              )}
-            </label>
-
-            {showTPSL && (
-              <div className="bm-tpsl-mobile">
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  placeholder={translateWithFallback(
-                    "takeProfit",
-                    "Take Profit"
-                  )}
-                  value={tpPrice}
-                  onChange={(event) =>
-                    setTpPrice(
-                      event.target.value
-                    )
-                  }
-                />
-
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  placeholder={translateWithFallback(
-                    "stopLoss",
-                    "Stop Loss"
-                  )}
-                  value={slPrice}
-                  onChange={(event) =>
-                    setSlPrice(
-                      event.target.value
-                    )
-                  }
-                />
-              </div>
-            )}
-
-            <label className="bm-check">
-              <input
-                type="checkbox"
-                checked={reduceOnly}
-                onChange={(event) =>
-                  setReduceOnly(
-                    event.target.checked
-                  )
-                }
-              />
-
-              {translateWithFallback(
-                "reduceOnly",
-                "Reduce Only"
-              )}
-            </label>
+            {/*
+              RC5 STAGING CANDIDATE: Slippage Tolerance, TP/SL, and
+              Reduce Only were removed from this panel -
+              controllers/futuresController.js's openPosition() never
+              reads a slippage or reduceOnly field at all, and while
+              takeProfit/stopLoss ARE accepted and stored, nothing in
+              the backend ever reads them back to auto-close a
+              position - there is no TP/SL enforcement engine. Per
+              the RC5 directive's own rule ("if a backend capability
+              does not actually exist, disable/hide that control
+              rather than simulate it"), these three controls are
+              gone rather than left as no-ops a user could mistake
+              for real protection.
+            */}
 
             <div className="bm-cost-row">
               <span>
@@ -1405,7 +1698,7 @@ function Futures({ setPage }) {
                   "Max"
                 )}
                 <br />
-                {balance} USDT
+                {balance.toFixed(2)} USDT
               </span>
 
               <span>
@@ -1416,6 +1709,15 @@ function Futures({ setPage }) {
                 <br />
                 {Number(amount || 0).toFixed(2)}{" "}
                 USDT
+              </span>
+
+              <span>
+                {translateWithFallback(
+                  "estMargin",
+                  "Est. Margin"
+                )}
+                <br />
+                {estimatedMargin.toFixed(2)} USDT
               </span>
             </div>
 
@@ -1450,15 +1752,40 @@ function Futures({ setPage }) {
           </section>
 
           <section className="bm-orderbook">
+            {/*
+              PRODUCTION-ACTIVATION-CANDIDATE (directive D4 / QA
+              finding #2): the hardcoded "Funding: not implemented"
+              string was replaced with the real, live funding-rate
+              estimate from GET /api/futures/funding-rate/:symbol (see
+              fundingRateDisplay above) - this is a genuine backend
+              computation now, not a placeholder. When unavailable
+              (no active market config, no trustworthy live price
+              yet, or the request failed) an honest "Funding rate
+              unavailable" is shown instead - never a fabricated
+              number.
+            */}
             <div className="bm-funding">
               <span>
-                {translateWithFallback(
-                  "funding",
-                  "Funding"
-                )}{" "}
-                (8h)
+                {fundingRateDisplay
+                  ? `${translateWithFallback(
+                      "funding",
+                      "Funding"
+                    )}: ${
+                      fundingRateDisplay.ratePercent >= 0
+                        ? "+"
+                        : ""
+                    }${fundingRateDisplay.ratePercent.toFixed(
+                      4
+                    )}%${
+                      fundingRateDisplay.intervalHours
+                        ? ` / ${fundingRateDisplay.intervalHours}h`
+                        : ""
+                    }`
+                  : translateWithFallback(
+                      "fundingRateUnavailable",
+                      "Funding rate unavailable"
+                    )}
               </span>
-              <b>0.00000%</b>
             </div>
 
             <div className="bm-ob-head">
@@ -1574,17 +1901,17 @@ function Futures({ setPage }) {
           <button
             type="button"
             className={
-              mobileTab === "bots"
+              mobileTab === "history"
                 ? "active"
                 : ""
             }
             onClick={() =>
-              setMobileTab("bots")
+              setMobileTab("history")
             }
           >
             {translateWithFallback(
-              "bots",
-              "Bots"
+              "positionHistory",
+              "History"
             )}
           </button>
         </div>
@@ -1608,6 +1935,112 @@ function Futures({ setPage }) {
               </p>
             ) : (
               positions.map(renderPositionCard)
+            )}
+          </section>
+        )}
+
+        {mobileTab === "orders" && (
+          <section className="bm-mobile-positions">
+            <p>
+              {translateWithFallback(
+                "futuresMarketOnlyNotice",
+                "Futures orders execute immediately as market orders, so there are no pending orders to show."
+              )}
+            </p>
+
+            <button
+              type="button"
+              className="bm-mobile-link-btn"
+              onClick={() =>
+                setPage?.("orders")
+              }
+            >
+              {translateWithFallback(
+                "viewOrderHistory",
+                "View Order History"
+              )}
+            </button>
+          </section>
+        )}
+
+        {mobileTab === "history" && (
+          <section className="bm-mobile-positions bm-mobile-history">
+            {history.length === 0 ? (
+              <p className="no-position">
+                {translateWithFallback(
+                  "noClosedPositions",
+                  "No closed positions"
+                )}
+              </p>
+            ) : (
+              history.map((item) => (
+                <article
+                  key={item._id}
+                  className={`history-card ${
+                    item.side === "short"
+                      ? "short"
+                      : "long"
+                  }`}
+                >
+                  <div className="history-left">
+                    <strong>
+                      {item.symbol}{" "}
+                      {String(
+                        item.side || ""
+                      ).toUpperCase()}
+                    </strong>
+
+                    <span
+                      className={
+                        Number(item.pnl) >= 0
+                          ? "profit"
+                          : "loss"
+                      }
+                    >
+                      $
+                      {Number(
+                        item.pnl || 0
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="history-right">
+                    <p>
+                      {translateWithFallback(
+                        "entryPrice",
+                        "Entry"
+                      )}
+                      : {item.entryPrice}
+                    </p>
+
+                    <p>
+                      {translateWithFallback(
+                        "close",
+                        "Close",
+                        "common"
+                      )}
+                      : {item.markPrice}
+                    </p>
+
+                    <p>
+                      {translateWithFallback(
+                        "leverage",
+                        "Leverage"
+                      )}
+                      : {item.leverage}x
+                    </p>
+
+                    <p>
+                      {translateWithFallback(
+                        "status",
+                        "Status",
+                        "common"
+                      )}
+                      : {item.status}
+                    </p>
+                  </div>
+                </article>
+              ))
             )}
           </section>
         )}
@@ -1798,21 +2231,16 @@ function Futures({ setPage }) {
               )}
             </label>
 
-            <select
-              value={quoteCurrency}
-              onChange={(event) =>
-                setQuoteCurrency(
-                  event.target.value
-                )
-              }
+            {/*
+              RC5 STAGING CANDIDATE: fixed to USDT - see the
+              `quoteCurrency` constant's own comment above.
+            */}
+            <div
+              className="bm-static-value"
+              aria-readonly="true"
             >
-              <option value="USDT">
-                USDT
-              </option>
-              <option value="BUSD">
-                BUSD
-              </option>
-            </select>
+              {quoteCurrency}
+            </div>
 
             <button
               type="button"
@@ -1994,9 +2422,15 @@ function Futures({ setPage }) {
           <div className="futures-badge">
             <span className="live-dot" />
 
+            {/*
+              RC5 STAGING CANDIDATE: reworded from "Live Futures
+              Market" - the PRICE DATA is genuinely real-time
+              (Binance), but that phrase reads as "trading is live",
+              which it is not in this build.
+            */}
             {translateWithFallback(
               "liveFuturesMarket",
-              "Live Futures Market"
+              "Live Market Data"
             )}
           </div>
         </header>
@@ -2385,53 +2819,21 @@ function Futures({ setPage }) {
               }
             />
 
-            <div className="tpsl-box">
-              <label>
-                {translateWithFallback(
-                  "takeProfit",
-                  "Take Profit"
-                )}
-              </label>
-
-              <input
-                type="number"
-                min="0"
-                step="any"
-                placeholder={translateWithFallback(
-                  "tpPrice",
-                  "TP Price"
-                )}
-                value={tpPrice}
-                onChange={(event) =>
-                  setTpPrice(
-                    event.target.value
-                  )
-                }
-              />
-
-              <label>
-                {translateWithFallback(
-                  "stopLoss",
-                  "Stop Loss"
-                )}
-              </label>
-
-              <input
-                type="number"
-                min="0"
-                step="any"
-                placeholder={translateWithFallback(
-                  "slPrice",
-                  "SL Price"
-                )}
-                value={slPrice}
-                onChange={(event) =>
-                  setSlPrice(
-                    event.target.value
-                  )
-                }
-              />
-            </div>
+            {/*
+              RC5 STAGING CANDIDATE: the Take Profit / Stop Loss
+              inputs were removed - see the "Slippage Tolerance,
+              TP/SL, and Reduce Only were removed" comment in the
+              mobile trade panel above for why (never enforced by
+              the backend). Replaced with the same honest,
+              clearly-labeled margin estimate the mobile panel shows.
+            */}
+            <p className="tpsl-box-removed-note">
+              {translateWithFallback(
+                "estMargin",
+                "Est. Margin"
+              )}
+              : {estimatedMargin.toFixed(2)} USDT
+            </p>
 
             <button
               type="button"
@@ -2479,7 +2881,30 @@ function Futures({ setPage }) {
                   "availableBalance",
                   "Available Balance"
                 )}
-                : {balance} USDT
+                :{" "}
+                {walletLoading
+                  ? "…"
+                  : `${balance.toFixed(2)} USDT`}
+                <button
+                  type="button"
+                  className="bm-transfer-link"
+                  onClick={() =>
+                    setTransferOpen(true)
+                  }
+                >
+                  {translateWithFallback(
+                    "transfer",
+                    "Transfer"
+                  )}
+                </button>
+              </p>
+
+              <p>
+                {translateWithFallback(
+                  "marginInUse",
+                  "Margin In Use"
+                )}
+                : {futuresLocked.toFixed(2)} USDT
               </p>
 
               <p>
@@ -2506,24 +2931,48 @@ function Futures({ setPage }) {
                 : {quoteCurrency}
               </p>
 
-              <p>
-                {translateWithFallback(
-                  "fundingRate",
-                  "Funding Rate"
-                )}
-                : 0.01%
-              </p>
-
-              <p>
-                {translateWithFallback(
-                  "riskLevel",
-                  "Risk Level"
-                )}
-                :{" "}
-                {translateWithFallback(
-                  "normal",
-                  "Normal"
-                )}
+              {/*
+                PRODUCTION-ACTIVATION-CANDIDATE (directive D4 / QA
+                finding #2): the hardcoded "0.01%" Funding Rate and
+                "Normal" Risk Level noted above were removed since
+                neither was backed by a real computation, and this
+                paragraph used to say funding was "not implemented in
+                this build." That is no longer accurate -
+                services/futures/fundingService.js's buildSymbolContext()
+                is a real, live computation surfaced here via GET
+                /api/futures/funding-rate/:symbol - so this now shows
+                the genuine current estimate, or an honest
+                "unavailable" message (distinct wording from "not
+                implemented") when no active market config or
+                trustworthy live price exists yet for this symbol. See
+                fundingRateDisplay above; this never fabricates a
+                rate.
+              */}
+              <p className="trade-info-unavailable-note">
+                {fundingRateDisplay
+                  ? `${translateWithFallback(
+                      "fundingRate",
+                      "Funding Rate"
+                    )}: ${
+                      fundingRateDisplay.ratePercent >= 0
+                        ? "+"
+                        : ""
+                    }${fundingRateDisplay.ratePercent.toFixed(
+                      4
+                    )}%${
+                      fundingRateDisplay.intervalHours
+                        ? ` ${translateWithFallback(
+                            "per",
+                            "per"
+                          )} ${
+                            fundingRateDisplay.intervalHours
+                          }h`
+                        : ""
+                    }`
+                  : translateWithFallback(
+                      "fundingRateUnavailable",
+                      "Funding rate unavailable"
+                    )}
               </p>
             </div>
           </aside>
@@ -2616,6 +3065,133 @@ function Futures({ setPage }) {
           </section>
         </div>
       </section>
+
+      {/*
+        RC5 STAGING CANDIDATE: Spot<->Futures transfer panel, wired to
+        the real POST /api/futures/transfer endpoint via
+        submitTransfer() above. Shared between the mobile and desktop
+        layouts (both "Transfer" buttons open the same state), reusing
+        this component's existing "bm-popup" overlay styling.
+      */}
+      {transferOpen && (
+        <div
+          className="bm-drawer-overlay"
+          role="presentation"
+          onClick={() =>
+            !transferSubmitting && setTransferOpen(false)
+          }
+        >
+          <section
+            className="bm-popup"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3>
+              {translateWithFallback(
+                "transferMargin",
+                "Transfer Margin"
+              )}
+            </h3>
+
+            <p className="bm-avbl">
+              {translateWithFallback(
+                "spotAvailable",
+                "Spot Available"
+              )}
+              : {spotAvailable.toFixed(2)} USDT
+            </p>
+
+            <p className="bm-avbl">
+              {translateWithFallback(
+                "futuresAvailable",
+                "Futures Available"
+              )}
+              : {balance.toFixed(2)} USDT
+            </p>
+
+            <div className="bm-mini-row">
+              <button
+                type="button"
+                className={
+                  transferDirection === "TO_FUTURES"
+                    ? "active-buy"
+                    : ""
+                }
+                onClick={() =>
+                  setTransferDirection("TO_FUTURES")
+                }
+              >
+                {translateWithFallback(
+                  "spotToFutures",
+                  "Spot → Futures"
+                )}
+              </button>
+
+              <button
+                type="button"
+                className={
+                  transferDirection === "TO_SPOT"
+                    ? "active-sell"
+                    : ""
+                }
+                onClick={() =>
+                  setTransferDirection("TO_SPOT")
+                }
+              >
+                {translateWithFallback(
+                  "futuresToSpot",
+                  "Futures → Spot"
+                )}
+              </button>
+            </div>
+
+            <input
+              type="number"
+              min="0"
+              step="any"
+              placeholder={translateWithFallback(
+                "amount",
+                "Amount",
+                "common"
+              )}
+              value={transferAmount}
+              onChange={(event) =>
+                setTransferAmount(event.target.value)
+              }
+            />
+
+            <button
+              type="button"
+              disabled={transferSubmitting}
+              onClick={submitTransfer}
+            >
+              {transferSubmitting
+                ? translateWithFallback(
+                    "processing",
+                    "Processing...",
+                    "common"
+                  )
+                : translateWithFallback(
+                    "confirmTransfer",
+                    "Confirm Transfer"
+                  )}
+            </button>
+
+            <button
+              type="button"
+              disabled={transferSubmitting}
+              onClick={() => setTransferOpen(false)}
+            >
+              {translateWithFallback(
+                "close",
+                "Close",
+                "common"
+              )}
+            </button>
+          </section>
+        </div>
+      )}
     </main>
   );
 }

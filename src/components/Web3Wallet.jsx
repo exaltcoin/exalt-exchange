@@ -1,1994 +1,1639 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import QRCode from "react-qr-code";
-import CoinDetails from "./CoinDetails";
-import { ethers } from "ethers";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
+
 import exaltLogo from "../assets/exalt-coin.png";
-import exchangeLogo from "../assets/exalt-exchange-logo.png";
+import PageShell from "./PageShell";
 import "./Web3Wallet.css";
+import { API_ORIGIN } from "../lib/apiClient";
 
-import {
-  DEFAULT_CHAIN_KEY,
-  getChain,
-  getChainList,
-} from "../web3/web3Config";
+/* =========================================================
+   WEB3 WALLET — EXALT EXCHANGE
 
-import {
-  getSavedWallets,
-  getActiveWalletAddress,
-  saveWallets,
-  setActiveWallet,
-  shortAddress,
-  createLocalWallet,
-  importWalletFromValue,
-  renameWallet as renameWalletStore,
-  removeWallet as removeWalletStore,
-  findWallet,
-  addWallet,
-} from "../web3/walletStore";
+   Batch K rebuild (see _audit/EXALT-BATCH-K-REPORT.md,
+   WEB3-SECURITY-REPORT.md). This is a NEW component - the old
+   Web3Wallet.jsx (self-custodial, browser-held signing secrets and client-side signing) was deleted in
+   Batch F/H as a non-negotiable security violation and is not
+   reused here in any form.
 
-import {
-  getAllBalances,
-  sendToken,
-  swapNativeToToken,
-  swapTokenToNative,
-  getSignerFromPrivateKey,
-} from "../web3/transactionService";
+   This page talks ONLY to /api/web3-wallet - a backend-custodied
+   wallet where the private key is generated and encrypted
+   server-side and never leaves the backend. There is no
+   injected-provider or third-party connector flow anywhere in this file. See the CEX-vs-Web3 balance
+   separation note in the portfolio tab below - these are two
+   distinct products and must never be presented as one balance.
 
-import {
-  addLocalTx,
-  updateLocalTxStatus,
-  loadWeb3HistoryFromBackend,
-  saveWeb3TxToBackend,
-} from "../web3/historyService";
+   RC4 (multichain): this used to be a BSC-only page with every
+   network/coin/explorer link hardcoded. It now threads a real
+   `selectedNetwork` through every API call and renders whatever the
+   backend's /networks + /balances responses actually say for that
+   network - no network, coin list, or explorer URL is hardcoded
+   here any more. Per the RC4 directive, this is a targeted
+   extension of the existing UI, not a redesign - the tab structure,
+   styling classes, and overall layout are unchanged.
 
-import { submitWeb3SupportTicket } from "../web3/supportService";
+   LAUNCH-CANDIDATE (directive §12/§13/§14): this used to open
+   straight into the per-network "Portfolio" tab - a flat, linear
+   utility screen with no landing view, no cross-chain total, and no
+   Web3-specific mobile navigation of its own (mobile fell back to a
+   horizontally-scrolling copy of the same desktop tab strip). This
+   pass adds:
+     - a "Home" tab (now the default) - a real branded welcome
+       screen built entirely from real backend data: the cross-chain
+       portfolio total from GET /api/web3-wallet/portfolio (never a
+       fabricated number - it is null/marked partial exactly when the
+       backend itself could not price or read every asset, see that
+       endpoint's own header comment), a top-assets preview, a
+       per-network health strip derived from the SAME portfolio
+       response's real hasWallet/balanceAvailable flags (never a
+       fake "all green" status), a cross-chain recent-activity
+       preview (GET /api/web3-wallet/transactions with no `network`
+       filter - a real endpoint capability that already existed,
+       simply not called from this page before), and entry cards to
+       every other tab.
+     - a "Networks" tab - the real GET /networks list (already
+       fetched by this page) rendered as its own dedicated view
+       rather than only living inside the NetworkBar dropdown.
+     - a Web3-specific fixed mobile bottom nav (Home / Assets / a
+       raised Send+Receive pair / Swap / Activity), following the
+       EXACT fixed-position/safe-area-inset mechanics already
+       established by Dashboard.jsx's `.mobile-bottom-nav` and
+       Futures.jsx's `.bm-bottom-nav` (see Web3Wallet.css) - but with
+       its own Web3-only item set and its own `.w3-` styling, never
+       merged into or reusing the CEX app's own bottom
+       nav/menuGroups. This is the literal "distinct from the full
+       CEX sidebar" / "clear separation between EXALT Exchange CEX
+       and EXALT Web3" requirement - the global hamburger/sidebar in
+       app.jsx (which already lists "Web3 Wallet" as its own
+       always-visible group) remains the only way back to the CEX
+       app from here, unchanged.
+   The existing Portfolio/Receive/Send/Swap/Activity tabs and their
+   underlying logic are UNTOUCHED by this pass - this only adds a
+   landing view, a networks view, and mobile-specific navigation
+   chrome around them.
+========================================================= */
 
-import {
-  startQRScanner,
-  stopQRScanner,
-  parseQRCode,
-} from "../web3/qrScannerService";
-
-import {
-  getAllTokens,
-  getWalletTokenList,
-  getTokenBySymbol,
-  getReceiveAddressForToken,
-  getTokenWarning,
-  getTokenLogo,
-  getTokenBalanceKey,
-  getImportableChains,
-  importCustomToken,
-  removeCustomToken,
-  formatTokenAmount,
-  formatTokenPrice,
-  searchTokens,
-  sortTokensByValue,
- toggleFavoriteToken,
-  hideTokenById,
-  toggleWatchlistToken,
- buildTokenDisplayName,
-} from "../web3/tokens";
-
-import {
-  formatUsd,
-  calculatePortfolio,
-  copyToClipboard,
-  isValidAddress,
-} from "../web3/utils";
-import {
-  getAssetSettings,
-  saveAssetSettings,
-  toggleHiddenToken,
-  togglePinnedToken,
-  toggleFavoriteToken as toggleManagedFavorite,
-  setHideZeroBalances,
-  setAssetSortBy,
-  restoreHiddenTokens,
-  getHiddenAssetList,
-} from "../web3/assetManagerService";
-
-import {
-  getAddressBook,
-  addAddressBookContact,
-  deleteAddressBookContact,
-  toggleAddressFavorite,
-  searchAddressBook,
-} from "../web3/addressBookService";
-
-import {
-  getBackupStatus,
-  markWalletBackedUp,
-  markWalletVerified,
-  dismissBackupReminder,
-  shouldShowBackupReminder,
-  getBackupLabel,
-} from "../web3/backupService";
-
-import {
-  getPriceAlerts,
-  addPriceAlert,
-  deletePriceAlert,
-  togglePriceAlert,
-  checkPriceAlerts,
-} from "../web3/priceAlertService";
-
-import {
-  exportHistoryToCsv,
-  filterHistory,
-  getHistoryStats,
-} from "../web3/historyExportService";
-function Web3Wallet({ setPage }) {
-  const API_BASE =
-    import.meta.env.VITE_API_URL ||
-    "https://exalt-real-backend-6b6v.onrender.com";
-
-  const API = API_BASE.endsWith("/api")
-    ? API_BASE.replace("/api", "")
-    : API_BASE;
-
-  const videoRef = useRef(null);
-
-  const [wallet, setWallet] = useState("");
-  const [wallets, setWallets] = useState([]);
-  const [balances, setBalances] = useState({});
-  const [prices, setPrices] = useState({});
-  const [totalAssets, setTotalAssets] = useState(0);
-
-  const [activeChain, setActiveChain] = useState(
-    localStorage.getItem("exalt_active_chain") || DEFAULT_CHAIN_KEY
-  );
-
-  const [assetTab, setAssetTab] = useState("holdings");
-  const [bottomTab, setBottomTab] = useState("home");
-  const [search, setSearch] = useState("");
-  const [message, setMessage] = useState("");
-  const [showWelcome, setShowWelcome] = useState(true);
-const [welcomeKey, setWelcomeKey] = useState(0);
-  const [showMenu, setShowMenu] = useState(false);
-  const [showMore, setShowMore] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showMyWallets, setShowMyWallets] = useState(false);
-  const [showAddWallet, setShowAddWallet] = useState(false);
-  const [showPhrase, setShowPhrase] = useState("");
-  const [showSupport, setShowSupport] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
-  const [showImportToken, setShowImportToken] = useState(false);
-const [selectedCoinDetails, setSelectedCoinDetails] = useState(null);
-  const [sendTo, setSendTo] = useState("");
-  const [amount, setAmount] = useState("");
-  const [sendTokenId, setSendTokenId] = useState("");
-
-  const [receiveTokenId, setReceiveTokenId] = useState("");
-
-  const [fromTokenId, setFromTokenId] = useState("");
-  const [toTokenId, setToTokenId] = useState("");
-  const [swapAmount, setSwapAmount] = useState("");
-
-  const [txHistory, setTxHistory] = useState([]);
-const [lastReceipt, setLastReceipt] = useState(null);
-const [hideBalance, setHideBalance] = useState(
-  localStorage.getItem("exalt_hide_balance") === "true"
-);
-  const [importValue, setImportValue] = useState("");
-
-  const [supportMsg, setSupportMsg] = useState("");
-
-  const [customTokenAddress, setCustomTokenAddress] = useState("");
-  const [customTokenChain, setCustomTokenChain] = useState(activeChain);
-  const [tokenImporting, setTokenImporting] = useState(false);
-  const [tokenPreview, setTokenPreview] = useState(null);
-  const chain = getChain(activeChain);
-  const chains = getChainList();
-const [assetSettings, setAssetSettings] = useState(getAssetSettings());
-
-const [showManage, setShowManage] = useState(false);
-
-const [showAddressBook, setShowAddressBook] = useState(false);
-
-const [showPriceAlerts, setShowPriceAlerts] = useState(false);
-
-const [showBackup, setShowBackup] = useState(false);
-
-const [priceAlerts, setPriceAlerts] = useState(getPriceAlerts());
-
-const [addressBook, setAddressBook] = useState(getAddressBook());
-
-const [backupStatus, setBackupStatus] = useState(getBackupStatus());
-
-const [historyFilter, setHistoryFilter] = useState("all");
-
-const [historyStats, setHistoryStats] = useState({});
-
-const [showExportMenu, setShowExportMenu] = useState(false);
-
-  const activeWallet = useMemo(
-    () => findWallet(wallets, wallet),
-    [wallets, wallet]
-  );
-
-  const activeWalletName = activeWallet?.name || "Exalt Wallet";
-
-  const walletTokens = useMemo(() => {
-    const list = getWalletTokenList({
-      chainKey: activeChain,
-      includeHidden: false,
-      includeSpam: false,
-      query: search,
-    });
-
-    return sortTokensByValue(list, balances, prices);
-  }, [activeChain, search, balances, prices]);
-
-  const allChainTokens = useMemo(() => {
-    return getAllTokens().filter((token) => token.chainKey === activeChain);
-  }, [activeChain, showImportToken]);
-
-  const selectedSendToken = useMemo(() => {
-    return (
-      getAllTokens().find((token) => token.id === sendTokenId) ||
-      walletTokens[0] ||
-      getTokenBySymbol(chain.symbol, activeChain)
-    );
-  }, [sendTokenId, walletTokens, activeChain]);
-
-  const selectedReceiveToken = useMemo(() => {
-    return (
-      getAllTokens().find((token) => token.id === receiveTokenId) ||
-      walletTokens[0] ||
-      getTokenBySymbol(chain.symbol, activeChain)
-    );
-  }, [receiveTokenId, walletTokens, activeChain]);
-
-  const selectedFromToken = useMemo(() => {
-    return (
-      getAllTokens().find((token) => token.id === fromTokenId) ||
-      walletTokens[0] ||
-      getTokenBySymbol(chain.symbol, activeChain)
-    );
-  }, [fromTokenId, walletTokens, activeChain]);
-
-  const selectedToToken = useMemo(() => {
-    return (
-      getAllTokens().find((token) => token.id === toTokenId) ||
-      walletTokens.find((token) => !token.native) ||
-      walletTokens[1] ||
-      walletTokens[0]
-    );
-  }, [toTokenId, walletTokens]);
-
-  const portfolioValue = useMemo(() => {
-    return calculatePortfolio(walletTokens, balances, prices);
-  }, [walletTokens, balances, prices]);
-
-  const receiveAddress = getReceiveAddressForToken(
-    selectedReceiveToken?.symbol,
-    wallet
-  );
-
-  const showToast = (text) => {
-    setMessage(text);
-    setTimeout(() => setMessage(""), 3500);
-  };
- const shortHash = (hash = "") => {
-  if (!hash) return "No Hash";
-  if (!hash.startsWith("0x")) return hash;
-  return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
+const COIN_LOGOS = {
+  BNB: "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png",
+  ETH: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
+  POL: "https://s2.coinmarketcap.com/static/img/coins/64x64/28321.png",
+  AVAX: "https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png",
+  SOL: "https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png",
+  TRX: "https://s2.coinmarketcap.com/static/img/coins/64x64/1958.png",
+  BTC: "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png",
+  USDT: "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png",
+  USDC: "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
+  WBTC: "https://s2.coinmarketcap.com/static/img/coins/64x64/3717.png",
+  CBBTC: "https://s2.coinmarketcap.com/static/img/coins/64x64/32994.png",
+  CAKE: "https://s2.coinmarketcap.com/static/img/coins/64x64/7186.png",
+  EXALT: exaltLogo,
 };
 
-const timeAgo = (date) => {
-  if (!date) return "";
-  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-  if (seconds < 60) return "Just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-  const days = Math.floor(hours / 24);
-  if (days === 1) return "Yesterday";
-  return `${days} days ago`;
+const genIdempotencyKey = () =>
+  `web3_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+const formatAmount = (value, decimals = 6) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "0";
+  if (n === 0) return "0";
+  if (n < 0.000001) return n.toExponential(2);
+  return n.toLocaleString(undefined, { maximumFractionDigits: decimals });
 };
 
-const openExplorerTx = (tx) => {
-  const explorer = getChain(tx.chainKey || activeChain).explorer;
+// Real values only - GET /api/web3-wallet/portfolio returns null for
+// any amount it could not honestly compute (no live balance, no
+// trustworthy price); this never substitutes a fabricated "$0.00".
+const formatUsd = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  return `$${n.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
 
-  if (!tx.hash || !tx.hash.startsWith("0x")) {
-    showToast("This is a test transaction. No explorer hash available.");
-    return;
+/*
+   RC2 fix (directive §21 - "Users must never normally see raw
+   technical errors such as: Route not found - /api/..."): every
+   catch block in this file used to surface `error.message` straight
+   from the backend/fetch layer onto the screen verbatim - including
+   the literal Express 404 body ("Route not found - /api/web3-wallet/
+   wallet") if the backend ever genuinely returned one (see
+   WEB3-API-CONTRACT.md for the real root cause that was fixed
+   separately - a boot-time crash on a missing optional env var,
+   authRoutes.js). This is a defense-in-depth layer on top of that
+   root-cause fix, not a replacement for it: the raw detail is still
+   logged to the console for real debugging, but the user only ever
+   sees a safe, professional message mapped from the error's HTTP
+   status (or the absence of one, for a genuine network failure).
+*/
+const describeError = (error, context = "Web3 wallet") => {
+  console.error(`[${context}]`, error);
+
+  const status = error?.status;
+
+  if (status === 401) {
+    return "Your session has expired. Please log in again.";
   }
+  if (status === 403 && error?.data?.emailNotVerified === true) {
+    return "Verify your email before using Web3 Wallet.";
+  }
+  if (status === 403 && error?.data?.kycRequired === true) {
+    const kycStatus = String(error?.data?.kycStatus || "").toLowerCase();
 
- window.open(`${explorer}/tx/${tx.hash}`, "_blank");
-}; 
-const replayWelcome = () => {
-  setShowWelcome(false);
+    if (kycStatus === "pending") {
+      return "Your KYC verification is under review. Web3 transactions will unlock after approval.";
+    }
 
-  setTimeout(() => {
-    setWelcomeKey((prev) => prev + 1);
-    setShowWelcome(true);
+    if (kycStatus === "rejected") {
+      return "Your KYC verification was not approved. Open KYC Verification to review and resubmit it.";
+    }
 
-    setTimeout(() => {
-      setShowWelcome(false);
-    }, 1800);
-  }, 50);
+    return "Complete KYC verification to create a Web3 wallet and use Web3 transactions.";
+  }
+  if (status === 404) {
+    return "This feature is temporarily unavailable. Please try again shortly, or contact support if this continues.";
+  }
+  if (status === 429) {
+    return "Too many requests. Please wait a moment and try again.";
+  }
+  if (typeof status === "number" && status >= 500) {
+    return "Exalt Exchange is temporarily unavailable. Please try again shortly.";
+  }
+  if (!status || status === 0) {
+    return "Unable to reach Exalt Exchange. Please check your connection and try again.";
+  }
+  return "Something went wrong. Please try again, or contact support if this continues.";
 };
-  const syncWalletState = (nextWallets, activeAddress = "") => {
-    const saved = saveWallets(nextWallets, activeAddress);
-    setWallets(saved);
 
-    if (activeAddress) {
-      setWallet(activeAddress);
-      setActiveWallet(activeAddress);
-    }
-  };
-
-  const changeChain = async (chainKey) => {
-    setActiveChain(chainKey);
-    localStorage.setItem("exalt_active_chain", chainKey);
-    setSearch("");
-    setSendTokenId("");
-    setReceiveTokenId("");
-    setFromTokenId("");
-    setToTokenId("");
-
-    if (wallet) {
-      await loadBalances(wallet, chainKey);
-    }
-  };const loadBalances = async (address = wallet, chainKey = activeChain) => {
-    try {
-      if (!address) return;
-
-      const result = await getAllBalances(address, chainKey);
-      setBalances((prev) => ({ ...prev, ...result }));
-
-      const tokens = getWalletTokenList({
-        chainKey,
-        includeHidden: false,
-        includeSpam: false,
-      });
-
-      const total = calculatePortfolio(tokens, result, prices);
-      setTotalAssets(total);
-    } catch (err) {
-      console.log("Web3 balance error:", err);
-    }
-  };
-
-  const loadHistory = async (address = wallet) => {
-    try {
-      if (!address) return;
-const history = await loadWeb3HistoryFromBackend(API, address);
-
-setTxHistory(Array.isArray(history) ? history : []);
-
-setHistoryStats(
-  getHistoryStats(Array.isArray(history) ? history : [])
-);
-   } catch (err) {
-  console.log("History error:", err);
-  setTxHistory([]);
-  setHistoryStats({});
-}   
-  
-  };
-
-  const loadMarketPrices = async () => {
-    try {
-      const res = await fetch(`${API}/api/coins/all-market`);
-      const data = await res.json();
-      const list = Array.isArray(data.coins) ? data.coins : [];
-
-      const nextPrices = {};
-
-      list.forEach((coin) => {
-        const symbol = String(coin.symbol || "").toUpperCase();
-        const price = Number(coin.priceUsd || coin.price || 0);
-
-        if (symbol && price > 0) {
-          nextPrices[symbol] = price;
-        }
-      });
-
-      setPrices(nextPrices);
-    } catch (err) {
-      console.log("Price load error:", err);
-    }
-  };
-
-  const createWallet = async () => {
-    try {
-      const result = createLocalWallet(wallets);
-      const nextWallets = addWallet(wallets, result.wallet);
-
-      syncWalletState(nextWallets, result.wallet.address);
-      setShowPhrase(result.phrase);
-      setShowAddWallet(false);
-
-      await loadBalances(result.wallet.address, activeChain);
-      await loadHistory(result.wallet.address);
-
-      showToast("Exalt Wallet created. Save your recovery phrase.");
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "Wallet creation failed.");
-    }
-  };
-
-  const importWallet = async () => {
-    try {
-      const imported = importWalletFromValue(importValue, wallets);
-      const nextWallets = addWallet(wallets, imported);
-
-      syncWalletState(nextWallets, imported.address);
-      setImportValue("");
-      setShowAddWallet(false);
-
-      await loadBalances(imported.address, activeChain);
-      await loadHistory(imported.address);
-
-      showToast("Exalt Wallet imported.");
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "Import failed.");
-    }
-  };
-
-  const switchWallet = async (address) => {
-    syncWalletState(wallets, address);
-    await loadBalances(address, activeChain);
-    await loadHistory(address);
-    setShowMyWallets(false);
-  };
-
-  const renameWallet = (address) => {
-    const newName = prompt("Enter wallet name");
-    if (!newName) return;
-
-    const nextWallets = renameWalletStore(wallets, address, newName);
-    syncWalletState(nextWallets, wallet);
-  };
-
-  const removeWallet = (address) => {
-    if (!window.confirm("Remove this Exalt Wallet from this device?")) return;
-
-    const nextWallets = removeWalletStore(wallets, address);
-    const nextActive =
-      wallet?.toLowerCase() === address?.toLowerCase()
-        ? nextWallets[0]?.address || ""
-        : wallet;
-
-    syncWalletState(nextWallets, nextActive);
-
-    if (nextActive) {
-      loadBalances(nextActive, activeChain);
-      loadHistory(nextActive);
-    } else {
-      setBalances({});
-      setTotalAssets(0);
-      setWallet("");
-    }
-  };
-
-  const copyAddress = async () => {
-    if (!wallet) return alert("Create or import Exalt Wallet first.");
-    await copyToClipboard(wallet);
-    showToast("Wallet address copied.");
-  };
-
- const goExchange = () => {
-  try {
-    setShowWelcome(false);
-    setShowMenu(false);
-    setShowMore(false);
-    setBottomTab("home");
-
-    if (typeof setPage === "function") {
-     setPage("dashboard");
-      return;
-    }
-
-    window.location.href = "/";
-  } catch (err) {
-    window.location.href = "/";
+const statusBadge = (status) => {
+  switch (status) {
+    case "CONFIRMED":
+      return { label: "Confirmed", className: "w3-badge w3-badge-success" };
+    case "BROADCASTED":
+      return { label: "Pending", className: "w3-badge w3-badge-pending" };
+    case "FAILED":
+      return { label: "Failed", className: "w3-badge w3-badge-failed" };
+    default:
+      return { label: "Pending", className: "w3-badge w3-badge-pending" };
   }
 };
 
-  const openSupport = () => {
-    setShowSupport(true);
-    setShowMenu(false);
-    setShowMore(false);
-  };
+const withNetworkQuery = (path, network) =>
+  `${path}${path.includes("?") ? "&" : "?"}network=${encodeURIComponent(network)}`;
 
-  const submitSupport = async () => {
-    try {
-      const token = localStorage.getItem("token") || "";
+export default function Web3Wallet({ setPage }) {
+  const API = API_ORIGIN;
 
-      const result = await submitWeb3SupportTicket({
-        API,
-        token,
-        subject: "Exalt Wallet Support",
-        message: supportMsg,
-        wallet,
-        category: "WEB3",
-      });
+  const requestJson = useCallback(
+    async (path, options = {}) => {
+      const token = localStorage.getItem("token");
 
-      setSupportMsg("");
-      setShowSupport(false);
-      showToast(result.message || "Support request submitted.");
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "Support request failed.");
-    }
-  };
-
-  const startScanner = async () => {
-    setShowScanner(true);
-
-    setTimeout(async () => {
-      if (!videoRef.current) return;
-
-      await startQRScanner(
-        videoRef.current,
-        (text) => {
-          const parsed = parseQRCode(text);
-
-          if (parsed.type === "wallet" && parsed.address) {
-            setSendTo(parsed.address);
-            setBottomTab("discover");
-            setShowScanner(false);
-            stopQRScanner();
-            showToast("Wallet address scanned.");
-          } else {
-            showToast("QR scanned but no wallet address found.");
-          }
+      const response = await fetch(`${API}${path}`, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+          ...(options.headers || {}),
         },
-        (err) => {
-          console.log(err);
-        }
-      );
-    }, 300);
-  };
-
-  const stopScanner = () => {
-    stopQRScanner();
-    setShowScanner(false);
-  };
-
-  const getActiveSigner = async (chainKey = activeChain) => {
-    if (!activeWallet?.privateKey) {
-      throw new Error("Please create or import Exalt Wallet first.");
-    }
-
-    return getSignerFromPrivateKey(activeWallet.privateKey, chainKey);
-  };
-
-  const handleSend = async () => {
-    try {
-      if (!wallet) return alert("Create or import Exalt Wallet first.");
-      if (!isValidAddress(sendTo)) return alert("Invalid wallet address.");
-      if (!amount || Number(amount) <= 0) return alert("Enter valid amount.");
-if (selectedSendToken.marketOnly || selectedSendToken.watchOnly) {
-  return alert(
-    "This coin is market/watchlist only. Import its real contract token before sending."
-  );
-}
-      const activeSigner = await getActiveSigner(selectedSendToken.chainKey);
-
-      const result = await sendToken({
-        signer: activeSigner,
-        token: selectedSendToken,
-        to: sendTo,
-        amount,
-        chainKey: selectedSendToken.chainKey,
       });
 
-      setTxHistory(
-        addLocalTx({
-          type: "Send",
-          hash: result.hash,
-          amount,
-          coin: selectedSendToken.symbol,
-          status: "pending",
-          wallet,
-          chainKey: selectedSendToken.chainKey,
-        })
-      );
+      const data = await response.json().catch(() => ({}));
 
-      showToast("Transaction pending...");
-      await result.tx.wait();
+      if (!response.ok) {
+        const error = new Error(
+          data?.message || `Request failed with status ${response.status}`
+        );
+        error.status = response.status;
+        error.data = data;
+        throw error;
+      }
 
-      updateLocalTxStatus(result.hash, "success");
-
-      await saveWeb3TxToBackend(API, {
-        type: "Send",
-        hash: result.hash,
-        amount,
-        coin: selectedSendToken.symbol,
-        status: "success",
-        wallet,
-        chain: selectedSendToken.network,
-        chainKey: selectedSendToken.chainKey,
-      });
-
-      await loadBalances(wallet, selectedSendToken.chainKey);
-      await loadHistory(wallet);
-
-      setSendTo("");
-      setAmount("");
-      setLastReceipt({
-  type: "Send",
-  hash: result.hash,
-  amount,
-  coin: selectedSendToken.symbol,
-  status: "success",
-  wallet,
-  chain: selectedSendToken.network,
-  chainKey: selectedSendToken.chainKey,
-});
-      showToast("Transaction confirmed.");
-    } catch (err) {
-      console.log(err);
-     const errorText = String(err?.message || "");
-
-if (
-  errorText.includes("insufficient funds") ||
-  errorText.includes("gas * price") ||
-  errorText.includes("intrinsic transaction cost")
-) {
-  alert(
-    `Insufficient BNB for network fee.\n\nPlease add BNB to this wallet for gas fee, then try again.`
+      return data;
+    },
+    [API]
   );
-} else {
-  alert(err.message || "Send failed.");
-}
-    }
-  };
-  const handleSwap = async () => {
+
+  const [activeTab, setActiveTab] = useState("home");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  const [selectedNetwork, setSelectedNetwork] = useState("BSC");
+  const [wallet, setWallet] = useState(null);
+  const [balances, setBalances] = useState([]);
+  const [balancesAvailable, setBalancesAvailable] = useState(true);
+  const [networks, setNetworks] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [copyFeedback, setCopyFeedback] = useState("");
+
+  // Cross-chain data for the Home tab - loaded once, independent of
+  // `selectedNetwork` (portfolio spans every chain the user has a
+  // wallet on; recent activity omits the `network` query param so
+  // the backend returns every chain's transactions, newest first -
+  // see routes/web3WalletRoutes.js's GET /transactions).
+  const [portfolio, setPortfolio] = useState(null);
+  const [portfolioLoading, setPortfolioLoading] = useState(true);
+  const [recentActivity, setRecentActivity] = useState([]);
+
+  // The list of real, implemented networks only needs to load once -
+  // it does not depend on which one is currently selected.
+  useEffect(() => {
+    requestJson("/api/web3-wallet/networks")
+      .then((res) => setNetworks(res.networks || []))
+      .catch(() => {});
+  }, [requestJson]);
+
+  useEffect(() => {
+    setPortfolioLoading(true);
+    requestJson("/api/web3-wallet/portfolio")
+      .then((res) => setPortfolio(res))
+      .catch(() => setPortfolio(null))
+      .finally(() => setPortfolioLoading(false));
+
+    requestJson("/api/web3-wallet/transactions?limit=5")
+      .then((res) => setRecentActivity(res.transactions || []))
+      .catch(() => setRecentActivity([]));
+  }, [requestJson]);
+
+  const loadAll = useCallback(async () => {
+    setLoading(true);
+    setLoadError("");
+
     try {
-      if (!wallet) return alert("Create or import Exalt Wallet first.");
-      if (!swapAmount || Number(swapAmount) <= 0) return alert("Enter valid amount.");
-      if (!selectedFromToken || !selectedToToken) return alert("Select tokens first.");
-      if (selectedFromToken.id === selectedToToken.id) {
-        return alert("Select different tokens.");
-      }
-if (
-  selectedFromToken.marketOnly ||
-  selectedFromToken.watchOnly ||
-  selectedToToken.marketOnly ||
-  selectedToToken.watchOnly
-) {
-  return alert(
-    "Market/Watchlist coins cannot be swapped. Import the real contract token first."
-  );
-}
-      if (selectedFromToken.chainKey !== selectedToToken.chainKey) {
-        return alert("Cross-chain swap is not enabled yet.");
-      }
+      const walletRes = await requestJson(
+        withNetworkQuery("/api/web3-wallet/wallet", selectedNetwork)
+      );
+      setWallet(walletRes.wallet);
 
-      const swapChainKey = selectedFromToken.chainKey;
-      const activeSigner = await getActiveSigner(swapChainKey);
+      const [balancesRes, txRes] = await Promise.all([
+        requestJson(
+          withNetworkQuery("/api/web3-wallet/balances", selectedNetwork)
+        ).catch(() => null),
+        requestJson(
+          withNetworkQuery("/api/web3-wallet/transactions", selectedNetwork)
+        ).catch(() => null),
+      ]);
 
-      let result;
-
-      if (selectedFromToken.native && !selectedToToken.native) {
-        result = await swapNativeToToken({
-          signer: activeSigner,
-          tokenOut: selectedToToken,
-          walletAddress: wallet,
-          amount: swapAmount,
-          chainKey: swapChainKey,
-        });
-      } else if (!selectedFromToken.native && selectedToToken.native) {
-        result = await swapTokenToNative({
-          signer: activeSigner,
-          tokenIn: selectedFromToken,
-          walletAddress: wallet,
-          amount: swapAmount,
-          chainKey: swapChainKey,
-        });
+      if (balancesRes) {
+        setBalances(balancesRes.balances || []);
+        setBalancesAvailable(balancesRes.available !== false);
       } else {
-        alert("Token-to-token swap is coming next.");
-        return;
+        setBalances([]);
+        setBalancesAvailable(true);
       }
-
-      setTxHistory(
-        addLocalTx({
-          type: "Swap",
-          hash: result.hash,
-          amount: swapAmount,
-          coin: `${selectedFromToken.symbol}/${selectedToToken.symbol}`,
-          status: "pending",
-          wallet,
-          chainKey: swapChainKey,
-        })
-      );
-
-      showToast("Swap pending...");
-      await result.tx.wait();
-
-      updateLocalTxStatus(result.hash, "success");
-
-      await saveWeb3TxToBackend(API, {
-        type: "Swap",
-        hash: result.hash,
-        amount: swapAmount,
-        coin: `${selectedFromToken.symbol}/${selectedToToken.symbol}`,
-        status: "success",
-        wallet,
-        chain: selectedFromToken.network,
-        chainKey: swapChainKey,
-      });
-
-      await loadBalances(wallet, swapChainKey);
-      await loadHistory(wallet);
-
-      setSwapAmount("");
-      showToast("Swap completed.");
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "Swap failed.");
-    }
-  };
-
-  const handleImportCustomToken = async () => {
-    try {
-      if (!customTokenAddress) return alert("Enter token contract address.");
-
-      setTokenImporting(true);
-
-      const token = await importCustomToken({
-        address: customTokenAddress,
-        chainKey: customTokenChain,
-      });
-      setTokenPreview(token);
-      setCustomTokenAddress("");
-      setShowImportToken(false);
-      setActiveChain(token.chainKey);
-      localStorage.setItem("exalt_active_chain", token.chainKey);
-
-      await loadBalances(wallet, token.chainKey);
-
-      showToast(`${token.symbol} imported successfully.`);
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "Token import failed.");
+      if (txRes) setTransactions(txRes.transactions || []);
+      else setTransactions([]);
+    } catch (error) {
+      setLoadError(describeError(error, "Web3 wallet load"));
     } finally {
-      setTokenImporting(false);
+      setLoading(false);
     }
-  };
-
-  const handleRemoveCustomToken = async (token) => {
-    try {
-      if (!token?.custom) return alert("Default token cannot be removed.");
-
-      if (!window.confirm(`Remove ${token.symbol} from wallet?`)) return;
-
-      removeCustomToken(token.id);
-      await loadBalances(wallet, activeChain);
-
-      showToast(`${token.symbol} removed.`);
-    } catch (err) {
-      console.log(err);
-      alert(err.message || "Remove token failed.");
-    }
-  };
-const handleFavoriteToken = (token) => {
-  if (!token?.id) return;
-
-  toggleFavoriteToken(token.id);
-  showToast(`${token.symbol} favorite updated.`);
-  setSelectedCoinDetails(null);
-
-  setTimeout(() => {
-    setSelectedCoinDetails({
-      ...token,
-      favorite: !token.favorite,
-    });
-  }, 50);
-};
-
-const handleHideToken = (token) => {
-  if (!token?.id) return;
-
-  if (!window.confirm(`Hide ${token.symbol} from wallet list?`)) return;
-
-  hideTokenById(token.id);
-  setSelectedCoinDetails(null);
-  showToast(`${token.symbol} hidden from wallet.`);
-};
-
-const handleWatchlistToken = (token) => {
-  if (!token?.id) return;
-
-  toggleWatchlistToken(token.id);
-  showToast(`${token.symbol} watchlist updated.`);
-};
-  useEffect(() => {
-    const timer = setTimeout(() => setShowWelcome(false), 1800);
-    return () => clearTimeout(timer);
-  }, []);
+  }, [requestJson, selectedNetwork]);
 
   useEffect(() => {
-    const savedWallets = getSavedWallets();
-    const active = getActiveWalletAddress();
+    loadAll();
+  }, [loadAll]);
 
-    setWallets(savedWallets);
-    if (active) setWallet(active);
-
-    loadMarketPrices();
-
-    if (active) {
-      loadBalances(active, activeChain);
-      loadHistory(active);
-    }
-  }, []);
-
-  useEffect(() => {
-    setTotalAssets(portfolioValue);
-  }, [portfolioValue]);
-  useEffect(() => {
-  setAssetSettings(getAssetSettings());
-  setPriceAlerts(getPriceAlerts());
-  setAddressBook(getAddressBook());
-
-  if (wallet) {
-    setBackupStatus(getBackupStatus(wallet));
-  }
-}, [wallet]);
-
-useEffect(() => {
-  setHistoryStats(getHistoryStats(txHistory));
-}, [txHistory]);
-
-useEffect(() => {
-  const result = checkPriceAlerts(prices);
-
-  if (result.triggered.length > 0) {
-    showToast(`${result.triggered.length} price alert triggered.`);
-    setPriceAlerts(result.alerts);
-  }
-}, [prices]);
-  useEffect(() => {
-  if (!wallet) return;
-
-  const interval = setInterval(() => {
-    loadBalances(wallet, activeChain);
-    loadHistory(wallet);
-  }, 30000);
-
-  return () => clearInterval(interval);
-}, [wallet, activeChain]);
-if (selectedCoinDetails) {
-  
-  return (
-    <CoinDetails
-      coin={selectedCoinDetails}
-      balance={
-        balances[getTokenBalanceKey(selectedCoinDetails)] || 0
-      }
-      price={
-        prices[selectedCoinDetails.symbol] ||
-        selectedCoinDetails.fallbackPrice ||
-        0
-      }
-onBack={() => {
-  setSelectedCoinDetails(null);
-  setBottomTab("home");
-  replayWelcome();
-}}
-      onSend={() => {
-        setSendTokenId(selectedCoinDetails.id);
-        setBottomTab("discover");
-        setSelectedCoinDetails(null);
-      }}
-      onReceive={() => {
-        setReceiveTokenId(selectedCoinDetails.id);
-        setBottomTab("assets");
-        setSelectedCoinDetails(null);
-      }}
-      onSwap={() => {
-        setFromTokenId(selectedCoinDetails.id);
-        setBottomTab("trade");
-        setSelectedCoinDetails(null);
-      }}
-      onImport={() => {
-        setShowImportToken(true);
-        setSelectedCoinDetails(null);
-      }}
-      onFavorite={() => handleFavoriteToken(selectedCoinDetails)}
-      onWatchlist={() => handleWatchlistToken(selectedCoinDetails)}
-      onHide={() => handleHideToken(selectedCoinDetails)}
-    />
+  const activeNetworkInfo = useMemo(
+    () => networks.find((n) => n.network === selectedNetwork) || null,
+    [networks, selectedNetwork]
   );
-}
+
+  const copyAddress = () => {
+    if (!wallet?.address) return;
+    navigator.clipboard
+      .writeText(wallet.address)
+      .then(() => {
+        setCopyFeedback("Address copied");
+        setTimeout(() => setCopyFeedback(""), 2000);
+      })
+      .catch(() => {});
+  };
+
+  if (loading) {
+    return (
+      <PageShell titleKey="web3Wallet" subtitleKey="web3walletSubtitle">
+        <div className="web3-wallet-page">
+          <div className="w3-loading">Loading your Web3 wallet…</div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (loadError && !wallet) {
+    const requiresKyc = loadError.includes("KYC");
+
+    return (
+      <PageShell titleKey="web3Wallet" subtitleKey="web3walletSubtitle">
+        <div className="web3-wallet-page">
+          <div className="w3-error-state">
+            <p>{loadError}</p>
+            <button
+              className="w3-btn w3-btn-primary"
+              onClick={() =>
+                requiresKyc && typeof setPage === "function"
+                  ? setPage("kyc-submit")
+                  : loadAll()
+              }
+            >
+              {requiresKyc ? "Open KYC Verification" : "Retry"}
+            </button>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
   return (
-    <div className="ex-web3-page">
-      <div className="ex-web3-phone">
-        {showWelcome && (
-        <div key={welcomeKey} className="ex-welcome-overlay">
-            <img src={exchangeLogo} alt="Exalt Exchange" className="welcome-logo" />
-            <h3>Welcome To</h3>
-            <h1>Exalt Wallet</h1>
-            <p>Multi-Chain • Private • Exalt Internal Wallet</p>
-          </div>
-        )}
-
-        <div className="ex-web3-topbar">
-          <button className="ex-icon-btn" onClick={() => setShowMenu(true)}>☰</button>
-          <button className="ex-icon-btn" onClick={openSupport}>🎧</button>
-<div className="ex-main-tabs">
-  <button
-    type="button"
-    onClick={goExchange}
-    onTouchStart={goExchange}
-  >
-    Exchange
-  </button>
-
-  <button type="button" className="active">
-    Wallet
-  </button>
-</div>
-         
-          <button className="ex-icon-btn" onClick={startScanner}>⌗</button>
-          <button className="ex-icon-btn" onClick={openSupport}>💬</button>
+    <PageShell titleKey="web3Wallet" subtitleKey="web3walletSubtitle">
+      <main className="web3-wallet-page">
+        <div className="w3-separation-notice">
+          Your <strong>Web3 Wallet</strong> is separate from your Exalt Exchange
+          balance. Funds here live on-chain at your own Web3 address and are
+          not part of your Spot/Funding balance until you deposit them into
+          Exalt.
         </div>
 
-        <div className="ex-search">
-         <span>
-  <b>{chain.name}</b>
-  <small className="ex-network-badge">{chain.network}</small>
-  <em>Exalt Multi-Chain Wallet</em>
-</span>
-          <button onClick={() => setShowImportToken(true)}>＋</button>
-        </div>
+        <NetworkBar
+          networks={networks}
+          selectedNetwork={selectedNetwork}
+          onSelect={setSelectedNetwork}
+        />
 
-        <div className="ex-chain-tabs">
-          {chains.map((item) => (
-            <button
-              key={item.key}
-              className={activeChain === item.key ? "active" : ""}
-              onClick={() => changeChain(item.key)}
-            >
-              {item.shortName || item.symbol}
-            </button>
-          ))}
-        </div>
-
-        {!wallet ? (
-          <div className="ex-welcome-card">
-            <img src={exchangeLogo} alt="Exalt Exchange" />
-            <p>Welcome to</p>
-            <h1>
-              Exalt Exchange <span>Wallet</span>
-            </h1>
-            <button onClick={() => setShowAddWallet(true)}>
-              Create Exalt Wallet
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="ex-wallet-head">
-              <div>
-                <div className="ex-wallet-name">
-                  <span>💼</span>
-                  <button
-                    className="ex-wallet-select-btn"
-                    onClick={() => setShowMyWallets(true)}
-                  >
-                    {activeWalletName}⌄
-                  </button>
-                  <button onClick={() => setShowAddWallet(true)}>＋</button>
-                </div>
-<button className="ex-address-btn" onClick={copyAddress}>
-  <span>{shortAddress(wallet)}</span>
-  <span className="copy-icon">📋</span>
-</button>
-               
-              </div>
-
-              <button className="ex-receive-btn" onClick={() => setBottomTab("assets")}>
-                Receive
-              </button>
-            </div>
-
-            <div className="ex-balance-card">
-             <div className="ex-balance-row">
-  <h1>
-    {hideBalance ? "••••••••" : formatUsd(totalAssets)}
-  </h1>
-
-  <button
-    className="ex-eye-btn"
-    onClick={() => {
-      const next = !hideBalance;
-      setHideBalance(next);
-      localStorage.setItem("exalt_hide_balance", next);
-    }}
-  >
-    {hideBalance ? "👁️" : "🙈"}
-  </button>
-</div>
-              <p>{chain.name}</p>
-            </div>
-          </>
-        )}
-
-        <div className="ex-action-row">
+        <nav className="w3-tabs">
           {[
-            ["Receive", "⬇️"],
-            ["Send", "⬆️"],
-            ["Swap", "⇄"],
-            ["History", "▧"],
-            ["More", "🔳"],
-          ].map(([label, icon]) => (
+            ["home", "Home"],
+            ["portfolio", "Portfolio"],
+            ["receive", "Receive"],
+            ["send", "Send"],
+            ["swap", "Swap"],
+            ["networks", "Networks"],
+            ["activity", "Activity"],
+          ].map(([key, label]) => (
             <button
-              key={label}
-              onClick={() => {
-                if (!wallet && label !== "More") {
-                  setShowAddWallet(true);
-                  return;
-                }
-
-                if (label === "Receive") setBottomTab("assets");
-                if (label === "Send") setBottomTab("discover");
-                if (label === "Swap") setBottomTab("trade");
-                if (label === "History") setBottomTab("market");
-                if (label === "More") setShowMore(true);
-              }}
+              key={key}
+              className={activeTab === key ? "active" : ""}
+              onClick={() => setActiveTab(key)}
             >
-              <span>{icon}</span>
               {label}
             </button>
           ))}
-        </div>
+        </nav>
 
-        <div className="ex-promo-card">
-          <div>
-            <h3>Exalt Multi-Chain Wallet</h3>
-            <p>Create wallet, import custom tokens, receive, send and swap supported assets.</p>
-            <span onClick={() => setShowImportToken(true)}>Import Token ›</span>
-          </div>
-          <img src={exaltLogo} alt="EXALT" />
-        </div>
-        <div className="ex-holdings-head">
-  <h3>Wallet Assets</h3>
-
-  <button
-    onClick={() => {
-      if (!wallet) return setShowAddWallet(true);
-      loadBalances(wallet, activeChain);
-      loadHistory(wallet);
-      showToast("Wallet refreshed.");
-    }}
-  >
-    🔄 Refresh
-  </button>
-</div>
-        <div className="ex-asset-tabs">
-          {["holdings", "tokens", "history", "security"].map((tab) => (
-            <button
-              key={tab}
-              className={assetTab === tab ? "active" : ""}
-              onClick={() => {
-                setAssetTab(tab);
-                if (tab === "history") setBottomTab("market");
-                if (tab === "tokens") setShowImportToken(true);
-              }}
-            >
-              {tab === "holdings"
-                ? "★ Holdings"
-                : tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        <input
-          className="ex-web3-search-input"
-          placeholder={`Search ${chain.name} tokens`}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <div className="ex-coin-list">
-          {walletTokens.slice(0, 40).map((coin, index) => {
-            const key = getTokenBalanceKey(coin);
-            const balance =
-              balances[key] ??
-              balances[`${coin.chainKey}:${coin.symbol}`] ??
-              balances[coin.symbol] ??
-              0;
-
-            const price =
-              prices[key] ??
-              prices[`${coin.chainKey}:${coin.symbol}`] ??
-              prices[coin.symbol] ??
-              coin.fallbackPrice ??
-              0;
-
-           return (
-  <div
-    className={`ex-coin-item ${coin.marketOnly ? "market-only" : ""}`}
-    onClick={() => setSelectedCoinDetails(coin)}
-  >
-                <img
-                  src={getTokenLogo(coin, exaltLogo)}
-                  alt={coin.symbol}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-
-                <div>
-                  <strong>{coin.symbol}</strong>
-                  <p>{buildTokenDisplayName(coin)}</p>
-                </div>
-
-                <div>
-                 <strong>
-  {hideBalance ? "••••" : formatTokenAmount(balance)}
-</strong> 
-                 <p>{hideBalance ? "••••" : `$${formatTokenPrice(price)}`}</p>
-                  {coin.custom && (
-                    <button
-                      className="ex-token-mini-btn"
-                      onClick={() => handleRemoveCustomToken(coin)}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {showImportToken && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setShowImportToken(false)}>×</button>
-            <h3>Import Custom Token</h3>
-            <p>Add any supported EVM token by contract address.</p>
-
-           <select
-  value={customTokenChain}
-  onChange={(e) => {
-    setCustomTokenChain(e.target.value);
-    setTokenPreview(null);
-  }}
->
-            
-              {getImportableChains().map((item) => (
-                <option key={item.key} value={item.key}>
-                  {item.name} - {item.network}
-                </option>
-              ))}
-            </select>
-
-            <input
-              placeholder="Token contract address"
-              value={customTokenAddress}
-             onChange={(e) => {
-  setCustomTokenAddress(e.target.value);
-  setTokenPreview(null);
-}}
-            />
-{tokenPreview && (
-  <div className="ex-token-preview">
-    <strong>{tokenPreview.name}</strong>
-    <p>Symbol: {tokenPreview.symbol}</p>
-    <p>Decimals: {tokenPreview.decimals}</p>
-    <p>Network: {tokenPreview.network}</p>
-    <small>{tokenPreview.address}</small>
-  </div>
-)}
-            <button disabled={tokenImporting} onClick={handleImportCustomToken}>
-              {tokenImporting ? "Importing..." : "Import Token"}
-            </button>
-          </div>
+        {activeTab === "home" && (
+          <HomeTab
+            portfolio={portfolio}
+            portfolioLoading={portfolioLoading}
+            recentActivity={recentActivity}
+            networks={networks}
+            onNavigate={setActiveTab}
+          />
         )}
 
-        {bottomTab === "assets" && wallet && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
-            <h3>Receive {selectedReceiveToken?.symbol}</h3>
-
-            <p className="ex-network-warning">
-              {getTokenWarning(selectedReceiveToken?.symbol, selectedReceiveToken?.chainKey)}
-            </p>
-{selectedReceiveToken?.marketOnly && (
-  <p className="ex-network-warning">
-    This is a market/watchlist coin. Import the real contract token before receiving.
-  </p>
-)}
-            <select
-              value={selectedReceiveToken?.id || ""}
-              onChange={(e) => setReceiveTokenId(e.target.value)}
-            >
-              {walletTokens.map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.symbol} - {x.network}
-                </option>
-              ))}
-            </select>
-
-            <div className="ex-qr">
-              <QRCode value={receiveAddress || wallet} size={170} />
-            </div>
-
-            <p>{receiveAddress || wallet}</p>
-
-            <button onClick={() => copyToClipboard(receiveAddress || wallet)}>
-              Copy Address
-            </button>
-            <button
-  onClick={() => {
-    const address = receiveAddress || wallet;
-
-    if (navigator.share) {
-      navigator.share({
-        title: "Exalt Wallet Address",
-        text: address,
-      });
-    } else {
-      copyToClipboard(address);
-      showToast("Address copied for sharing.");
-    }
-  }}
->
-  Share Address
-</button>
-
-<button
-  onClick={() => {
-    const chainData = getChain(selectedReceiveToken?.chainKey || activeChain);
-    window.open(`${chainData.explorer}/address/${receiveAddress || wallet}`, "_blank");
-  }}
->
-  Open Explorer
-</button>
-          </div>
+        {activeTab === "portfolio" && (
+          <PortfolioTab
+            wallet={wallet}
+            balances={balances}
+            balancesAvailable={balancesAvailable}
+            networkInfo={activeNetworkInfo}
+            portfolio={portfolio}
+            onRefresh={loadAll}
+          />
         )}
 
-        {bottomTab === "discover" && wallet && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
-            <h3>Send Crypto</h3>
-
-            <select
-              value={selectedSendToken?.id || ""}
-              onChange={(e) => setSendTokenId(e.target.value)}
-            >
-              {walletTokens.map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.symbol} - {x.network}
-                </option>
-              ))}
-            </select>
-
-            <input
-              placeholder="Receiver wallet address"
-              value={sendTo}
-              onChange={(e) => setSendTo(e.target.value)}
-            />
-
-            <input
-              placeholder={`Amount ${selectedSendToken?.symbol || ""}`}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-<button
-  type="button"
-  className="ex-max-btn"
-  onClick={() => {
-    const key = getTokenBalanceKey(selectedSendToken);
-    const available =
-      balances[key] ??
-      balances[`${selectedSendToken.chainKey}:${selectedSendToken.symbol}`] ??
-      balances[selectedSendToken.symbol] ??
-      0;
-
-    setAmount(String(available));
-  }}
->
-  Max
-</button>
-            <button onClick={handleSend}>Send Now</button>
-          </div>
+        {activeTab === "receive" && (
+          <ReceiveTab
+            wallet={wallet}
+            networkInfo={activeNetworkInfo}
+            onCopy={copyAddress}
+            copyFeedback={copyFeedback}
+          />
         )}
 
-        {bottomTab === "trade" && wallet && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
-            <h3>Swap</h3>
-
-            <select
-              value={selectedFromToken?.id || ""}
-              onChange={(e) => setFromTokenId(e.target.value)}
-            >
-              {walletTokens.map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.symbol} - {x.network}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={selectedToToken?.id || ""}
-              onChange={(e) => setToTokenId(e.target.value)}
-            >
-              {walletTokens.map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.symbol} - {x.network}
-                </option>
-              ))}
-            </select>
-
-            <input
-              placeholder="Amount"
-              value={swapAmount}
-              onChange={(e) => setSwapAmount(e.target.value)}
-            />
-
-            <button onClick={handleSwap}>Swap Now</button>
-          </div>
+        {activeTab === "send" && (
+          <SendTab
+            wallet={wallet}
+            balances={balances}
+            networkInfo={activeNetworkInfo}
+            selectedNetwork={selectedNetwork}
+            requestJson={requestJson}
+            onSent={loadAll}
+          />
         )}
 
-      {bottomTab === "market" && (
-  <div className="ex-modal-panel ex-history-panel">
-    <button className="ex-close" onClick={() => setBottomTab("home")}>×</button>
+        {activeTab === "swap" && (
+          <SwapTab
+            wallet={wallet}
+            balances={balances}
+            networkInfo={activeNetworkInfo}
+            selectedNetwork={selectedNetwork}
+            requestJson={requestJson}
+            onSwapped={loadAll}
+          />
+        )}
 
-    <div className="ex-history-head">
-      <div>
-        <h3>Transaction History</h3>
-        <p>{txHistory.length} transaction{txHistory.length !== 1 ? "s" : ""}</p>
+        {activeTab === "networks" && (
+          <NetworksTab
+            networks={networks}
+            selectedNetwork={selectedNetwork}
+            onSelect={(network) => {
+              setSelectedNetwork(network);
+              setActiveTab("portfolio");
+            }}
+          />
+        )}
+
+        {activeTab === "activity" && (
+          <ActivityTab
+            transactions={transactions}
+            selectedNetwork={selectedNetwork}
+            requestJson={requestJson}
+            onRefresh={loadAll}
+          />
+        )}
+      </main>
+
+      <Web3BottomNav activeTab={activeTab} onNavigate={setActiveTab} />
+    </PageShell>
+  );
+
+  // ---- inline sub-renders below share `balanceOf`/formatAmount/etc. ----
+}
+
+/* =========================================================
+   WEB3 BOTTOM NAV (mobile only, directive §13)
+
+   A fixed bottom nav SCOPED TO THIS PAGE - it switches this page's
+   own `activeTab` state, never the CEX app's `page` state. Mirrors
+   the fixed-position/safe-area-inset/backdrop-blur mechanics already
+   established by Dashboard.jsx's `.mobile-bottom-nav` and
+   Futures.jsx's `.bm-bottom-nav` (see Web3Wallet.css), but with its
+   own Web3-only item set (Home / Assets / Swap / Activity, plus a
+   visually raised Send+Receive pair) and its own `.w3-` class
+   namespace - deliberately never merged into those other navs, so
+   "EXALT Exchange CEX" and "EXALT Web3" always read as two distinct
+   navigational contexts (directive §14). Always rendered - CSS alone
+   hides it above the 768px breakpoint, same convention as those
+   other pages' bottom navs.
+========================================================= */
+function Web3BottomNav({ activeTab, onNavigate }) {
+  const isActive = (key) => activeTab === key;
+
+  return (
+    <nav className="w3-bottom-nav" aria-label="EXALT Web3 navigation">
+      <button
+        type="button"
+        className={isActive("home") ? "active" : ""}
+        onClick={() => onNavigate("home")}
+      >
+        <span aria-hidden="true">⌂</span>
+        <span>Home</span>
+      </button>
+
+      <button
+        type="button"
+        className={isActive("portfolio") ? "active" : ""}
+        onClick={() => onNavigate("portfolio")}
+      >
+        <span aria-hidden="true">▤</span>
+        <span>Assets</span>
+      </button>
+
+      <div className="w3-bottom-nav-quick">
+        <button
+          type="button"
+          className={
+            "w3-bottom-nav-fab" + (isActive("send") ? " active" : "")
+          }
+          onClick={() => onNavigate("send")}
+          aria-label="Send"
+        >
+          <span aria-hidden="true">↑</span>
+          <span>Send</span>
+        </button>
+        <button
+          type="button"
+          className={
+            "w3-bottom-nav-fab" + (isActive("receive") ? " active" : "")
+          }
+          onClick={() => onNavigate("receive")}
+          aria-label="Receive"
+        >
+          <span aria-hidden="true">↓</span>
+          <span>Receive</span>
+        </button>
       </div>
 
       <button
-        className="ex-history-refresh"
-        onClick={() => {
-          if (wallet) loadHistory(wallet);
-          showToast("History refreshed.");
-        }}
+        type="button"
+        className={isActive("swap") ? "active" : ""}
+        onClick={() => onNavigate("swap")}
       >
-        ↻
+        <span aria-hidden="true">⇄</span>
+        <span>Swap</span>
       </button>
-    </div>
 
-    {txHistory.length === 0 ? (
-      <div className="ex-history-empty">
-        <span>🧾</span>
-        <strong>No transactions yet</strong>
-        <p>Your Web3 send and swap records will appear here.</p>
-      </div>
-    ) : (
-      txHistory.map((tx, i) => (
-        <div className="ex-history-item pro" key={`${tx.hash || tx.id || i}`}>
-          <div className="ex-history-top">
-            <div className="ex-history-token">
-              <span className="ex-history-token-icon">
-                {tx.type === "Send" ? "↗" : tx.type === "Receive" ? "↙" : "⇄"}
-              </span>
+      <button
+        type="button"
+        className={isActive("activity") ? "active" : ""}
+        onClick={() => onNavigate("activity")}
+      >
+        <span aria-hidden="true">🕒</span>
+        <span>Activity</span>
+      </button>
+    </nav>
+  );
+}
 
-              <div>
-                <strong>{tx.type} {tx.coin}</strong>
-                <small>{timeAgo(tx.createdAt)}</small>
-              </div>
-            </div>
+/* =========================================================
+   NETWORK BAR
 
-            <small className={`ex-status ${(tx.status || "success").toLowerCase()}`}>
-              {tx.status || "success"}
-            </small>
-          </div>
+   RC4: this is now a real, controlled network switcher - selecting
+   a network reloads the wallet/balances/transactions for THAT
+   network (see `selectedNetwork` in the parent component). Every
+   network shown here has a genuine, implemented backend adapter -
+   there is no "coming soon" placeholder state any more.
+========================================================= */
+function NetworkBar({ networks, selectedNetwork, onSelect }) {
+  const [open, setOpen] = useState(false);
+  const active = networks.find((n) => n.network === selectedNetwork) || {
+    displayName: selectedNetwork,
+  };
 
-          <div className="ex-history-amount">
-            <strong>{tx.amount} {tx.coin}</strong>
-            <span>{tx.chain || getChain(tx.chainKey || activeChain).network}</span>
-          </div>
-
-          <div className="ex-history-hash-box">
-            <span>Tx Hash</span>
-            <strong>{shortHash(tx.hash)}</strong>
-          </div>
-
-          <div className="ex-history-actions">
-            <button
+  return (
+    <div className="w3-network-bar">
+      <button className="w3-network-pill" onClick={() => setOpen((v) => !v)}>
+        <span className="w3-dot-live" /> {active.displayName}
+        <span className="w3-caret">▾</span>
+      </button>
+      {open && (
+        <div className="w3-network-dropdown">
+          {networks.map((n) => (
+            <div
+              key={n.network}
+              className={
+                "w3-network-row" +
+                (n.network === selectedNetwork ? " w3-network-row-active" : "")
+              }
+              role="button"
+              tabIndex={0}
               onClick={() => {
-                copyToClipboard(tx.hash || "");
-                showToast("Transaction hash copied.");
+                onSelect(n.network);
+                setOpen(false);
               }}
             >
-              📋 Copy
-            </button>
+              <span>{n.displayName}</span>
+              {n.mainnetSendGated ? (
+                <span className="w3-tag-soon">Send/Swap testnet-gated</span>
+              ) : (
+                <span className="w3-tag-live">Live</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
-            <button onClick={() => openExplorerTx(tx)}>
-              🔗 Explorer
-            </button>
+/* =========================================================
+   HOME TAB (directive §12 - "Welcome to EXALT Web3")
+
+   The branded landing screen for the Web3 product. Every figure here
+   comes from a real backend response - GET /api/web3-wallet/portfolio
+   for the total/top-assets/network-health, GET /api/web3-wallet/
+   transactions (no network filter) for recent activity - never a
+   client-side placeholder. See that endpoint's own header comment
+   (backend/controllers/web3WalletController.js's getPortfolio()) for
+   the exact rules on when a value is null/marked partial rather than
+   fabricated.
+========================================================= */
+function HomeTab({ portfolio, portfolioLoading, recentActivity, networks, onNavigate }) {
+  const totalUsd = portfolio ? formatUsd(portfolio.totalUsdValue) : null;
+  const isPartial = Boolean(portfolio?.totalUsdValueIsPartial);
+
+  const topAssets = useMemo(() => {
+    if (!portfolio?.networks) return [];
+
+    const flattened = portfolio.networks.flatMap((net) =>
+      (net.assets || [])
+        .filter((asset) => asset.balanceAvailable && Number(asset.balance) > 0)
+        .map((asset) => ({ ...asset, network: net.network, displayName: net.displayName }))
+    );
+
+    return flattened
+      .sort((a, b) => {
+        const av = typeof a.valueUsd === "number" ? a.valueUsd : -1;
+        const bv = typeof b.valueUsd === "number" ? b.valueUsd : -1;
+        return bv - av;
+      })
+      .slice(0, 5);
+  }, [portfolio]);
+
+  // Real, derived-from-response status per chain - never a fabricated
+  // "all green" indicator. "hasWallet" and "balanceAvailable" both
+  // come straight off the portfolio response.
+  const networkHealth = useMemo(() => {
+    if (!portfolio?.networks) return [];
+
+    return portfolio.networks.map((net) => {
+      if (!net.hasWallet) {
+        return { network: net.network, displayName: net.displayName, status: "not-set-up", label: "Not set up" };
+      }
+      const anyAvailable = (net.assets || []).some((a) => a.balanceAvailable);
+      return anyAvailable
+        ? { network: net.network, displayName: net.displayName, status: "live", label: "Balances live" }
+        : { network: net.network, displayName: net.displayName, status: "unavailable", label: "Unavailable" };
+    });
+  }, [portfolio]);
+
+  const entryCards = [
+    ["portfolio", "▤", "Portfolio", "View every asset on this network"],
+    ["receive", "↓", "Receive", "Get your deposit address"],
+    ["send", "↑", "Send", "Send an on-chain asset"],
+    ["swap", "⇄", "Swap", "Trade one asset for another"],
+    ["networks", "◈", "Networks", "See all 10 supported chains"],
+    ["activity", "🕒", "Activity", "Your Web3 transaction history"],
+  ];
+
+  return (
+    <div className="w3-home">
+      <div className="w3-hero">
+        <div className="w3-hero-title">Welcome to EXALT Web3</div>
+        <p className="w3-hero-subtitle">
+          Your own multi-chain, backend-secured wallet - separate from your
+          Exalt Exchange Spot/Funding balance.
+        </p>
+
+        <div className="w3-total-card">
+          <div className="w3-total-label">Total Web3 Portfolio Value</div>
+          {portfolioLoading ? (
+            <div className="w3-total-value w3-total-loading">Loading…</div>
+          ) : totalUsd ? (
+            <div className="w3-total-value">
+              {totalUsd}
+              {isPartial && (
+                <span className="w3-total-partial-chip">Partial</span>
+              )}
+            </div>
+          ) : (
+            <div className="w3-total-value w3-total-unavailable">Unavailable</div>
+          )}
+          {!portfolioLoading && isPartial && (
+            <div className="w3-total-note">
+              Some balances or prices are currently unavailable, so this total
+              may understate your real holdings - never a fabricated figure.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {networkHealth.length > 0 && (
+        <div className="w3-home-section">
+          <div className="w3-home-section-title">Network Health</div>
+          <div className="w3-health-strip">
+            {networkHealth.map((entry) => (
+              <div key={entry.network} className={`w3-health-chip w3-health-${entry.status}`}>
+                <span className="w3-health-dot" />
+                <span>{entry.displayName}</span>
+                <span className="w3-health-label">{entry.label}</span>
+              </div>
+            ))}
           </div>
         </div>
-      ))
-    )}
-  </div>
-)}
-              
+      )}
 
-        {showMenu && (
-          <div className="ex-modal-panel ex-menu-panel">
-            <button className="ex-close" onClick={() => setShowMenu(false)}>×</button>
-            <h3>Menu</h3>
-            <button onClick={() => setShowMyWallets(true)}>My Exalt Wallets</button>
-            <button onClick={() => setShowImportToken(true)}>Import Token</button>
-            <button onClick={openSupport}>Support Center</button>
-            <button onClick={() => setBottomTab("market")}>Transactions</button>
-            <button onClick={goExchange}>Go to Exchange</button>
+      <div className="w3-home-section">
+        <div className="w3-home-section-title">Top Assets</div>
+        {topAssets.length === 0 ? (
+          <div className="w3-panel w3-empty">
+            {portfolioLoading ? "Loading your assets…" : "No assets found yet across your Web3 wallets."}
           </div>
-        )}
-
-        {showMore && (
-          <div className="ex-modal-panel ex-menu-panel">
-            <button className="ex-close" onClick={() => setShowMore(false)}>×</button>
-            <h3>More</h3>
-            <button onClick={() => setShowSettings(true)}>Wallet Settings</button>
-            <button onClick={() => setShowMyWallets(true)}>My Exalt Wallets</button>
-            <button onClick={() => setShowAddWallet(true)}>Create / Import Wallet</button>
-            <button onClick={() => setShowImportToken(true)}>Import Custom Token</button>
-            <button onClick={startScanner}>Scan QR</button>
-            <button onClick={openSupport}>Support</button>
-          </div>
-        )}
-{showSettings && (
-  <div className="ex-modal-panel ex-settings-panel">
-    <button className="ex-close" onClick={() => setShowSettings(false)}>×</button>
-
-    <div className="ex-settings-head">
-      <h3>Wallet Settings</h3>
-      <p>Manage your Exalt Wallet, security and activity.</p>
-    </div>
-
-    <div className="ex-settings-section">
-      <span>Wallet</span>
-
-      <button onClick={() => setShowMyWallets(true)}>
-        <b>👛 Manage Wallets</b>
-        <small>Switch, rename or remove wallets</small>
-      </button>
-
-      <button onClick={() => setShowAddWallet(true)}>
-        <b>➕ Create Wallet</b>
-        <small>Create a new Exalt Wallet</small>
-      </button>
-
-      <button onClick={() => setShowAddWallet(true)}>
-        <b>📥 Import Wallet</b>
-        <small>Import phrase or private key</small>
-      </button>
-
-      <button onClick={() => setBottomTab("assets")}>
-        <b>⬇️ Receive</b>
-        <small>Show wallet QR and address</small>
-      </button>
-    </div>
-
-    <div className="ex-settings-section">
-      <span>Tools</span>
-
-     <button
-  onClick={() => {
-    setBottomTab("market");
-    setAssetTab("history");
-    setShowSettings(false);
-    if (wallet) loadHistory(wallet);
-  }}
->
-  <b>📜 History</b>
-  <small>View transactions and receipts</small>
-</button>
-
-      <button onClick={() => setShowAddressBook(true)}>
-        <b>📒 Address Book</b>
-        <small>Save trusted wallet addresses</small>
-      </button>
-
-      <button onClick={() => setShowPriceAlerts(true)}>
-        <b>🔔 Price Alerts</b>
-        <small>Create token price notifications</small>
-      </button>
-
-      <button onClick={() => setShowImportToken(true)}>
-        <b>🪙 Import Token</b>
-        <small>Add custom BEP20/ERC20 token</small>
-      </button>
-    </div>
-
-    <div className="ex-settings-section">
-      <span>Security</span>
-
-      <button onClick={() => setShowBackup(true)}>
-        <b>🔐 Wallet Backup</b>
-        <small>Backup and verify wallet safety</small>
-      </button>
-
-      <button onClick={() => {
-        const next = !hideBalance;
-        setHideBalance(next);
-        localStorage.setItem("exalt_hide_balance", next);
-      }}>
-        <b>{hideBalance ? "👁 Show Balances" : "🙈 Hide Balances"}</b>
-        <small>Privacy mode for portfolio value</small>
-      </button>
-
-      <button onClick={copyAddress}>
-        <b>📋 Copy Active Wallet</b>
-        <small>{shortAddress(wallet)}</small>
-      </button>
-    </div>
-  </div>
-)}
-
-         {showManage && (
-  <div className="ex-modal-panel ex-menu-panel">
-    <button className="ex-close" onClick={() => setShowManage(false)}>×</button>
-
-    <h3>Manage Assets</h3>
-
-    <button
-      onClick={() => {
-        const next = !assetSettings.hideZeroBalances;
-        const updated = setHideZeroBalances(next);
-        setAssetSettings(updated);
-        showToast(next ? "Zero balances hidden." : "Zero balances visible.");
-      }}
-    >
-      {assetSettings.hideZeroBalances ? "Show Zero Balances" : "Hide Zero Balances"}
-    </button>
-
-    <button
-      onClick={() => {
-        const updated = setAssetSortBy("value");
-        setAssetSettings(updated);
-        showToast("Sorted by value.");
-      }}
-    >
-      Sort by Value
-    </button>
-
-    <button
-      onClick={() => {
-        const updated = setAssetSortBy("name");
-        setAssetSettings(updated);
-        showToast("Sorted by name.");
-      }}
-    >
-      Sort by Name
-    </button>
-
-    <button
-      onClick={() => {
-        const updated = setAssetSortBy("balance");
-        setAssetSettings(updated);
-        showToast("Sorted by balance.");
-      }}
-    >
-      Sort by Balance
-    </button>
-
-    <button
-      onClick={() => {
-        const updated = restoreHiddenTokens();
-        setAssetSettings(updated);
-        showToast("Hidden tokens restored.");
-      }}
-    >
-      Restore Hidden Tokens
-    </button>
-
-    <button onClick={() => setShowImportToken(true)}>
-      Import Custom Token
-    </button>
-  </div>
-)}
-{showAddressBook && (
-  <div className="ex-modal-panel ex-menu-panel">
-    <button
-      className="ex-close"
-      onClick={() => setShowAddressBook(false)}
-    >
-      ×
-    </button>
-
-    <h3>Address Book</h3>
-
-    {addressBook.length === 0 ? (
-      <p>No saved addresses yet.</p>
-    ) : (
-      addressBook.map((item) => (
-        <div className="ex-manage-row" key={item.id}>
-          <div>
-            <strong>{item.name}</strong>
-            <small>{shortAddress(item.address)} • {item.network}</small>
-          </div>
-
-          <button onClick={() => setSendTo(item.address)}>
-            Use
-          </button>
-
-          <button
-            onClick={() => {
-              const updated = toggleAddressFavorite(item.id);
-              setAddressBook(updated);
-            }}
-          >
-            {item.favorite ? "★" : "☆"}
-          </button>
-
-          <button
-            onClick={() => {
-              const updated = deleteAddressBookContact(item.id);
-              setAddressBook(updated);
-              showToast("Address deleted.");
-            }}
-          >
-            Delete
-          </button>
-        </div>
-      ))
-    )}
-
-    <button
-      onClick={() => {
-        const name = prompt("Contact name");
-        const address = prompt("Wallet address");
-
-        if (!name || !address) return;
-
-        try {
-          const updated = addAddressBookContact({
-            name,
-            address,
-            network: chain.network,
-            chainKey: activeChain,
-          });
-
-          setAddressBook(updated);
-          showToast("Address saved.");
-        } catch (err) {
-          alert(err.message || "Address save failed.");
-        }
-      }}
-    >
-      Add New Address
-    </button>
-  </div>
-)}
-{showBackup && (
-  <div className="ex-modal-panel ex-menu-panel">
-    <button
-      className="ex-close"
-      onClick={() => setShowBackup(false)}
-    >
-      ×
-    </button>
-
-    <h3>Wallet Backup</h3>
-
-    <p>
-      Backup status:
-      <strong>
-        {backupStatus?.completed ? " ✅ Completed" : " ❌ Not Backed Up"}
-      </strong>
-    </p>
-
-   <button
-  onClick={() => {
-    const updated = markWalletBackedUp(wallet);
-    setBackupStatus(updated);
-    showToast("Wallet marked as backed up.");
-  }}
->
-  Mark as Backed Up
-</button>
-
-<button
-  onClick={() => {
-    const updated = markWalletVerified(wallet);
-    setBackupStatus(updated);
-    showToast("Wallet backup verified.");
-  }}
->
-  Verify Backup
-</button>
-
-<button
-  onClick={() => {
-    const updated = dismissBackupReminder(wallet);
-    setBackupStatus(updated);
-    showToast("Backup reminder dismissed.");
-  }}
->
-  Dismiss Reminder
-</button>
-  </div>
-)}
-{showPriceAlerts && (
-  <div className="ex-modal-panel ex-menu-panel">
-    <button
-      className="ex-close"
-      onClick={() => setShowPriceAlerts(false)}
-    >
-      ×
-    </button>
-
-    <h3>Price Alerts</h3>
-
-    {!priceAlerts.length ? (
-      <p>No active price alerts.</p>
-    ) : (
-      priceAlerts.map((alert) => (
-        <div className="ex-manage-row" key={alert.id}>
-          <div>
-            <strong>{alert.symbol}</strong>
-            <small>
-              {alert.condition} ${alert.targetPrice}
-            </small>
-          </div>
-
-          <button
-            onClick={() => {
-              const updated =deletePriceAlert(alert.id);
-              setPriceAlerts(updated);
-              showToast("Alert removed.");
-            }}
-          >
-            Delete
-          </button>
-        </div>
-      ))
-    )}
-
-    <button
-      onClick={() => {
-        const symbol = prompt("Token Symbol");
-        const target = Number(prompt("Target Price"));
-        const condition = prompt("above / below");
-
-        if (!symbol || !target || !condition) return;
-
-        const updated = addPriceAlert({
-          symbol: symbol.toUpperCase(),
-          targetPrice: target,
-          condition,
-        });
-
-        setPriceAlerts(updated);
-        showToast("Price Alert Added.");
-      }}
-    >
-      Add Price Alert
-    </button>
-  </div>
-)}
-        {showSupport && (
-          <div className="ex-modal-panel">
-            <button className="ex-close" onClick={() => setShowSupport(false)}>×</button>
-            <h3>Support Center</h3>
-            <p>Need help with Exalt Wallet, token import, receive, send, swap, or transaction?</p>
-
-            <textarea
-              className="ex-support-textarea"
-              placeholder="Write your issue here..."
-              value={supportMsg}
-              onChange={(e) => setSupportMsg(e.target.value)}
-            />
-
-            <button onClick={submitSupport}>Submit Support Request</button>
-          </div>
-        )}
-
-        {showScanner && (
-          <div className="ex-wallets-screen">
-            <div className="ex-wallets-top">
-              <button onClick={stopScanner}>‹</button>
-              <h3>QR Scanner</h3>
-              <span />
-            </div>
-
-            <div className="ex-scanner-box">
-              <video ref={videoRef} className="ex-scanner-video" />
-              <p>Scan wallet address QR code.</p>
-            </div>
-          </div>
-        )}
-
-        {showMyWallets && (
-          <div className="ex-wallets-screen">
-            <div className="ex-wallets-top">
-              <button onClick={() => setShowMyWallets(false)}>‹</button>
-              <h3>My Exalt Wallets</h3>
-              <button onClick={() => setShowAddWallet(true)}>Manage</button>
-            </div>
-
-            <div className="ex-wallets-portfolio">
-              <span>Portfolio ›</span>
-              <h1>{formatUsd(totalAssets)}</h1>
-            </div>
-
-            <h4>Exalt Wallets</h4>
-
-            {wallets.length === 0 ? (
-              <p>No wallets added yet.</p>
-            ) : (
-              wallets.map((w) => (
-                <div
-                  key={w.id || w.address}
-                  className={`ex-wallet-list-row ${
-                    wallet?.toLowerCase() === w.address?.toLowerCase() ? "active" : ""
-                  }`}
-                >
-                  <div onClick={() => switchWallet(w.address)}>
-                    <strong>{w.name}</strong>
-                    <p>{shortAddress(w.address)}</p>
-                    <small>{w.type || "Exalt Wallet"}</small>
-                  </div>
-
-                  <span>✓</span>
-
-                  <button onClick={() => renameWallet(w.address)}>Rename</button>
-                  <button onClick={() => removeWallet(w.address)}>Remove</button>
+        ) : (
+          <div className="w3-panel w3-asset-list">
+            {topAssets.map((asset) => (
+              <div className="w3-asset-row" key={`${asset.network}-${asset.coin}`}>
+                <img
+                  className="w3-asset-logo"
+                  src={COIN_LOGOS[asset.coin] || exaltLogo}
+                  alt={asset.coin}
+                  onError={(e) => {
+                    e.currentTarget.src = exaltLogo;
+                  }}
+                />
+                <div className="w3-asset-info">
+                  <div className="w3-asset-symbol">{asset.coin}</div>
+                  <div className="w3-asset-network">{asset.displayName}</div>
                 </div>
-              ))
-            )}
-
-            <button className="ex-add-wallet-main" onClick={() => setShowAddWallet(true)}>
-              Create / Import Wallet
-            </button>
+                <div className="w3-asset-balance">
+                  <div>{formatAmount(asset.balance)}</div>
+                  <div className="w3-asset-value">
+                    {typeof asset.valueUsd === "number" ? formatUsd(asset.valueUsd) : "Value unavailable"}
+                  </div>
+                  <div className="w3-asset-value">
+                    {asset.priceAvailable && typeof asset.priceUsd === "number"
+                      ? `${formatUsd(asset.priceUsd)} / ${asset.coin}`
+                      : "Price unavailable"}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
+      </div>
 
-        {showAddWallet && (
-          <div className="ex-wallets-screen">
-            <div className="ex-wallets-top">
-              <button onClick={() => setShowAddWallet(false)}>‹</button>
-              <h3>Exalt Wallet Setup</h3>
-              <span />
-            </div>
-
-            <div className="ex-add-wallet-card">
-              <h3>Create Exalt Wallet</h3>
-              <p>Create your own secure Exalt Wallet with a 12-word recovery phrase.</p>
-              <button onClick={createWallet}>Create Exalt Wallet</button>
-              <div className="ex-security-card">
-  <h3>🔐 Security Reminder</h3>
-
-  <ul>
-    <li>Never share your 12-word recovery phrase.</li>
-    <li>Exalt Exchange can never recover your wallet.</li>
-    <li>Store your backup offline.</li>
-    <li>Anyone with your phrase can access your funds.</li>
-  </ul>
-
-  <button
-    className="ex-security-btn"
-    onClick={() => setShowPhrase(true)}
-  >
-    View Recovery Phrase
-  </button>
-</div>
-            </div>
-
-            <div className="ex-add-wallet-card">
-              <h3>Import Exalt Wallet</h3>
-              <p>Import using 12-word recovery phrase or private key.</p>
-              <textarea
-                placeholder="12-word recovery phrase or private key"
-                value={importValue}
-                onChange={(e) => setImportValue(e.target.value)}
-              />
-              <button onClick={importWallet}>Import Wallet</button>
-            </div>
+      <div className="w3-home-section">
+        <div className="w3-home-section-title-row">
+          <div className="w3-home-section-title">Recent Activity</div>
+          <button className="w3-link-btn" onClick={() => onNavigate("activity")}>
+            View all
+          </button>
+        </div>
+        {recentActivity.length === 0 ? (
+          <div className="w3-panel w3-empty">No Web3 transactions yet.</div>
+        ) : (
+          <div className="w3-panel">
+            {recentActivity.slice(0, 3).map((tx) => {
+              const badge = statusBadge(tx.status);
+              return (
+                <div className="w3-tx-row" key={tx._id}>
+                  <div className="w3-tx-type">{tx.type}</div>
+                  <div className="w3-tx-detail">
+                    <div>
+                      {tx.type === "SWAP"
+                        ? `${tx.amount} ${tx.coin} → ${tx.toAmount || "?"} ${tx.toCoin}`
+                        : `${tx.amount} ${tx.coin}`}
+                    </div>
+                    <div className="w3-asset-network">{tx.network}</div>
+                  </div>
+                  <span className={badge.className}>{badge.label}</span>
+                </div>
+              );
+            })}
           </div>
         )}
+      </div>
 
-        {showPhrase && (
-          <div className="ex-modal-panel ex-seed-warning">
-            <button className="ex-close" onClick={() => setShowPhrase("")}>×</button>
-            <h3>Recovery Phrase</h3>
-            <p>Save these 12 words safely. Anyone with this phrase can access the wallet.</p>
-            <div className="ex-seed-box">{showPhrase}</div>
-            <button onClick={() => copyToClipboard(showPhrase)}>Copy Phrase</button>
-          </div>
-        )}
-        {lastReceipt && (
-  <div className="ex-modal-panel ex-receipt-panel">
-    <button className="ex-close" onClick={() => setLastReceipt(null)}>×</button>
-
-    <div className="ex-receipt-success">✅</div>
-
-    <h3>Transaction Successful</h3>
-    <p className="ex-receipt-subtitle">
-      Your {lastReceipt.type} transaction has been confirmed.
-    </p>
-
-    <div className="ex-receipt-row">
-      <span>Type</span>
-      <strong>{lastReceipt.type}</strong>
-    </div>
-
-    <div className="ex-receipt-row">
-      <span>Amount</span>
-      <strong>{lastReceipt.amount} {lastReceipt.coin}</strong>
-    </div>
-
-    <div className="ex-receipt-row">
-      <span>Network</span>
-      <strong>{lastReceipt.chain || lastReceipt.chainKey}</strong>
-    </div>
-
-    <div className="ex-receipt-hash">
-      <span>Transaction Hash</span>
-      <small>{lastReceipt.hash}</small>
-    </div>
-
-    <button
-      onClick={() => copyToClipboard(lastReceipt.hash)}
-    >
-      Copy Hash
-    </button>
-
-    <button
-      onClick={() => {
-        const chainData = getChain(lastReceipt.chainKey || activeChain);
-        window.open(`${chainData.explorer}/tx/${lastReceipt.hash}`, "_blank");
-      }}
-    >
-      View on Explorer
-    </button>
-
-    <button
-      onClick={() => {
-        if (navigator.share) {
-          navigator.share({
-            title: "Exalt Wallet Transaction",
-            text: `${lastReceipt.type} ${lastReceipt.amount} ${lastReceipt.coin}\nHash: ${lastReceipt.hash}`,
-          });
-        } else {
-          copyToClipboard(lastReceipt.hash);
-          showToast("Hash copied for sharing.");
-        }
-      }}
-    >
-      Share Receipt
-    </button>
-  </div>
-)}
-
-        {message && <div className="ex-web3-toast">{message}</div>}
-
-        <div className="ex-bottom-nav">
-          {[
-            ["home", "Home", "⌂"],
-            ["market", "Markets", "▧"],
-            ["trade", "Trade", "⇄"],
-            ["discover", "Discover", "◉"],
-            ["assets", "Assets", "▣"],
-          ].map(([key, label, icon]) => (
+      <div className="w3-home-section">
+        <div className="w3-entry-cards">
+          {entryCards.map(([key, icon, label, blurb]) => (
             <button
               key={key}
-              className={bottomTab === key ? "active" : ""}
-              onClick={() => {
-                if (!wallet && key !== "home") {
-                  setShowAddWallet(true);
-                  return;
-                }
-
-                setBottomTab(key);
-              }}
+              type="button"
+              className="w3-entry-card"
+              onClick={() => onNavigate(key)}
             >
-              <span>{icon}</span>
-              {label}
+              <span className="w3-entry-card-icon" aria-hidden="true">{icon}</span>
+              <span className="w3-entry-card-label">{label}</span>
+              <span className="w3-entry-card-blurb">{blurb}</span>
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="w3-home-footer-note">
+        {networks.length} real, independently-implemented chains supported -
+        no "coming soon" placeholders.
       </div>
     </div>
   );
 }
 
-export default Web3Wallet;
+/* =========================================================
+   NETWORKS TAB
+
+   The full GET /networks list as its own dedicated view (directive
+   §12's "Networks" entry card) rather than only living inside the
+   NetworkBar dropdown - every network here has a genuine, implemented
+   backend adapter.
+========================================================= */
+function NetworksTab({ networks, selectedNetwork, onSelect }) {
+  return (
+    <div className="w3-panel w3-networks-list">
+      {networks.map((n) => (
+        <div
+          key={n.network}
+          className={
+            "w3-networks-row" +
+            (n.network === selectedNetwork ? " w3-networks-row-active" : "")
+          }
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelect(n.network)}
+        >
+          <div>
+            <div className="w3-asset-symbol">{n.displayName}</div>
+            <div className="w3-asset-network">
+              {n.chainType} · Native asset {n.nativeCoin}
+            </div>
+          </div>
+          <div className="w3-networks-tags">
+            {n.mainnetSendGated ? (
+              <span className="w3-tag-soon">Send/Swap testnet-gated</span>
+            ) : (
+              <span className="w3-tag-live">Live</span>
+            )}
+            {n.swapSupported && <span className="w3-tag-live">Swap available</span>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* =========================================================
+   PORTFOLIO TAB
+========================================================= */
+function PortfolioTab({
+  wallet,
+  balances,
+  balancesAvailable,
+  networkInfo,
+  portfolio,
+  onRefresh,
+}) {
+  const networkLabel =
+    networkInfo?.displayName || wallet?.network || "";
+
+  const pricedAssets = useMemo(() => {
+    const selected = portfolio?.networks?.find(
+      (entry) => entry.network === wallet?.network
+    );
+
+    return new Map(
+      (selected?.assets || []).map((asset) => [
+        asset.coin,
+        asset,
+      ])
+    );
+  }, [portfolio, wallet?.network]);
+
+  return (
+    <div className="w3-panel">
+      <div className="w3-portfolio-header">
+        <div>
+          <div className="w3-portfolio-label">
+            Web3 Wallet Address ({networkLabel})
+          </div>
+          <div className="w3-address-mono">{wallet?.address}</div>
+        </div>
+        <button className="w3-btn w3-btn-ghost" onClick={onRefresh}>
+          Refresh
+        </button>
+      </div>
+
+      {!balancesAvailable && (
+        <div className="w3-unavailable-banner">
+          Balances are Unavailable right now — the {networkLabel} network
+          connection is not configured in this environment. This is not a
+          zero balance; it is unknown until the connection is restored.
+        </div>
+      )}
+
+      <div className="w3-asset-list">
+        {balances.length === 0 && balancesAvailable && (
+          <div className="w3-empty">No balances loaded yet.</div>
+        )}
+
+        {balances.map((b) => (
+          <div className="w3-asset-row" key={b.coin}>
+            <img
+              className="w3-asset-logo"
+              src={COIN_LOGOS[b.coin] || exaltLogo}
+              alt={b.coin}
+              onError={(e) => {
+                e.currentTarget.src = exaltLogo;
+              }}
+            />
+            <div className="w3-asset-info">
+              <div className="w3-asset-symbol">{b.coin}</div>
+              <div className="w3-asset-network">{networkLabel}</div>
+            </div>
+            <div className="w3-asset-balance">
+              <div>
+                {b.available
+                  ? formatAmount(b.balance)
+                  : "Unavailable"}
+              </div>
+
+              <div className="w3-asset-value">
+                {pricedAssets.get(b.coin)?.priceAvailable &&
+                typeof pricedAssets.get(b.coin)?.priceUsd ===
+                  "number"
+                  ? `${formatUsd(
+                      pricedAssets.get(b.coin).priceUsd
+                    )} / ${b.coin}`
+                  : "Price unavailable"}
+              </div>
+
+              <div className="w3-asset-value">
+                {typeof pricedAssets.get(b.coin)?.valueUsd ===
+                "number"
+                  ? formatUsd(
+                      pricedAssets.get(b.coin).valueUsd
+                    )
+                  : "Value unavailable"}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   RECEIVE TAB
+========================================================= */
+function ReceiveTab({ wallet, networkInfo, onCopy, copyFeedback }) {
+  const networkLabel = networkInfo?.displayName || wallet?.network || "this network";
+
+  return (
+    <div className="w3-panel w3-panel-center">
+      <div className="w3-qr-wrap">
+        <QRCodeCanvas value={wallet?.address || ""} size={180} includeMargin />
+      </div>
+
+      <div className="w3-address-mono w3-address-large">{wallet?.address}</div>
+
+      <div className="w3-receive-actions">
+        <button className="w3-btn w3-btn-primary" onClick={onCopy}>
+          {copyFeedback || "Copy Address"}
+        </button>
+        {wallet?.explorerAddressUrl && (
+          <a
+            className="w3-btn w3-btn-ghost"
+            href={wallet.explorerAddressUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            View on Explorer
+          </a>
+        )}
+      </div>
+
+      <p className="w3-hint">
+        Only send {networkLabel} assets to this address. Sending assets from
+        another network to this address may result in permanent loss.
+      </p>
+    </div>
+  );
+}
+
+/* =========================================================
+   SEND TAB
+========================================================= */
+function SendTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, onSent }) {
+  const availableCoins = useMemo(() => {
+    const coins = balances.map((b) => b.coin);
+    if (networkInfo?.nativeCoin && !coins.includes(networkInfo.nativeCoin)) {
+      coins.unshift(networkInfo.nativeCoin);
+    }
+    return coins.length ? coins : [networkInfo?.nativeCoin].filter(Boolean);
+  }, [balances, networkInfo]);
+
+  const [coin, setCoin] = useState(networkInfo?.nativeCoin || "");
+  const [toAddress, setToAddress] = useState("");
+  const [amount, setAmount] = useState("");
+  const [addressValid, setAddressValid] = useState(null);
+  const [gasEstimate, setGasEstimate] = useState(null);
+  const [gasLoading, setGasLoading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
+  // LAUNCH-CANDIDATE fix: generated ONCE when the confirm modal opens
+  // (see the "Review Send" button below) and reused for the actual
+  // API call - previously genIdempotencyKey() was called fresh inside
+  // submitSend on every invocation, so a genuine fast double-click
+  // could fire two DIFFERENT idempotency keys and the backend's dedup
+  // could not catch it.
+  const [sendIdempotencyKey, setSendIdempotencyKey] = useState(null);
+  // Synchronous re-entrancy guard: `submitting` state above is not
+  // enough on its own - a second synchronous click before React
+  // re-renders with `busy=true` would still fire a second submitSend
+  // call. Checked/set at the very top of submitSend, before any
+  // await, so that second call is a no-op instead.
+  const submittingRef = useRef(false);
+
+  // Reset the form's asset/address/amount whenever the network
+  // changes underneath it - a coin symbol or a "valid" address from
+  // one chain is meaningless (or actively dangerous) on another.
+  useEffect(() => {
+    setCoin(networkInfo?.nativeCoin || "");
+    setToAddress("");
+    setAmount("");
+    setAddressValid(null);
+    setGasEstimate(null);
+    setResult(null);
+    setSendIdempotencyKey(null);
+  }, [selectedNetwork, networkInfo?.nativeCoin]);
+
+  const balance = balances.find((b) => b.coin === coin);
+
+  useEffect(() => {
+    setGasEstimate(null);
+
+    if (!toAddress || !amount) return;
+
+    let cancelled = false;
+    setGasLoading(true);
+
+    requestJson("/api/web3-wallet/estimate-gas", {
+      method: "POST",
+      body: JSON.stringify({ network: selectedNetwork, toAddress, coin, amount }),
+    })
+      .then((res) => {
+        if (!cancelled) setGasEstimate(res);
+      })
+      .catch(() => {
+        if (!cancelled) setGasEstimate({ available: false });
+      })
+      .finally(() => {
+        if (!cancelled) setGasLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [toAddress, coin, amount, selectedNetwork, requestJson]);
+
+  const checkAddress = (value) => {
+    setToAddress(value);
+    setAddressValid(null);
+
+    if (!value) return;
+
+    requestJson("/api/web3-wallet/validate-address", {
+      method: "POST",
+      body: JSON.stringify({ network: selectedNetwork, address: value }),
+    })
+      .then((res) => setAddressValid(res.valid))
+      .catch(() => setAddressValid(false));
+  };
+
+  const submitSend = async () => {
+    // Synchronous re-entrancy guard - see submittingRef's declaration
+    // above. Must be the very first thing this function does, before
+    // any `await`, so a second synchronous call (fast double-click)
+    // lands here as a no-op rather than racing the first call.
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+
+    setSubmitting(true);
+    setResult(null);
+
+    try {
+      const res = await requestJson("/api/web3-wallet/send", {
+        method: "POST",
+        body: JSON.stringify({
+          network: selectedNetwork,
+          // Reuses the SAME key generated when the confirm modal was
+          // opened (see "Review Send" below) - never regenerated here.
+          idempotencyKey: sendIdempotencyKey,
+          toAddress,
+          coin,
+          amount,
+        }),
+      });
+
+      setResult({ ok: true, txHash: res.transaction?.txHash, explorerTxUrl: res.transaction?.explorerTxUrl });
+      setConfirming(false);
+      setToAddress("");
+      setAmount("");
+      onSent();
+    } catch (error) {
+      const comingSoon = error.status === 503;
+      setResult({
+        ok: false,
+        comingSoon,
+        // A 503 here is a deliberate, backend-authored "not enabled
+        // yet" message (safe to show verbatim - see
+        // WEB3_WALLET_SEND_ENABLED in web3WalletController.js), not a
+        // raw technical error - only sanitize the unexpected cases.
+        message: comingSoon
+          ? error.message
+          : describeError(error, "Web3 send"),
+      });
+      setConfirming(false);
+    } finally {
+      setSubmitting(false);
+      submittingRef.current = false;
+    }
+  };
+
+  return (
+    <div className="w3-panel">
+      {result?.comingSoon && (
+        <div className="w3-unavailable-banner">
+          Sending is not yet enabled in this environment — it must be
+          verified against a live {networkInfo?.displayName || selectedNetwork}{" "}
+          test network before real funds can be sent. Everything else on this
+          screen (address validation, gas estimate) is fully functional.
+        </div>
+      )}
+      {result && !result.ok && !result.comingSoon && (
+        <div className="w3-error-banner">{result.message}</div>
+      )}
+      {result?.ok && (
+        <div className="w3-success-banner">
+          Transaction broadcast.{" "}
+          {result.explorerTxUrl && (
+            <a href={result.explorerTxUrl} target="_blank" rel="noreferrer">
+              View on Explorer
+            </a>
+          )}
+        </div>
+      )}
+
+      <label className="w3-label">Asset</label>
+      <select
+        className="w3-input"
+        value={coin}
+        onChange={(e) => setCoin(e.target.value)}
+      >
+        {availableCoins.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
+      <div className="w3-balance-hint">
+        Available: {balance?.available ? formatAmount(balance.balance) : "Unavailable"}{" "}
+        {coin}
+      </div>
+
+      <label className="w3-label">Recipient Address</label>
+      <input
+        className="w3-input"
+        placeholder="Recipient address"
+        value={toAddress}
+        onChange={(e) => checkAddress(e.target.value.trim())}
+      />
+      {addressValid === false && (
+        <div className="w3-field-error">
+          Not a valid {networkInfo?.displayName || selectedNetwork} address.
+        </div>
+      )}
+      {addressValid === true && (
+        <div className="w3-field-ok">Address looks valid.</div>
+      )}
+
+      <label className="w3-label">Amount</label>
+      <input
+        className="w3-input"
+        type="text"
+        inputMode="decimal"
+        placeholder="0.00"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
+
+      <div className="w3-fee-preview">
+        {gasLoading && <span>Estimating network fee…</span>}
+        {!gasLoading && gasEstimate?.available === false && (
+          <span>Fee estimate Unavailable</span>
+        )}
+        {!gasLoading && gasEstimate?.available && (
+          <span>
+            Estimated network fee: {formatAmount(gasEstimate.estimatedFee)}{" "}
+            {gasEstimate.feeCoin}
+          </span>
+        )}
+      </div>
+
+      <button
+        className="w3-btn w3-btn-primary w3-btn-block"
+        disabled={!toAddress || !amount || addressValid === false}
+        onClick={() => {
+          // Generated ONCE per confirm attempt, here at modal-open
+          // time - reused as-is by submitSend, never regenerated on
+          // the actual submit call.
+          setSendIdempotencyKey(genIdempotencyKey());
+          setConfirming(true);
+        }}
+      >
+        Review Send
+      </button>
+
+      {confirming && (
+        <ConfirmModal
+          title="Confirm Send"
+          lines={[
+            ["Network", networkInfo?.displayName || selectedNetwork],
+            ["Asset", coin],
+            ["Amount", amount],
+            ["To", toAddress],
+            [
+              "Network fee",
+              gasEstimate?.available
+                ? `${formatAmount(gasEstimate.estimatedFee)} ${gasEstimate.feeCoin}`
+                : "Unavailable",
+            ],
+          ]}
+          busy={submitting}
+          onCancel={() => setConfirming(false)}
+          onConfirm={submitSend}
+        />
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   SWAP TAB
+========================================================= */
+function SwapTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, onSwapped }) {
+  const balanceCoins = useMemo(() => {
+    const list = balances.map((b) => b.coin);
+    if (networkInfo?.nativeCoin && !list.includes(networkInfo.nativeCoin)) {
+      list.unshift(networkInfo.nativeCoin);
+    }
+    return list;
+  }, [balances, networkInfo]);
+  const crossChainTargets = useMemo(
+    () => (networkInfo?.swapTargets || []).map((target) => target.coin),
+    [networkInfo]
+  );
+  const fromCoins = balanceCoins;
+  const toCoins = crossChainTargets.length ? crossChainTargets : balanceCoins;
+
+  const [fromCoin, setFromCoin] = useState("");
+  const [toCoin, setToCoin] = useState("");
+  const [amount, setAmount] = useState("");
+  const [slippageBps, setSlippageBps] = useState(50);
+  const [quote, setQuote] = useState(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState(null);
+  // LAUNCH-CANDIDATE fix: same pattern as SendTab's sendIdempotencyKey
+  // above - generated ONCE when the confirm modal opens (see "Review
+  // Swap" below) and reused for the actual API call, never
+  // regenerated inside submitSwap itself.
+  const [swapIdempotencyKey, setSwapIdempotencyKey] = useState(null);
+  // Synchronous re-entrancy guard, mirroring SendTab's submittingRef -
+  // checked/set at the very top of submitSwap, before any await.
+  const submittingRef = useRef(false);
+
+  useEffect(() => {
+    setFromCoin(fromCoins[0] || "");
+    setToCoin(toCoins.find((coin) => coin !== fromCoins[0]) || toCoins[0] || "");
+    setAmount("");
+    setQuote(null);
+    setResult(null);
+    setSwapIdempotencyKey(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedNetwork]);
+
+  useEffect(() => {
+    setQuote(null);
+    if (!amount || !fromCoin || !toCoin || fromCoin === toCoin) return;
+
+    let cancelled = false;
+    setQuoteLoading(true);
+
+    // THORChain limits quote traffic to one request/second per IP.
+    // Debounce Bitcoin more heavily; a small debounce also prevents
+    // wasteful on-chain quote calls while typing on other networks.
+    const timer = window.setTimeout(() => {
+      requestJson("/api/web3-wallet/swap/quote", {
+        method: "POST",
+        body: JSON.stringify({
+          network: selectedNetwork,
+          fromCoin,
+          toCoin,
+          amount,
+          slippageBps,
+        }),
+      })
+        .then((res) => {
+          if (!cancelled) setQuote(res);
+        })
+        .catch(() => {
+          if (!cancelled) setQuote({ available: false });
+        })
+        .finally(() => {
+          if (!cancelled) setQuoteLoading(false);
+        });
+    }, selectedNetwork === "BITCOIN" ? 1100 : 250);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [fromCoin, toCoin, amount, slippageBps, selectedNetwork, requestJson]);
+
+  const submitSwap = async () => {
+    // Synchronous re-entrancy guard - see submittingRef's declaration
+    // above. Must run before any `await` so a second synchronous call
+    // (fast double-click) is a no-op rather than racing the first.
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+
+    setSubmitting(true);
+    setResult(null);
+
+    try {
+      const res = await requestJson("/api/web3-wallet/swap", {
+        method: "POST",
+        body: JSON.stringify({
+          network: selectedNetwork,
+          // Reuses the SAME key generated when the confirm modal was
+          // opened (see "Review Swap" below) - never regenerated here.
+          idempotencyKey: swapIdempotencyKey,
+          fromCoin,
+          toCoin,
+          amount,
+          minimumReceived: quote?.minimumReceived,
+          slippageBps,
+        }),
+      });
+
+      setResult({ ok: true, txHash: res.transaction?.txHash, explorerTxUrl: res.transaction?.explorerTxUrl });
+      setConfirming(false);
+      setAmount("");
+      onSwapped();
+    } catch (error) {
+      const comingSoon = error.status === 503;
+      setResult({
+        ok: false,
+        comingSoon,
+        // A 503 here is a deliberate, backend-authored "not enabled
+        // yet" message (safe to show verbatim - see
+        // WEB3_WALLET_SWAP_ENABLED in web3WalletController.js), not a
+        // raw technical error - only sanitize the unexpected cases.
+        message: comingSoon
+          ? error.message
+          : describeError(error, "Web3 swap"),
+      });
+      setConfirming(false);
+    } finally {
+      setSubmitting(false);
+      submittingRef.current = false;
+    }
+  };
+
+  if (networkInfo && !networkInfo.swapSupported) {
+    return (
+      <div className="w3-panel">
+        <div className="w3-unavailable-banner">
+          Swaps are not available on {networkInfo.displayName} — there is no
+          verified swap router configured for this network. Send and Receive
+          are still fully functional.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w3-panel">
+      {result?.comingSoon && (
+        <div className="w3-unavailable-banner">
+          Swaps are not yet enabled in this environment — execution must be
+          verified against a live {networkInfo?.displayName || selectedNetwork}{" "}
+          test network before real funds can be swapped. Quotes above are
+          fully live from on-chain liquidity.
+        </div>
+      )}
+      {result && !result.ok && !result.comingSoon && (
+        <div className="w3-error-banner">{result.message}</div>
+      )}
+      {result?.ok && (
+        <div className="w3-success-banner">
+          Swap broadcast.{" "}
+          {result.explorerTxUrl && (
+            <a href={result.explorerTxUrl} target="_blank" rel="noreferrer">
+              View on Explorer
+            </a>
+          )}
+        </div>
+      )}
+
+      <div className="w3-swap-row">
+        <div>
+          <label className="w3-label">From</label>
+          <select
+            className="w3-input"
+            value={fromCoin}
+            onChange={(e) => setFromCoin(e.target.value)}
+          >
+            {fromCoins.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          className="w3-swap-flip"
+          disabled={crossChainTargets.length > 0}
+          title={crossChainTargets.length ? "Cross-chain direction is fixed" : "Flip assets"}
+          onClick={() => {
+            if (crossChainTargets.length) return;
+            setFromCoin(toCoin);
+            setToCoin(fromCoin);
+          }}
+        >
+          ⇅
+        </button>
+        <div>
+          <label className="w3-label">To</label>
+          <select
+            className="w3-input"
+            value={toCoin}
+            onChange={(e) => setToCoin(e.target.value)}
+          >
+            {toCoins.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <label className="w3-label">Amount ({fromCoin})</label>
+      <input
+        className="w3-input"
+        type="text"
+        inputMode="decimal"
+        placeholder="0.00"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+      />
+
+      <label className="w3-label">Slippage Tolerance</label>
+      <div className="w3-slippage-row">
+        {[10, 50, 100].map((bps) => (
+          <button
+            key={bps}
+            className={
+              "w3-slippage-btn " + (slippageBps === bps ? "active" : "")
+            }
+            onClick={() => setSlippageBps(bps)}
+          >
+            {(bps / 100).toFixed(2)}%
+          </button>
+        ))}
+      </div>
+
+      <div className="w3-quote-box">
+        {quoteLoading && <span>Fetching live quote…</span>}
+        {!quoteLoading && quote?.available === false && (
+          <span>{quote.message || "Quote Unavailable — no on-chain liquidity route found."}</span>
+        )}
+        {!quoteLoading && quote?.available && (
+          <>
+            <div>
+              You receive ≈ {formatAmount(quote.amountOut)} {toCoin}
+            </div>
+            <div className="w3-quote-min">
+              Minimum received: {formatAmount(quote.minimumReceived)} {toCoin}
+            </div>
+          </>
+        )}
+      </div>
+
+      <button
+        className="w3-btn w3-btn-primary w3-btn-block"
+        disabled={!amount || fromCoin === toCoin || !quote?.available}
+        onClick={() => {
+          // Generated ONCE per confirm attempt, here at modal-open
+          // time - reused as-is by submitSwap, never regenerated on
+          // the actual submit call.
+          setSwapIdempotencyKey(genIdempotencyKey());
+          setConfirming(true);
+        }}
+      >
+        Review Swap
+      </button>
+
+      {confirming && (
+        <ConfirmModal
+          title="Confirm Swap"
+          lines={[
+            ["Network", networkInfo?.displayName || selectedNetwork],
+            ["You pay", `${amount} ${fromCoin}`],
+            ["You receive (est.)", `${formatAmount(quote?.amountOut)} ${toCoin}`],
+            ...(quote?.destinationNetwork
+              ? [["Destination network", quote.destinationNetwork]]
+              : []),
+            ["Minimum received", `${formatAmount(quote?.minimumReceived)} ${toCoin}`],
+            ["Slippage", `${(slippageBps / 100).toFixed(2)}%`],
+          ]}
+          busy={submitting}
+          onCancel={() => setConfirming(false)}
+          onConfirm={submitSwap}
+        />
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   ACTIVITY TAB
+========================================================= */
+function ActivityTab({ transactions, selectedNetwork, requestJson, onRefresh }) {
+  const [checking, setChecking] = useState(null);
+
+  const checkStatus = async (id) => {
+    setChecking(id);
+    try {
+      await requestJson(`/api/web3-wallet/transactions/${id}/status`);
+      onRefresh();
+    } catch (error) {
+      // Non-fatal - leave the row as-is rather than surfacing a
+      // toast for a background status poll.
+    } finally {
+      setChecking(null);
+    }
+  };
+
+  if (transactions.length === 0) {
+    return (
+      <div className="w3-panel">
+        <div className="w3-empty">
+          No Web3 wallet transactions yet on {selectedNetwork}.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w3-panel">
+      {transactions.map((tx) => {
+        const badge = statusBadge(tx.status);
+        return (
+          <div className="w3-tx-row" key={tx._id}>
+            <div className="w3-tx-type">{tx.type}</div>
+            <div className="w3-tx-detail">
+              <div>
+                {tx.type === "SWAP"
+                  ? `${tx.amount} ${tx.coin} → ${tx.toAmount || "?"} ${tx.toCoin}`
+                  : `${tx.amount} ${tx.coin}`}
+              </div>
+              {tx.txHash && tx.explorerTxUrl && (
+                <a
+                  className="w3-tx-hash"
+                  href={tx.explorerTxUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {tx.txHash.slice(0, 10)}…{tx.txHash.slice(-6)}
+                </a>
+              )}
+              {tx.txHash && !tx.explorerTxUrl && (
+                <span className="w3-tx-hash">
+                  {tx.txHash.slice(0, 10)}…{tx.txHash.slice(-6)}
+                </span>
+              )}
+            </div>
+            <span className={badge.className}>{badge.label}</span>
+            {tx.status === "BROADCASTED" && (
+              <button
+                className="w3-btn w3-btn-ghost w3-btn-small"
+                disabled={checking === tx._id}
+                onClick={() => checkStatus(tx._id)}
+              >
+                {checking === tx._id ? "…" : "Check"}
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* =========================================================
+   CONFIRM MODAL (shared by Send/Swap)
+========================================================= */
+function ConfirmModal({ title, lines, busy, onCancel, onConfirm }) {
+  return (
+    <div className="w3-modal-overlay" role="dialog" aria-modal="true">
+      <div className="w3-modal">
+        <h3>{title}</h3>
+        <div className="w3-modal-lines">
+          {lines.map(([label, value]) => (
+            <div className="w3-modal-line" key={label}>
+              <span>{label}</span>
+              <span>{value}</span>
+            </div>
+          ))}
+        </div>
+        <div className="w3-modal-actions">
+          <button className="w3-btn w3-btn-ghost" onClick={onCancel} disabled={busy}>
+            Cancel
+          </button>
+          <button
+            className="w3-btn w3-btn-primary"
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? "Submitting…" : "Confirm"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
