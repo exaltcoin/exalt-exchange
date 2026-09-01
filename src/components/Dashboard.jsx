@@ -1118,6 +1118,16 @@ function Dashboard({ setPage }) {
                 )}
               </span>
             </div>
+
+            <button
+              type="button"
+              className="stat-card glow-yellow reward-stat-card"
+              onClick={() => setPage("certificates")}
+            >
+              <h3>My Certificates</h3>
+              <h1>🏅</h1>
+              <span>View and verify credentials</span>
+            </button>
           </div>
 
           <div className="dashboard-row">

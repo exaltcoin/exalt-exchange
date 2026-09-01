@@ -382,7 +382,7 @@ setKycRequests(
     ? kycData.data
     : []
 );
-      const web3Res = await fetch(`${API}/api/web3-transactions`, { headers });
+      const web3Res = await fetch(`${API}/api/admin/web3-transactions`, { headers });
       const web3Data = await web3Res.json();
      setWeb3Transactions(
   Array.isArray(web3Data.transactions) ? web3Data.transactions :

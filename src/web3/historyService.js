@@ -70,40 +70,18 @@ export function updateLocalTxStatus(hash, status = "success") {
 }
 
 export async function saveWeb3TxToBackend(API, tx) {
-  try {
-    if (!API) return { success: false, message: "API missing" };
-
-    const item = normalizeTx(tx);
-
-    const res = await fetch(`${API}/api/web3-transactions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        wallet: item.wallet,
-        type: item.type,
-        coin: item.coin,
-        amount: Number(item.amount || 0),
-        hash: item.hash,
-        status: item.status,
-        chain: item.chain,
-        chainKey: item.chainKey,
-        source: "exalt-wallet",
-        notes: item.note,
-      }),
-    });
-
-    return await res.json();
-  } catch (error) {
-    console.log("Save Exalt Wallet tx backend error:", error);
-    return { success: false, message: error.message };
-  }
+  return { success: true, serverManaged: true, transaction: normalizeTx(tx) };
 }
 
 export async function loadWeb3HistoryFromBackend(API, walletAddress) {
   try {
-    if (!API || !walletAddress) return [];
+    if (!API) return [];
 
-    const res = await fetch(`${API}/api/web3-transactions/${walletAddress}`);
+    const token = localStorage.getItem("token");
+    if (!token) return [];
+    const res = await fetch(`${API}/api/web3-wallet/transactions`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     const data = await res.json();
 
     console.log("Web3 history backend response:", data);

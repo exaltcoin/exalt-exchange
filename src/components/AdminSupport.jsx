@@ -53,7 +53,7 @@ export default function AdminSupport() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API}/api/support/admin/tickets`, {
+      const res = await fetch(`${API}/api/support-ticket/admin/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -73,7 +73,7 @@ export default function AdminSupport() {
     if (!selected || !text.trim()) return;
 
     try {
-      const res = await fetch(`${API}/api/support/admin/tickets/${selected._id}/reply`, {
+      const res = await fetch(`${API}/api/support-ticket/admin/${selected._id}/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +109,7 @@ export default function AdminSupport() {
     if (!selected) return;
 
     try {
-      const res = await fetch(`${API}/api/support/admin/tickets/${selected._id}/status`, {
+      const res = await fetch(`${API}/api/support-ticket/admin/${selected._id}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

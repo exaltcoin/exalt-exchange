@@ -229,6 +229,24 @@ const AdminP2P = lazy(() =>
   }))
 );
 
+const AdminRewards = lazy(() =>
+  import("./components/AdminRewards").then((module) => ({
+    default: module.default || module.AdminRewards,
+  }))
+);
+
+const AdminReferrals = lazy(() =>
+  import("./components/AdminReferrals").then((module) => ({
+    default: module.default || module.AdminReferrals,
+  }))
+);
+
+const Certificates = lazy(() =>
+  import("./components/Certificates").then((module) => ({
+    default: module.default || module.Certificates,
+  }))
+);
+
 const OwnerControl = lazy(() =>
   import("./components/OwnerControl").then((module) => ({
     default: module.default || module.OwnerControl,
@@ -529,6 +547,14 @@ const publicSeo =
 
     checkAuth();
   }, [API_BASE]);
+
+if (path === "/certificates" || path === "/certificates/verify") {
+  return (
+    <Suspense fallback={<div className="panel"><h2>Loading certificates...</h2></div>}>
+      <Certificates mode={path.endsWith("/verify") ? "verify" : "public"} />
+    </Suspense>
+  );
+}
 
 if (path === "/legal") {
   return (
@@ -1439,6 +1465,10 @@ return (
       return <Transactions />;
     }
 
+    if (page === "certificates") {
+      return <Certificates mode="my" currentUser={currentUser} setPage={setPage} />;
+    }
+
     if (page === "orders") {
       return <Orders />;
     }
@@ -1674,12 +1704,14 @@ return (
     ["listings", "📌 Submit Listing"],
     ["referral", "🤝 Referral"],
     ["transactions", "📜 Transactions"],
+    ["certificates", "🏅 My Certificates"],
     ["rewards", "🎁 Rewards"],
     ["support", "🎧 Support"],
     ["settings", "⚙️ Settings"],
   ];
 
   const adminMenuItems = [
+    ["certificates", "🏅 Certificates"],
     ["admin-p2p", "🧾 Admin P2P"],
     ["kyc", "🪪 KYC Requests"],
     ["admin-learn", "🎓 Admin Learn & Earn"],
