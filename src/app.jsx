@@ -141,6 +141,27 @@ const LearnEarn = lazy(() =>
     default: module.default || module.LearnEarn,
   }))
 );
+
+const AITradingAssistant = lazy(() => import("./components/AITradingAssistant"));
+const AICopyTrading = lazy(() => import("./components/AICopyTrading"));
+const AIPortfolioManager = lazy(() => import("./components/AIPortfolioManager"));
+const SocialTrading = lazy(() => import("./components/SocialTrading"));
+const AIRiskManager = lazy(() => import("./components/AIRiskManager"));
+const AIProfitCalculator = lazy(() => import("./components/AIProfitCalculator"));
+const AIMarketScanner = lazy(() => import("./components/AIMarketScanner"));
+const AINews = lazy(() => import("./components/AINews"));
+const AIWhaleTracker = lazy(() => import("./components/AIWhaleTracker"));
+const AIArbitrageScanner = lazy(() => import("./components/AIArbitrageScanner"));
+const AIGridTrading = lazy(() => import("./components/AIGridTrading"));
+const AISmartAlerts = lazy(() => import("./components/AISmartAlerts"));
+const AILaunchpad = lazy(() => import("./components/AILaunchpad"));
+const AIWhaleHeatmap = lazy(() => import("./components/AIWhaleHeatmap"));
+const AITrustScore = lazy(() => import("./components/AITrustScore"));
+const AIWhaleAlert = lazy(() => import("./components/AIWhaleAlert"));
+const ExaltUtilityCenter = lazy(() => import("./components/ExaltUtilityCenter"));
+const ReputationCenter = lazy(() => import("./components/ReputationCenter"));
+const AchievementCenter = lazy(() => import("./components/AchievementCenter"));
+const NotificationCenter = lazy(() => import("./components/NotificationCenter"));
 const LegalHome = lazy(() =>
   import("./pages/legal/LegalHome.jsx").then((module) => ({
     default: module.default || module.LegalHome,
@@ -226,6 +247,12 @@ const AdminKycPanel = lazy(() =>
 const AdminP2P = lazy(() =>
   import("./components/AdminP2P").then((module) => ({
     default: module.default || module.AdminP2P,
+  }))
+);
+
+const AdminLearnEarn = lazy(() =>
+  import("./components/AdminLearnEarn").then((module) => ({
+    default: module.default || module.AdminLearnEarn,
   }))
 );
 
