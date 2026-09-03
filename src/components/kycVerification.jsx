@@ -64,18 +64,101 @@ const handleFile = (name, file) => {
 };
 
 
-  const sendEmailOtp = () => {
-    alert(t("emailOtpSent"));
+  const sendEmailOtp = async () => {
+    try {
+      const email = String(form.email || "").trim().toLowerCase();
+      const accountEmail = String(storedUser?.email || "").trim().toLowerCase();
+
+      if (!email) {
+        alert("Email address is required");
+        return;
+      }
+
+      if (accountEmail && email !== accountEmail) {
+        alert("Please use the email address registered with your account");
+        return;
+      }
+
+      const res = await axios.post(
+        `${API_BASE}/api/otp/send-email`,
+        { email },
+        {
+          headers: token
+            ? { Authorization: `Bearer ${token}` }
+            : {},
+        }
+      );
+
+      if (res.data?.success) {
+        setEmailVerified(false);
+        setEmailOtp("");
+        alert(res.data?.message || t("emailOtpSent"));
+        return;
+      }
+
+      alert(res.data?.message || "Failed to send email OTP");
+    } catch (err) {
+      console.error("KYC email OTP send error:", err);
+
+      alert(
+        err.response?.data?.message ||
+          "Failed to send email OTP. Please try again."
+      );
+    }
   };
 
-  const verifyEmail = () => {
-    if (!emailOtp) {
-      alert(t("enterOtpFirst"));
-      return;
-    }
+  const verifyEmail = async () => {
+    try {
+      const email = String(form.email || "").trim().toLowerCase();
+      const accountEmail = String(storedUser?.email || "").trim().toLowerCase();
+      const otp = String(emailOtp || "").trim();
 
-    setEmailVerified(true);
-    alert(t("emailVerifiedSuccessfully"));
+      if (!otp) {
+        alert(t("enterOtpFirst"));
+        return;
+      }
+
+      if (!email) {
+        alert("Email address is required");
+        return;
+      }
+
+      if (accountEmail && email !== accountEmail) {
+        alert("Please use the email address registered with your account");
+        return;
+      }
+
+      const res = await axios.post(
+        `${API_BASE}/api/otp/verify-email`,
+        {
+          email,
+          otp,
+        },
+        {
+          headers: token
+            ? { Authorization: `Bearer ${token}` }
+            : {},
+        }
+      );
+
+      if (res.data?.success && res.data?.verified) {
+        setEmailVerified(true);
+        alert(res.data?.message || t("emailVerifiedSuccessfully"));
+        return;
+      }
+
+      setEmailVerified(false);
+      alert(res.data?.message || "Invalid or expired OTP");
+    } catch (err) {
+      console.error("KYC email OTP verification error:", err);
+
+      setEmailVerified(false);
+
+      alert(
+        err.response?.data?.message ||
+          "Email verification failed. Please try again."
+      );
+    }
   };
 
   const startFaceVerification = () => {
