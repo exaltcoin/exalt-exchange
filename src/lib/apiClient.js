@@ -216,7 +216,6 @@ let sharedSocket = null;
 export function getSocket() {
   if (!sharedSocket) {
     sharedSocket = io(SOCKET_ORIGIN, {
-      transports: ["websocket", "polling"],
       withCredentials: true,
       reconnection: true,
       reconnectionAttempts: 5,

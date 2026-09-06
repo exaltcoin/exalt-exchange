@@ -1,24 +1,8 @@
-import { io } from "socket.io-client";
+﻿import { socket, API_ORIGIN } from "./lib/apiClient";
 
-const isLocal =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com/api";
+const API_BASE_URL = `${API_ORIGIN}/api`;
 
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com";
-
-export const socket = io(SOCKET_URL, {
-  transports: ["websocket", "polling"],
-  withCredentials: true,
-  reconnection: true,
-  reconnectionAttempts: 5,
-  timeout: 10000,
-});
-
+export { socket };
 async function apiRequest(path, options = {}) {
   if (!path || !path.startsWith("/")) {
     throw new Error("Invalid API path");
