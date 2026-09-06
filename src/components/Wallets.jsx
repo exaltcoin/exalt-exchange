@@ -335,6 +335,15 @@ function Wallets() {
     setWithdrawalSubmitting,
   ] = useState(false);
 
+  const [withdrawalPreview, setWithdrawalPreview] =
+    useState(null);
+
+  const [withdrawalPreviewLoading, setWithdrawalPreviewLoading] =
+    useState(false);
+
+  const [withdrawalPreviewError, setWithdrawalPreviewError] =
+    useState("");
+
   const [wallets, setWallets] =
     useState(EMPTY_BALANCES);
 
@@ -659,12 +668,15 @@ function Wallets() {
   };
 
   const withdrawFee = useMemo(() => {
-    const networkMeta =
-      NETWORK_META[withdrawForm.network] ||
-      NETWORK_META.BEP20;
+    if (withdrawForm.method !== "CRYPTO") {
+      return 0;
+    }
 
-    return Number(networkMeta.fee || 0);
-  }, [withdrawForm.network]);
+    return Number(withdrawalPreview?.totalFee || 0);
+  }, [
+    withdrawForm.method,
+    withdrawalPreview,
+  ]);
 
   const receiveAmount = useMemo(() => {
     const withdrawalAmount = Number(
@@ -678,15 +690,105 @@ function Wallets() {
       return 0;
     }
 
+    if (withdrawForm.method !== "CRYPTO") {
+      return withdrawalAmount;
+    }
+
+    if (!withdrawalPreview) {
+      return 0;
+    }
+
     return Math.max(
-      withdrawalAmount - withdrawFee,
+      Number(withdrawalPreview.netAmount || 0),
       0
     );
   }, [
     withdrawForm.amount,
-    withdrawFee,
+    withdrawForm.method,
+    withdrawalPreview,
   ]);
 
+  useEffect(() => {
+    if (withdrawForm.method !== "CRYPTO") {
+      setWithdrawalPreview(null);
+      setWithdrawalPreviewError("");
+      setWithdrawalPreviewLoading(false);
+      return;
+    }
+
+    const amount = Number(withdrawForm.amount || 0);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setWithdrawalPreview(null);
+      setWithdrawalPreviewError("");
+      setWithdrawalPreviewLoading(false);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setWithdrawalPreview(null);
+      setWithdrawalPreviewError(
+        "Please sign in to preview withdrawal fees."
+      );
+      return;
+    }
+
+    let cancelled = false;
+
+    const timer = window.setTimeout(async () => {
+      setWithdrawalPreviewLoading(true);
+      setWithdrawalPreviewError("");
+
+      try {
+        const data = await requestJson(
+          `${API}/api/wallets/withdraw/preview`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              coin: withdrawForm.coin,
+              amount,
+              network: withdrawForm.network,
+            }),
+          }
+        );
+
+        if (!cancelled) {
+          setWithdrawalPreview(data?.data || null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setWithdrawalPreview(null);
+          setWithdrawalPreviewError(
+            error?.message ||
+              "Unable to calculate withdrawal fee."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setWithdrawalPreviewLoading(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [
+    API,
+    requestJson,
+    withdrawForm.amount,
+    withdrawForm.coin,
+    withdrawForm.method,
+    withdrawForm.network,
+  ]);
   const preparedAssets = useMemo(
     () =>
       assets.map((asset) => {
@@ -1425,6 +1527,18 @@ function Wallets() {
       return;
     }
 
+    if (
+      withdrawForm.method === "CRYPTO" &&
+      (withdrawalPreviewLoading ||
+        withdrawalPreviewError ||
+        !withdrawalPreview)
+    ) {
+      window.alert(
+        withdrawalPreviewError ||
+          "Please wait for the withdrawal fee preview."
+      );
+      return;
+    }
     if (
       receiveAmount <= 0 &&
       withdrawForm.method === "CRYPTO"
@@ -2763,51 +2877,44 @@ function Wallets() {
         <div className="wallet-v2-form-row">
           <select
             value={withdrawForm.coin}
-            onChange={(event) =>
+            onChange={(event) => {
+              const nextCoin = event.target.value;
+              const nextNetwork =
+                API_DEPOSIT_NETWORKS[nextCoin]?.[0] ||
+                "BEP20";
+
               setWithdrawForm(
                 (previousForm) => ({
                   ...previousForm,
-
-                  coin:
-                    event.target.value,
+                  coin: nextCoin,
+                  network: nextNetwork,
                 })
-              )
-            }
+              );
+            }}
           >
-            <option value="USDT">
-              USDT
-            </option>
-            <option value="EXALT">
-              EXALT
-            </option>
-            <option value="BNB">
-              BNB
-            </option>
-            <option value="BTC">
-              BTC
-            </option>
-            <option value="ETH">
-              ETH
-            </option>
+            {Object.keys(API_DEPOSIT_NETWORKS).map(
+              (coin) => (
+                <option key={coin} value={coin}>
+                  {coin}
+                </option>
+              )
+            )}
           </select>
 
           <select
-            value={
-              withdrawForm.network
-            }
+            value={withdrawForm.network}
             onChange={(event) =>
               setWithdrawForm(
                 (previousForm) => ({
                   ...previousForm,
-
-                  network:
-                    event.target.value,
+                  network: event.target.value,
                 })
               )
             }
           >
-            {Object.keys(
-              NETWORK_META
+            {(
+              API_DEPOSIT_NETWORKS[withdrawForm.coin] ||
+              ["BEP20"]
             ).map((network) => (
               <option
                 key={network}
@@ -2973,11 +3080,30 @@ function Wallets() {
         />
 
         <div className="wallet-v2-fee-box">
+          {withdrawalPreviewLoading ? (
+            <div>
+              <span>
+                {translateWithFallback(
+                  "calculatingWithdrawalFee",
+                  "Calculating withdrawal fee..."
+                )}
+              </span>
+            </div>
+          ) : null}
+
+          {withdrawalPreviewError ? (
+            <div>
+              <span>
+                {withdrawalPreviewError}
+              </span>
+            </div>
+          ) : null}
+
           <div>
             <span>
               {translateWithFallback(
-                "estimatedNetworkFee",
-                "Estimated Network Fee"
+                "estimatedWithdrawalFee",
+                "Estimated Withdrawal Fee"
               )}
             </span>
 
@@ -2989,6 +3115,44 @@ function Wallets() {
               {withdrawForm.coin}
             </strong>
           </div>
+
+          {withdrawalPreview ? (
+            <>
+              <div>
+                <span>
+                  {translateWithFallback(
+                    "networkFee",
+                    "Network Fee"
+                  )}
+                </span>
+
+                <strong>
+                  {formatAmount(
+                    withdrawalPreview.networkFee,
+                    8
+                  )}{" "}
+                  {withdrawForm.coin}
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  {translateWithFallback(
+                    "platformFee",
+                    "Platform Fee"
+                  )}
+                </span>
+
+                <strong>
+                  {formatAmount(
+                    withdrawalPreview.platformFee,
+                    8
+                  )}{" "}
+                  {withdrawForm.coin}
+                </strong>
+              </div>
+            </>
+          ) : null}
 
           <div>
             <span>
@@ -3007,7 +3171,6 @@ function Wallets() {
             </strong>
           </div>
         </div>
-
         <div className="wallet-v2-action-row">
           <button
             type="button"
