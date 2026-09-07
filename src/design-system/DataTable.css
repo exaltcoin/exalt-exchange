@@ -1,0 +1,87 @@
+.ex2-table-container {
+  width: 100%;
+}
+
+.ex2-table-scroll {
+  overflow-x: auto;
+  /* Ensures financial data is never clipped on narrow screens -
+     the table scrolls horizontally instead of wrapping/truncating
+     numeric columns. */
+}
+
+.ex2-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+}
+
+.ex2-table__th {
+  text-align: start;
+  font-weight: var(--ex2-font-weight-medium);
+  color: var(--ex2-text-tertiary);
+  font-size: var(--ex2-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: var(--ex2-space-3) var(--ex2-space-3);
+  border-block-end: var(--ex2-border-width) solid var(--ex2-divider);
+  white-space: nowrap;
+}
+
+.ex2-table__th--end {
+  text-align: end;
+}
+.ex2-table__th--center {
+  text-align: center;
+}
+
+.ex2-table__sort-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ex2-table__sort-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+  border-radius: var(--ex2-radius-sm);
+}
+
+.ex2-table__td {
+  padding: var(--ex2-space-3);
+  border-block-end: var(--ex2-border-width) solid var(--ex2-divider);
+  color: var(--ex2-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.ex2-table__td--end {
+  text-align: end;
+}
+.ex2-table__td--center {
+  text-align: center;
+}
+
+.ex2-table__row--clickable {
+  cursor: pointer;
+}
+
+.ex2-table__row--clickable:hover {
+  background: var(--ex2-surface-2);
+}
+
+.ex2-table__state {
+  padding: var(--ex2-space-4);
+}
+
+.ex2-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}

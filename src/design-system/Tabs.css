@@ -1,0 +1,41 @@
+.ex2-tabs {
+  display: flex;
+  gap: var(--ex2-space-1);
+  border-block-end: var(--ex2-border-width) solid var(--ex2-divider);
+  overflow-x: auto;
+}
+
+.ex2-tabs__tab {
+  background: transparent;
+  border: none;
+  border-block-end: 2px solid transparent;
+  color: var(--ex2-text-secondary);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+  font-weight: var(--ex2-font-weight-medium);
+  padding: var(--ex2-space-3) var(--ex2-space-4);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--ex2-transition-fast),
+    border-color var(--ex2-transition-fast);
+}
+
+.ex2-tabs__tab:hover:not(:disabled) {
+  color: var(--ex2-text-primary);
+}
+
+.ex2-tabs__tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ex2-tabs__tab--active {
+  color: var(--ex2-accent);
+  border-block-end-color: var(--ex2-accent);
+}
+
+.ex2-tabs__tab:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+  border-radius: var(--ex2-radius-sm);
+}

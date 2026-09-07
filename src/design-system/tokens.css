@@ -1,0 +1,235 @@
+/*
+  EXALT Design System — Design Tokens
+  ====================================
+
+  This file is the single source of truth for the new EXALT visual
+  language: color, typography, spacing, radius, shadow, border, and
+  breakpoint values, for both dark and light themes.
+
+  IMPORTANT: this file is purely additive right now. It does not
+  remove, override, or conflict with anything in style.css or
+  styles/ExaltTheme.css - those still drive every existing page
+  until each page is explicitly migrated (per the redesign migration
+  order: App Shell/Navigation/Dashboard -> Markets -> Spot ->
+  Futures -> Wallet/Funds -> Deposits/Withdrawals -> Web3 -> P2P ->
+  Account/Security/KYC -> Notifications/Statements/Support ->
+  remaining modules -> Admin). Importing this file changes nothing
+  visually on its own.
+
+  Theme switching: set `data-theme="dark"` or `data-theme="light"`
+  on <html> (or any ancestor). Defaults to dark if unset, matching
+  the current product's only theme today.
+*/
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ---- Surfaces (background hierarchy) ---- */
+  --ex2-surface-0: #05070c;   /* app background */
+  --ex2-surface-1: #0d1117;   /* page/section background */
+  --ex2-surface-2: #151b26;   /* raised surface: cards, rows */
+  --ex2-surface-3: #1d2431;   /* further-raised: popovers, dropdowns */
+  --ex2-surface-overlay: rgba(5, 7, 12, 0.72); /* modal/drawer scrim */
+
+  /* ---- Borders / dividers ---- */
+  --ex2-border-subtle: rgba(255, 255, 255, 0.06);
+  --ex2-border-default: rgba(255, 255, 255, 0.10);
+  --ex2-border-strong: rgba(255, 255, 255, 0.16);
+  --ex2-divider: rgba(255, 255, 255, 0.08);
+
+  /* ---- Text ---- */
+  --ex2-text-primary: #f5f7fa;
+  --ex2-text-secondary: #a8b0bd;
+  --ex2-text-tertiary: #6b7280;
+  --ex2-text-disabled: #4b5563;
+  --ex2-text-on-accent: #0d1117;
+  --ex2-text-on-danger: #ffffff;
+
+  /* ---- Brand / accent ---- */
+  --ex2-accent: #f0b90b;
+  --ex2-accent-hover: #ffd056;
+  --ex2-accent-active: #d9a400;
+  --ex2-accent-subtle-bg: rgba(240, 185, 11, 0.12);
+
+  /* ---- Financial semantics ---- */
+  --ex2-buy: #16c784;
+  --ex2-buy-hover: #1adb92;
+  --ex2-buy-subtle-bg: rgba(22, 199, 132, 0.12);
+  --ex2-sell: #ea3943;
+  --ex2-sell-hover: #ff4d57;
+  --ex2-sell-subtle-bg: rgba(234, 57, 67, 0.12);
+
+  /* ---- Status semantics ---- */
+  --ex2-success: #16c784;
+  --ex2-success-subtle-bg: rgba(22, 199, 132, 0.12);
+  --ex2-warning: #f0b90b;
+  --ex2-warning-subtle-bg: rgba(240, 185, 11, 0.12);
+  --ex2-danger: #ea3943;
+  --ex2-danger-subtle-bg: rgba(234, 57, 67, 0.12);
+  --ex2-info: #4a9eff;
+  --ex2-info-subtle-bg: rgba(74, 158, 255, 0.12);
+  --ex2-neutral: #9198a1;
+  --ex2-neutral-subtle-bg: rgba(145, 152, 161, 0.12);
+
+  /* ---- Focus ring (accessibility) ---- */
+  --ex2-focus-ring: 0 0 0 3px rgba(240, 185, 11, 0.45);
+  --ex2-focus-ring-danger: 0 0 0 3px rgba(234, 57, 67, 0.45);
+
+  /* ---- Shadows (used sparingly - not on every card) ---- */
+  --ex2-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --ex2-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --ex2-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.36);
+  --ex2-shadow-overlay: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --ex2-surface-0: #f4f5f7;
+  --ex2-surface-1: #ffffff;
+  --ex2-surface-2: #f8f9fb;
+  --ex2-surface-3: #eef0f3;
+  --ex2-surface-overlay: rgba(15, 18, 24, 0.4);
+
+  --ex2-border-subtle: rgba(15, 18, 24, 0.06);
+  --ex2-border-default: rgba(15, 18, 24, 0.10);
+  --ex2-border-strong: rgba(15, 18, 24, 0.18);
+  --ex2-divider: rgba(15, 18, 24, 0.08);
+
+  --ex2-text-primary: #0f1218;
+  --ex2-text-secondary: #4b5361;
+  --ex2-text-tertiary: #6b7280;
+  --ex2-text-disabled: #9ca3af;
+  --ex2-text-on-accent: #14161a;
+  --ex2-text-on-danger: #ffffff;
+
+  --ex2-accent: #b8860b;
+  --ex2-accent-hover: #a3760a;
+  --ex2-accent-active: #8f6708;
+  --ex2-accent-subtle-bg: rgba(184, 134, 11, 0.10);
+
+  --ex2-buy: #0e9f6e;
+  --ex2-buy-hover: #0c8a5f;
+  --ex2-buy-subtle-bg: rgba(14, 159, 110, 0.10);
+  --ex2-sell: #d92d3a;
+  --ex2-sell-hover: #c22530;
+  --ex2-sell-subtle-bg: rgba(217, 45, 58, 0.10);
+
+  --ex2-success: #0e9f6e;
+  --ex2-success-subtle-bg: rgba(14, 159, 110, 0.10);
+  --ex2-warning: #b8860b;
+  --ex2-warning-subtle-bg: rgba(184, 134, 11, 0.10);
+  --ex2-danger: #d92d3a;
+  --ex2-danger-subtle-bg: rgba(217, 45, 58, 0.10);
+  --ex2-info: #2f6fd6;
+  --ex2-info-subtle-bg: rgba(47, 111, 214, 0.10);
+  --ex2-neutral: #6b7280;
+  --ex2-neutral-subtle-bg: rgba(107, 114, 128, 0.10);
+
+  --ex2-focus-ring: 0 0 0 3px rgba(184, 134, 11, 0.35);
+  --ex2-focus-ring-danger: 0 0 0 3px rgba(217, 45, 58, 0.35);
+
+  --ex2-shadow-sm: 0 1px 2px rgba(15, 18, 24, 0.06);
+  --ex2-shadow-md: 0 4px 12px rgba(15, 18, 24, 0.08);
+  --ex2-shadow-lg: 0 12px 32px rgba(15, 18, 24, 0.10);
+  --ex2-shadow-overlay: 0 20px 60px rgba(15, 18, 24, 0.18);
+}
+
+:root {
+  /* ---- Typography scale ----
+     A single type ramp shared by both themes. Font sizes use rem so
+     they respect the user's browser zoom/base-font-size settings
+     (accessibility). Numeric/financial figures use a tabular-nums
+     variant so columns of prices/amounts align. */
+  --ex2-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --ex2-font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono",
+    Menlo, monospace;
+
+  --ex2-text-xs: 0.75rem;    /* 12px - meta, timestamps */
+  --ex2-text-sm: 0.8125rem;  /* 13px - table cells, secondary labels */
+  --ex2-text-base: 0.875rem; /* 14px - default body */
+  --ex2-text-md: 1rem;       /* 16px - emphasized body, inputs */
+  --ex2-text-lg: 1.125rem;   /* 18px - section headings */
+  --ex2-text-xl: 1.375rem;   /* 22px - page headings */
+  --ex2-text-2xl: 1.75rem;   /* 28px - hero/summary figures */
+  --ex2-text-3xl: 2.25rem;   /* 36px - large stat displays */
+
+  --ex2-font-weight-regular: 400;
+  --ex2-font-weight-medium: 500;
+  --ex2-font-weight-semibold: 600;
+  --ex2-font-weight-bold: 700;
+
+  --ex2-line-height-tight: 1.2;
+  --ex2-line-height-normal: 1.5;
+  --ex2-line-height-relaxed: 1.7;
+
+  --ex2-tabular-nums: normal; /* toggled to "tabular-nums" via .ex2-nums utility */
+
+  /* ---- Spacing scale (4px base unit) ---- */
+  --ex2-space-0: 0;
+  --ex2-space-1: 4px;
+  --ex2-space-2: 8px;
+  --ex2-space-3: 12px;
+  --ex2-space-4: 16px;
+  --ex2-space-5: 20px;
+  --ex2-space-6: 24px;
+  --ex2-space-8: 32px;
+  --ex2-space-10: 40px;
+  --ex2-space-12: 48px;
+  --ex2-space-16: 64px;
+
+  /* ---- Radius scale ----
+     Deliberately smaller and more restrained than the current
+     ExaltTheme.css (14-18px on every element). A dense financial UI
+     reads as more professional with smaller, more consistent radii. */
+  --ex2-radius-sm: 4px;
+  --ex2-radius-md: 6px;
+  --ex2-radius-lg: 8px;
+  --ex2-radius-xl: 12px;
+  --ex2-radius-full: 999px;
+
+  /* ---- Borders ---- */
+  --ex2-border-width: 1px;
+
+  /* ---- Motion ---- */
+  --ex2-transition-fast: 120ms ease;
+  --ex2-transition-base: 180ms ease;
+  --ex2-transition-slow: 280ms ease;
+
+  /* ---- Z-index scale ---- */
+  --ex2-z-dropdown: 1000;
+  --ex2-z-sticky: 1100;
+  --ex2-z-drawer: 1200;
+  --ex2-z-modal: 1300;
+  --ex2-z-toast: 1400;
+  --ex2-z-tooltip: 1500;
+}
+
+/*
+  ---- Responsive breakpoints ----
+  These are documented as tokens for consistency, but CSS custom
+  properties cannot be used inside @media query conditions - every
+  component's stylesheet should use these literal pixel values in
+  its own @media rules, matching this scale:
+
+    --ex2-bp-mobile:  0px    (default, no media query needed)
+    --ex2-bp-tablet:  640px  (min-width: 640px)
+    --ex2-bp-desktop: 1024px (min-width: 1024px)
+    --ex2-bp-wide:    1440px (min-width: 1440px)
+*/
+
+.ex2-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Respect OS-level reduced-motion preference for all design-system components. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ex2-transition-fast: 0ms;
+    --ex2-transition-base: 0ms;
+    --ex2-transition-slow: 0ms;
+  }
+}

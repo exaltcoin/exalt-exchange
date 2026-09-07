@@ -1,0 +1,41 @@
+.ex2-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ex2-space-3);
+  font-family: var(--ex2-font-family);
+}
+
+.ex2-pagination__btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ex2-surface-2);
+  border: var(--ex2-border-width) solid var(--ex2-border-default);
+  border-radius: var(--ex2-radius-md);
+  color: var(--ex2-text-primary);
+  font-size: var(--ex2-text-md);
+  cursor: pointer;
+}
+
+.ex2-pagination__btn:hover:not(:disabled) {
+  background: var(--ex2-surface-3);
+}
+
+.ex2-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ex2-pagination__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+}
+
+.ex2-pagination__status {
+  font-size: var(--ex2-text-sm);
+  color: var(--ex2-text-secondary);
+  font-variant-numeric: tabular-nums;
+}

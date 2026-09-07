@@ -1,0 +1,37 @@
+.ex2-skeleton {
+  display: inline-block;
+  border-radius: var(--ex2-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--ex2-surface-2) 25%,
+    var(--ex2-surface-3) 37%,
+    var(--ex2-surface-2) 63%
+  );
+  background-size: 400% 100%;
+  animation: ex2-skeleton-shimmer 1.4s ease infinite;
+}
+
+.ex2-skeleton--circle {
+  border-radius: 50%;
+}
+
+.ex2-skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex2-space-2);
+}
+
+@keyframes ex2-skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ex2-skeleton {
+    animation: none;
+  }
+}

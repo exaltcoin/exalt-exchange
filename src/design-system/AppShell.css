@@ -1,0 +1,221 @@
+.ex2-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--ex2-surface-0);
+}
+
+/* ---- Desktop sidebar ---- */
+.ex2-shell-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ex2-surface-1);
+  border-inline-end: var(--ex2-border-width) solid var(--ex2-divider);
+  padding: var(--ex2-space-4) var(--ex2-space-3);
+  position: sticky;
+  inset-block-start: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.ex2-shell-sidebar__header {
+  margin-block-end: var(--ex2-space-4);
+}
+
+.ex2-shell-sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex2-space-1);
+  flex: 1;
+}
+
+.ex2-shell-sidebar__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-2);
+  padding: var(--ex2-space-2) var(--ex2-space-3);
+  border-radius: var(--ex2-radius-md);
+  background: transparent;
+  border: none;
+  color: var(--ex2-text-secondary);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+  font-weight: var(--ex2-font-weight-medium);
+  text-align: start;
+  cursor: pointer;
+}
+
+.ex2-shell-sidebar__item:hover {
+  background: var(--ex2-surface-2);
+  color: var(--ex2-text-primary);
+}
+
+.ex2-shell-sidebar__item--active {
+  background: var(--ex2-accent-subtle-bg);
+  color: var(--ex2-accent);
+}
+
+.ex2-shell-sidebar__item:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+}
+
+.ex2-shell-sidebar__icon {
+  font-size: var(--ex2-text-md);
+  flex-shrink: 0;
+}
+
+.ex2-shell-sidebar__footer {
+  margin-block-start: var(--ex2-space-4);
+  padding-block-start: var(--ex2-space-3);
+  border-block-start: var(--ex2-border-width) solid var(--ex2-divider);
+}
+
+/* ---- Desktop header ---- */
+.ex2-shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ex2-space-4);
+  padding: var(--ex2-space-3) var(--ex2-space-5);
+  border-block-end: var(--ex2-border-width) solid var(--ex2-divider);
+  background: var(--ex2-surface-1);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--ex2-z-sticky);
+}
+
+.ex2-shell-header__start {
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-5);
+  min-width: 0;
+  flex: 1;
+}
+
+.ex2-shell-header__search {
+  max-width: 320px;
+  flex: 1;
+}
+
+.ex2-shell-header__end {
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-3);
+  flex-shrink: 0;
+}
+
+/* ---- Mobile header ---- */
+.ex2-shell-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ex2-space-3);
+  padding: var(--ex2-space-3) var(--ex2-space-4);
+  border-block-end: var(--ex2-border-width) solid var(--ex2-divider);
+  background: var(--ex2-surface-1);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--ex2-z-sticky);
+}
+
+.ex2-shell-mobile-header__menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--ex2-text-primary);
+  font-size: var(--ex2-text-lg);
+  cursor: pointer;
+  padding: var(--ex2-space-1);
+}
+
+.ex2-shell-mobile-header__menu-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+  border-radius: var(--ex2-radius-sm);
+}
+
+.ex2-shell-mobile-header__logo {
+  flex: 1;
+  min-width: 0;
+}
+
+.ex2-shell-mobile-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-2);
+}
+
+/* ---- Mobile nav (inside Drawer) ---- */
+.ex2-shell-mobile-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex2-space-1);
+}
+
+.ex2-shell-mobile-nav__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-3);
+  padding: var(--ex2-space-3);
+  border-radius: var(--ex2-radius-md);
+  background: transparent;
+  border: none;
+  color: var(--ex2-text-secondary);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-md);
+  text-align: start;
+  cursor: pointer;
+}
+
+.ex2-shell-mobile-nav__item--active {
+  background: var(--ex2-accent-subtle-bg);
+  color: var(--ex2-accent);
+}
+
+.ex2-shell-mobile-nav__footer {
+  margin-block-start: var(--ex2-space-4);
+  padding-block-start: var(--ex2-space-4);
+  border-block-start: var(--ex2-border-width) solid var(--ex2-divider);
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-3);
+}
+
+/* ---- Content region ---- */
+.ex2-shell__main {
+  flex: 1;
+  min-width: 0; /* allow the content column to shrink below its
+                   content's intrinsic width in the shell's flex
+                   row, instead of forcing horizontal page overflow -
+                   this is the design-system equivalent of the
+                   legacy .inner-page-shell > .main protection it
+                   replaces; every migrated page needs it. */
+  display: flex;
+  flex-direction: column;
+}
+
+.ex2-shell__content {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Desktop-only sidebar/header default to hidden below 768px via
+   .ex2-desktop-only / .ex2-mobile-only (Layout.css) - AppShell
+   relies on those same visibility helpers rather than redefining
+   its own breakpoint, so there is exactly one place that decides
+   the desktop/mobile cutoff. */
+@media (max-width: 768px) {
+  .ex2-shell {
+    flex-direction: column;
+  }
+}
