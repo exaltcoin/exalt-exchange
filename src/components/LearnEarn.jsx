@@ -10,7 +10,21 @@ const API_BASE =
   "https://exalt-real-backend-6b6v.onrender.com";
 
 export default function LearnEarn() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "learnEarn",
+            defaultValue: options,
+          }
+        : {
+            ns: "learnEarn",
+            ...options,
+          }
+    );
 
   const lessons = [
     {

@@ -1,7 +1,21 @@
 import { useI18n } from "../i18n";
 
 function BuyCrypto() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "trading",
+            defaultValue: options,
+          }
+        : {
+            ns: "trading",
+            ...options,
+          }
+    );
 
   const EXALT_CONTRACT = "0xd9a9236ba831D5d059Fbb5f8238AaFcC3BBe0A78";
   const BNB_CONTRACT = "BNB";

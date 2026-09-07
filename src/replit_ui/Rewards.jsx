@@ -10,7 +10,21 @@ const API_BASE =
 const API = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
 
 export default function Rewards() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "learnEarn",
+            defaultValue: options,
+          }
+        : {
+            ns: "learnEarn",
+            ...options,
+          }
+    );
 
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);

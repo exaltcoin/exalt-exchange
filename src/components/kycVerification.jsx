@@ -12,7 +12,21 @@ const API_BASE = RAW_API.endsWith("/api")
   : RAW_API;
 
 export default function KycVerification() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "profile",
+            defaultValue: options,
+          }
+        : {
+            ns: "profile",
+            ...options,
+          }
+    );
 const storedUser = (() => {
   try {
     return JSON.parse(localStorage.getItem("user") || "{}");

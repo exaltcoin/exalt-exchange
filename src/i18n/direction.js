@@ -2,7 +2,7 @@ import {
   DEFAULT_LANGUAGE,
   getLanguageDirection,
   normalizeLanguageCode,
-} from "./languages";
+} from "./languages.js";
 
 const SAFE_DIRECTION_VALUES = new Set(["ltr", "rtl"]);
 

@@ -8,7 +8,21 @@ const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
 
 export default function ReputationCenter() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "social",
+            defaultValue: options,
+          }
+        : {
+            ns: "social",
+            ...options,
+          }
+    );
 
   const [reputation, setReputation] = useState(null);
   const [loading, setLoading] = useState(true);

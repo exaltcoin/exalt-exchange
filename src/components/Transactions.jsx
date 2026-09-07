@@ -3,7 +3,21 @@ import PageShell from "./PageShell";
 import { useI18n } from "../i18n";
 
 function Transactions() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "trading",
+            defaultValue: options,
+          }
+        : {
+            ns: "trading",
+            ...options,
+          }
+    );
 
   const API_BASE =
     import.meta.env.VITE_API_URL ||

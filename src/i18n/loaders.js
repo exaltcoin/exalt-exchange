@@ -1,12 +1,12 @@
 import {
   DEFAULT_LANGUAGE,
   normalizeLanguageCode,
-} from "./languages";
+} from "./languages.js";
 
 import {
   DEFAULT_NAMESPACE,
   normalizeNamespace,
-} from "./namespaces";
+} from "./namespaces.js";
 
 const translationLoaders = {
   en: {

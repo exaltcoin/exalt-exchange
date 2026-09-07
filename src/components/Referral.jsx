@@ -9,7 +9,21 @@ const RAW_API =
 const API = RAW_API.endsWith("/api") ? RAW_API : `${RAW_API}/api`;
 
 function Referral() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "social",
+            defaultValue: options,
+          }
+        : {
+            ns: "social",
+            ...options,
+          }
+    );
 
   const [loading, setLoading] = useState(true);
   const [referral, setReferral] = useState({

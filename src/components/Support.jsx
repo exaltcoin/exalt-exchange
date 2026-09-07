@@ -11,7 +11,21 @@ const API = API_BASE.endsWith("/api")
   : API_BASE;
 
 function Support() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "common",
+            defaultValue: options,
+          }
+        : {
+            ns: "common",
+            ...options,
+          }
+    );
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");

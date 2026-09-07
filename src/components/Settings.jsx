@@ -139,10 +139,24 @@ function Settings({
   setPage,
 }) {
   const {
-    t,
+    t: i18nT,
     lang,
     languages,
   } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "settings",
+            defaultValue: options,
+          }
+        : {
+            ns: "settings",
+            ...options,
+          }
+    );
 
   const [user, setUser] =
     useState(() =>

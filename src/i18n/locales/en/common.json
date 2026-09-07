@@ -1,14 +1,12 @@
 {
   "appName": "Exalt Exchange",
   "exchange": "Exchange",
-
   "loading": "Loading...",
   "processing": "Processing...",
   "submitting": "Submitting...",
   "saving": "Saving...",
   "sending": "Sending...",
   "refreshing": "Refreshing...",
-
   "save": "Save",
   "cancel": "Cancel",
   "close": "Close",
@@ -31,16 +29,13 @@
   "view": "View",
   "details": "Details",
   "action": "Action",
-
   "yes": "Yes",
   "no": "No",
-
   "success": "Success",
   "failed": "Failed",
   "error": "Error",
   "warning": "Warning",
   "information": "Information",
-
   "active": "Active",
   "inactive": "Inactive",
   "enabled": "Enabled",
@@ -56,7 +51,6 @@
   "unlocked": "Unlocked",
   "verified": "Verified",
   "notVerified": "Not Verified",
-
   "name": "Name",
   "email": "Email",
   "phone": "Phone",
@@ -86,15 +80,12 @@
   "user": "User",
   "userId": "User ID",
   "uid": "UID",
-
   "language": "Language",
   "languagePreferences": "Language Preferences",
-
   "noDataFound": "No data found.",
   "noResultsFound": "No results found.",
   "notAvailable": "Not Available",
   "comingSoon": "Coming Soon",
-
   "pleaseLoginFirst": "Please login first.",
   "fillAllRequiredFields": "Please fill all required fields.",
   "invalidRequest": "Invalid request.",
@@ -105,10 +96,28 @@
   "accessDenied": "Access Denied",
   "unauthorized": "Unauthorized",
   "permissionRequired": "You do not have permission to perform this action.",
-
   "secure": "Secure",
   "fast": "Fast",
   "global": "Global",
-
-  "copyright": "All rights reserved."
+  "copyright": "All rights reserved.",
+  "aiWithdrawHelp": "Please confirm coin, network, withdrawal address, amount and transaction ID. Support will review your withdrawal.",
+  "aiDepositHelp": "Please share coin, network, deposit address, amount and transaction hash.",
+  "aiKycHelp": "Upload a clear document and selfie. Make sure all details are readable.",
+  "aiLoginHelp": "Try Forgot Password first. If 2FA is locked, submit an account recovery request.",
+  "aiP2pHelp": "Never release crypto until payment is confirmed. Share order ID and payment proof.",
+  "aiDefaultHelp": "Please provide complete information including screenshots, wallet address, order ID or transaction hash.",
+  "supportRequiredFields": "Please fill email, subject and message.",
+  "failedSubmitTicket": "Failed to submit ticket.",
+  "ticketSubmittedSuccessfully": "Support ticket submitted successfully.",
+  "supportBadge": "24/7 AI + Human Support",
+  "aiSupportAssistant": "AI Support Assistant",
+  "aiSupportAssistantText": "If our team is not immediately available, AI will guide you first. You can still submit a ticket for human review.",
+  "askAiSupport": "Ask AI Support",
+  "createSupportTicket": "Create Support Ticket",
+  "fullName": "Full Name",
+  "emailAddress": "Email Address",
+  "walletOrderTxOptional": "Wallet Address / Order ID / TX Hash (Optional)",
+  "subject": "Subject",
+  "describeIssue": "Describe your issue in detail...",
+  "submitTicket": "Submit Ticket"
 }
