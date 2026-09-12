@@ -14,21 +14,7 @@ const demoTraders = [
 ];
 
 export default function AICopyTrading() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "ai",
-            defaultValue: options,
-          }
-        : {
-            ns: "ai",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 
   const [traders, setTraders] = useState([]);
   const [copies, setCopies] = useState([]);

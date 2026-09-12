@@ -20,7 +20,7 @@ export default function AdminCopyTrading() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API}/api/copy-trading/admin/all`, {
+      const res = await fetch(`${API_BASE}/api/copy-trading/admin/all`, {
         headers: {
           Authorization: `Bearer ${token || ""}`,
         },
@@ -82,7 +82,7 @@ export default function AdminCopyTrading() {
 
   const updateStatus = async (id, status) => {
     try {
-      const res = await fetch(`${API}/api/copy-trading/admin/${id}/status`, {
+      const res = await fetch(`${API_BASE}/api/copy-trading/admin/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

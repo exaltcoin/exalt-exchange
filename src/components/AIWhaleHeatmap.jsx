@@ -10,21 +10,7 @@ const API_BASE =
 const formatMoney = (value) => `$${Number(value || 0).toLocaleString()}`;
 
 export default function AIWhaleHeatmap() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "ai",
-            defaultValue: options,
-          }
-        : {
-            ns: "ai",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 
   const [heatmaps, setHeatmaps] = useState([]);
   const [loading, setLoading] = useState(true);

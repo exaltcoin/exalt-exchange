@@ -78,14 +78,16 @@ function P2P() {
     Vietnam: "🇻🇳",
   };
 
-  const getTraderInfo = (order, index) => ({
-    name: order.traderName || order.sellerName || `${t("trader")} ${index + 1}`,
-    verified: order.verified ?? index % 2 === 0,
-    online: order.online ?? index % 3 !== 0,
-    rating: order.rating || "4.8",
-    completionRate: order.completionRate || "98%",
-    completedOrders: order.completedOrders || 120 + index * 7,
-  });
+  const getTraderInfo = (order) => {
+    const traderAccount = order.type === "sell" ? order.sellerId : order.buyerId;
+
+    return {
+      name:
+        traderAccount?.name ||
+        t("unknownTrader") ||
+        "Trader",
+    };
+  };
 
   const loadOrders = async () => {
     try {
@@ -369,7 +371,7 @@ function P2P() {
 
               <tbody>
                 {filteredOrders.map((order, index) => {
-                  const trader = getTraderInfo(order, index);
+                  const trader = getTraderInfo(order);
 
                   return (
                     <tr key={order._id || index}>
@@ -382,23 +384,6 @@ function P2P() {
                           <div>
                             <div className="trader-name">
                               {trader.name}
-                              {trader.verified && <span className="verified-badge">✔</span>}
-                            </div>
-
-                            <div className="trader-meta">
-                              <span className={trader.online ? "online-status" : "offline-status"}>
-                                <span className={trader.online ? "online-dot" : "offline-dot"}></span>
-                                {trader.online ? t("online") : t("offline")}
-                              </span>
-                              <span className="rating-badge">⭐ {trader.rating}</span>
-                              <span className="completion-badge">{trader.completionRate}</span>
-                            </div>
-
-                            <div className="trader-orders">
-                              <span className="orders-badge">{trader.completedOrders} {t("orders")}</span>
-                              {trader.verified && (
-                                <span className="merchant-badge">✔ {t("verifiedMerchant")}</span>
-                              )}
                             </div>
                           </div>
                         </div>

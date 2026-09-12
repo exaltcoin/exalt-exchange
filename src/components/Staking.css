@@ -52,6 +52,47 @@
   box-sizing: border-box;
 }
 
+.staking-select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  background: #0b1120;
+  color: #fff;
+  margin: 8px 0;
+  outline: none;
+  box-sizing: border-box;
+  font-size: 15px;
+  min-height: 44px;
+}
+
+.stake-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stake-row-actions button {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 13px;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.stake-row-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.stake-status-note {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
 .stake-buttons {
   display: flex;
   gap: 12px;
@@ -66,6 +107,7 @@
   border-radius: 12px;
   font-weight: 800;
   cursor: pointer;
+  min-height: 44px;
 }
 
 .stake-btn { background: #16a34a; color: #fff; }

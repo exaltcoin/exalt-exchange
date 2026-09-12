@@ -3,6 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 function AdminP2P() {
   const API_BASE =
   import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+
+  const authHeaders = () => {
+    const token = localStorage.getItem("token");
+    return token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+  };
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("all");
   const [newOrderCount, setNewOrderCount] = useState(0);
@@ -82,7 +89,9 @@ function AdminP2P() {
 
   const loadOrders = async () => {
     try {
-      const response = await fetch(`${API}/api/p2p/admin/all`);
+      const response = await fetch(`${API_BASE}/api/p2p/admin/all`, {
+        headers: authHeaders(),
+      });
       const data = await response.json();
 
       if (data.success) {
@@ -108,9 +117,12 @@ function AdminP2P() {
 
   const releaseOrder = async (id) => {
     try {
-      const response = await fetch(`${API}/api/p2p/${id}/release`, {
+      const response = await fetch(`${API_BASE}/api/p2p/${id}/release`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
       });
 
       const data = await response.json();
@@ -127,9 +139,12 @@ function AdminP2P() {
       const confirmCancel = window.confirm("Cancel this P2P order?");
       if (!confirmCancel) return;
 
-      const response = await fetch(`${API}/api/p2p/${id}/cancel`, {
+      const response = await fetch(`${API_BASE}/api/p2p/${id}/cancel`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders(),
+        },
       });
 
       const data = await response.json();
@@ -138,6 +153,44 @@ function AdminP2P() {
     } catch (error) {
       console.log(error);
       alert("Cancel failed");
+    }
+  };
+
+  const resolveDispute = async (id, resolution) => {
+    try {
+      const confirmResolve = window.confirm(
+        resolution === "release_to_buyer"
+          ? "Resolve this dispute in favor of the BUYER (release escrow)?"
+          : "Resolve this dispute in favor of the SELLER (refund escrow)?"
+      );
+
+      if (!confirmResolve) return;
+
+      const response = await fetch(
+        `${API_BASE}/api/p2p/${id}/admin/resolve-dispute`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...authHeaders(),
+          },
+          body: JSON.stringify({ resolution }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "Dispute resolution failed"
+        );
+      }
+
+      alert(data.message || "Dispute resolved");
+      await loadOrders();
+    } catch (error) {
+      console.error("Dispute resolution failed:", error);
+      alert(error?.message || "Dispute resolution failed");
     }
   };
 
@@ -379,7 +432,21 @@ function AdminP2P() {
                     )}
 
                     {order.status === "disputed" && (
-                      <span className="disputed-badge">Disputed</span>
+                      <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                        <span className="disputed-badge">Disputed</span>
+                        <button
+                          className="release-btn"
+                          onClick={() => resolveDispute(order._id, "release_to_buyer")}
+                        >
+                          Resolve: Buyer
+                        </button>
+                        <button
+                          className="cancel-btn"
+                          onClick={() => resolveDispute(order._id, "refund_to_seller")}
+                        >
+                          Resolve: Seller
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

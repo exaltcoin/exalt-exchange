@@ -56,7 +56,7 @@ function ListingForm() {
         return;
       }
 
-      const response = await fetch(`${API}/api/listings/my-listings`, {
+      const response = await fetch(`${API_BASE}/api/listings/my-listings`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -111,7 +111,7 @@ function ListingForm() {
         return;
       }
 
-      const response = await fetch(`${API}/api/listings`, {
+      const response = await fetch(`${API_BASE}/api/listings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

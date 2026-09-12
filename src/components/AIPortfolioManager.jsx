@@ -26,21 +26,7 @@ const demoPortfolio = {
 };
 
 export default function AIPortfolioManager() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "ai",
-            defaultValue: options,
-          }
-        : {
-            ns: "ai",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 
   const [portfolio, setPortfolio] = useState(demoPortfolio);
   const [loading, setLoading] = useState(false);

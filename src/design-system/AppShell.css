@@ -117,6 +117,20 @@
   justify-content: space-between;
   gap: var(--ex2-space-3);
   padding: var(--ex2-space-3) var(--ex2-space-4);
+  /*
+    Batch 1 iOS foundation fix: this header is `position: sticky`
+    at the very top of the viewport with no allowance for the iOS
+    safe area (notch / Dynamic Island / status bar) - on an actual
+    iPhone (or a Capacitor iOS WebView, which respects the same
+    env() safe-area variables), this would render partially
+    obscured under that area. env(safe-area-inset-top) is 0 on
+    every platform without a safe-area concept (desktop browsers,
+    Android), so this is a pure no-op improvement everywhere else -
+    not an iOS-only code path or an Android assumption removed.
+  */
+  padding-top: calc(
+    var(--ex2-space-3) + env(safe-area-inset-top, 0px)
+  );
   border-block-end: var(--ex2-border-width) solid var(--ex2-divider);
   background: var(--ex2-surface-1);
   position: sticky;

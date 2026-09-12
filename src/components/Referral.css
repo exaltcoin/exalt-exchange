@@ -215,6 +215,87 @@
   padding: 22px;
 }
 
+.referral-members-box {
+  margin-top: 25px;
+  background: #1e293b;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  padding: 22px;
+  overflow-x: auto;
+}
+
+.referral-members-box h2 {
+  color: #f7b500;
+  margin-bottom: 15px;
+}
+
+.referral-members-search {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.referral-members-search input {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: #0b1120;
+  color: #fff;
+}
+
+.referral-members-search button {
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: none;
+  background: #f7b500;
+  color: #111;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.referral-members-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.referral-members-table th,
+.referral-members-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  color: #e5e7eb;
+}
+
+.referral-members-table th {
+  color: #f7b500;
+  font-size: 13px;
+}
+
+.referral-members-pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+  justify-content: center;
+}
+
+.referral-members-pagination button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: #0b1120;
+  color: #fff;
+  cursor: pointer;
+}
+
+.referral-members-pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .referral-history h2 {
   color: #f7b500;
   margin-bottom: 15px;

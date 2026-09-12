@@ -12,21 +12,7 @@ const API_BASE = RAW_API.endsWith("/api")
   : RAW_API;
 
 export default function KycVerification() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "profile",
-            defaultValue: options,
-          }
-        : {
-            ns: "profile",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 const storedUser = (() => {
   try {
     return JSON.parse(localStorage.getItem("user") || "{}");
@@ -45,7 +31,8 @@ const token = localStorage.getItem("token");
 const [loading, setLoading] = useState(false);
 const [emailOtp, setEmailOtp] = useState("");
 const [emailVerified, setEmailVerified] = useState(false);
-const [faceVerified, setFaceVerified] = useState(false);
+const [sendingOtp, setSendingOtp] = useState(false);
+const [verifyingOtp, setVerifyingOtp] = useState(false);
 
 const [form, setForm] = useState({
   fullName: storedUser?.name || storedUser?.fullName || "",
@@ -79,105 +66,82 @@ const handleFile = (name, file) => {
 
 
   const sendEmailOtp = async () => {
+    if (!token) {
+      alert(t("pleaseLoginFirst"));
+      return;
+    }
+
+    setSendingOtp(true);
+
     try {
-      const email = String(form.email || "").trim().toLowerCase();
-      const accountEmail = String(storedUser?.email || "").trim().toLowerCase();
-
-      if (!email) {
-        alert("Email address is required");
-        return;
-      }
-
-      if (accountEmail && email !== accountEmail) {
-        alert("Please use the email address registered with your account");
-        return;
-      }
-
       const res = await axios.post(
         `${API_BASE}/api/otp/send-email`,
-        { email },
+        {},
         {
-          headers: token
-            ? { Authorization: `Bearer ${token}` }
-            : {},
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       if (res.data?.success) {
-        setEmailVerified(false);
-        setEmailOtp("");
-        alert(res.data?.message || t("emailOtpSent"));
-        return;
+        alert(t("emailOtpSent"));
+      } else {
+        alert(res.data?.message || t("emailOtpSendFailed"));
       }
-
-      alert(res.data?.message || "Failed to send email OTP");
-    } catch (err) {
-      console.error("KYC email OTP send error:", err);
-
+    } catch (error) {
       alert(
-        err.response?.data?.message ||
-          "Failed to send email OTP. Please try again."
+        error?.response?.data?.message || t("emailOtpSendFailed")
       );
+    } finally {
+      setSendingOtp(false);
     }
   };
 
   const verifyEmail = async () => {
+    if (!emailOtp) {
+      alert(t("enterOtpFirst"));
+      return;
+    }
+
+    if (!token) {
+      alert(t("pleaseLoginFirst"));
+      return;
+    }
+
+    setVerifyingOtp(true);
+
     try {
-      const email = String(form.email || "").trim().toLowerCase();
-      const accountEmail = String(storedUser?.email || "").trim().toLowerCase();
-      const otp = String(emailOtp || "").trim();
-
-      if (!otp) {
-        alert(t("enterOtpFirst"));
-        return;
-      }
-
-      if (!email) {
-        alert("Email address is required");
-        return;
-      }
-
-      if (accountEmail && email !== accountEmail) {
-        alert("Please use the email address registered with your account");
-        return;
-      }
-
       const res = await axios.post(
         `${API_BASE}/api/otp/verify-email`,
+        { otp: emailOtp },
         {
-          email,
-          otp,
-        },
-        {
-          headers: token
-            ? { Authorization: `Bearer ${token}` }
-            : {},
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
-      if (res.data?.success && res.data?.verified) {
+      // Fail closed: emailVerified only ever becomes true after an
+      // actual 2xx success response from the backend, never
+      // optimistically and never from anything the client itself
+      // decided. A wrong, expired, missing, or backend-failed OTP
+      // always leaves this false.
+      if (res.data?.success) {
         setEmailVerified(true);
-        alert(res.data?.message || t("emailVerifiedSuccessfully"));
-        return;
+        alert(t("emailVerifiedSuccessfully"));
+      } else {
+        setEmailVerified(false);
+        alert(res.data?.message || t("invalidOtp"));
       }
-
+    } catch (error) {
       setEmailVerified(false);
-      alert(res.data?.message || "Invalid or expired OTP");
-    } catch (err) {
-      console.error("KYC email OTP verification error:", err);
-
-      setEmailVerified(false);
-
       alert(
-        err.response?.data?.message ||
-          "Email verification failed. Please try again."
+        error?.response?.data?.message || t("invalidOtp")
       );
+    } finally {
+      setVerifyingOtp(false);
     }
-  };
-
-  const startFaceVerification = () => {
-    setFaceVerified(true);
-    alert(t("faceVerificationCompleted"));
   };
 
   const submitKyc = async () => {
@@ -208,8 +172,8 @@ const handleFile = (name, file) => {
         return;
       }
 
-      if (!faceVerified) {
-        alert(t("completeFaceVerification"));
+      if (!files.selfie) {
+        alert(t("uploadSelfieRequired"));
         return;
       }
 
@@ -361,30 +325,39 @@ data.append("country", form.country);
             </h3>
 
             <div className="verify-row">
-              <button type="button" onClick={sendEmailOtp}>
-                {t("sendEmailOtp")}
+              <button
+                type="button"
+                onClick={sendEmailOtp}
+                disabled={sendingOtp || emailVerified}
+              >
+                {sendingOtp ? t("sendingEmailOtp") : t("sendEmailOtp")}
               </button>
 
               <input
                 value={emailOtp}
                 onChange={(e) => setEmailOtp(e.target.value)}
                 placeholder={t("enterEmailOtp")}
+                disabled={emailVerified}
               />
 
-              <button type="button" onClick={verifyEmail}>
-                {t("verifyEmail")}
+              <button
+                type="button"
+                onClick={verifyEmail}
+                disabled={verifyingOtp || emailVerified}
+              >
+                {verifyingOtp ? t("verifyingEmailOtp") : t("verifyEmail")}
               </button>
             </div>
           </div>
 
           <div className="verify-box">
             <h3>
-              {t("faceVerification")} {faceVerified ? "✅" : "❌"}
+              {t("selfieVerification")} {files.selfie ? "✅" : "❌"}
             </h3>
 
-            <button className="face-btn" type="button" onClick={startFaceVerification}>
-              {t("startFaceVerification")}
-            </button>
+            <p className="face-verification-note">
+              {t("faceVerificationNotAutomated")}
+            </p>
           </div>
 
           <button

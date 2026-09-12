@@ -13,6 +13,12 @@ import {
   getFuturesHistory,
   closePosition as apiClosePosition,
 } from "../api";
+import {
+  Tabs,
+  Select,
+  AmountInput,
+  Button,
+} from "../design-system/index.js";
 import { apiFetch } from "../lib/apiClient.js";
 
 import "./Futures.css";
@@ -104,15 +110,30 @@ FUTURES_PRODUCTION_READY was kept false by default, pending two launch-blocking
   field still defaults to false (see models/ExchangeSettings.js,
   middleware/exchangeStatusMiddleware.js's checkFuturesTrading) and
   has not been verified against a live/testnet market in this
-  sandbox, insurance-fund/ADL/cross-margin/funding remain unbuilt
-  (see FUTURES-ARCHITECTURE-GUIDE.md), and the liquidation worker
-itself stays off. The VITE_FUTURES_PRODUCTION_READY-controlled gate therefore
-  hides the whole page - it now drives a persistent, non-dismissable
-  staging banner (see the "futures-staging-banner" render below) so
-  a real user session is never left thinking this is a live,
-  verified derivatives product. Do not flip this to true without an
+  sandbox, and the liquidation worker itself stays off. The
+  VITE_FUTURES_PRODUCTION_READY-controlled gate therefore hides the
+  whole page - it now drives a persistent, non-dismissable staging
+  banner (see the "futures-staging-banner" render below) so a real
+  user session is never left thinking this is a live, verified
+  derivatives product. Do not flip this to true without an
   independent testnet/live verification pass this sandbox cannot
   perform - see LIVE-FUNDS-ACTIVATION-CHECKLIST.md.
+
+  Spot Trading/Futures audit correction: this comment previously
+  claimed "insurance-fund/ADL/cross-margin/funding remain unbuilt" -
+  that was accurate when RC5 was written but is now stale. Since
+  then, a real insurance fund (models/InsuranceFund.js,
+  services/futures/insuranceFundService.js) was built and wired into
+  the actual settlement path (controllers/futuresController.js's
+  settlePosition() calls coverBadDebt() for any uncoveredLossAmount),
+  and services/futures/fundingService.js provides a real, live
+  funding-rate computation (surfaced below via
+  GET /api/futures/funding-rate/:symbol, never fabricated). ADL and
+  cross-margin remain genuinely unbuilt. None of this changes the
+  actual gate below - the backend's futuresTradingEnabled flag and
+  the liquidation worker both still default to off, and that is the
+  real, load-bearing safety control - only the explanatory comment
+  was out of date.
 */
 const FUTURES_PRODUCTION_READY =
   String(import.meta.env.VITE_FUTURES_PRODUCTION_READY || "false")
@@ -482,6 +503,11 @@ function Futures({ setPage }) {
   }, [displayPrice, orderBook]);
 
   const loadPositions = useCallback(async () => {
+    if (!FUTURES_PRODUCTION_READY) {
+      setPositions([]);
+      return [];
+    }
+
     try {
       const response = await getPositions();
 
@@ -501,6 +527,11 @@ function Futures({ setPage }) {
   }, []);
 
   const loadHistory = useCallback(async () => {
+    if (!FUTURES_PRODUCTION_READY) {
+      setHistory([]);
+      return [];
+    }
+
     try {
       const response = await getFuturesHistory();
 
@@ -2709,37 +2740,31 @@ function Futures({ setPage }) {
             </h2>
 
             <div className="trade-tabs">
-              <button
-                type="button"
-                className={`buy-btn ${
-                  side === "long"
-                    ? "active-side"
-                    : ""
-                }`}
-                onClick={() => setSide("long")}
-              >
-                {translateWithFallback(
-                  "buyLong",
-                  "Buy / Long"
+              <Tabs
+                ariaLabel={translateWithFallback(
+                  "buySellTabs",
+                  "Buy or sell",
+                  "trading"
                 )}
-              </button>
-
-              <button
-                type="button"
-                className={`sell-btn ${
-                  side === "short"
-                    ? "active-side"
-                    : ""
-                }`}
-                onClick={() =>
-                  setSide("short")
-                }
-              >
-                {translateWithFallback(
-                  "sellShort",
-                  "Sell / Short"
-                )}
-              </button>
+                tabs={[
+                  {
+                    id: "long",
+                    label: translateWithFallback(
+                      "buyLong",
+                      "Buy / Long"
+                    ),
+                  },
+                  {
+                    id: "short",
+                    label: translateWithFallback(
+                      "sellShort",
+                      "Sell / Short"
+                    ),
+                  },
+                ]}
+                activeId={side}
+                onChange={setSide}
+              />
             </div>
 
             <label>
@@ -2749,13 +2774,17 @@ function Futures({ setPage }) {
               )}
             </label>
 
-            <select
+            <Select
               value={leverage}
               onChange={(event) =>
                 setLeverage(
                   event.target.value
                 )
               }
+              aria-label={translateWithFallback(
+                "leverage",
+                "Leverage"
+              )}
             >
               {LEVERAGE_OPTIONS.map(
                 (option) => (
@@ -2767,7 +2796,7 @@ function Futures({ setPage }) {
                   </option>
                 )
               )}
-            </select>
+            </Select>
 
             <label>
               {translateWithFallback(
@@ -2777,10 +2806,8 @@ function Futures({ setPage }) {
               )}
             </label>
 
-            <input
-              type="number"
-              min="0"
-              step="any"
+            <AmountInput
+              decimals={8}
               value={
                 Number.isFinite(
                   Number(price)
@@ -2793,6 +2820,11 @@ function Futures({ setPage }) {
                   event.target.value
                 )
               }
+              aria-label={translateWithFallback(
+                "price",
+                "Price",
+                "common"
+              )}
             />
 
             <label>
@@ -2803,10 +2835,8 @@ function Futures({ setPage }) {
               )}
             </label>
 
-            <input
-              type="number"
-              min="0"
-              step="any"
+            <AmountInput
+              decimals={8}
               placeholder={translateWithFallback(
                 "enterAmount",
                 "Enter Amount"
@@ -2817,6 +2847,11 @@ function Futures({ setPage }) {
                   event.target.value
                 )
               }
+              aria-label={translateWithFallback(
+                "amount",
+                "Amount",
+                "common"
+              )}
             />
 
             {/*
@@ -2835,45 +2870,35 @@ function Futures({ setPage }) {
               : {estimatedMargin.toFixed(2)} USDT
             </p>
 
-            <button
+            <Button
               type="button"
-              className="execute-buy"
-              disabled={submittingPosition}
+              variant="buy"
+              fullWidth
+              loading={submittingPosition}
               onClick={() =>
                 openPosition("long")
               }
             >
-              {submittingPosition
-                ? translateWithFallback(
-                    "processing",
-                    "Processing...",
-                    "common"
-                  )
-                : translateWithFallback(
-                    "openLong",
-                    "Open Long"
-                  )}
-            </button>
+              {translateWithFallback(
+                "openLong",
+                "Open Long"
+              )}
+            </Button>
 
-            <button
+            <Button
               type="button"
-              className="execute-sell"
-              disabled={submittingPosition}
+              variant="sell"
+              fullWidth
+              loading={submittingPosition}
               onClick={() =>
                 openPosition("short")
               }
             >
-              {submittingPosition
-                ? translateWithFallback(
-                    "processing",
-                    "Processing...",
-                    "common"
-                  )
-                : translateWithFallback(
-                    "openShort",
-                    "Open Short"
-                  )}
-            </button>
+              {translateWithFallback(
+                "openShort",
+                "Open Short"
+              )}
+            </Button>
 
             <div className="trade-info">
               <p>

@@ -6,7 +6,17 @@ import { readFile } from "node:fs/promises";
 const expected = {
   "src/components/Web3Wallet.jsx": "9E465096B6B1B0348DBBB0AC6C598A236989C9E1183904FB9A09089B85073D07",
   "src/components/Web3Wallet.css": "46ED83537A98C6D18FC6FA287867059A0467E40E912EAE301CCAC00A1234A78D",
-  "src/lib/apiClient.js": "0569A08DB591F7A022B93819B2E6F1EA49382BA1E680429D6E134D58B8694A6B",
+  /*
+    Intentionally updated hash: src/lib/apiClient.js was explicitly,
+    deliberately modified per direct user instruction to apply the
+    real socket-client consolidation fix (external recovery repo,
+    commit f78c11117) - removed the forced transports allow-list
+    so Socket.IO negotiates normally. See
+    tests/socketClientConsolidation.test.mjs for the dedicated
+    regression coverage of that change. This is the new accepted
+    baseline going forward, not a drift from the old one.
+  */
+  "src/lib/apiClient.js": "989BB2A510A3BAFAD9C0B259962CB12F357C86EC769C88D518B6A9BD83469F7A",
   "src/components/OwnerControl.jsx": "77003F804ECC2D99B9E306F354205CD34CC02AF0E5B8018152B0D5CEC31C1A7D",
   "src/AdminPanel.jsx": "4D9556C77AE1B4A253D7F2309443CD2FBA4003294BD28B3335884767B658F7A9",
   "src/components/ModeratorPanel.jsx": "B50947BC3852EB37ACABA7C2D342876D8DA4B55C94E011A7F374FCAAC9C65207",
