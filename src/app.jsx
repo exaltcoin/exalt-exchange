@@ -325,7 +325,7 @@ import BreadcrumbSchema from "./components/SEO/BreadcrumbSchema";
 import FAQSchema from "./components/SEO/FAQSchema";
 import { getBlogPostBySlug } from "./pages/blog/blogData";
 const DEFAULT_API_BASE =
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const normalizeApiBase = (value) => {
   const base = String(value || DEFAULT_API_BASE)
@@ -1703,18 +1703,19 @@ return (
 
     return (
       <div className="panel">
-        <h2>
-          {String(page || "PAGE").toUpperCase()}
-        </h2>
+        <h2>Page unavailable</h2>
 
-        <p>This section is coming soon.</p>
+        <p>
+          This navigation target is not registered in the current exchange
+          interface.
+        </p>
 
         <button
           type="button"
           className="buy-btn"
-          onClick={() => setPage("transactions")}
+          onClick={() => setPage("dashboard")}
         >
-          Open Transaction History
+          Return to Dashboard
         </button>
       </div>
     );

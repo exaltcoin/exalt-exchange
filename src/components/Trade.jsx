@@ -20,7 +20,7 @@ import {
 } from "../design-system/index.js";
 
 const DEFAULT_API_BASE =
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const PANCAKE_ROUTER =
   "0x10ED43C718714eb63d5aA57B78B54704E256024E";

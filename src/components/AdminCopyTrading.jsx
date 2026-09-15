@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 export default function AdminCopyTrading() {
   const [records, setRecords] = useState([]);
   const [stats, setStats] = useState({

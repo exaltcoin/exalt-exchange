@@ -3,7 +3,7 @@ import { useI18n } from "../i18n";
 import "./OwnerControl.css";
 
 const API_FALLBACK =
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const SERVICE_FIELDS = [
   {

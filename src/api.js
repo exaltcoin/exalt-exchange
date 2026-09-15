@@ -5,7 +5,7 @@ const isLocal =
   window.location.hostname === "127.0.0.1";
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com/api";
+  "https://api.exaltexchange.io/api";
 
 /*
   Socket fix (external recovery repo, commit f78c11117): this file

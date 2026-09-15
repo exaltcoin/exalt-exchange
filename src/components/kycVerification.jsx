@@ -5,7 +5,7 @@ import { useI18n } from "../i18n";
 import "./kycVerification.css";
 
 const RAW_API =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
 const API_BASE = RAW_API.endsWith("/api")
   ? RAW_API.replace("/api", "")
