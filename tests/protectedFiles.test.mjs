@@ -25,7 +25,9 @@ const expected = {
     baseline going forward, not a drift from the old one.
   */
   "src/lib/apiClient.js": "989BB2A510A3BAFAD9C0B259962CB12F357C86EC769C88D518B6A9BD83469F7A",
-  "src/components/OwnerControl.jsx": "09A40A1624F3E7ED12EC549E98BA5A6F8117C7025350682C736B2973229E92C8",
+  // Authorized Earned EXALT Owner tab; dedicated behavior coverage lives in
+  // tests/earnedExaltOwnerFrontend.test.mjs.
+  "src/components/OwnerControl.jsx": "28375608122737E682DE4A400DF38F5DD5308F8F738E98F877F3BCD1951AD64A",
   "src/AdminPanel.jsx": "19BD814CDD764B615407B7A032A771E520AA6DD5304B81D5CBA82C834F6FCFAA",
   "src/components/ModeratorPanel.jsx": "8BADC903EC42D9EFC97B0912ACA5B1C4691DE546865C3654B088B08164621E02",
   "src/components/Wallets.jsx": "94F5B73B6D97CE2563A27E5468E0B9B70E366B253B404BD762795C73B920CB46",

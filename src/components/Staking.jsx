@@ -1,7 +1,10 @@
 import "./Staking.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useI18n } from "../i18n";
 import { apiFetch } from "../lib/apiClient.js";
+import CapabilityGate from "./CapabilityGate.jsx";
+import EarnedExaltPanel from "../features/earnedExalt/EarnedExaltPanel.jsx";
+import "../design-system/Tabs.css";
 
 /*
   Batch 6 audit findings, all fixed in this rewrite:
@@ -42,6 +45,9 @@ const SUPPORTED_DURATIONS = Object.keys(DURATION_APY_MAP).map(Number);
 
 export default function Staking() {
   const { t } = useI18n();
+  const [activeTab, setActiveTab] = useState("staking");
+  const tabGroupId = useId();
+  const tabRefs = useRef({});
 
   const [amount, setAmount] = useState("");
   const [selectedCoin, setSelectedCoin] = useState("EXALT");
@@ -182,6 +188,30 @@ export default function Staking() {
 
   return (
     <div className="staking-page">
+      <div className="ex2-tabs staking-tabs" role="tablist" aria-label="Staking and Earned EXALT">
+        {[["staking", "Staking"], ["earned", "Earned EXALT"]].map(([id, label]) => (
+          <button
+            key={id}
+            ref={(element) => { tabRefs.current[id] = element; }}
+            id={`${tabGroupId}-tab-${id}`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === id}
+            aria-controls={`${tabGroupId}-panel-${id}`}
+            tabIndex={activeTab === id ? 0 : -1}
+            className={`ex2-tabs__tab ${activeTab === id ? "ex2-tabs__tab--active" : ""}`}
+            onClick={() => setActiveTab(id)}
+            onKeyDown={(event) => {
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+              event.preventDefault();
+              const next = event.key === "Home" ? "staking" : event.key === "End" ? "earned" : id === "staking" ? "earned" : "staking";
+              setActiveTab(next);
+              tabRefs.current[next]?.focus();
+            }}
+          >{label}</button>
+        ))}
+      </div>
+      <div id={`${tabGroupId}-panel-staking`} role="tabpanel" aria-labelledby={`${tabGroupId}-tab-staking`} hidden={activeTab !== "staking"} tabIndex={0}>
       <div className="staking-header">
         <h1>{t("exaltStaking")}</h1>
         <p>{t("stakingSubtitle")}</p>
@@ -328,6 +358,14 @@ export default function Staking() {
             )}
           </tbody>
         </table>
+      </div>
+      </div>
+      <div id={`${tabGroupId}-panel-earned`} role="tabpanel" aria-labelledby={`${tabGroupId}-tab-earned`} hidden={activeTab !== "earned"} tabIndex={0}>
+        {activeTab === "earned" && (
+          <CapabilityGate moduleKey="earnedExalt">
+            <EarnedExaltPanel />
+          </CapabilityGate>
+        )}
       </div>
     </div>
   );

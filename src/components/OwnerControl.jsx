@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "../i18n";
+import OwnerEarnedExaltPanel from "../features/earnedExalt/OwnerEarnedExaltPanel.jsx";
 import "./OwnerControl.css";
 
 const API_FALLBACK =
@@ -200,6 +201,7 @@ const TABS = [
   ["liquidity", "Liquidity", "🌊"],
   ["revenue", "Revenue", "📈"],
   ["security", "Security", "🔐"],
+  ["earned-exalt", "Earned EXALT", "🔒"],
 ];
 
 const readStoredUser = () => {
@@ -1904,6 +1906,10 @@ function OwnerControl({ setPage }) {
   );
 
   const renderActiveTab = () => {
+    if (activeTab === "earned-exalt") {
+      return <OwnerEarnedExaltPanel />;
+    }
+
     if (activeTab === "overview") {
       return renderOverview();
     }

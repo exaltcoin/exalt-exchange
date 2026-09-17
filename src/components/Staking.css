@@ -1,7 +1,15 @@
 .staking-page {
   padding: 25px;
   color: #fff;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
+
+.staking-tabs { margin-bottom: 24px; }
+.staking-tabs .ex2-tabs__tab { min-height: 44px; }
+.staking-page > [role="tabpanel"] { min-width: 0; }
+.staking-page > [role="tabpanel"][hidden] { display: none; }
 
 .staking-header,
 .staking-card,
@@ -138,6 +146,7 @@
 }
 
 @media (max-width: 768px) {
+  .staking-page { padding: 16px; }
   .staking-cards {
     grid-template-columns: 1fr;
   }

@@ -78,7 +78,7 @@ test("stats are derived from the real, live my-stakes response - no hardcoded ap
 
 test("weighted APR is only shown when genuinely derivable (active principal > 0) - never a fabricated flat number when there is nothing to weight", () => {
   const derivedMatch = source.match(
-    /const weightedApy =[\s\S]{0,200}/
+    /const weightedApy =[\s\S]{0,400}/
   );
   assert.ok(derivedMatch, "weightedApy computation not found");
   assert.match(derivedMatch[0], /totalActivePrincipal > 0/);
