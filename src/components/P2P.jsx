@@ -3,10 +3,24 @@ import { useI18n } from "../i18n";
 import "./P2P.css";
 
 function P2P() {
-  const { t } = useI18n();
+  const { t: i18nT } = useI18n();
+
+  const t = (key, options = {}) =>
+    i18nT(
+      key,
+      typeof options === "string"
+        ? {
+            ns: "p2p",
+            defaultValue: options,
+          }
+        : {
+            ns: "p2p",
+            ...options,
+          }
+    );
 
   const API_BASE =
-    import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+    import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
   const [orders, setOrders] = useState([]);
   const [type, setType] = useState("sell");
@@ -64,14 +78,16 @@ function P2P() {
     Vietnam: "🇻🇳",
   };
 
-  const getTraderInfo = (order, index) => ({
-    name: order.traderName || order.sellerName || `${t("trader")} ${index + 1}`,
-    verified: order.verified ?? index % 2 === 0,
-    online: order.online ?? index % 3 !== 0,
-    rating: order.rating || "4.8",
-    completionRate: order.completionRate || "98%",
-    completedOrders: order.completedOrders || 120 + index * 7,
-  });
+  const getTraderInfo = (order) => {
+    const traderAccount = order.type === "sell" ? order.sellerId : order.buyerId;
+
+    return {
+      name:
+        traderAccount?.name ||
+        t("unknownTrader") ||
+        "Trader",
+    };
+  };
 
   const loadOrders = async () => {
     try {
@@ -355,7 +371,7 @@ function P2P() {
 
               <tbody>
                 {filteredOrders.map((order, index) => {
-                  const trader = getTraderInfo(order, index);
+                  const trader = getTraderInfo(order);
 
                   return (
                     <tr key={order._id || index}>
@@ -368,23 +384,6 @@ function P2P() {
                           <div>
                             <div className="trader-name">
                               {trader.name}
-                              {trader.verified && <span className="verified-badge">✔</span>}
-                            </div>
-
-                            <div className="trader-meta">
-                              <span className={trader.online ? "online-status" : "offline-status"}>
-                                <span className={trader.online ? "online-dot" : "offline-dot"}></span>
-                                {trader.online ? t("online") : t("offline")}
-                              </span>
-                              <span className="rating-badge">⭐ {trader.rating}</span>
-                              <span className="completion-badge">{trader.completionRate}</span>
-                            </div>
-
-                            <div className="trader-orders">
-                              <span className="orders-badge">{trader.completedOrders} {t("orders")}</span>
-                              {trader.verified && (
-                                <span className="merchant-badge">✔ {t("verifiedMerchant")}</span>
-                              )}
                             </div>
                           </div>
                         </div>

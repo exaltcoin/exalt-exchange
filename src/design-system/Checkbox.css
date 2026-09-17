@@ -1,0 +1,99 @@
+.ex2-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ex2-space-2);
+  cursor: pointer;
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+  color: var(--ex2-text-primary);
+}
+
+.ex2-checkbox--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ex2-checkbox__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.ex2-checkbox__box {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: var(--ex2-radius-sm);
+  border: var(--ex2-border-width) solid var(--ex2-border-strong);
+  background: var(--ex2-surface-2);
+  transition: background var(--ex2-transition-fast),
+    border-color var(--ex2-transition-fast);
+}
+
+.ex2-checkbox__input:checked + .ex2-checkbox__box {
+  background: var(--ex2-accent);
+  border-color: var(--ex2-accent);
+}
+
+.ex2-checkbox__input:focus-visible + .ex2-checkbox__box {
+  box-shadow: var(--ex2-focus-ring);
+}
+
+.ex2-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ex2-space-2);
+  cursor: pointer;
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+  color: var(--ex2-text-primary);
+}
+
+.ex2-switch--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ex2-switch__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.ex2-switch__track {
+  width: 36px;
+  height: 20px;
+  border-radius: var(--ex2-radius-full);
+  background: var(--ex2-surface-3);
+  border: var(--ex2-border-width) solid var(--ex2-border-strong);
+  position: relative;
+  transition: background var(--ex2-transition-fast);
+  flex-shrink: 0;
+}
+
+.ex2-switch__thumb {
+  position: absolute;
+  inset-block-start: 1px;
+  inset-inline-start: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ex2-text-primary);
+  transition: inset-inline-start var(--ex2-transition-fast);
+}
+
+.ex2-switch__input:checked ~ .ex2-switch__track {
+  background: var(--ex2-accent);
+}
+
+.ex2-switch__input:checked ~ .ex2-switch__track .ex2-switch__thumb {
+  inset-inline-start: 17px;
+}
+
+.ex2-switch__input:focus-visible ~ .ex2-switch__track {
+  box-shadow: var(--ex2-focus-ring);
+}

@@ -1,0 +1,48 @@
+.ex2-request-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--ex2-space-2);
+  padding: var(--ex2-space-8) var(--ex2-space-4);
+  font-family: var(--ex2-font-family);
+  color: var(--ex2-text-secondary);
+}
+
+.ex2-request-state__icon {
+  font-size: var(--ex2-text-2xl);
+  color: var(--ex2-text-tertiary);
+  margin-bottom: var(--ex2-space-1);
+}
+
+.ex2-request-state__title {
+  font-size: var(--ex2-text-md);
+  font-weight: var(--ex2-font-weight-semibold);
+  color: var(--ex2-text-primary);
+}
+
+.ex2-request-state__description {
+  font-size: var(--ex2-text-sm);
+  max-width: 32em;
+}
+
+.ex2-request-state__action {
+  margin-top: var(--ex2-space-2);
+}
+
+.ex2-request-state--error .ex2-request-state__title {
+  color: var(--ex2-danger);
+}
+
+.ex2-request-state--maintenance .ex2-request-state__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--ex2-space-2);
+  border-radius: var(--ex2-radius-full);
+  background: var(--ex2-warning-subtle-bg);
+  color: var(--ex2-warning);
+  font-size: var(--ex2-text-xs);
+  font-weight: var(--ex2-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

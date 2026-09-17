@@ -12,7 +12,7 @@ import { useI18n } from "../i18n/index.js";
 import "./Wallets.css";
 
 const API_FALLBACK =
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const normalizeApiBase = (value) => {
   const base = String(value || API_FALLBACK)

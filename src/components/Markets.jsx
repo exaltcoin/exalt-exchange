@@ -42,6 +42,234 @@ function Markets() {
   const [selectedCoin, setSelectedCoin] =
     useState(null);
 
+  /*
+    Realness audit fix (Markets/Spot functional verification): live
+    prices arrive over a real WebSocket (marketUpdate events below),
+    with no fake/random data anywhere in this component - but there
+    was no way to tell a genuinely live price apart from one that
+    stopped updating because the socket silently disconnected or
+    the server stopped emitting. lastPriceUpdateAt records the real
+    wall-clock time of the most recent marketUpdate event actually
+    received; isMarketDataStale is derived from it and surfaced in
+    the UI so a stopped feed reads as "stale", never as if it were
+    still live.
+  */
+  const [lastPriceUpdateAt, setLastPriceUpdateAt] = useState(null);
+  const STALE_THRESHOLD_MS = 45000;
+
+  /*
+    Favorites/Watchlist: real, backend-backed per-user state (see
+    routes/marketPreferencesRoutes.js) - not localStorage-only. The
+    Set is derived from the real GET /api/market/favorites response
+    on mount, and every toggle calls the real authenticated
+    POST/DELETE endpoints before updating local state, so this
+    component never has its own independent notion of "favorited"
+    that could drift from the backend.
+  */
+  const [favoriteSymbols, setFavoriteSymbols] = useState(new Set());
+  const [favoritesLoadState, setFavoritesLoadState] = useState("loading");
+
+  const loadFavorites = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setFavoritesLoadState("unavailable");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API}/api/market/favorites`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data?.success) {
+        setFavoritesLoadState("unavailable");
+        return;
+      }
+
+      setFavoriteSymbols(new Set(data.favorites || []));
+      setFavoritesLoadState("ready");
+    } catch (error) {
+      console.error("Failed to load favorites:", error);
+      setFavoritesLoadState("unavailable");
+    }
+  }, []);
+
+  useEffect(() => {
+    loadFavorites();
+  }, [loadFavorites]);
+
+  const toggleFavorite = useCallback(
+    async (symbol) => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        return;
+      }
+
+      const normalizedSymbol = String(symbol || "").toUpperCase();
+      const isFavorited = favoriteSymbols.has(normalizedSymbol);
+
+      try {
+        let response;
+
+        if (isFavorited) {
+          response = await fetch(
+            `${API}/api/market/favorites/${encodeURIComponent(normalizedSymbol)}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "application/json",
+              },
+            }
+          );
+        } else {
+          response = await fetch(`${API}/api/market/favorites`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ symbol: normalizedSymbol }),
+          });
+        }
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data?.success) {
+          throw new Error(
+            data?.message || "Favorite update failed"
+          );
+        }
+
+        setFavoriteSymbols((previous) => {
+          const next = new Set(previous);
+
+          if (isFavorited) {
+            next.delete(normalizedSymbol);
+          } else {
+            next.add(normalizedSymbol);
+          }
+
+          return next;
+        });
+      } catch (error) {
+        console.error("Failed to toggle favorite:", error);
+      }
+    },
+    [favoriteSymbols]
+  );
+
+  /*
+    Price Alerts: real, backend-backed (routes/marketPreferencesRoutes.js).
+    This component only collects the condition/value and calls the
+    real authenticated create endpoint - all validation (positive
+    values, trustworthy reference price for change_percent, the
+    active-alert cap) happens server-side; this UI just surfaces
+    whatever real success/error the backend returns; it never
+    invents its own success state.
+  */
+  const [priceAlertCondition, setPriceAlertCondition] = useState("above");
+  const [priceAlertValue, setPriceAlertValue] = useState("");
+  const [priceAlertSubmitting, setPriceAlertSubmitting] = useState(false);
+  const [priceAlertMessage, setPriceAlertMessage] = useState(null);
+
+  const createPriceAlert = useCallback(
+    async (symbol) => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setPriceAlertMessage({
+          type: "error",
+          text: translateWithFallback(
+            "loginRequired",
+            "Please log in to create a price alert.",
+            "auth"
+          ),
+        });
+        return;
+      }
+
+      const numericValue = Number(priceAlertValue);
+      if (!Number.isFinite(numericValue) || numericValue <= 0) {
+        setPriceAlertMessage({
+          type: "error",
+          text: translateWithFallback(
+            "invalidAlertValue",
+            "Enter a valid positive number."
+          ),
+        });
+        return;
+      }
+
+      setPriceAlertSubmitting(true);
+      setPriceAlertMessage(null);
+
+      try {
+        const body =
+          priceAlertCondition === "change_percent"
+            ? {
+                symbol,
+                condition: "change_percent",
+                percentTarget: numericValue,
+              }
+            : {
+                symbol,
+                condition: priceAlertCondition,
+                targetPrice: numericValue,
+              };
+
+        const response = await fetch(`${API}/api/market/price-alerts`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || !data?.success) {
+          setPriceAlertMessage({
+            type: "error",
+            text:
+              data?.message ||
+              translateWithFallback(
+                "alertCreateFailed",
+                "Failed to create price alert."
+              ),
+          });
+          return;
+        }
+
+        setPriceAlertMessage({
+          type: "success",
+          text: translateWithFallback(
+            "alertCreated",
+            "Price alert created."
+          ),
+        });
+        setPriceAlertValue("");
+      } catch (error) {
+        console.error("Failed to create price alert:", error);
+        setPriceAlertMessage({
+          type: "error",
+          text: translateWithFallback(
+            "alertCreateFailed",
+            "Failed to create price alert."
+          ),
+        });
+      } finally {
+        setPriceAlertSubmitting(false);
+      }
+    },
+    [priceAlertCondition, priceAlertValue]
+  );
+
   const translateWithFallback = (
     key,
     fallback,
@@ -452,6 +680,8 @@ function Markets() {
         ...previousPrices,
         [symbol]: price,
       }));
+
+      setLastPriceUpdateAt(Date.now());
     };
 
     socket.on(
@@ -466,6 +696,26 @@ function Markets() {
       );
     };
   }, []);
+
+  /*
+    Forces a re-render every few seconds purely so isMarketDataStale
+    (derived below from lastPriceUpdateAt) is re-evaluated even when
+    no new marketUpdate event arrives - otherwise a genuinely stalled
+    feed would never flip to "stale" in the UI until the next
+    (nonexistent) update.
+  */
+  const [, forceStalenessRecheck] = useState(0);
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      forceStalenessRecheck((tick) => tick + 1);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const isMarketDataStale =
+    lastPriceUpdateAt !== null &&
+    Date.now() - lastPriceUpdateAt > STALE_THRESHOLD_MS;
 
   const chains = useMemo(() => {
     const uniqueChains = new Set(
@@ -543,6 +793,50 @@ function Markets() {
     [filteredCoins, getChange24h]
   );
 
+  /*
+    Batch 4: real market category tabs. All four use real, already-
+    existing data (getChange24h/getVolume24h, already fed by the
+    real /api/market/live response's priceChange.h24/volume.h24
+    fields) - no fabricated ranking. "Hot" uses real 24h volume as
+    its defensible metric, matching the explicit instruction. "New"
+    is deliberately NOT implemented: no listing/activation timestamp
+    exists anywhere in the market data response (confirmed by
+    reading routes/marketRoutes.js's actual /live handler) - showing
+    a "New" tab with no real chronological basis to sort by would
+    mean either fabricating one or silently reusing another field
+    as a stand-in, both dishonest. Omitted per the explicit
+    "if the data necessary for New does not exist: omit" instruction.
+  */
+  const [marketTab, setMarketTab] = useState("all");
+
+  const tabbedCoins = useMemo(() => {
+    if (marketTab === "favorites") {
+      return filteredCoins.filter((coin) =>
+        favoriteSymbols.has(String(coin?.symbol || "").toUpperCase())
+      );
+    }
+
+    if (marketTab === "gainers") {
+      return [...filteredCoins].sort(
+        (a, b) => getChange24h(b) - getChange24h(a)
+      );
+    }
+
+    if (marketTab === "losers") {
+      return [...filteredCoins].sort(
+        (a, b) => getChange24h(a) - getChange24h(b)
+      );
+    }
+
+    if (marketTab === "hot") {
+      return [...filteredCoins].sort(
+        (a, b) => getVolume24h(b) - getVolume24h(a)
+      );
+    }
+
+    return filteredCoins;
+  }, [filteredCoins, marketTab, favoriteSymbols, getChange24h, getVolume24h]);
+
   const openExternalLink = (url) => {
     if (!url) {
       return;
@@ -559,11 +853,19 @@ function Markets() {
     <main className="markets-page">
       <section className="markets-hero">
         <div>
-          <span className="market-live-dot">
-            {translateWithFallback(
-              "liveMarketBoard",
-              "● Live Market Board"
-            )}
+          <span
+            className="market-live-dot"
+            data-stale={isMarketDataStale || undefined}
+          >
+            {isMarketDataStale
+              ? translateWithFallback(
+                  "staleMarketBoard",
+                  "⚠ Prices may be stale"
+                )
+              : translateWithFallback(
+                  "liveMarketBoard",
+                  "● Live Market Board"
+                )}
           </span>
 
           <h1>
@@ -579,6 +881,17 @@ function Markets() {
               "Approved coins, verified contracts, live charts, liquidity and volume."
             )}
           </p>
+
+          {lastPriceUpdateAt ? (
+            <p className="markets-last-update">
+              {translateWithFallback(
+                "lastUpdated",
+                "Last updated"
+              )}
+              :{" "}
+              {new Date(lastPriceUpdateAt).toLocaleTimeString()}
+            </p>
+          ) : null}
         </div>
 
         <button
@@ -677,6 +990,27 @@ function Markets() {
             )}
           </p>
         </article>
+      </section>
+
+      <section className="markets-tabs" role="tablist" aria-label={translateWithFallback("marketCategories", "Market categories")}>
+        {[
+          ["all", translateWithFallback("allMarkets", "All")],
+          ["favorites", translateWithFallback("favorite", "Favorites")],
+          ["hot", translateWithFallback("hot", "Hot")],
+          ["gainers", translateWithFallback("gainers", "Gainers")],
+          ["losers", translateWithFallback("losers", "Losers")],
+        ].map(([tabKey, tabLabel]) => (
+          <button
+            key={tabKey}
+            type="button"
+            role="tab"
+            aria-selected={marketTab === tabKey}
+            className={`market-tab ${marketTab === tabKey ? "market-tab-active" : ""}`}
+            onClick={() => setMarketTab(tabKey)}
+          >
+            {tabLabel}
+          </button>
+        ))}
       </section>
 
       <section className="markets-controls">
@@ -793,6 +1127,7 @@ function Markets() {
           <table className="market-table">
             <thead>
               <tr>
+                <th aria-label={translateWithFallback("favorite", "Favorite")}></th>
                 <th>#</th>
 
                 <th>
@@ -877,7 +1212,7 @@ function Markets() {
             </thead>
 
             <tbody>
-              {filteredCoins.map(
+              {tabbedCoins.map(
                 (coin, index) => {
                   const contract =
                     coin?.contractAddress || "";
@@ -912,6 +1247,39 @@ function Markets() {
                         setSelectedCoin(coin)
                       }
                     >
+                      <td>
+                        <button
+                          type="button"
+                          className="market-favorite-toggle"
+                          aria-label={
+                            favoriteSymbols.has(
+                              String(coin?.symbol || "").toUpperCase()
+                            )
+                              ? translateWithFallback(
+                                  "removeFromFavorites",
+                                  "Remove from favorites"
+                                )
+                              : translateWithFallback(
+                                  "addToFavorites",
+                                  "Add to favorites"
+                                )
+                          }
+                          aria-pressed={favoriteSymbols.has(
+                            String(coin?.symbol || "").toUpperCase()
+                          )}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            toggleFavorite(coin?.symbol);
+                          }}
+                        >
+                          {favoriteSymbols.has(
+                            String(coin?.symbol || "").toUpperCase()
+                          )
+                            ? "★"
+                            : "☆"}
+                        </button>
+                      </td>
+
                       <td>{index + 1}</td>
 
                       <td>
@@ -1294,6 +1662,108 @@ function Markets() {
                 "Buy Token"
               )}
             </button>
+
+            <div className="market-price-alert-form">
+              <h3>
+                {translateWithFallback(
+                  "priceAlerts",
+                  "Price Alerts"
+                )}
+              </h3>
+
+              {priceAlertMessage ? (
+                <p
+                  className={
+                    priceAlertMessage.type === "error"
+                      ? "red-text"
+                      : "green-text"
+                  }
+                  role={
+                    priceAlertMessage.type === "error"
+                      ? "alert"
+                      : "status"
+                  }
+                >
+                  {priceAlertMessage.text}
+                </p>
+              ) : null}
+
+              <div className="market-price-alert-controls">
+                <select
+                  value={priceAlertCondition}
+                  onChange={(event) =>
+                    setPriceAlertCondition(event.target.value)
+                  }
+                  aria-label={translateWithFallback(
+                    "alertCondition",
+                    "Alert condition"
+                  )}
+                >
+                  <option value="above">
+                    {translateWithFallback(
+                      "priceAbove",
+                      "Price rises above"
+                    )}
+                  </option>
+                  <option value="below">
+                    {translateWithFallback(
+                      "priceBelow",
+                      "Price falls below"
+                    )}
+                  </option>
+                  <option value="change_percent">
+                    {translateWithFallback(
+                      "percentChange",
+                      "Moves by %"
+                    )}
+                  </option>
+                </select>
+
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={priceAlertValue}
+                  onChange={(event) =>
+                    setPriceAlertValue(event.target.value)
+                  }
+                  placeholder={
+                    priceAlertCondition === "change_percent"
+                      ? translateWithFallback(
+                          "percentPlaceholder",
+                          "e.g. 5"
+                        )
+                      : translateWithFallback(
+                          "pricePlaceholder",
+                          "e.g. 50000"
+                        )
+                  }
+                  aria-label={translateWithFallback(
+                    "alertTargetValue",
+                    "Alert target value"
+                  )}
+                />
+
+                <button
+                  type="button"
+                  className="action-btn yellow-btn"
+                  disabled={priceAlertSubmitting}
+                  onClick={() =>
+                    createPriceAlert(selectedCoin?.symbol)
+                  }
+                >
+                  {priceAlertSubmitting
+                    ? translateWithFallback(
+                        "submittingAlert",
+                        "Creating..."
+                      )
+                    : translateWithFallback(
+                        "createAlert",
+                        "Create Alert"
+                      )}
+                </button>
+              </div>
+            </div>
           </section>
         </div>
       )}

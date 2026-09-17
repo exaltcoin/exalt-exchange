@@ -2,7 +2,7 @@ import {
   DEFAULT_LANGUAGE,
   LANGUAGE_STORAGE_KEY,
   normalizeLanguageCode,
-} from "./languages";
+} from "./languages.js";
 
 const LEGACY_LANGUAGE_KEYS = Object.freeze([
   "language",

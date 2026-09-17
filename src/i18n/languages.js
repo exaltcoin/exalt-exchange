@@ -41,6 +41,22 @@ export const LANGUAGES = Object.freeze([
     flag: "🇮🇳",
     direction: "ltr",
   },
+  {
+    code: "zh",
+    name: "Chinese (Simplified)",
+    native: "简体中文",
+    nativeName: "简体中文",
+    flag: "🇨🇳",
+    direction: "ltr",
+  },
+  {
+    code: "tr",
+    name: "Turkish",
+    native: "Türkçe",
+    nativeName: "Türkçe",
+    flag: "🇹🇷",
+    direction: "ltr",
+  },
 ]);
 
 export const SUPPORTED_LANGUAGE_CODES =

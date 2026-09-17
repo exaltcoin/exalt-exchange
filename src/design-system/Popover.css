@@ -1,0 +1,35 @@
+.ex2-popover {
+  background: var(--ex2-surface-2);
+  border: var(--ex2-border-width) solid var(--ex2-border-default);
+  border-radius: var(--ex2-radius-lg);
+  box-shadow: var(--ex2-shadow-lg);
+  z-index: var(--ex2-z-dropdown);
+  min-width: 180px;
+  max-width: 320px;
+  padding: var(--ex2-space-2);
+}
+
+.ex2-popover__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--ex2-space-2) var(--ex2-space-3);
+  border-radius: var(--ex2-radius-md);
+  background: transparent;
+  border: none;
+  color: var(--ex2-text-primary);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+  text-align: start;
+  cursor: pointer;
+}
+
+.ex2-popover__item:hover,
+.ex2-popover__item--active {
+  background: var(--ex2-surface-3);
+}
+
+.ex2-popover__item:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+}

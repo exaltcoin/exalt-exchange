@@ -1,0 +1,64 @@
+.ex2-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--ex2-surface-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ex2-space-4);
+  z-index: var(--ex2-z-modal);
+}
+
+.ex2-dialog {
+  background: var(--ex2-surface-1);
+  border: var(--ex2-border-width) solid var(--ex2-border-default);
+  border-radius: var(--ex2-radius-xl);
+  box-shadow: var(--ex2-shadow-overlay);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.ex2-dialog:focus {
+  outline: none;
+}
+
+.ex2-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ex2-space-4) var(--ex2-space-5);
+  border-block-end: var(--ex2-border-width) solid var(--ex2-divider);
+}
+
+.ex2-dialog__title {
+  font-size: var(--ex2-text-lg);
+  font-weight: var(--ex2-font-weight-semibold);
+  color: var(--ex2-text-primary);
+}
+
+.ex2-dialog__close {
+  background: transparent;
+  border: none;
+  color: var(--ex2-text-tertiary);
+  font-size: var(--ex2-text-xl);
+  line-height: 1;
+  cursor: pointer;
+  padding: var(--ex2-space-1);
+  border-radius: var(--ex2-radius-sm);
+}
+
+.ex2-dialog__close:hover {
+  color: var(--ex2-text-primary);
+  background: var(--ex2-surface-2);
+}
+
+.ex2-dialog__close:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+}
+
+.ex2-dialog__body {
+  padding: var(--ex2-space-5);
+}

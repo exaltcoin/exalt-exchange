@@ -278,7 +278,6 @@ button,
   font-weight: 800 !important;
 }
 
-.sidebar button,
 .admin-tabs button,
 .wallet-v2-tabs button {
   background: rgba(255,255,255,.06) !important;
@@ -286,8 +285,6 @@ button,
   color: #fff !important;
 }
 
-.sidebar button.active,
-.sidebar .active,
 .admin-tabs .active-tab,
 .wallet-v2-tabs .active,
 .tab.active,

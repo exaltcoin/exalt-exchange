@@ -8,30 +8,18 @@ import {
   LANGUAGE_STORAGE_KEY,
   SUPPORTED_LANGUAGE_CODES,
   normalizeLanguageCode,
-} from "./languages";
+} from "./languages.js";
 
 import {
   applyLanguageDirection,
-} from "./direction";
+} from "./direction.js";
 
-export const AVAILABLE_NAMESPACES = Object.freeze([
-  "common",
-  "navigation",
-  "auth",
-  "dashboard",
-  "markets",
-  "trading",
-  "futures",
-  "wallets",
-  "web3",
-  "p2p",
-  "staking",
-  "learnEarn",
-  "social",
-  "ai",
-  "profile",
-  "settings",
-]);
+import {
+  AVAILABLE_NAMESPACES,
+  resolveNamespaceResource,
+} from "./resourceResolver.js";
+
+export { AVAILABLE_NAMESPACES };
 
 /*
  * Vite automatically discovers all locale JSON files.
@@ -44,6 +32,12 @@ export const AVAILABLE_NAMESPACES = Object.freeze([
  * src/i18n/locales/hi/common.json
  *
  * The same structure applies to every namespace.
+ *
+ * Discovery is Vite-specific (import.meta.glob) and stays here;
+ * the actual "which file for this language+namespace, falling
+ * back to English" decision lives in the plain, test-importable
+ * resourceResolver.js so regression tests can exercise the real
+ * resolution logic without a Vite runtime.
  */
 const localeModules = import.meta.glob(
   "./locales/*/*.json",
@@ -52,92 +46,16 @@ const localeModules = import.meta.glob(
     import: "default",
   }
 );
-const normalizeImportedResource = (
-  importedModule
-) => {
-  const resource =
-    importedModule?.default ??
-    importedModule;
-
-  if (
-    !resource ||
-    typeof resource !== "object" ||
-    Array.isArray(resource)
-  ) {
-    return {};
-  }
-
-  return resource;
-};
 
 const loadNamespaceFile = async (
   languageCode,
   namespace
-) => {
-  const language =
-    normalizeLanguageCode(languageCode);
-
-  if (
-    !AVAILABLE_NAMESPACES.includes(namespace)
-  ) {
-    console.warn(
-      `Unsupported translation namespace: "${namespace}"`
-    );
-
-    return {};
-  }
-
-  const requestedPath =
-    `./locales/${language}/${namespace}.json`;
-
-  const englishFallbackPath =
-    `./locales/${DEFAULT_LANGUAGE}/${namespace}.json`;
-
-  /*
-   * First load the selected language.
-   */
-  const requestedResource =
-  localeModules[requestedPath];
-
-if (requestedResource) {
-  try {
-    return normalizeImportedResource(
-      requestedResource
-    );
-  } catch (error) {
-      console.error(
-        `Failed to load ${language}/${namespace}.json:`,
-        error
-      );
-    }
-  }
-
-  /*
-   * If the selected language file does not exist,
-   * safely fall back to English.
-   */
-  const englishResource =
-  localeModules[englishFallbackPath];
-
-if (englishResource) {
-  try {
-    return normalizeImportedResource(
-      englishResource
-    );
-  } catch (error) {
-      console.error(
-        `Failed to load English fallback ${namespace}.json:`,
-        error
-      );
-    }
-  }
-
-  console.warn(
-    `No translation resource found for ${language}/${namespace}`
+) =>
+  resolveNamespaceResource(
+    languageCode,
+    namespace,
+    localeModules
   );
-
-  return {};
-};
 
 const getDetectedLanguage = () => {
   if (typeof window === "undefined") {

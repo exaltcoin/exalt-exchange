@@ -1,0 +1,35 @@
+.ex2-alert {
+  border-radius: var(--ex2-radius-lg);
+  border: var(--ex2-border-width) solid;
+  padding: var(--ex2-space-3) var(--ex2-space-4);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+  line-height: var(--ex2-line-height-normal);
+}
+
+.ex2-alert__title {
+  font-weight: var(--ex2-font-weight-semibold);
+  font-size: var(--ex2-text-base);
+  margin-bottom: var(--ex2-space-1);
+}
+
+.ex2-alert--info {
+  background: var(--ex2-info-subtle-bg);
+  border-color: var(--ex2-info);
+  color: var(--ex2-text-primary);
+}
+.ex2-alert--success {
+  background: var(--ex2-success-subtle-bg);
+  border-color: var(--ex2-success);
+  color: var(--ex2-text-primary);
+}
+.ex2-alert--warning {
+  background: var(--ex2-warning-subtle-bg);
+  border-color: var(--ex2-warning);
+  color: var(--ex2-text-primary);
+}
+.ex2-alert--danger {
+  background: var(--ex2-danger-subtle-bg);
+  border-color: var(--ex2-danger);
+  color: var(--ex2-text-primary);
+}

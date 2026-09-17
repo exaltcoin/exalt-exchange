@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 function TradingPanel({ setPage }) {
   const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
   const [market, setMarket] = useState({
     price: 0,
     change24h: 0,

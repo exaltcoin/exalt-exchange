@@ -212,11 +212,20 @@ export function apiUrl(path) {
 
 let sharedSocket = null;
 
-/** Returns the one shared socket.io client instance (created lazily, on first use). */
+/*
+  Socket fix (external recovery repo, commit f78c11117): removed
+  the forced transports: ["websocket", "polling"] option so
+  Socket.IO uses its normal polling-first negotiation and upgrades
+  to WebSocket when the network path actually supports it, instead
+  of forcing both transports as an explicit allow-list from the
+  first connection attempt (which skips that negotiation and can
+  fail outright in environments - some proxies, some mobile
+  networks - where a direct WebSocket upgrade attempt doesn't
+  succeed before Socket.IO would otherwise have fallen back).
+*/
 export function getSocket() {
   if (!sharedSocket) {
     sharedSocket = io(SOCKET_ORIGIN, {
-      transports: ["websocket", "polling"],
       withCredentials: true,
       reconnection: true,
       reconnectionAttempts: 5,

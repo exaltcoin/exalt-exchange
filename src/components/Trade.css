@@ -257,8 +257,7 @@
 .buy-btn,
 .sell-btn,
 .execute-buy,
-.execute-sell,
-.pancake-buy-btn {
+.execute-sell {
   border: none;
   border-radius: 12px;
   padding: 13px;
@@ -281,22 +280,15 @@
   background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
-.pancake-buy-btn {
-  background: linear-gradient(135deg, #f0b90b, #f59e0b);
-  color: #111827;
-}
-
 .buy-btn:hover,
 .sell-btn:hover,
 .execute-buy:hover,
-.execute-sell:hover,
-.pancake-buy-btn:hover {
+.execute-sell:hover {
   transform: translateY(-2px);
 }
 
 .execute-buy:disabled,
-.execute-sell:disabled,
-.pancake-buy-btn:disabled {
+.execute-sell:disabled {
   cursor: not-allowed;
   opacity: 0.6;
   transform: none;
@@ -1163,7 +1155,6 @@ html[dir="rtl"] .orderbook-card th {
   .sell-btn,
   .execute-buy,
   .execute-sell,
-  .pancake-buy-btn,
   .order-progress-fill {
     transition: none !important;
   }

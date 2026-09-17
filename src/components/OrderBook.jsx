@@ -1,14 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { socket } from "../api";
-import API_BASE_URL from "../api";
+import { apiFetch } from "../lib/apiClient.js";
 
 function OrderBook({ coin, bids: propBids = [], asks: propAsks = [] }) {
-  const API_BASE =
-    API_BASE_URL || "https://exalt-real-backend-6b6v.onrender.com";
-
-  const API = API_BASE.endsWith("/api")
-    ? API_BASE.replace("/api", "")
-    : API_BASE;
 
   const [bids, setBids] = useState([]);
   const [asks, setAsks] = useState([]);
@@ -31,8 +25,9 @@ function OrderBook({ coin, bids: propBids = [], asks: propAsks = [] }) {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API}/api/trades/orderbook/${encodedPair}`);
-      const data = await res.json();
+      const data = await apiFetch(
+        `/api/trades/orderbook/${encodedPair}`
+      );
 
       if (data.success) {
         setBids(data.bids || []);

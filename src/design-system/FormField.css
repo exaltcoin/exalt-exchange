@@ -1,0 +1,27 @@
+.ex2-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex2-space-1);
+  font-family: var(--ex2-font-family);
+}
+
+.ex2-field__label {
+  font-size: var(--ex2-text-sm);
+  font-weight: var(--ex2-font-weight-medium);
+  color: var(--ex2-text-secondary);
+}
+
+.ex2-field__required {
+  color: var(--ex2-danger);
+}
+
+.ex2-field__hint {
+  font-size: var(--ex2-text-xs);
+  color: var(--ex2-text-tertiary);
+}
+
+.ex2-field__error {
+  font-size: var(--ex2-text-xs);
+  color: var(--ex2-danger);
+  font-weight: var(--ex2-font-weight-medium);
+}

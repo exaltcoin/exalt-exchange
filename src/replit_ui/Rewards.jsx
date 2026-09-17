@@ -5,7 +5,7 @@ import "./replit.css";
 
 const API_BASE =
   import.meta.env.VITE_API_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const API = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
 

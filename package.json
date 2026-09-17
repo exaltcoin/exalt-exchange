@@ -1,6 +1,6 @@
 {
   "name": "exalt-exchange-frontend-phase1",
-  "version": "1.0.21",
+  "version": "1.0.23",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,6 +8,7 @@
     "build": "vite build",
     "test:navigation": "node --test tests/navigationParity.test.mjs",
     "test:security": "node --test tests/web3Security.test.mjs",
+    "test:design-system": "node tests/helpers/runDesignSystemTests.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "@capacitor/browser": "^8.0.3",
     "@capacitor/cli": "^7.6.7",
     "@capacitor/core": "^8.4.1",
+    "@floating-ui/react": "^0.27.20",
     "@vitejs/plugin-react": "latest",
     "@walletconnect/ethereum-provider": "^2.23.10",
     "@zxing/browser": "^0.2.0",
@@ -42,6 +44,12 @@
     "web3": "^4.16.0"
   },
   "devDependencies": {
+    "@babel/core": "^8.0.1",
+    "@babel/parser": "^8.0.4",
+    "@babel/preset-react": "^8.0.1",
+    "@babel/traverse": "^7.29.7",
+    "@testing-library/react": "^16.3.3",
+    "jsdom": "^30.0.1",
     "lighthouse": "^12.8.2",
     "vite": "^8.0.16"
   }

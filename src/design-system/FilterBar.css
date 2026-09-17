@@ -1,0 +1,58 @@
+.ex2-filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex2-space-3);
+}
+
+.ex2-filter-bar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--ex2-space-3);
+}
+
+.ex2-filter-bar__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex2-space-1);
+}
+
+.ex2-filter-bar__field-label {
+  font-size: var(--ex2-text-xs);
+  color: var(--ex2-text-tertiary);
+}
+
+.ex2-filter-bar__reset {
+  background: transparent;
+  border: none;
+  color: var(--ex2-accent);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-sm);
+  cursor: pointer;
+  padding: var(--ex2-space-2) 0;
+}
+
+.ex2-filter-bar__reset:hover {
+  text-decoration: underline;
+}
+
+.ex2-filter-bar__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ex2-space-2);
+}
+
+.ex2-filter-bar__chip {
+  gap: var(--ex2-space-1);
+}
+
+.ex2-filter-bar__chip-remove {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: var(--ex2-text-sm);
+  line-height: 1;
+  padding: 0;
+  margin-inline-start: 2px;
+}

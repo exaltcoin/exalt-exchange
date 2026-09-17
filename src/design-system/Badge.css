@@ -1,0 +1,48 @@
+.ex2-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ex2-space-1);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-xs);
+  font-weight: var(--ex2-font-weight-semibold);
+  line-height: var(--ex2-line-height-tight);
+  padding: 2px var(--ex2-space-2);
+  border-radius: var(--ex2-radius-full);
+  white-space: nowrap;
+}
+
+.ex2-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.ex2-badge--neutral {
+  background: var(--ex2-neutral-subtle-bg);
+  color: var(--ex2-neutral);
+}
+.ex2-badge--success {
+  background: var(--ex2-success-subtle-bg);
+  color: var(--ex2-success);
+}
+.ex2-badge--warning {
+  background: var(--ex2-warning-subtle-bg);
+  color: var(--ex2-warning);
+}
+.ex2-badge--danger {
+  background: var(--ex2-danger-subtle-bg);
+  color: var(--ex2-danger);
+}
+.ex2-badge--info {
+  background: var(--ex2-info-subtle-bg);
+  color: var(--ex2-info);
+}
+.ex2-badge--buy {
+  background: var(--ex2-buy-subtle-bg);
+  color: var(--ex2-buy);
+}
+.ex2-badge--sell {
+  background: var(--ex2-sell-subtle-bg);
+  color: var(--ex2-sell);
+}
