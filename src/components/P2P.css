@@ -193,32 +193,6 @@
   font-weight: 900;
 }
 
-.verified-badge {
-  background: #2563eb;
-  color: #fff;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-}
-
-.trader-meta,
-.trader-orders {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-}
-
-.online-status,
-.offline-status,
-.rating-badge,
-.completion-badge,
-.orders-badge,
-.merchant-badge,
 .country-badge,
 .buy-badge,
 .sell-badge,
@@ -234,54 +208,18 @@
   align-items: center;
 }
 
-.online-status,
-.completion-badge,
 .escrow-active-badge,
 .status-released {
   background: rgba(34,197,94,.15);
   color: #22c55e;
 }
 
-.offline-status {
-  background: rgba(107,114,128,.2);
-  color: #9ca3af;
-}
-
-.online-dot,
-.offline-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 5px;
-}
-
-.online-dot {
-  background: #22c55e;
-  box-shadow: 0 0 8px #22c55e;
-}
-
-.offline-dot {
-  background: #6b7280;
-}
-
-.rating-badge,
 .escrow-waiting-badge,
 .status-open,
 .status-matched,
 .status-paid {
   background: rgba(250,204,21,.15);
   color: #facc15;
-}
-
-.orders-badge {
-  background: rgba(59,130,246,.15);
-  color: #60a5fa;
-}
-
-.merchant-badge {
-  background: rgba(168,85,247,.15);
-  color: #c084fc;
 }
 
 .country-badge {
@@ -421,12 +359,4 @@ body.rtl .p2p-table td {
 html[dir="rtl"] .trader-box,
 body.rtl .trader-box {
   flex-direction: row-reverse;
-}
-
-html[dir="rtl"] .online-dot,
-html[dir="rtl"] .offline-dot,
-body.rtl .online-dot,
-body.rtl .offline-dot {
-  margin-right: 0;
-  margin-left: 5px;
 }

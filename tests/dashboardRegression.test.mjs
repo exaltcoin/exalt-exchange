@@ -19,5 +19,15 @@ test("Dashboard loads every golden backend data source", () => {
 
 test("Dashboard preserves certificate access", () => {
   assert.match(source, /setPage\("certificates"\)/);
-  assert.match(source, />My Certificates</);
+  // The original assertion here required literal, untranslated JSX
+  // text - itself a real i18n gap. The redesign routes this
+  // through the same translateWithFallback pattern every other
+  // label in this file uses, reusing the same "certificates" key
+  // the main nav item already uses (avoiding a duplicate synonym
+  // key), added to i18n/locales/*/navigation.json for all six
+  // languages.
+  assert.match(
+    source,
+    /translateWithFallback\(\s*"certificates",\s*"My Certificates",\s*"navigation"\s*\)/
+  );
 });

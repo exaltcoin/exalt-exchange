@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./Certificates.css";
 
-const DEFAULT_API = "https://exalt-real-backend-6b6v.onrender.com";
+const DEFAULT_API = "https://api.exaltexchange.io";
 const normalizeApi = (value) => String(value || DEFAULT_API).replace(/\/+$/, "").replace(/\/api$/, "");
 
 export default function Certificates({ mode = "my", currentUser = {}, setPage }) {

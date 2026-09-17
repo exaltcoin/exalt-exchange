@@ -5,26 +5,12 @@ import "./replit.css";
 
 const API_BASE =
   import.meta.env.VITE_API_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const API = API_BASE.endsWith("/api") ? API_BASE : `${API_BASE}/api`;
 
 export default function Rewards() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "learnEarn",
-            defaultValue: options,
-          }
-        : {
-            ns: "learnEarn",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 
   const [loading, setLoading] = useState(false);
   const [claiming, setClaiming] = useState(false);

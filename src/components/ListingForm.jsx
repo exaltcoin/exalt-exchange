@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 function ListingForm() {
   const API_BASE =
-    import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+    import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
   const emptyForm = {
     name: "",
@@ -56,7 +56,7 @@ function ListingForm() {
         return;
       }
 
-      const response = await fetch(`${API}/api/listings/my-listings`, {
+      const response = await fetch(`${API_BASE}/api/listings/my-listings`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -111,7 +111,7 @@ function ListingForm() {
         return;
       }
 
-      const response = await fetch(`${API}/api/listings`, {
+      const response = await fetch(`${API_BASE}/api/listings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

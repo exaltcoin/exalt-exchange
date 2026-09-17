@@ -3,7 +3,7 @@ import axios from "axios";
 import "./AdminStaking.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 const emptyStats = {
   totalStaked: 0,
   totalRewards: 0,
@@ -54,7 +54,7 @@ export default function AdminStaking() {
         return;
       }
 
-      const res = await axios.get(`${API}/api/admin/staking`, {
+      const res = await axios.get(`${API_BASE}/api/admin/staking`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -83,7 +83,7 @@ export default function AdminStaking() {
 
     try {
       await axios.post(
-        `${API}/api/admin/staking/${id}/cancel`,
+        `${API_BASE}/api/admin/staking/${id}/cancel`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

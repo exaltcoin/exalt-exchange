@@ -6,6 +6,20 @@ import { getLatestBlogPosts } from "../pages/blog/blogData.js";
 import LanguageSwitcher from "./LanguageSwitcher";
 import "./Dashboard.css";
 import { API_ORIGIN } from "../lib/apiClient";
+import { useDisplayCurrency } from "../hooks/useDisplayCurrency.js";
+import {
+  PageContainer,
+  Section,
+  Stack,
+  Grid,
+  Toolbar,
+  DataTable,
+  Badge,
+  StatusBadge,
+  Button,
+  SkeletonText,
+  Select,
+} from "../design-system/index.js";
 
 const TRUSTED_MESSAGE_STATUSES = new Set([
   400, 401, 403, 404, 409, 422, 423, 429, 503,
@@ -65,7 +79,81 @@ function Dashboard({ setPage }) {
     useState(0);
   const [marketCap, setMarketCap] = useState(0);
   const [liquidity, setLiquidity] = useState(0);
+  /*
+    Finding 1 fix (docs/DASHBOARD_DATA_SOURCE_MAP.md): marketCap/
+    liquidity used to have no way to distinguish "genuinely $0" from
+    "the DexScreener request failed" - both rendered as the same
+    numeric 0. This tracks real request state so the UI can show an
+    honest unavailable/error state instead of a fabricated zero.
+  */
+  const [marketDataStatus, setMarketDataStatus] = useState("loading");
   const [loading, setLoading] = useState(true);
+
+  /*
+    Batch 1 (Home foundation): hide/show balance toggle. This is a
+    display preference, not financial/user data, so it's genuinely
+    appropriate to persist in localStorage rather than requiring a
+    backend-backed feature the way Markets' Favorites/Watchlist did
+    (that was real per-user financial-adjacent state; this is purely
+    "should numbers be masked on this device").
+  */
+  const [balancesHidden, setBalancesHidden] = useState(() => {
+    try {
+      return localStorage.getItem("exalt_balances_hidden") === "true";
+    } catch (error) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "exalt_balances_hidden",
+        balancesHidden ? "true" : "false"
+      );
+    } catch (error) {
+      // localStorage unavailable (private browsing, etc.) - the
+      // toggle still works for the current session, it just won't
+      // persist across reloads. Not a functional failure.
+    }
+  }, [balancesHidden]);
+
+  /*
+    Batch 2: this used to be ~90 lines of inline display-currency
+    logic (Batch 1). Extracted into hooks/useDisplayCurrency.js so
+    Assets.jsx (Batch 2) reuses the exact same real conversion path
+    instead of duplicating it, per the explicit "one canonical
+    conversion utility/state path should be used where practical"
+    instruction. Behavior is unchanged - this is a pure extraction,
+    verified by the existing Batch 1 tests still passing unmodified.
+  */
+  const {
+    displayCurrency,
+    setDisplayCurrency,
+    btcPriceLoadState,
+    convertForDisplay,
+  } = useDisplayCurrency();
+
+  const formatDisplayValue = (usdValue) => {
+    const converted = convertForDisplay(usdValue);
+
+    if (converted === null) {
+      return translateWithFallback(
+        "unavailable",
+        "Unavailable",
+        "dashboard"
+      );
+    }
+
+    if (displayCurrency === "BTC") {
+      return `${formatUsd(converted, 8)} BTC`;
+    }
+
+    const symbol = displayCurrency === "USDT" ? "" : "$";
+    const suffix = displayCurrency === "USDT" ? " USDT" : "";
+    return `${symbol}${formatUsd(converted, 2)}${suffix}`;
+  };
+
   const [
     showExchangeWelcome,
     setShowExchangeWelcome,
@@ -79,6 +167,14 @@ function Dashboard({ setPage }) {
     activeMiners: 0,
     miningRemaining: 0,
   });
+  /*
+    Finding 2 fix (docs/DASHBOARD_DATA_SOURCE_MAP.md): same class of
+    gap as marketDataStatus above - an authenticated user with a
+    genuine $0 reward balance and a user whose /api/rewards/dashboard
+    request failed used to render identically. This lets the UI show
+    an honest unavailable state instead of a fabricated zero.
+  */
+  const [rewardStatsStatus, setRewardStatsStatus] = useState("loading");
 
   // Batch K: real, account-level dashboard data (directive section 7 -
   // "total/available balance ... recent transactions, open orders,
@@ -100,6 +196,20 @@ function Dashboard({ setPage }) {
   const [recentTx, setRecentTx] = useState([]);
   const [referralSummary, setReferralSummary] =
     useState(null);
+
+  /*
+    KYC/security status and notification count: real sources that
+    already exist elsewhere in the app (GET /api/kyc/user/:email -
+    the exact same endpoint Profile.jsx already uses; GET
+    /api/notifications/me - the exact same endpoint NotificationBell.jsx
+    already uses). Dashboard reuses both rather than creating a
+    second implementation of either.
+  */
+  const [kycStatus, setKycStatus] = useState(null);
+  const [kycStatusLoadState, setKycStatusLoadState] = useState("loading");
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [notificationLoadState, setNotificationLoadState] =
+    useState("loading");
 
   const portfolioValue =
     Number(exaltHoldings || 0) *
@@ -263,6 +373,10 @@ function Dashboard({ setPage }) {
         : null;
 
       if (!pair) {
+        // A successful request with no pair data is a genuine
+        // "nothing to show yet" state, not a failure - distinct
+        // from marketDataStatus="unavailable" below.
+        setMarketDataStatus("ready");
         return;
       }
 
@@ -275,11 +389,18 @@ function Dashboard({ setPage }) {
       setLiquidity(
         Number(pair.liquidity?.usd || 0)
       );
+
+      setMarketDataStatus("ready");
     } catch (error) {
       console.error(
         "Dashboard DexScreener error:",
         error
       );
+
+      // Finding 1 fix: do not leave marketCap/liquidity looking
+      // like a real $0 - mark this data as unavailable so the UI
+      // can render an honest state instead.
+      setMarketDataStatus("unavailable");
     }
   }, []);
 
@@ -287,6 +408,7 @@ function Dashboard({ setPage }) {
     const token = localStorage.getItem("token");
 
     if (!token) {
+      setRewardStatsStatus("unavailable");
       return;
     }
 
@@ -306,6 +428,7 @@ function Dashboard({ setPage }) {
         .catch(() => ({}));
 
       if (response.status === 401) {
+        setRewardStatsStatus("unavailable");
         return;
       }
 
@@ -347,11 +470,18 @@ function Dashboard({ setPage }) {
             data?.data?.pools?.mining?.remaining
           ) || 0,
       });
+
+      // Finding 2 fix: only mark this "ready" (a real value the UI
+      // can trust, including a genuine 0) once the request actually
+      // succeeds - never implicitly.
+      setRewardStatsStatus("ready");
     } catch (error) {
       console.error(
         "Dashboard reward API error:",
         error
       );
+
+      setRewardStatsStatus("unavailable");
     }
   }, [API]);
 
@@ -581,6 +711,101 @@ function Dashboard({ setPage }) {
     }
   }, [API]);
 
+  /*
+    KYC status: reuses the exact same authenticated endpoint
+    Profile.jsx already calls (GET /api/kyc/user/:email) - same
+    request shape, same response handling, no second implementation.
+  */
+  const loadKycStatus = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    const storedUser = readStoredUser();
+    const email = storedUser?.email;
+
+    if (!token || !email) {
+      setKycStatusLoadState("unavailable");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API}/api/kyc/user/${encodeURIComponent(email)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response
+        .json()
+        .catch(() => ({}));
+
+      if (!response.ok || !data?.success) {
+        setKycStatusLoadState("unavailable");
+        return;
+      }
+
+      setKycStatus(data.status || "not_submitted");
+      setKycStatusLoadState("ready");
+    } catch (error) {
+      describeRequestError(
+        error,
+        "Unable to load your verification status right now.",
+        "Dashboard KYC status"
+      );
+
+      setKycStatusLoadState("unavailable");
+    }
+  }, [API]);
+
+  /*
+    Notification count: reuses the exact same authenticated endpoint
+    NotificationBell.jsx already calls (GET /api/notifications/me) -
+    same request shape, same response field names, no second
+    implementation.
+  */
+  const loadNotificationCount = useCallback(async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setNotificationLoadState("unavailable");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API}/api/notifications/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      const data = await response
+        .json()
+        .catch(() => ({}));
+
+      if (!response.ok || !data?.success) {
+        setNotificationLoadState("unavailable");
+        return;
+      }
+
+      setNotificationCount(Number(data.unreadCount || 0));
+      setNotificationLoadState("ready");
+    } catch (error) {
+      describeRequestError(
+        error,
+        "Unable to load your notifications right now.",
+        "Dashboard notification count"
+      );
+
+      setNotificationLoadState("unavailable");
+    }
+  }, [API]);
+
   const loadDashboard = useCallback(async () => {
     setLoading(true);
 
@@ -593,6 +818,8 @@ function Dashboard({ setPage }) {
         loadOpenOrders(),
         loadRecentTransactions(),
         loadReferralSummary(),
+        loadKycStatus(),
+        loadNotificationCount(),
       ]);
     } finally {
       setLoading(false);
@@ -605,6 +832,8 @@ function Dashboard({ setPage }) {
     loadOpenOrders,
     loadRecentTransactions,
     loadReferralSummary,
+    loadKycStatus,
+    loadNotificationCount,
   ]);
 
   useEffect(() => {
@@ -630,26 +859,6 @@ function Dashboard({ setPage }) {
     };
   }, []);
 
-  const handleLogout = () => {
-    const confirmed = window.confirm(
-      translateWithFallback(
-        "logoutConfirmation",
-        "Are you sure you want to logout?",
-        "auth"
-      )
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("wallet");
-    localStorage.removeItem("walletAddress");
-
-    window.location.href = "/";
-  };
   const openBlogArticle = (slug) => {
     if (!slug) {
       return;
@@ -663,1232 +872,816 @@ function Dashboard({ setPage }) {
   const openBlogHome = () => {
     window.location.href = "/blog";
   };
-  // RC2 (directive §5/§6): the dense 35-item `mobileActions` icon
-  // grid that used to be defined here was removed from the render
-  // below - see the comment at its former call site for the full
-  // rationale. Every item it listed remains reachable via the
-  // hamburger sidebar (app.jsx's menuGroups) and/or `bottomNavigation`
-  // just below.
 
-  // Release blocker fix (see MASTER-AUDIT.md "Web3 missing from
-  // mobile navigation"): the desktop sidebar's "Wallet & Web3" group
-  // includes a web3wallet item, but this mobile bottom nav - the only
-  // primary navigation surface on small screens - never did. Added
-  // web3wallet as a 6th item; see Dashboard.css's
-  // .mobile-bottom-nav grid-template-columns for the matching layout
-  // change (5 -> 6 columns).
-  // Phase 5 shell rebuild: aligned to the directive's required primary
-  // priority (Markets, Trade, Assets, Orders, P2P, Security) for this
-  // 6-slot quick-access bar. Web3 and Futures moved out of this
-  // specific quick bar to make room - both remain fully reachable on
-  // mobile via the hamburger sidebar (app.jsx's "web3" and "trade"
-  // menu groups), so the Phase 3 "Web3 missing from mobile
-  // navigation" fix is not being regressed, only moved out of this
-  // one 6-icon shortcut row to match the new priority order.
+  /*
+    Phase: Dashboard redesign. This 6-item quick-access bar is
+    reviewed (not removed) per the redesign instructions: it serves
+    a genuinely distinct purpose from the AppShell's mobile
+    navigation drawer - a zero-tap always-visible shortcut row for
+    the most common destinations, vs. the drawer's full menu behind
+    one extra tap. Retained as intentional.
+
+    Updated to the explicit 5-item product spec (Batch 1): Home,
+    Markets, Trade, Futures/TradFi, Assets - replacing the previous
+    6-item set (which included Orders/P2P) to match the persistent
+    bottom-tab-bar architecture requested, rather than the broader
+    "most common destinations" set this was originally built with.
+
+    Batch 2: "Assets" now points to the new real Assets.jsx screen
+    (page key "assets") instead of "wallets" - Wallets.jsx remains
+    fully reachable via its own entry in the full nav menu, this
+    only changes where the bottom-tab shortcut lands, since the new
+    screen is the purpose-built one for this exact destination.
+  */
   const bottomNavigation = [
-    ["🏠", "dashboard", "Home"],
-    ["📊", "markets", "Markets"],
-    ["📈", "trade", "Trade"],
-    ["💼", "wallets", "Assets"],
-    ["📦", "orders", "Orders"],
-    ["🌍", "p2p", "P2P"],
+    ["\ud83c\udfe0", "dashboard", "Home"],
+    ["\ud83d\udcca", "markets", "Markets"],
+    ["\ud83d\udcc8", "trade", "Trade"],
+    ["\ud83d\udcc9", "futures", "Futures"],
+    ["\ud83d\udcbc", "assets", "Assets"],
   ];
 
   const storedUser = readStoredUser();
 
+  const kycToneMap = {
+    approved: "success",
+    verified: "success",
+    pending: "warning",
+    under_review: "warning",
+    rejected: "danger",
+    not_submitted: "neutral",
+  };
+
+  const kycLabelMap = {
+    approved: translateWithFallback("verified", "Verified", "profile"),
+    verified: translateWithFallback("verified", "Verified", "profile"),
+    pending: translateWithFallback("pending", "Pending", "profile"),
+    under_review: translateWithFallback("pending", "Pending", "profile"),
+    rejected: translateWithFallback("rejected", "Rejected", "profile"),
+    not_submitted: translateWithFallback(
+      "notSubmitted",
+      "Not Submitted",
+      "profile"
+    ),
+  };
+
+  const orderColumns = [
+    { key: "pair", header: translateWithFallback("pair", "Pair", "trading") },
+    {
+      key: "side",
+      header: translateWithFallback("side", "Side", "trading"),
+    },
+    {
+      key: "amount",
+      header: translateWithFallback("amount", "Amount", "trading"),
+      align: "end",
+    },
+    {
+      key: "price",
+      header: translateWithFallback("price", "Price", "trading"),
+      align: "end",
+    },
+    {
+      key: "status",
+      header: translateWithFallback("status", "Status", "common"),
+    },
+  ];
+
+  const renderOrderCell = (order, column) => {
+    if (column.key === "side") {
+      return (
+        <Badge tone={order?.side === "sell" ? "sell" : "buy"}>
+          {String(order?.side || "").toUpperCase()}
+        </Badge>
+      );
+    }
+
+    if (column.key === "amount") {
+      return Number(order?.remaining ?? order?.amount ?? 0);
+    }
+
+    if (column.key === "price") {
+      return `$${Number(order?.price || 0)}`;
+    }
+
+    if (column.key === "status") {
+      return <StatusBadge status={order?.status} />;
+    }
+
+    return order?.[column.key] ?? "\u2014";
+  };
+
+  const txColumns = [
+    {
+      key: "type",
+      header: translateWithFallback("type", "Type", "common"),
+    },
+    {
+      key: "coin",
+      header: translateWithFallback("coin", "Coin", "common"),
+    },
+    {
+      key: "amount",
+      header: translateWithFallback("amount", "Amount", "trading"),
+      align: "end",
+    },
+    {
+      key: "status",
+      header: translateWithFallback("status", "Status", "common"),
+    },
+  ];
+
+  const renderTxCell = (tx, column) => {
+    if (column.key === "type") {
+      return String(tx?.type || "").toUpperCase();
+    }
+
+    if (column.key === "status") {
+      return <StatusBadge status={tx?.status} />;
+    }
+
+    return tx?.[column.key] ?? "\u2014";
+  };
+
   return (
-    <>
-      <section
-        className="mobile-home-view"
-        aria-label={translateWithFallback(
-          "dashboardTitle",
-          "Dashboard"
-        )}
-      >
-        {showExchangeWelcome && (
-          <div
-            className="exchange-welcome-overlay"
-            role="status"
-            aria-live="polite"
-          >
-            <img
-              src={exchangeLogo}
-              alt="Exalt Exchange"
-              className="exchange-welcome-logo"
-            />
-
-            <h3>
-              {translateWithFallback(
-                "welcomeTo",
-                "Welcome To"
-              )}
-            </h3>
-
-            <h1>Exalt Exchange</h1>
-
-            <p>
-              {translateWithFallback(
-                "exchangeTradingTagline",
-                "Secure • Fast • Global Trading"
-              )}
-            </p>
-          </div>
-        )}
-
-
-
-        <header className="mobile-premium-header">
-          <div className="mobile-brand-row">
-            <div className="mobile-brand">
+    <PageContainer maxWidth="1200px">
+      <Stack gap="8">
+        {/*
+          Batch 1 (Home foundation) - real user header. Uses the
+          real uid (always present - included in every login/2FA/
+          register response, see backend authRoutes.js's
+          serializeAuthenticatedUser) and the real profileImage
+          when present (populated once the user has visited
+          Profile.jsx, which fetches the full profile and re-saves
+          it to localStorage via saveUserLocally() - not fabricated,
+          genuinely stale-but-real or absent, never invented). No
+          hardcoded username/UID anywhere here.
+        */}
+        <div className="dashboard-user-header">
+          <div className="dashboard-user-header__avatar">
+            {storedUser?.profileImage ? (
               <img
-                src={exchangeLogo}
-                alt="Exalt Exchange"
-                className="mobile-brand-logo"
+                src={storedUser.profileImage}
+                alt=""
+                className="dashboard-user-header__avatar-image"
               />
+            ) : (
+              <span aria-hidden="true">
+                {(storedUser?.name || storedUser?.email || "?")
+                  .charAt(0)
+                  .toUpperCase()}
+              </span>
+            )}
+          </div>
 
-              <div className="mobile-brand-copy">
-                <h2>
-                  {translateWithFallback(
-                    "dashboardTitle",
-                    "Dashboard"
-                  )}
-                </h2>
+          <div>
+            <div className="ex2-text-primary ex2-text-md">
+              {storedUser?.name ||
+                translateWithFallback("trader", "Trader", "p2p")}
+            </div>
 
-                <p>
-                  {translateWithFallback(
-                    "exchangeTagline",
-                    "Secure • Fast • Global Digital Asset Exchange"
-                  )}
-                </p>
+            {storedUser?.uid ? (
+              <div className="ex2-text-secondary ex2-text-sm ex2-nums">
+                UID: {storedUser.uid}
               </div>
-            </div>
-
-            <div className="mobile-header-actions">
-              <button
-                type="button"
-                className="mobile-profile-btn"
-                aria-label={translateWithFallback(
-                  "profile",
-                  "Profile",
-                  "navigation"
-                )}
-                title={
-                  storedUser?.name ||
-                  translateWithFallback(
-                    "profile",
-                    "Profile",
-                    "navigation"
-                  )
-                }
-                onClick={() => setPage("profile")}
-              >
-                👤
-              </button>
-
-              <button
-                type="button"
-                className="mobile-logout-btn"
-                aria-label={translateWithFallback(
-                  "logout",
-                  "Logout",
-                  "auth"
-                )}
-                onClick={handleLogout}
-              >
-                ⏻
-              </button>
-            </div>
-          </div>
-
-          <div className="mobile-language-switcher">
-         <LanguageSwitcher
-  showActiveLanguage={false}
-/>
-          </div>
-        </header>
-
-        <div className="mobile-balance-card">
-          <p>
-            {translateWithFallback(
-              "totalBalance",
-              "Total Balance"
-            )}{" "}
-            (USD)
-          </p>
-
-          <h1>${formatUsd(totalBalanceValue, 2)}</h1>
-
-          <p className="mobile-balance-available">
-            {translateWithFallback(
-              "availableBalance",
-              "Available"
-            )}
-            : ${formatUsd(availableBalanceValue, 2)}
-          </p>
-
-          <p className="mobile-balance-web3-note">
-            {translateWithFallback(
-              "excludesWeb3Note",
-              "Excludes Web3 wallet assets",
-              "wallets"
-            )}
-            {" — "}
-            <button
-              type="button"
-              className="mobile-balance-web3-link"
-              onClick={() => setPage("web3wallet")}
-            >
-              {translateWithFallback(
-                "viewWeb3Wallet",
-                "View Web3 Wallet",
-                "wallets"
-              )}
-            </button>
-          </p>
-
-          <div className="mobile-balance-actions">
-            <button
-              type="button"
-              onClick={() => setPage("wallets")}
-            >
-              {translateWithFallback(
-                "deposit",
-                "Deposit",
-                "wallets"
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPage("wallets")}
-            >
-              {translateWithFallback(
-                "withdraw",
-                "Withdraw",
-                "wallets"
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPage("buy")}
-            >
-              {translateWithFallback(
-                "buy",
-                "Buy Crypto",
-                "navigation"
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPage("trade")}
-            >
-              {translateWithFallback(
-                "trade",
-                "Spot Trading",
-                "navigation"
-              )}
-            </button>
+            ) : null}
           </div>
         </div>
 
-        {
-          /*
-             RC2 fix (directive §5/§6 - "Do NOT solve mobile navigation
-             by placing dozens of modules into one giant grid" /
-             "Dashboard should prioritize financial/trading information
-             instead of looking like an application launcher"): this
-             used to render a 35-button icon grid (every AI tool,
-             community feature, secondary module - `mobileActions`
-             below) directly in the main scroll flow, immediately
-             after the balance card and before any real portfolio/
-             market content - exactly the "app launcher" pattern real
-             manual mobile testing flagged. A redundant 2-card
-             "feature row" (P2P, Deposit) duplicating both the balance
-             card's own quick actions and the bottom nav sat right
-             after it.
+        {/*
+          Batch 1 audit finding, documented rather than fabricated:
+          "Today's P&L" was explicitly requested for this screen,
+          but genuinely cannot be calculated honestly with the
+          backend as it currently exists. P&L requires comparing the
+          portfolio's value at the start of today against its
+          current value - this requires either a periodic balance
+          snapshot mechanism or a real "sum of today's realized
+          trade P&L specifically, distinguished from deposits/
+          withdrawals/transfers" computation. Neither exists
+          anywhere in this backend (confirmed by a direct search for
+          snapshot/dailyBalance/balanceHistory infrastructure -
+          zero results). Per the explicit instruction for this case
+          ("do not show a fake number... omit the metric, document
+          exactly what backend capability is missing"), this metric
+          is intentionally omitted from the Home screen rather than
+          shown as a permanent "Unavailable" badge for a feature
+          that isn't implemented at all. Building it would require:
+          (1) a scheduled job that snapshots each user's total
+          portfolio USD value once per day, and (2) a real
+          P&L = current_value - most_recent_snapshot_value
+          computation exposed via a new endpoint - genuine new
+          backend work, not a frontend gap.
+        */}
 
-             Removed both. Every single item that was in that grid
-             remains fully reachable on mobile through two other
-             surfaces that already existed and were already correct:
-             the hamburger sidebar (app.jsx's `menuGroups` - verified
-             by cross-checking every `mobileActions` entry against it,
-             all 35 present) and the curated 6-item `bottomNavigation`
-             bar below (Home/Markets/Trade/Assets/Orders/P2P, matching
-             the directive's required mobile priority order exactly).
-             Nothing became unreachable; the dashboard now goes
-             straight from the balance card into real financial
-             content (Trending Coins), matching the required hierarchy
-             (portfolio overview -> assets/market info -> recent
-             activity -> quick actions via the bottom nav + sidebar).
-          */
-        }
-
-        <section className="mobile-trending-section">
-          <h3>
-            {translateWithFallback(
-              "trendingCoins",
-              "Trending Coins"
-            )}
-          </h3>
-
-          {coins.length > 0 ? (
-            coins.slice(0, 5).map((coin, index) => (
-              <div
-                className="mobile-coin-row"
-                key={
-                  coin?.pairAddress ||
-                  `${coin?.baseToken?.symbol || "coin"}-${index}`
-                }
-              >
-                <div>
-                  <strong>
-                    {coin?.baseToken?.symbol || "COIN"}
-                  </strong>
-
-                  <p>
-                    $
-                    {Number(
-                      coin?.priceUsd || 0
-                    ).toFixed(6)}
-                  </p>
-                </div>
-
-                <span
-                  className={
-                    Number(
-                      coin?.priceChange?.h24 || 0
-                    ) >= 0
-                      ? "green-text"
-                      : "red-text"
-                  }
-                >
-                  {Number(
-                    coin?.priceChange?.h24 || 0
-                  ).toFixed(2)}
-                  %
-                </span>
-              </div>
-            ))
-          ) : (
-            <p className="dashboard-empty-state">
-              {loading
-                ? translateWithFallback(
-                    "loadingMarkets",
-                    "Loading markets...",
-                    "markets"
-                  )
-                : translateWithFallback(
-                    "noMarketData",
-                    "No market data found.",
-                    "markets"
-                  )}
-            </p>
+        {/* ---------- Account / Asset Overview ---------- */}
+        <Section
+          title={translateWithFallback(
+            "assetOverview",
+            "Account & Assets",
+            "dashboard"
           )}
-        </section>
-                <section className="dashboard-blog-section mobile-dashboard-blog">
-          <div className="dashboard-blog-header">
-            <div>
-              <span className="dashboard-blog-eyebrow">
-                Exalt Insights
-              </span>
-
-              <h3>Latest from Our Blog</h3>
-            </div>
-
-            <button
-              type="button"
-              className="dashboard-blog-view-all"
-              onClick={openBlogHome}
-            >
-              View All
-            </button>
-          </div>
-
-          <div className="dashboard-blog-grid">
-            {LATEST_BLOG_POSTS.map((post) => (
-              <article
-                className="dashboard-blog-card"
-                key={post.slug}
+          action={
+            <Toolbar>
+              <Select
+                value={displayCurrency}
+                onChange={(event) =>
+                  setDisplayCurrency(event.target.value)
+                }
+                aria-label={translateWithFallback(
+                  "displayCurrency",
+                  "Display currency"
+                )}
               >
-                {post.image && (
-                  <button
-                    type="button"
-                    className="dashboard-blog-image-button"
-                    onClick={() =>
-                      openBlogArticle(post.slug)
-                    }
-                    aria-label={`Read ${post.title}`}
-                  >
-                    <img
-                      src={post.image}
-                      alt={post.imageAlt || post.title}
-                      className="dashboard-blog-image"
-                      loading="lazy"
-                    />
-                  </button>
-                )}
+                <option value="USD">USD</option>
+                <option value="USDT">USDT</option>
+                <option value="BTC">BTC</option>
+              </Select>
 
-                <div className="dashboard-blog-card-content">
-                  <div className="dashboard-blog-meta">
-                    <span>{post.category}</span>
-                    <span>{post.readTime}</span>
-                  </div>
-
-                  <h4>{post.title}</h4>
-
-                  <p>{post.excerpt}</p>
-
-                  <button
-                    type="button"
-                    className="dashboard-blog-read-more"
-                    onClick={() =>
-                      openBlogArticle(post.slug)
-                    }
-                  >
-                    Read Article →
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      </section>
-
-      <nav
-        className="mobile-bottom-nav"
-        aria-label="Mobile navigation"
-      >
-        {bottomNavigation.map(
-          ([icon, pageName, fallbackLabel]) => (
-            <button
-              type="button"
-              key={pageName}
-              onClick={() => setPage(pageName)}
-            >
-              <span aria-hidden="true">{icon}</span>
-
-              <span>
-                {translateWithFallback(
-                  pageName,
-                  fallbackLabel,
-                  "navigation"
-                )}
-              </span>
-            </button>
-          )
-        )}
-      </nav>
-
-      <section className="desktop-dashboard-view">
-        <div className="dashboard-page">
-          <div className="hero-banner">
-            <div className="hero-content">
-              <img
-                src={exchangeLogo}
-                alt="Exalt Exchange"
-                className="exchange-logo"
-              />
-
-              <div>
-                <h1>Exalt Exchange</h1>
-
-                <p>
-                  {translateWithFallback(
-                    "dashboardSubtitle",
-                    "Professional Digital Asset Exchange"
-                  )}
-                </p>
-
-                <span className="live-status">
-                  {loading
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={
+                  balancesHidden
                     ? translateWithFallback(
-                        "loadingMarkets",
-                        "Loading market...",
-                        "markets"
+                        "showBalances",
+                        "Show balances"
                       )
                     : translateWithFallback(
-                        "liveMarketActive",
-                        "Live Market Active"
-                      )}
-                </span>
+                        "hideBalances",
+                        "Hide balances"
+                      )
+                }
+                onClick={() =>
+                  setBalancesHidden((hidden) => !hidden)
+                }
+              >
+                {balancesHidden ? "\ud83d\udc41\ufe0f\u200d\ud83d\udde8\ufe0f" : "\ud83d\udc41\ufe0f"}
+              </Button>
+            </Toolbar>
+          }
+        >
+          <Grid minItemWidth="220px" gap="4">
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback(
+                  "totalPortfolioValue",
+                  "Total Portfolio Value",
+                  "dashboard"
+                )}
               </div>
+              {loading ? (
+                <SkeletonText lines={1} />
+              ) : displayCurrency === "BTC" &&
+                btcPriceLoadState === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : (
+                <div className="ex2-text-2xl ex2-nums">
+                  {balancesHidden
+                    ? "\u2022\u2022\u2022\u2022\u2022\u2022"
+                    : formatDisplayValue(totalBalanceValue)}
+                </div>
+              )}
             </div>
 
-            <button
-              type="button"
-              className="action-btn yellow-btn hero-refresh-btn"
-              onClick={loadDashboard}
-              disabled={loading}
-            >
-              {loading
-                ? translateWithFallback(
-                    "loading",
-                    "Loading...",
-                    "common"
-                  )
-                : translateWithFallback(
-                    "refreshDashboard",
-                    "Refresh Dashboard"
-                  )}
-            </button>
-          </div>
-
-          <div className="stats-grid">
-            <div className="stat-card glow-yellow">
-              <h3>
-                {translateWithFallback(
-                  "totalBalance",
-                  "Total Balance"
-                )}
-              </h3>
-
-              <h1>${formatUsd(totalBalanceValue, 2)}</h1>
-
-              <span className="green-text">
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
                 {translateWithFallback(
                   "availableBalance",
-                  "Available"
-                )}
-                : ${formatUsd(availableBalanceValue, 2)}
-              </span>
-
-              <div className="stat-card-web3-note">
-                {translateWithFallback(
-                  "excludesWeb3Note",
-                  "Excludes Web3 wallet assets",
+                  "Available Balance",
                   "wallets"
                 )}
-                {" — "}
-                <button
-                  type="button"
-                  className="stat-card-web3-link"
-                  onClick={() => setPage("web3wallet")}
+              </div>
+              {loading ? (
+                <SkeletonText lines={1} />
+              ) : displayCurrency === "BTC" &&
+                btcPriceLoadState === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : (
+                <div className="ex2-text-2xl ex2-nums">
+                  {balancesHidden
+                    ? "\u2022\u2022\u2022\u2022\u2022\u2022"
+                    : formatDisplayValue(availableBalanceValue)}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback(
+                  "lockedBalance",
+                  "In Use / Locked",
+                  "wallets"
+                )}
+              </div>
+              {loading ? (
+                <SkeletonText lines={1} />
+              ) : displayCurrency === "BTC" &&
+                btcPriceLoadState === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : (
+                <div className="ex2-text-2xl ex2-nums">
+                  {balancesHidden
+                    ? "\u2022\u2022\u2022\u2022\u2022\u2022"
+                    : formatDisplayValue(lockedBalanceValue)}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback("kycStatus", "KYC Status", "profile")}
+              </div>
+              {kycStatusLoadState === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : kycStatusLoadState === "unavailable" ? (
+                <Badge tone="neutral">
+                  {translateWithFallback(
+                    "unavailable",
+                    "Unavailable",
+                    "dashboard"
+                  )}
+                </Badge>
+              ) : (
+                <Badge tone={kycToneMap[kycStatus] || "neutral"}>
+                  {kycLabelMap[kycStatus] || kycStatus}
+                </Badge>
+              )}
+            </div>
+
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback(
+                  "notifications",
+                  "Notifications",
+                  "dashboard"
+                )}
+              </div>
+              {notificationLoadState === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : notificationLoadState === "unavailable" ? (
+                <Badge tone="neutral">
+                  {translateWithFallback(
+                    "unavailable",
+                    "Unavailable",
+                    "dashboard"
+                  )}
+                </Badge>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPage("notification-center")}
                 >
-                  {translateWithFallback(
-                    "viewWeb3Wallet",
-                    "View Web3 Wallet",
-                    "wallets"
+                  {notificationCount > 0 ? (
+                    <Badge tone="warning" dot>
+                      {notificationCount}
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral">0</Badge>
                   )}
-                </button>
+                </Button>
+              )}
+            </div>
+          </Grid>
+        </Section>
+
+        {/* ---------- Portfolio / Wallet Summary + quick actions ---------- */}
+        <Section
+          title={translateWithFallback(
+            "portfolioValue",
+            "Wallet Summary",
+            "dashboard"
+          )}
+          action={
+            <Toolbar>
+              <Button size="sm" onClick={() => setPage("wallets")}>
+                {translateWithFallback("deposit", "Deposit", "wallets")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setPage("wallets")}
+              >
+                {translateWithFallback("withdraw", "Withdraw", "wallets")}
+              </Button>
+              {/*
+                Batch 1 audit finding: a general-purpose "Transfer"
+                quick action used to navigate here to setPage("wallets"),
+                but Wallets.jsx (a protected file, not modified by
+                this batch) has no internal-transfer UI at all - only
+                unrelated P2P "Bank Transfer" payment-method option
+                text. A real, tested Spot<->Futures transfer endpoint
+                does exist (POST /api/futures/transfer, see
+                tests/futuresInternalTransfer.test.js) and has a real
+                UI entry point already on the Futures page itself -
+                but redirecting a general "Transfer" button from Home
+                to the Futures page specifically would be its own
+                kind of misleading (implying a general Funding/Spot/
+                Futures hub that doesn't exist yet). Removed rather
+                than left pointing at a page with nothing to do,
+                per the explicit instruction: "if Transfer is not
+                actually implemented... do not show it as functional
+                either."
+              */}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setPage("staking")}
+              >
+                {translateWithFallback("earn", "Earn", "dashboard")}
+              </Button>
+            </Toolbar>
+          }
+        >
+          <DataTable
+            ariaLabel={translateWithFallback(
+              "portfolioValue",
+              "Wallet Summary",
+              "dashboard"
+            )}
+            loading={loading}
+            rows={["USDT", "BNB", "EXALT"].map((coin) => ({
+              coin,
+              balance: walletBalances[coin] || 0,
+              locked: walletLocked[coin] || 0,
+            }))}
+            getRowKey={(row) => row.coin}
+            columns={[
+              { key: "coin", header: translateWithFallback("coin", "Coin", "common") },
+              {
+                key: "balance",
+                header: translateWithFallback("balance", "Balance", "common"),
+                align: "end",
+              },
+              {
+                key: "locked",
+                header: translateWithFallback(
+                  "lockedBalance",
+                  "Locked",
+                  "wallets"
+                ),
+                align: "end",
+              },
+            ]}
+            renderCell={(row, column) => row[column.key]}
+          />
+        </Section>
+
+        {/* ---------- Market Snapshot ---------- */}
+        <Section
+          title={translateWithFallback(
+            "marketStatus",
+            "Market Snapshot",
+            "dashboard"
+          )}
+        >
+          <Grid minItemWidth="200px" gap="4">
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                EXALT {translateWithFallback("price", "Price", "trading")}
               </div>
+              {exaltPrice === null ? (
+                <SkeletonText lines={1} />
+              ) : (
+                <div className="ex2-nums">${exaltPrice}</div>
+              )}
             </div>
 
-            <div className="stat-card glow-blue">
-              <h3>
-                {translateWithFallback(
-                  "exaltHoldings",
-                  "EXALT Holdings"
-                )}
-              </h3>
-
-              <h1>
-                {Number(
-                  exaltHoldings || 0
-                ).toLocaleString()}{" "}
-                EXALT
-              </h1>
-
-              <span>
-                {translateWithFallback(
-                  "liveWalletBalance",
-                  "Live Wallet Balance"
-                )}
-                {" · $"}
-                {formatUsd(portfolioValue, 2)}
-              </span>
-            </div>
-
-            <div className="stat-card glow-green">
-              <h3>
-                {translateWithFallback(
-                  "marketCap",
-                  "Market Cap"
-                )}
-              </h3>
-
-              <h1>${formatUsd(marketCap, 0)}</h1>
-
-              <span>
-                {translateWithFallback(
-                  "liveMarket",
-                  "Live Market"
-                )}
-              </span>
-            </div>
-
-            <div className="stat-card glow-red">
-              <h3>
-                {translateWithFallback(
-                  "liquidity",
-                  "Liquidity",
-                  "markets"
-                )}
-              </h3>
-
-              <h1>${formatUsd(liquidity, 0)}</h1>
-
-              <span>PancakeSwap LP</span>
-            </div>
-
-            <div className="stat-card glow-yellow reward-stat-card">
-              <h3>
-                {translateWithFallback(
-                  "approvedRewards",
-                  "Approved Rewards"
-                )}
-              </h3>
-
-              <h1>
-                {Number(
-                  rewardStats.approvedAmount || 0
-                ).toLocaleString()}{" "}
-                EXALT
-              </h1>
-
-              <span>
-                {translateWithFallback(
-                  "realCreditedRewards",
-                  "Credited Rewards"
-                )}
-              </span>
-            </div>
-
-            <div className="stat-card glow-blue reward-stat-card">
-              <h3>
-                {translateWithFallback(
-                  "pendingRewards",
-                  "Pending Rewards"
-                )}
-              </h3>
-
-              <h1>
-                {Number(
-                  rewardStats.pendingAmount || 0
-                ).toLocaleString()}{" "}
-                EXALT
-              </h1>
-
-              <span>
-                {rewardStats.pendingClaims}{" "}
-                {translateWithFallback(
-                  "claimsUnderReview",
-                  "Claims Under Review"
-                )}
-              </span>
-            </div>
-
-            <div className="stat-card glow-green reward-stat-card">
-              <h3>
-                {translateWithFallback(
-                  "activeMiners",
-                  "Active Miners"
-                )}
-              </h3>
-
-              <h1>{rewardStats.activeMiners}</h1>
-
-              <span>
-                {translateWithFallback(
-                  "todayClaims",
-                  "Today's Claims"
-                )}
-                : {rewardStats.todayClaims}
-              </span>
-            </div>
-
-            <div className="stat-card glow-red reward-stat-card">
-              <h3>
-                {translateWithFallback(
-                  "miningPool",
-                  "Mining Pool"
-                )}
-              </h3>
-
-              <h1>
-                {Number(
-                  rewardStats.miningRemaining || 0
-                ).toLocaleString()}
-              </h1>
-
-              <span>
-                {translateWithFallback(
-                  "exaltRemaining",
-                  "EXALT Remaining"
-                )}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              className="stat-card glow-yellow reward-stat-card"
-              onClick={() => setPage("certificates")}
-            >
-              <h3>My Certificates</h3>
-              <h1>🏅</h1>
-              <span>View and verify credentials</span>
-            </button>
-          </div>
-
-          <div className="dashboard-row">
-            <section className="big-panel">
-              <div className="panel-header">
-                <h2>
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback("marketCap", "Market Cap", "dashboard")}
+              </div>
+              {marketDataStatus === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : marketDataStatus === "unavailable" ? (
+                <Badge tone="neutral">
                   {translateWithFallback(
-                    "trendingCoins",
-                    "Trending Coins"
+                    "unavailable",
+                    "Unavailable",
+                    "dashboard"
                   )}
-                </h2>
+                </Badge>
+              ) : (
+                <div className="ex2-nums">${formatUsd(marketCap, 0)}</div>
+              )}
+            </div>
+
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback("liquidity", "Liquidity", "dashboard")}
               </div>
+              {marketDataStatus === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : marketDataStatus === "unavailable" ? (
+                <Badge tone="neutral">
+                  {translateWithFallback(
+                    "unavailable",
+                    "Unavailable",
+                    "dashboard"
+                  )}
+                </Badge>
+              ) : (
+                <div className="ex2-nums">${formatUsd(liquidity, 0)}</div>
+              )}
+            </div>
+          </Grid>
 
-              {coins.length > 0 ? (
-                coins.map((coin, index) => (
-                  <div
-                    className="coin-row"
-                    key={
-                      coin?.pairAddress ||
-                      `${coin?.baseToken?.symbol || "coin"}-${index}`
-                    }
-                  >
-                    <span>
-                      {coin?.baseToken?.symbol ||
-                        "COIN"}
-                    </span>
-
-                    <span>
-                      $
-                      {Number(
-                        coin?.priceUsd || 0
-                      ).toFixed(6)}
-                    </span>
-
+          <div style={{ marginTop: "var(--ex2-space-4)" }}>
+            <DataTable
+              ariaLabel={translateWithFallback(
+                "trendingCoins",
+                "Trending Coins",
+                "dashboard"
+              )}
+              loading={loading}
+              rows={coins}
+              getRowKey={(row, index) =>
+                row?.baseToken?.address || row?.pairAddress || index
+              }
+              emptyTitle={translateWithFallback(
+                "noDataFound",
+                "No data found.",
+                "common"
+              )}
+              columns={[
+                {
+                  key: "symbol",
+                  header: translateWithFallback("symbol", "Symbol", "markets"),
+                },
+                {
+                  key: "price",
+                  header: translateWithFallback("price", "Price", "trading"),
+                  align: "end",
+                },
+                {
+                  key: "change24h",
+                  header: translateWithFallback(
+                    "change24h",
+                    "24h Change",
+                    "trading"
+                  ),
+                  align: "end",
+                },
+              ]}
+              renderCell={(row, column) => {
+                if (column.key === "symbol") {
+                  return row?.baseToken?.symbol || "\u2014";
+                }
+                if (column.key === "price") {
+                  return `$${Number(row?.priceUsd || 0)}`;
+                }
+                if (column.key === "change24h") {
+                  const change = Number(row?.priceChange?.h24 || 0);
+                  return (
                     <span
                       className={
-                        Number(
-                          coin?.priceChange?.h24 || 0
-                        ) >= 0
-                          ? "green-text"
-                          : "red-text"
+                        change >= 0 ? "ex2-buy-text" : "ex2-sell-text"
                       }
+                      style={{
+                        color:
+                          change >= 0
+                            ? "var(--ex2-buy)"
+                            : "var(--ex2-sell)",
+                      }}
                     >
-                      {Number(
-                        coin?.priceChange?.h24 || 0
-                      ).toFixed(2)}
-                      %
+                      {change >= 0 ? "+" : ""}
+                      {change.toFixed(2)}%
                     </span>
-                  </div>
-                ))
-              ) : (
-                <p className="dashboard-empty-state">
-                  {loading
-                    ? translateWithFallback(
-                        "loadingMarkets",
-                        "Loading markets...",
-                        "markets"
-                      )
-                    : translateWithFallback(
-                        "noMarketData",
-                        "No market data found.",
-                        "markets"
-                      )}
-                </p>
-              )}
-            </section>
+                  );
+                }
+                return "\u2014";
+              }}
+            />
+          </div>
+        </Section>
 
-            <section className="big-panel">
-              <div className="panel-header">
-                <h2>
-                  {translateWithFallback(
-                    "quickActions",
-                    "Quick Actions"
-                  )}
-                </h2>
+        {/* ---------- Recent Orders / Transactions ---------- */}
+        <Section
+          title={translateWithFallback(
+            "recentActivity",
+            "Recent Activity",
+            "dashboard"
+          )}
+          action={
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setPage("transactions")}
+            >
+              {translateWithFallback("viewAll", "View All", "common")}
+            </Button>
+          }
+        >
+          <Stack gap="6">
+            <div>
+              <div className="ex2-text-md ex2-text-primary" style={{ marginBottom: "var(--ex2-space-2)" }}>
+                {translateWithFallback(
+                  "recentOrders",
+                  "Recent Orders",
+                  "dashboard"
+                )}
               </div>
-
-              {/*
-                Batch F fix: this button previously sent users off
-                to an external PancakeSwap DEX link to buy EXALT -
-                EXALT bought there sits in an external wallet, not
-                the user's EXALT Exchange custodial balance, which
-                is confusing at best and undermines the centralized-
-                exchange architecture at worst. It now opens the
-                real internal Spot trading page instead, the same
-                canonical buy/sell path used everywhere else in the
-                app.
-              */}
-              <button
-                type="button"
-                onClick={() => setPage("wallets")}
-                className="action-btn yellow-btn"
-              >
-                {translateWithFallback(
-                  "deposit",
-                  "Deposit",
-                  "wallets"
+              <DataTable
+                ariaLabel={translateWithFallback(
+                  "recentOrders",
+                  "Recent Orders",
+                  "dashboard"
                 )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPage("wallets")}
-                className="action-btn"
-              >
-                {translateWithFallback(
-                  "withdraw",
-                  "Withdraw",
-                  "wallets"
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPage("buy")}
-                className="action-btn"
-              >
-                {translateWithFallback(
-                  "buy",
-                  "Buy Crypto",
-                  "navigation"
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPage("trade")}
-                className="action-btn green-btn"
-              >
-                {translateWithFallback(
-                  "spotTrading",
-                  "Spot Trading",
+                loading={loading}
+                rows={openOrders}
+                getRowKey={(row) => row?._id || row?.id}
+                columns={orderColumns}
+                renderCell={renderOrderCell}
+                emptyTitle={translateWithFallback(
+                  "noOpenOrders",
+                  "No open orders.",
                   "trading"
                 )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPage("listings")}
-                className="action-btn blue-btn"
-              >
-                {translateWithFallback(
-                  "submitListing",
-                  "Submit Listing"
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPage("markets")}
-                className="action-btn red-btn"
-              >
-                {translateWithFallback(
-                  "viewMarketBoard",
-                  "View Market Board"
-                )}
-              </button>
-            </section>
-          </div>
-
-          {/*
-            Batch K: real account-activity panels (directive section 7 -
-            "recent transactions, open orders, security status,
-            referral/rewards summary"). Every value below comes from the
-            same authenticated endpoints the dedicated Orders/
-            Transactions/Referral/Settings pages already use; nothing is
-            invented, and each panel shows an honest empty state instead
-            of a fabricated one when there is nothing to show.
-          */}
-          <div className="dashboard-row">
-            <section className="big-panel">
-              <div className="panel-header">
-                <h2>
-                  {translateWithFallback(
-                    "openOrders",
-                    "Open Orders",
-                    "trading"
-                  )}
-                </h2>
-
-                <button
-                  type="button"
-                  className="panel-header-link"
-                  onClick={() => setPage("orders")}
-                >
-                  {translateWithFallback(
-                    "viewAll",
-                    "View All",
-                    "common"
-                  )}
-                </button>
-              </div>
-
-              {openOrders.length > 0 ? (
-                openOrders.map((order) => (
-                  <div
-                    className="coin-row"
-                    key={order?._id || order?.id}
-                  >
-                    <span>
-                      {order?.pair || "—"}
-                      {" · "}
-                      <span
-                        className={
-                          order?.side === "sell"
-                            ? "red-text"
-                            : "green-text"
-                        }
-                      >
-                        {String(
-                          order?.side || ""
-                        ).toUpperCase()}
-                      </span>
-                    </span>
-
-                    <span>
-                      {Number(
-                        order?.remaining ??
-                          order?.amount ??
-                          0
-                      )}{" "}
-                      @ $
-                      {Number(
-                        order?.price || 0
-                      )}
-                    </span>
-
-                    <span>
-                      {String(
-                        order?.status || ""
-                      ).toUpperCase()}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="dashboard-empty-state">
-                  {translateWithFallback(
-                    "noOpenOrders",
-                    "No open orders.",
-                    "trading"
-                  )}
-                </p>
-              )}
-            </section>
-
-            <section className="big-panel">
-              <div className="panel-header">
-                <h2>
-                  {translateWithFallback(
-                    "recentTransactions",
-                    "Recent Transactions"
-                  )}
-                </h2>
-
-                <button
-                  type="button"
-                  className="panel-header-link"
-                  onClick={() => setPage("transactions")}
-                >
-                  {translateWithFallback(
-                    "viewAll",
-                    "View All",
-                    "common"
-                  )}
-                </button>
-              </div>
-
-              {recentTx.length > 0 ? (
-                recentTx.map((tx) => (
-                  <div
-                    className="coin-row"
-                    key={tx?._id || tx?.id}
-                  >
-                    <span>
-                      {String(
-                        tx?.type || ""
-                      ).toUpperCase()}{" "}
-                      {tx?.coin || ""}
-                    </span>
-
-                    <span>
-                      {Number(tx?.amount || 0)}
-                    </span>
-
-                    <span
-                      className={
-                        [
-                          "completed",
-                          "confirmed",
-                          "success",
-                          "filled",
-                        ].includes(
-                          String(
-                            tx?.status || ""
-                          ).toLowerCase()
-                        )
-                          ? "green-text"
-                          : [
-                                "failed",
-                                "cancelled",
-                                "rejected",
-                              ].includes(
-                                String(
-                                  tx?.status || ""
-                                ).toLowerCase()
-                              )
-                            ? "red-text"
-                            : ""
-                      }
-                    >
-                      {String(
-                        tx?.status || ""
-                      ).toUpperCase()}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <p className="dashboard-empty-state">
-                  {translateWithFallback(
-                    "noTransactionsYet",
-                    "No transactions yet.",
-                    "web3"
-                  )}
-                </p>
-              )}
-            </section>
-          </div>
-
-          <div className="dashboard-row">
-            <section className="big-panel">
-              <div className="panel-header">
-                <h2>
-                  {translateWithFallback(
-                    "securityStatus",
-                    "Security Status",
-                    "profile"
-                  )}
-                </h2>
-
-                <button
-                  type="button"
-                  className="panel-header-link"
-                  onClick={() => setPage("settings")}
-                >
-                  {translateWithFallback(
-                    "manage",
-                    "Manage",
-                    "common"
-                  )}
-                </button>
-              </div>
-
-              <div className="coin-row">
-                <span>
-                  {translateWithFallback(
-                    "emailVerification",
-                    "Email Verification",
-                    "profile"
-                  )}
-                </span>
-
-                <span
-                  className={
-                    storedUser?.isEmailVerified
-                      ? "green-text"
-                      : "red-text"
-                  }
-                >
-                  {storedUser?.isEmailVerified
-                    ? translateWithFallback(
-                        "verified",
-                        "Verified",
-                        "profile"
-                      )
-                    : translateWithFallback(
-                        "notVerified",
-                        "Not Verified",
-                        "profile"
-                      )}
-                </span>
-              </div>
-
-              <div className="coin-row">
-                <span>
-                  {translateWithFallback(
-                    "twoFactorAuth",
-                    "Two-Factor Authentication",
-                    "profile"
-                  )}
-                </span>
-
-                <span
-                  className={
-                    storedUser?.twoFactorEnabled
-                      ? "green-text"
-                      : "red-text"
-                  }
-                >
-                  {storedUser?.twoFactorEnabled
-                    ? translateWithFallback(
-                        "enabled",
-                        "Enabled",
-                        "profile"
-                      )
-                    : translateWithFallback(
-                        "disabled",
-                        "Disabled",
-                        "profile"
-                      )}
-                </span>
-              </div>
-            </section>
-
-            <section className="big-panel">
-              <div className="panel-header">
-                <h2>
-                  {translateWithFallback(
-                    "referralRewardsSummary",
-                    "Referral & Rewards"
-                  )}
-                </h2>
-
-                <button
-                  type="button"
-                  className="panel-header-link"
-                  onClick={() => setPage("referral")}
-                >
-                  {translateWithFallback(
-                    "viewAll",
-                    "View All",
-                    "common"
-                  )}
-                </button>
-              </div>
-
-              {referralSummary ? (
-                <>
-                  <div className="coin-row">
-                    <span>
-                      {translateWithFallback(
-                        "referralCount",
-                        "Referrals",
-                        "dashboard"
-                      )}
-                    </span>
-
-                    <span>
-                      {Number(
-                        referralSummary.referralCount ||
-                          0
-                      )}
-                    </span>
-                  </div>
-
-                  <div className="coin-row">
-                    <span>
-                      {translateWithFallback(
-                        "approvedReferralRewards",
-                        "Approved Rewards",
-                        "dashboard"
-                      )}
-                    </span>
-
-                    <span className="green-text">
-                      {Number(
-                        referralSummary.approvedReferralRewards ||
-                          0
-                      ).toLocaleString()}{" "}
-                      EXALT
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <p className="dashboard-empty-state">
-                  {translateWithFallback(
-                    "loading",
-                    "Loading...",
-                    "common"
-                  )}
-                </p>
-              )}
-            </section>
-          </div>
-
-                    <section className="dashboard-blog-section desktop-dashboard-blog">
-            <div className="dashboard-blog-header">
-              <div>
-                <span className="dashboard-blog-eyebrow">
-                  Exalt Exchange Insights
-                </span>
-
-                <h2>Latest from Our Blog</h2>
-
-                <p>
-                  Explore cryptocurrency education, trading
-                  guides, Web3 insights, and Exalt ecosystem
-                  updates.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                className="dashboard-blog-view-all"
-                onClick={openBlogHome}
-              >
-                View All Articles
-              </button>
+              />
             </div>
 
-            <div className="dashboard-blog-grid">
-              {LATEST_BLOG_POSTS.map((post) => (
-                <article
-                  className="dashboard-blog-card"
-                  key={post.slug}
-                >
-                  {post.image && (
-                    <button
-                      type="button"
-                      className="dashboard-blog-image-button"
-                      onClick={() =>
-                        openBlogArticle(post.slug)
-                      }
-                      aria-label={`Read ${post.title}`}
-                    >
-                      <img
-                        src={post.image}
-                        alt={post.imageAlt || post.title}
-                        className="dashboard-blog-image"
-                        loading="lazy"
-                      />
-                    </button>
-                  )}
-
-                  <div className="dashboard-blog-card-content">
-                    <div className="dashboard-blog-meta">
-                      <span>{post.category}</span>
-                      <span>{post.readTime}</span>
-                    </div>
-
-                    <h3>{post.title}</h3>
-
-                    <p>{post.excerpt}</p>
-
-                    <button
-                      type="button"
-                      className="dashboard-blog-read-more"
-                      onClick={() =>
-                        openBlogArticle(post.slug)
-                      }
-                    >
-                      Read Article →
-                    </button>
-                  </div>
-                </article>
-              ))}
+            <div>
+              <div className="ex2-text-md ex2-text-primary" style={{ marginBottom: "var(--ex2-space-2)" }}>
+                {translateWithFallback(
+                  "transactionHistory",
+                  "Recent Transactions",
+                  "trading"
+                )}
+              </div>
+              <DataTable
+                ariaLabel={translateWithFallback(
+                  "transactionHistory",
+                  "Recent Transactions",
+                  "trading"
+                )}
+                loading={loading}
+                rows={recentTx}
+                getRowKey={(row) => row?._id || row?.id}
+                columns={txColumns}
+                renderCell={renderTxCell}
+                emptyTitle={translateWithFallback(
+                  "noTransactionsYet",
+                  "No transactions yet.",
+                  "trading"
+                )}
+              />
             </div>
-          </section>
-        </div>
-      </section>
-    </>
+          </Stack>
+        </Section>
+
+        {/* ---------- Rewards / Referral ---------- */}
+        <Section
+          title={translateWithFallback(
+            "approvedRewards",
+            "Rewards & Referrals",
+            "dashboard"
+          )}
+        >
+          <Grid minItemWidth="200px" gap="4">
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback(
+                  "approvedRewards",
+                  "Approved Rewards",
+                  "dashboard"
+                )}
+              </div>
+              {rewardStatsStatus === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : rewardStatsStatus === "unavailable" ? (
+                <Badge tone="neutral">
+                  {translateWithFallback(
+                    "unavailable",
+                    "Unavailable",
+                    "dashboard"
+                  )}
+                </Badge>
+              ) : (
+                <div className="ex2-nums">
+                  {formatUsd(rewardStats.approvedAmount, 2)}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback(
+                  "pendingRewards",
+                  "Pending Rewards",
+                  "dashboard"
+                )}
+              </div>
+              {rewardStatsStatus === "loading" ? (
+                <SkeletonText lines={1} />
+              ) : rewardStatsStatus === "unavailable" ? (
+                <Badge tone="neutral">
+                  {translateWithFallback(
+                    "unavailable",
+                    "Unavailable",
+                    "dashboard"
+                  )}
+                </Badge>
+              ) : (
+                <div className="ex2-nums">
+                  {formatUsd(rewardStats.pendingAmount, 2)}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="ex2-text-secondary ex2-text-sm">
+                {translateWithFallback(
+                  "totalReferrals",
+                  "Total Referrals",
+                  "social"
+                )}
+              </div>
+              <div className="ex2-nums">
+                {referralSummary?.referralCount ?? "\u2014"}
+              </div>
+            </div>
+          </Grid>
+        </Section>
+
+        {/* ---------- Useful account shortcuts ---------- */}
+        <Section
+          title={translateWithFallback(
+            "quickActions",
+            "Quick Actions",
+            "dashboard"
+          )}
+        >
+          <Toolbar>
+            <Button size="sm" onClick={() => setPage("buy")}>
+              {translateWithFallback("buyExalt", "Buy Crypto", "dashboard")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setPage("certificates")}
+            >
+              {translateWithFallback(
+                "certificates",
+                "My Certificates",
+                "navigation"
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setPage("referral")}
+            >
+              {translateWithFallback("referral", "Referral", "navigation")}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setPage("support")}
+            >
+              {translateWithFallback("support", "Support", "navigation")}
+            </Button>
+          </Toolbar>
+        </Section>
+
+        {/* ---------- Blog (existing real feature, preserved) ---------- */}
+        <Section title="Exalt Exchange Blog" action={
+          <Button variant="ghost" size="sm" onClick={openBlogHome}>
+            {translateWithFallback("viewAll", "View All", "common")}
+          </Button>
+        }>
+          <Grid minItemWidth="220px" gap="4">
+            {LATEST_BLOG_POSTS.map((post) => (
+              <div
+                key={post.slug}
+                className="dashboard-blog-card"
+                onClick={() => openBlogArticle(post.slug)}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="dashboard-blog-card-content">
+                  <div className="dashboard-blog-eyebrow">{post.category}</div>
+                  <h3>{post.title}</h3>
+                </div>
+              </div>
+            ))}
+          </Grid>
+        </Section>
+      </Stack>
+
+      {/* Mobile quick-access bar - retained intentionally, see comment above bottomNavigation */}
+      <nav className="mobile-bottom-nav" aria-label="Quick access">
+        {bottomNavigation.map(([icon, key, label]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setPage(key)}
+            aria-label={translateWithFallback(key, label, "navigation")}
+          >
+            <span aria-hidden="true">{icon}</span>
+          </button>
+        ))}
+      </nav>
+    </PageContainer>
   );
 }
 

@@ -48,22 +48,11 @@ if (!dom) {
   global.getComputedStyle = dom.window.getComputedStyle;
   global.localStorage = dom.window.localStorage;
 
-  /*
-    jsdom does not implement PointerEvent in every supported Node/jsdom
-    combination. Floating UI listens for pointer events, so provide a
-    minimal MouseEvent-compatible fallback for tests only.
-  */
+  // jsdom may not expose PointerEvent. Tests only need standard
+  // event bubbling/cancelation semantics for pointerdown here, so
+  // MouseEvent is a safe test-environment fallback.
   if (typeof dom.window.PointerEvent === "undefined") {
-    class TestPointerEvent extends dom.window.MouseEvent {
-      constructor(type, init = {}) {
-        super(type, init);
-        this.pointerId = init.pointerId ?? 0;
-        this.pointerType = init.pointerType ?? "mouse";
-        this.isPrimary = init.isPrimary ?? true;
-      }
-    }
-
-    dom.window.PointerEvent = TestPointerEvent;
+    dom.window.PointerEvent = dom.window.MouseEvent;
   }
 
   global.PointerEvent = dom.window.PointerEvent;

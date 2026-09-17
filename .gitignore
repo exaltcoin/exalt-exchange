@@ -27,3 +27,4 @@ android/app/build/
 *.report.html
 report.json
 *.lnk
+/android/app/release/

@@ -11,9 +11,16 @@ import API_BASE_URL, { socket } from "../api";
 import Tradingchart from "./Tradingchart";
 import OrderBook from "./OrderBook";
 import "./Trade.css";
+import {
+  Tabs,
+  Select,
+  AmountInput,
+  Button,
+  Badge,
+} from "../design-system/index.js";
 
 const DEFAULT_API_BASE =
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const PANCAKE_ROUTER =
   "0x10ED43C718714eb63d5aA57B78B54704E256024E";
@@ -693,6 +700,22 @@ function Trade({ setPage }) {
         amount: numericAmount,
       };
 
+      /*
+        Spot Trading UI closure: the backend's idempotency-key
+        support (controllers/tradeController.js, verified in
+        tests/spotOrderIdempotency.test.js) is opt-in - a caller
+        that supplies one is protected against a duplicate/retried
+        submission double-locking funds. Generated fresh per
+        submission attempt (not per component mount), so a genuine
+        new order the user places afterward is never accidentally
+        deduplicated against a previous one.
+      */
+      const idempotencyKey = `web:${Date.now()}:${
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).slice(2)
+      }`;
+
       const data = await requestJson(
         `${API}/api/trades/order`,
         {
@@ -702,6 +725,7 @@ function Trade({ setPage }) {
               "application/json",
             Authorization: `Bearer ${token}`,
             Accept: "application/json",
+            "Idempotency-Key": idempotencyKey,
           },
           body: JSON.stringify(payload),
         }
@@ -729,11 +753,23 @@ function Trade({ setPage }) {
         tradingPair
       );
 
+      /*
+        Batch 4 fix: this used to always show the same generic
+        "Order submitted successfully" alert regardless of what
+        actually happened - including for a market order that ended
+        up fully cancelled with zero fill (no liquidity) or
+        partially filled with the remainder cancelled. The backend
+        now returns a real, differentiated message
+        (controllers/tradeController.js) reflecting the order's
+        actual final status - this uses that real message directly
+        rather than a client-invented generic one.
+      */
       window.alert(
-        translateWithFallback(
-          "orderPlacedSuccessfully",
-          "Order submitted successfully."
-        )
+        data?.message ||
+          translateWithFallback(
+            "orderPlacedSuccessfully",
+            "Order submitted successfully."
+          )
       );
 
       setPrice("");
@@ -1377,6 +1413,15 @@ function Trade({ setPage }) {
                 )}
               </option>
             </select>
+
+            {orderMode === "market" && (
+              <p className="market-order-notice">
+                {translateWithFallback(
+                  "marketOrderNotice",
+                  "Market orders execute immediately against currently available liquidity. The execution price may vary, and any unfilled portion will not remain open - it is cancelled immediately, not left resting."
+                )}
+              </p>
+            )}
 
             {orderMode === "limit" && (
               <input
@@ -2112,49 +2157,42 @@ function Trade({ setPage }) {
                 </h2>
 
                 <div className="spot-form">
-                  <div className="filter-row">
-                    <button
-                      className={
-                        type === "buy"
-                          ? "buy-btn"
-                          : "tab"
-                      }
-                      onClick={() =>
-                        setType("buy")
-                      }
-                      type="button"
-                    >
-                      {translateWithFallback(
-                        "buy",
-                        "Buy"
-                      )}
-                    </button>
+                  <Tabs
+                    ariaLabel={translateWithFallback(
+                      "buySellTabs",
+                      "Buy or sell"
+                    )}
+                    tabs={[
+                      {
+                        id: "buy",
+                        label: translateWithFallback(
+                          "buy",
+                          "Buy"
+                        ),
+                      },
+                      {
+                        id: "sell",
+                        label: translateWithFallback(
+                          "sell",
+                          "Sell"
+                        ),
+                      },
+                    ]}
+                    activeId={type}
+                    onChange={setType}
+                  />
 
-                    <button
-                      className={
-                        type === "sell"
-                          ? "sell-btn"
-                          : "tab"
-                      }
-                      onClick={() =>
-                        setType("sell")
-                      }
-                      type="button"
-                    >
-                      {translateWithFallback(
-                        "sell",
-                        "Sell"
-                      )}
-                    </button>
-                  </div>
-
-                  <select
+                  <Select
                     value={orderMode}
                     onChange={(event) =>
                       setOrderMode(
                         event.target.value
                       )
                     }
+                    aria-label={translateWithFallback(
+                      "orderType",
+                      "Order type"
+                    )}
                   >
                     <option value="market">
                       {translateWithFallback(
@@ -2169,12 +2207,19 @@ function Trade({ setPage }) {
                         "Limit Order"
                       )}
                     </option>
-                  </select>
+                  </Select>
 
-                  <input
-                    type="number"
-                    min="0"
-                    step="any"
+                  {orderMode === "market" && (
+                    <p className="market-order-notice">
+                      {translateWithFallback(
+                        "marketOrderNotice",
+                        "Market orders execute immediately against currently available liquidity. The execution price may vary, and any unfilled portion will not remain open - it is cancelled immediately, not left resting."
+                      )}
+                    </p>
+                  )}
+
+                  <AmountInput
+                    decimals={8}
                     placeholder={
                       orderMode === "market"
                         ? `${translateWithFallback(
@@ -2197,12 +2242,14 @@ function Trade({ setPage }) {
                     disabled={
                       orderMode === "market"
                     }
+                    aria-label={translateWithFallback(
+                      "limitPrice",
+                      "Limit Price"
+                    )}
                   />
 
-                  <input
-                    type="number"
-                    min="0"
-                    step="any"
+                  <AmountInput
+                    decimals={8}
                     placeholder={translateWithFallback(
                       "amount",
                       "Amount"
@@ -2213,6 +2260,11 @@ function Trade({ setPage }) {
                         event.target.value
                       )
                     }
+                    suffix={selectedSymbol}
+                    aria-label={translateWithFallback(
+                      "amount",
+                      "Amount"
+                    )}
                   />
 
                   <p className="desktop-available-balance">
@@ -2221,31 +2273,28 @@ function Trade({ setPage }) {
                       "Available"
                     )}
                     :{" "}
-                    {availableBalance.toFixed(
-                      4
-                    )}{" "}
-                    {type === "buy"
-                      ? "USDT"
-                      : selectedSymbol}
+                    <span className="ex2-nums">
+                      {availableBalance.toFixed(
+                        4
+                      )}{" "}
+                      {type === "buy"
+                        ? "USDT"
+                        : selectedSymbol}
+                    </span>
                   </p>
 
-                  <button
+                  <Button
                     type="button"
-                    disabled={loading}
-                    onClick={submitOrder}
-                    className={
+                    variant={
                       type === "buy"
-                        ? "execute-buy"
-                        : "execute-sell"
+                        ? "buy"
+                        : "sell"
                     }
+                    fullWidth
+                    loading={loading}
+                    onClick={submitOrder}
                   >
-                    {loading
-                      ? translateWithFallback(
-                          "processing",
-                          "Processing...",
-                          "common"
-                        )
-                      : type === "buy"
+                    {type === "buy"
                       ? `${translateWithFallback(
                           "buy",
                           "Buy"
@@ -2254,22 +2303,23 @@ function Trade({ setPage }) {
                           "sell",
                           "Sell"
                         )} ${selectedSymbol}`}
-                  </button>
+                  </Button>
 
                   {selectedSymbol ===
                     "EXALT" &&
                     wallet && (
-                      <button
+                      <Button
                         type="button"
+                        variant="outline"
+                        fullWidth
                         disabled={loading}
                         onClick={buyExalt}
-                        className="pancake-buy-btn"
                       >
                         {translateWithFallback(
                           "buyExaltOnPancake",
                           "Buy EXALT on PancakeSwap"
                         )}
-                      </button>
+                      </Button>
                     )}
                 </div>
               </section>

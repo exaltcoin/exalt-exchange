@@ -5,26 +5,12 @@ import { useI18n } from "../i18n";
 import "./AILaunchpad.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
 const formatMoney = (value) => `$${Number(value || 0).toLocaleString()}`;
 
 export default function AILaunchpad() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "ai",
-            defaultValue: options,
-          }
-        : {
-            ns: "ai",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 
   const [projects, setProjects] = useState([]);
   const [form, setForm] = useState({

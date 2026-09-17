@@ -17,10 +17,38 @@ import ResetPassword from "./components/ResetPassword";
 import ForgotPassword from "./components/ForgotPassword";
 import VerifyResetCode from "./components/VerifyResetCode";
 import AuthPanel from "./components/AuthPanel";
+import { AppShell } from "./design-system/AppShell.jsx";
+import { useTheme } from "./design-system/ThemeProvider.jsx";
+import { Button } from "./design-system/Button.jsx";
+import { buildShellNavItems } from "./navigation/buildShellNavItems.js";
 
 const Dashboard = lazy(() =>
   import("./components/Dashboard").then((module) => ({
     default: module.default || module.Dashboard,
+  }))
+);
+
+const Assets = lazy(() =>
+  import("./components/Assets").then((module) => ({
+    default: module.default || module.Assets,
+  }))
+);
+
+const TradFi = lazy(() =>
+  import("./components/TradFi").then((module) => ({
+    default: module.default || module.TradFi,
+  }))
+);
+
+const ServicesHub = lazy(() =>
+  import("./components/ServicesHub").then((module) => ({
+    default: module.default || module.ServicesHub,
+  }))
+);
+
+const ExaltCard = lazy(() =>
+  import("./components/ExaltCard").then((module) => ({
+    default: module.default || module.ExaltCard,
   }))
 );
 
@@ -297,7 +325,7 @@ import BreadcrumbSchema from "./components/SEO/BreadcrumbSchema";
 import FAQSchema from "./components/SEO/FAQSchema";
 import { getBlogPostBySlug } from "./pages/blog/blogData";
 const DEFAULT_API_BASE =
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const normalizeApiBase = (value) => {
   const base = String(value || DEFAULT_API_BASE)
@@ -435,6 +463,7 @@ const PUBLIC_ROUTE_SEO = {
 };
 function App() {
   const { t } = useI18n();
+  const { theme, toggleTheme } = useTheme();
 
   const path =
     window.location.pathname.replace(/\/+$/, "") || "/";
@@ -1484,6 +1513,22 @@ return (
       return <Wallets />;
     }
 
+    if (page === "assets") {
+      return <Assets setPage={setPage} />;
+    }
+
+    if (page === "tradfi") {
+      return <TradFi />;
+    }
+
+    if (page === "services") {
+      return <ServicesHub setPage={setPage} />;
+    }
+
+    if (page === "exalt-card") {
+      return <ExaltCard />;
+    }
+
     if (page === "web3wallet") {
       return <Web3Wallet setPage={setPage} />;
     }
@@ -1617,7 +1662,7 @@ return (
     }
 
     if (page === "notification-center") {
-      return <NotificationCenter />;
+      return <NotificationCenter setPage={setPage} />;
     }
 
     if (page === "admin-p2p") {
@@ -1658,18 +1703,19 @@ return (
 
     return (
       <div className="panel">
-        <h2>
-          {String(page || "PAGE").toUpperCase()}
-        </h2>
+        <h2>Page unavailable</h2>
 
-        <p>This section is coming soon.</p>
+        <p>
+          This navigation target is not registered in the current exchange
+          interface.
+        </p>
 
         <button
           type="button"
           className="buy-btn"
-          onClick={() => setPage("transactions")}
+          onClick={() => setPage("dashboard")}
         >
-          Open Transaction History
+          Return to Dashboard
         </button>
       </div>
     );
@@ -1681,6 +1727,9 @@ return (
     ["markets", "📈 Markets"],
     ["trade", "💱 Spot Trading"],
     ["futures", "📉 Futures"],
+    ["tradfi", "📊 TradFi"],
+    ["services", "🧰 Services"],
+    ["exalt-card", "💳 EXALT Card"],
     ["buy", "💳 Buy Crypto"],
     ["p2p", "🌍 P2P"],
     ["staking", "🔒 Staking"],
@@ -1725,6 +1774,7 @@ return (
       "🔔 Notification Center",
     ],
     ["wallets", "👛 Wallets"],
+    ["assets", "💰 Assets"],
     ["web3wallet", "🌐 Web3 Wallet"],
     ["orders", "📦 Orders"],
     ["kyc-submit", "📝 Submit KYC"],
@@ -1767,6 +1817,30 @@ const openPage = (pageName) => {
   setPage(pageName);
   setMenuOpen(false);
 };
+
+/*
+  App Shell migration: navigation-building logic (icon/label
+  parsing, access gating, shape conversion for AppShell.jsx) lives
+  in navigation/buildShellNavItems.js so it's directly unit
+  testable - see tests/appShellIntegration.test.mjs. The
+  menuItems/adminMenuItems/etc. tuples above remain the one and
+  only navigation data source; nothing is duplicated.
+*/
+const shellNavItems = buildShellNavItems({
+  menuItems,
+  adminMenuItems,
+  ownerMenuItems,
+  superAdminMenuItems,
+  moderatorMenuItems,
+  access: {
+    admin: hasAdminAccess,
+    owner: hasOwnerAccess,
+    superAdmin: hasSuperAdminAccess,
+    moderator: hasModeratorAccess,
+  },
+  translate: translateWithFallback,
+  onSelect: openPage,
+});
 
 if (authChecking && isLoggedIn) {
   return (
@@ -1856,230 +1930,60 @@ return (
           : "inner-page-shell"
       }`}
     >
- 
-      <button
-        type="button"
-        className="mobile-menu-btn"
-        aria-label="Open navigation menu"
-        aria-expanded={menuOpen}
-        onClick={() =>
-          setMenuOpen((open) => !open)
+      <AppShell
+        navItems={shellNavItems}
+        activeKey={page}
+        mobileMenuOpen={menuOpen}
+        onMobileMenuOpenChange={setMenuOpen}
+        logo={
+          <img
+            src={exchangeLogo}
+            alt="Exalt Exchange"
+            className="main-logo"
+          />
         }
-      >
-        ☰
-      </button>
-
-      <aside
-        className={`sidebar ${
-          menuOpen ? "open" : ""
-        }`}
-      >
-        <img
-          src={exchangeLogo}
-          alt="Exalt Exchange"
-          className="main-logo"
-        />
-
-        <div className="menu">
-          {menuItems.map(([key, label]) => {
-            const firstSpaceIndex =
-              label.indexOf(" ");
-
-            const icon =
-              firstSpaceIndex >= 0
-                ? label.slice(0, firstSpaceIndex)
-                : "";
-
-            const fallbackLabel =
-              firstSpaceIndex >= 0
-                ? label.slice(firstSpaceIndex + 1)
-                : label;
-
-            return (
-              <button
-                type="button"
-                key={key}
-                className={`menu-btn ${
-                  page === key ? "active" : ""
-                }`}
-                onClick={() => openPage(key)}
-              >
-                <span aria-hidden="true">
-                  {icon}
-                </span>{" "}
-                {translateWithFallback(
-                  key,
-                  fallbackLabel,
-                  "navigation"
-                )}
-              </button>
-            );
-          })}
-
-          {hasAdminAccess &&
-            adminMenuItems.map(([key, label]) => {
-              const firstSpaceIndex =
-                label.indexOf(" ");
-
-              const icon =
-                firstSpaceIndex >= 0
-                  ? label.slice(
-                      0,
-                      firstSpaceIndex
-                    )
-                  : "";
-
-              const fallbackLabel =
-                firstSpaceIndex >= 0
-                  ? label.slice(
-                      firstSpaceIndex + 1
-                    )
-                  : label;
-
-              return (
-                <button
-                  type="button"
-                  key={key}
-                  className={`menu-btn ${
-                    page === key ? "active" : ""
-                  }`}
-                  onClick={() => openPage(key)}
-                >
-                  <span aria-hidden="true">
-                    {icon}
-                  </span>{" "}
-                  {translateWithFallback(
-                    key,
-                    fallbackLabel,
-                    "navigation"
-                  )}
-                </button>
-              );
-            })}
-
-          {hasOwnerAccess &&
-            ownerMenuItems.map(([key, label]) => {
-              const firstSpaceIndex = label.indexOf(" ");
-
-              const icon =
-                firstSpaceIndex >= 0
-                  ? label.slice(0, firstSpaceIndex)
-                  : "";
-
-              const fallbackLabel =
-                firstSpaceIndex >= 0
-                  ? label.slice(firstSpaceIndex + 1)
-                  : label;
-
-              return (
-                <button
-                  type="button"
-                  key={key}
-                  className={`menu-btn ${
-                    page === key ? "active" : ""
-                  }`}
-                  onClick={() => openPage(key)}
-                >
-                  <span aria-hidden="true">{icon}</span>{" "}
-                  {translateWithFallback(
-                    key,
-                    fallbackLabel,
-                    "navigation"
-                  )}
-                </button>
-              );
-            })}
-
-          {hasSuperAdminAccess &&
-            superAdminMenuItems.map(([key, label]) => {
-              const firstSpaceIndex = label.indexOf(" ");
-
-              const icon =
-                firstSpaceIndex >= 0
-                  ? label.slice(0, firstSpaceIndex)
-                  : "";
-
-              const fallbackLabel =
-                firstSpaceIndex >= 0
-                  ? label.slice(firstSpaceIndex + 1)
-                  : label;
-
-              return (
-                <button
-                  type="button"
-                  key={key}
-                  className={`menu-btn ${
-                    page === key ? "active" : ""
-                  }`}
-                  onClick={() => openPage(key)}
-                >
-                  <span aria-hidden="true">{icon}</span>{" "}
-                  {translateWithFallback(
-                    key,
-                    fallbackLabel,
-                    "navigation"
-                  )}
-                </button>
-              );
-            })}
-
-          {hasModeratorAccess &&
-            moderatorMenuItems.map(([key, label]) => {
-              const firstSpaceIndex = label.indexOf(" ");
-
-              const icon =
-                firstSpaceIndex >= 0
-                  ? label.slice(0, firstSpaceIndex)
-                  : "";
-
-              const fallbackLabel =
-                firstSpaceIndex >= 0
-                  ? label.slice(firstSpaceIndex + 1)
-                  : label;
-
-              return (
-                <button
-                  type="button"
-                  key={key}
-                  className={`menu-btn ${
-                    page === key ? "active" : ""
-                  }`}
-                  onClick={() => openPage(key)}
-                >
-                  <span aria-hidden="true">{icon}</span>{" "}
-                  {translateWithFallback(
-                    key,
-                    fallbackLabel,
-                    "navigation"
-                  )}
-                </button>
-              );
-            })}
-        </div>
-
-        <div className="coin-box">
-          {wallet && (
-            <>
+        notificationSlot={<NotificationBell setPage={setPage} />}
+        accountSlot={
+          <Button variant="ghost" size="sm" onClick={logout}>
+            {translateWithFallback("logout", "Logout", "auth")}
+          </Button>
+        }
+        languageSlot={<LanguageSwitcher compact />}
+        themeSlot={
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={
+              theme === "dark"
+                ? "Switch to light mode"
+                : "Switch to dark mode"
+            }
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </Button>
+        }
+        sidebarFooter={
+          wallet ? (
+            <div className="coin-box">
               <p>{shortWallet}</p>
               <p>{bnbBalance} BNB</p>
-            </>
-          )}
-        </div>
-      </aside>
+            </div>
+          ) : null
+        }
+      >
+        <Suspense
+          fallback={
+            <div className="panel">
+              <h2>Loading Exalt Exchange...</h2>
+              <p>Please wait while this section loads.</p>
+            </div>
+          }
+        >
+          {renderPage()}
+        </Suspense>
 
-    <main className="main">
-  <Suspense
-    fallback={
-      <div className="panel">
-        <h2>Loading Exalt Exchange...</h2>
-        <p>Please wait while this section loads.</p>
-      </div>
-    }
-  >
-    {renderPage()}
-  </Suspense>
-
-  <footer className="legal-footer-links">
+        <footer className="legal-footer-links">
           <a href="/legal">Legal Center</a>
           <a href="/privacy">
             Privacy Policy
@@ -2097,7 +2001,7 @@ return (
             Compliance
           </a>
         </footer>
-          </main>
+      </AppShell>
     </div>
   </>
   );

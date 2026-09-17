@@ -5,7 +5,7 @@ import { useI18n } from "../i18n";
 import "./AIPortfolioManager.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
 const demoPortfolio = {
   totalValue: 24580,
@@ -26,21 +26,7 @@ const demoPortfolio = {
 };
 
 export default function AIPortfolioManager() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "ai",
-            defaultValue: options,
-          }
-        : {
-            ns: "ai",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 
   const [portfolio, setPortfolio] = useState(demoPortfolio);
   const [loading, setLoading] = useState(false);

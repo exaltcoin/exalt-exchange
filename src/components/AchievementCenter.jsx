@@ -5,24 +5,10 @@ import { useI18n } from "../i18n";
 import "./AchievementCenter.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
 export default function AchievementCenter() {
-  const { t: i18nT } = useI18n();
-
-  const t = (key, options = {}) =>
-    i18nT(
-      key,
-      typeof options === "string"
-        ? {
-            ns: "learnEarn",
-            defaultValue: options,
-          }
-        : {
-            ns: "learnEarn",
-            ...options,
-          }
-    );
+  const { t } = useI18n();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
