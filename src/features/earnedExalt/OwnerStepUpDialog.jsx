@@ -9,7 +9,7 @@ import "../../design-system/ConfirmationDialog.css";
 const VALID_TOTP = /^\d{6}$/;
 const INVALID_GRANT_MESSAGE = "Invalid step-up grant. Please try again.";
 
-export function OwnerStepUpDialog({ open, onCancel, onVerified }) {
+export function OwnerStepUpDialog({ open, onCancel, onVerified, scope = "earned_exalt" }) {
   const [totp, setTotp] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -36,14 +36,16 @@ export function OwnerStepUpDialog({ open, onCancel, onVerified }) {
     setSubmitting(true);
     setError("");
     try {
-      const result = await requestOwnerStepUp({ token: totp });
+      const result = await requestOwnerStepUp(
+        scope === "earned_exalt" ? { token: totp } : { token: totp, scope }
+      );
       setTotp("");
       const expiresAt = new Date(result?.expiresAt).getTime();
       if (
         result?.success !== true ||
         typeof result.stepUpToken !== "string" ||
         !result.stepUpToken ||
-        result.scope !== "earned_exalt" ||
+        result.scope !== scope ||
         !Number.isFinite(expiresAt) ||
         expiresAt <= Date.now()
       ) {
