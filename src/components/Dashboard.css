@@ -29,10 +29,41 @@
   --dash-red: var(--ex-red, #ef4444);
 }
 
-.dashboard-page,
-.dashboard-page *,
-.mobile-home-view,
-.mobile-home-view *,
+/*
+  Batch 1 (Home foundation) - real user header (real uid, real
+  profileImage when present, initial-letter fallback avatar when
+  not - never a fabricated image). Uses logical properties
+  throughout (margin-inline-*, not margin-left/right) so this is
+  correct under RTL with zero separate RTL rule needed.
+*/
+.dashboard-user-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-3, 12px);
+  padding-block: var(--ex2-space-2, 8px);
+}
+
+.dashboard-user-header__avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0b90b, #f59e0b);
+  color: #111827;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.dashboard-user-header__avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .mobile-bottom-nav,
 .mobile-bottom-nav * {
   box-sizing: border-box;
@@ -46,63 +77,12 @@
   color: var(--dash-red) !important;
 }
 
-.dashboard-empty-state {
-  margin: 0;
-  padding: 22px 12px;
-  color: var(--dash-muted);
-  text-align: center;
-  font-size: 14px;
-}
-
 /* =========================================================
    DESKTOP DASHBOARD
 ========================================================= */
 
-.desktop-dashboard-view {
-  display: block;
-  width: 100%;
-  min-width: 0;
-}
-
-.mobile-home-view,
 .mobile-bottom-nav {
   display: none;
-}
-
-.dashboard-page {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  padding: 0;
-  color: var(--dash-text);
-}
-
-.hero-banner {
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 22px;
-  padding: 26px;
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(240, 185, 11, 0.12),
-      transparent 36%
-    ),
-    linear-gradient(135deg, #171e30, #0f1524);
-  border: 1px solid var(--dash-border);
-  border-radius: 22px;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
-  overflow: hidden;
-}
-
-.hero-content {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 18px;
 }
 
 .exchange-logo {
@@ -111,22 +91,6 @@
   object-fit: contain;
   flex: 0 0 82px;
   display: block;
-}
-
-.hero-banner h1 {
-  margin: 0 0 8px;
-  color: var(--dash-yellow);
-  font-size: clamp(28px, 3vw, 38px);
-  font-weight: 900;
-  line-height: 1.15;
-  overflow-wrap: anywhere;
-}
-
-.hero-banner p {
-  margin: 0;
-  color: #aeb6ca;
-  line-height: 1.55;
-  overflow-wrap: anywhere;
 }
 
 .hero-banner .live-status {
@@ -175,12 +139,6 @@
   white-space: nowrap;
 }
 
-.hero-refresh-btn:disabled {
-  cursor: wait;
-  opacity: 0.7;
-  transform: none;
-}
-
 .yellow-btn {
   background: var(--dash-yellow);
   color: #111;
@@ -194,11 +152,6 @@
 
 .blue-btn {
   background: var(--dash-blue);
-  color: #fff;
-}
-
-.red-btn {
-  background: var(--dash-red);
   color: #fff;
 }
 
@@ -258,66 +211,6 @@
   overflow-wrap: anywhere;
 }
 
-.stat-card-web3-note {
-  margin-top: 10px;
-  color: #6b7280;
-  font-size: 11px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-
-.stat-card-web3-link {
-  padding: 0;
-  border: none;
-  background: none;
-  color: #f0b90b;
-  font-size: 11px;
-  font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.glow-yellow {
-  box-shadow: 0 0 25px rgba(240, 185, 11, 0.12);
-}
-
-.glow-blue {
-  box-shadow: 0 0 25px rgba(59, 130, 246, 0.12);
-}
-
-.glow-green {
-  box-shadow: 0 0 25px rgba(34, 197, 94, 0.12);
-}
-
-.glow-red {
-  box-shadow: 0 0 25px rgba(239, 68, 68, 0.12);
-}
-
-.reward-stat-card::after {
-  content: "REWARD";
-  position: absolute;
-  top: 12px;
-  inset-inline-end: 14px;
-  color: rgba(255, 255, 255, 0.42);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.dashboard-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
-  gap: 18px;
-}
-
-.big-panel {
-  min-width: 0;
-  padding: 20px;
-  background: var(--dash-panel);
-  border: 1px solid var(--dash-border);
-  border-radius: 20px;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
-}
 
 .panel-header {
   display: flex;
@@ -334,98 +227,9 @@
   overflow-wrap: anywhere;
 }
 
-.panel-header-link {
-  margin: 0 0 16px;
-  padding: 6px 14px;
-  background: transparent;
-  border: 1px solid var(--dash-border);
-  border-radius: 999px;
-  color: var(--dash-yellow, #f0b90b);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.panel-header-link:hover {
-  border-color: var(--dash-yellow, #f0b90b);
-}
-
-.coin-row {
-  display: grid;
-  grid-template-columns: minmax(80px, 1fr) minmax(120px, 1fr) 0.7fr;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  color: #fff;
-}
-
-.coin-row:last-child {
-  border-bottom: none;
-}
-
-.coin-row span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.coin-row span:last-child {
-  text-align: end;
-}
-
 /* =========================================================
    WELCOME OVERLAY
 ========================================================= */
-
-.exchange-welcome-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 999999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(240, 185, 11, 0.08),
-      transparent 35%
-    ),
-    #050816;
-  animation: dashboardFadeOut 2.2s forwards;
-}
-
-.exchange-welcome-logo {
-  width: 95px;
-  height: 95px;
-  object-fit: contain;
-  border-radius: 22px;
-  margin-bottom: 20px;
-  animation: dashboardLogoPop 0.7s ease;
-}
-
-.exchange-welcome-overlay h3 {
-  margin: 0;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.exchange-welcome-overlay h1 {
-  margin: 10px 0;
-  color: #f6b33d;
-  font-size: 34px;
-  font-weight: 800;
-  text-align: center;
-}
-
-.exchange-welcome-overlay p {
-  margin: 6px 0 0;
-  color: #8b96b3;
-  font-size: 15px;
-  text-align: center;
-}
 
 @keyframes dashboardLogoPop {
   from {
@@ -490,20 +294,6 @@
     display: none !important;
   }
 
-  .mobile-home-view {
-    display: block !important;
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    min-height: 100dvh;
-    margin: 0;
-    padding:
-      0 14px
-      calc(96px + env(safe-area-inset-bottom));
-    overflow-x: clip;
-    background: var(--dash-bg);
-    color: #fff;
-  }
 
   .mobile-premium-header {
     position: relative;
@@ -570,33 +360,8 @@
     flex-shrink: 0;
   }
 
-  .mobile-profile-btn,
-  .mobile-logout-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    border-radius: 12px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 900;
-  }
 
-  .mobile-profile-btn {
-    background: #151b2b;
-    border: 1px solid rgba(240, 185, 11, 0.2);
-    color: #fff;
-  }
 
-  .mobile-logout-btn {
-    background: rgba(239, 68, 68, 0.16);
-    border: 1px solid rgba(239, 68, 68, 0.45);
-    color: #ff6b6b;
-  }
 
   .mobile-tabs {
     width: 100%;
@@ -707,28 +472,7 @@
     color: #fff;
   }
 
-  .mobile-action-grid {
-    width: 100%;
-    min-width: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin: 0 0 16px;
-  }
 
-  .mobile-action-grid button {
-    width: 100%;
-    min-width: 0;
-    min-height: 86px;
-    margin: 0;
-    padding: 11px 6px;
-    background: #151b2b;
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 16px;
-    cursor: pointer;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
-  }
 
   .mobile-action-icon {
     display: block;
@@ -756,45 +500,9 @@
     margin-bottom: 16px;
   }
 
-  .mobile-feature-card {
-    width: 100%;
-    min-width: 0;
-    margin: 0;
-    padding: 16px 10px;
-    background: linear-gradient(145deg, #1c2333, #131a26);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    color: inherit;
-    text-align: center;
-    cursor: pointer;
-  }
 
-  .mobile-feature-card .icon {
-    width: 46px;
-    height: 46px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    background: rgba(240, 185, 11, 0.12);
-    color: var(--dash-yellow);
-    font-size: 22px;
-  }
 
-  .mobile-feature-card h3 {
-    margin: 10px 0 7px;
-    color: #fff;
-    font-size: 15px;
-  }
 
-  .mobile-feature-card p {
-    margin: 0;
-    color: #9ca3af;
-    font-size: 11px;
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-  }
 
   .mobile-trending-section {
     width: 100%;
@@ -842,7 +550,15 @@
     width: 100%;
     max-width: none;
     display: grid !important;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    /*
+      Batch 1 fix: was hardcoded to repeat(6, ...) from the old
+      6-item bottomNavigation array - left over after that array
+      was reduced to the 5-item spec (Home/Markets/Trade/Futures/
+      Assets), which would have rendered 5 real items into a
+      6-column grid, leaving one empty column and unbalancing the
+      bar.
+    */
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     padding:
       8px 6px
       calc(8px + env(safe-area-inset-bottom));
@@ -877,9 +593,6 @@
 ========================================================= */
 
 @media (max-width: 420px) {
-  .mobile-home-view {
-    padding-inline: 10px;
-  }
 
   .mobile-brand-logo {
     width: 48px;
@@ -897,20 +610,8 @@
     font-size: 9px;
   }
 
-  .mobile-profile-btn,
-  .mobile-logout-btn {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-  }
 
-  .mobile-action-grid {
-    gap: 8px;
-  }
 
-  .mobile-action-grid button {
-    min-height: 82px;
-  }
 
   .mobile-action-label {
     font-size: 9px;
@@ -921,55 +622,25 @@
    RTL SUPPORT
 ========================================================= */
 
-html[dir="rtl"] .dashboard-page,
-html[dir="rtl"] .mobile-home-view {
-  text-align: right;
-}
-
-html[dir="rtl"] .hero-content,
-html[dir="rtl"] .mobile-brand-row,
-html[dir="rtl"] .mobile-brand,
-html[dir="rtl"] .mobile-header-actions,
-html[dir="rtl"] .mobile-coin-row {
-  direction: rtl;
-}
-
-html[dir="rtl"] .coin-row span:last-child {
-  text-align: left;
-}
 
 html[dir="rtl"] .hero-banner .hero-refresh-btn {
   justify-self: start;
 }
 
-html[dir="rtl"] .reward-stat-card::after {
-  right: auto;
-  left: 14px;
-}
 
 /* =========================================================
    ACCESSIBILITY
 ========================================================= */
 
 .action-btn:focus-visible,
-.mobile-feature-card:focus-visible,
-.mobile-action-grid button:focus-visible,
-.mobile-bottom-nav button:focus-visible,
-.mobile-profile-btn:focus-visible,
-.mobile-logout-btn:focus-visible,
-.mobile-tab:focus-visible {
-  outline: 2px solid var(--dash-yellow);
-  outline-offset: 2px;
+.mobile-bottom-nav button:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .action-btn,
-  .stat-card,
-  .mobile-action-grid button,
-  .mobile-feature-card,
-  .mobile-balance-actions button,
-  .exchange-welcome-logo,
-  .exchange-welcome-overlay {
+  .stat-card {
     animation: none !important;
     transition: none !important;
   }
@@ -1061,14 +732,6 @@ html[dir="rtl"] .reward-stat-card::after {
     white-space: nowrap !important;
   }
 
-  .mobile-profile-btn,
-  .mobile-logout-btn {
-    width: 36px !important;
-    min-width: 36px !important;
-    height: 36px !important;
-    padding: 0 !important;
-    flex-shrink: 0;
-  }
 }
 
 @media (max-width: 380px) {
@@ -1092,20 +755,9 @@ html[dir="rtl"] .reward-stat-card::after {
     max-width: 74px !important;
   }
 }
-
-html[dir="rtl"] .mobile-brand-row {
-  direction: rtl;
-}
-
-html[dir="rtl"] .mobile-header-actions {
-  direction: rtl;
-}
 /* ===== DASHBOARD MOBILE HEADER FINAL ALIGNMENT ===== */
 
 @media (max-width: 768px) {
-  .mobile-home-view {
-    padding-top: 0;
-  }
 
   .mobile-premium-header {
     display: block;
@@ -1169,32 +821,8 @@ html[dir="rtl"] .mobile-header-actions {
     width: auto;
   }
 
-  .mobile-profile-btn,
-  .mobile-logout-btn {
-    position: static !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    margin: 0;
-    border-radius: 10px;
-  }
 
-  .mobile-profile-btn {
-    background: rgba(59, 130, 246, 0.16);
-    border: 1px solid rgba(96, 165, 250, 0.3);
-    color: #fff;
-  }
 
-  .mobile-logout-btn {
-    background: linear-gradient(135deg, #facc15, #f59e0b);
-    border: none;
-    color: #111827;
-    font-size: 16px;
-  }
 
   .mobile-language-switcher {
     grid-column: 1 / -1;
@@ -1219,22 +847,6 @@ html[dir="rtl"] .mobile-header-actions {
    DASHBOARD BLOG SECTION
 ========================================================= */
 
-.dashboard-blog-section{
-  margin-top:24px;
-  padding:22px;
-  background:linear-gradient(145deg,#151b2b,#101624);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;
-}
-
-.dashboard-blog-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:20px;
-  margin-bottom:20px;
-}
-
 .dashboard-blog-eyebrow{
   display:inline-block;
   color:#f0b90b;
@@ -1242,33 +854,6 @@ html[dir="rtl"] .mobile-header-actions {
   font-weight:800;
   letter-spacing:1px;
   text-transform:uppercase;
-}
-
-.dashboard-blog-header h2,
-.dashboard-blog-header h3{
-  margin:6px 0;
-  color:#fff;
-}
-
-.dashboard-blog-header p{
-  margin:0;
-  color:#9ca3af;
-}
-
-.dashboard-blog-view-all{
-  padding:10px 18px;
-  border:none;
-  border-radius:12px;
-  background:#f0b90b;
-  color:#111;
-  font-weight:800;
-  cursor:pointer;
-}
-
-.dashboard-blog-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:20px;
 }
 
 .dashboard-blog-card{
@@ -1283,33 +868,8 @@ html[dir="rtl"] .mobile-header-actions {
   transform:translateY(-4px);
 }
 
-.dashboard-blog-image-button{
-  display:block;
-  width:100%;
-  padding:0;
-  border:none;
-  background:none;
-  cursor:pointer;
-}
-
-.dashboard-blog-image{
-  display:block;
-  width:100%;
-  height:190px;
-  object-fit:cover;
-}
-
 .dashboard-blog-card-content{
   padding:18px;
-}
-
-.dashboard-blog-meta{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:10px;
-  color:#9ca3af;
-  font-size:12px;
 }
 
 .dashboard-blog-card h3,
@@ -1324,45 +884,10 @@ html[dir="rtl"] .mobile-header-actions {
   line-height:1.6;
 }
 
-.dashboard-blog-read-more{
-  margin-top:16px;
-  padding:0;
-  border:none;
-  background:none;
-  color:#f0b90b;
-  font-weight:800;
-  cursor:pointer;
-}
-
 @media (max-width:1200px){
-
-.dashboard-blog-grid{
-grid-template-columns:repeat(2,minmax(0,1fr));
-}
 
 }
 
 @media (max-width:768px){
-
-.dashboard-blog-section{
-padding:16px;
-}
-
-.dashboard-blog-header{
-flex-direction:column;
-align-items:flex-start;
-}
-
-.dashboard-blog-grid{
-grid-template-columns:1fr;
-}
-
-.dashboard-blog-image{
-height:180px;
-}
-
-.dashboard-blog-view-all{
-width:100%;
-}
 
 }

@@ -1,6 +1,6 @@
 {
   "name": "exalt-exchange-frontend-phase1",
-  "version": "1.0.21",
+  "version": "1.0.23",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,6 +8,8 @@
     "build": "vite build",
     "test:navigation": "node --test tests/navigationParity.test.mjs",
     "test:security": "node --test tests/web3Security.test.mjs",
+    "check:security": "node scripts/security-release-check.mjs",
+    "test:design-system": "node tests/helpers/runDesignSystemTests.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,11 +17,12 @@
     "@capacitor/browser": "^8.0.3",
     "@capacitor/cli": "^7.6.7",
     "@capacitor/core": "^8.4.1",
+    "@floating-ui/react": "^0.27.20",
     "@vitejs/plugin-react": "latest",
-    "@walletconnect/ethereum-provider": "^2.23.10",
+    "@walletconnect/ethereum-provider": "^2.25.0",
     "@zxing/browser": "^0.2.0",
-    "axios": "^1.18.0",
-    "ethers": "^6.16.0",
+    "axios": "^1.20.0",
+    "ethers": "^6.17.0",
     "firebase": "^12.14.0",
     "i18next": "^26.3.6",
     "i18next-browser-languagedetector": "^8.2.1",
@@ -35,14 +38,25 @@
     "react-i18next": "^17.0.9",
     "react-phone-input-2": "^2.15.1",
     "react-qr-code": "^2.2.0",
-    "react-router-dom": "^7.18.1",
+    "react-router-dom": "^7.18.4",
     "react-select": "^5.10.2",
     "react-select-country-list": "^2.2.3",
     "socket.io-client": "^4.8.3",
     "web3": "^4.16.0"
   },
   "devDependencies": {
-    "lighthouse": "^12.8.2",
+    "@babel/core": "^8.0.1",
+    "@babel/parser": "^8.0.4",
+    "@babel/preset-react": "^8.0.1",
+    "@babel/traverse": "^7.29.7",
+    "@testing-library/react": "^16.3.3",
+    "jsdom": "^30.0.1",
     "vite": "^8.0.16"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "1.0.3",
+    "@rolldown/binding-win32-x64-msvc": "1.0.3",
+    "lightningcss-linux-x64-gnu": "1.32.0",
+    "lightningcss-win32-x64-msvc": "1.32.0"
   }
 }

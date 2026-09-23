@@ -5,7 +5,7 @@ import { useI18n } from "../i18n";
 import "./AICopyTrading.css";
 
 const API_BASE =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
 const demoTraders = [
   { traderId: "ai-1", traderName: "AI Alpha Trader", traderAvatar: "A", roi: 18.7, winRate: 74, risk: "Medium", followers: 1280, suggestedCopy: 50, symbol: "BTCUSDT" },

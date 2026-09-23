@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import PageShell from "./PageShell";
 import { useI18n } from "../i18n";
+import { apiFetch } from "../lib/apiClient.js";
 import "./Referral.css";
-
-const RAW_API =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
-
-const API = RAW_API.endsWith("/api") ? RAW_API : `${RAW_API}/api`;
 
 function Referral() {
   const { t } = useI18n();
@@ -40,15 +36,7 @@ function Referral() {
   const loadReferral = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(`${API}/referrals/me`, {
-        headers: {
-          Authorization: `Bearer ${token || ""}`,
-        },
-      });
-
-      const data = await res.json();
+      const data = await apiFetch("/api/referrals/me");
 
       if (data.success) {
         setReferral(data.referral);
@@ -88,8 +76,41 @@ function Referral() {
     window.open(urls[platform], "_blank");
   };
 
+  const [members, setMembers] = useState([]);
+  const [membersLoadState, setMembersLoadState] = useState("loading");
+  const [memberSearch, setMemberSearch] = useState("");
+  const [memberPage, setMemberPage] = useState(1);
+  const [memberTotalPages, setMemberTotalPages] = useState(1);
+
+  const loadMembers = async (page = 1, search = "") => {
+    setMembersLoadState("loading");
+
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: "10" });
+      if (search.trim()) params.set("search", search.trim());
+
+      const data = await apiFetch(
+        `/api/referrals/my-members?${params.toString()}`
+      );
+
+      if (!data?.success) {
+        setMembersLoadState("unavailable");
+        return;
+      }
+
+      setMembers(data.members || []);
+      setMemberTotalPages(data.totalPages || 1);
+      setMemberPage(data.page || 1);
+      setMembersLoadState("ready");
+    } catch (error) {
+      console.log("Referral members load error:", error);
+      setMembersLoadState("unavailable");
+    }
+  };
+
   useEffect(() => {
     loadReferral();
+    loadMembers(1, "");
   }, []);
 
   return (
@@ -174,6 +195,81 @@ function Referral() {
             <button onClick={() => shareReferral("x")}>X</button>
             <button onClick={() => shareReferral("facebook")}>Facebook</button>
           </div>
+        </div>
+
+        <div className="referral-members-box">
+          <h2>{t("yourReferredMembers")}</h2>
+
+          <div className="referral-members-search">
+            <input
+              type="search"
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") loadMembers(1, memberSearch);
+              }}
+              placeholder={t("searchYourMembers")}
+              aria-label={t("searchYourMembers")}
+            />
+            <button onClick={() => loadMembers(1, memberSearch)}>
+              {t("search")}
+            </button>
+          </div>
+
+          {membersLoadState === "loading" ? (
+            <p>{t("loading")}</p>
+          ) : membersLoadState === "unavailable" ? (
+            <p>{t("unavailable")}</p>
+          ) : members.length === 0 ? (
+            <p>{t("noReferredMembersYet")}</p>
+          ) : (
+            <>
+              <table className="referral-members-table">
+                <thead>
+                  <tr>
+                    <th>{t("name")}</th>
+                    <th>{t("email")}</th>
+                    <th>{t("kycStatus")}</th>
+                    <th>{t("joined")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {members.map((member) => (
+                    <tr key={member._id}>
+                      <td>{member.name}</td>
+                      <td>{member.email}</td>
+                      <td>{member.kycStatus || t("notSubmitted")}</td>
+                      <td>
+                        {member.createdAt
+                          ? new Date(member.createdAt).toLocaleDateString()
+                          : "\u2014"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {memberTotalPages > 1 ? (
+                <div className="referral-members-pagination">
+                  <button
+                    disabled={memberPage <= 1}
+                    onClick={() => loadMembers(memberPage - 1, memberSearch)}
+                  >
+                    {t("previous")}
+                  </button>
+                  <span>
+                    {memberPage} / {memberTotalPages}
+                  </span>
+                  <button
+                    disabled={memberPage >= memberTotalPages}
+                    onClick={() => loadMembers(memberPage + 1, memberSearch)}
+                  >
+                    {t("next")}
+                  </button>
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
 
         <div className="referral-history">

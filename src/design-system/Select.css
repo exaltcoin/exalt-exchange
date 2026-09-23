@@ -1,0 +1,56 @@
+.ex2-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: var(--ex2-surface-2);
+  border: var(--ex2-border-width) solid var(--ex2-border-default);
+  border-radius: var(--ex2-radius-md);
+}
+
+.ex2-select-wrap:focus-within {
+  border-color: var(--ex2-accent);
+  box-shadow: var(--ex2-focus-ring);
+}
+
+.ex2-select-wrap--invalid {
+  border-color: var(--ex2-danger);
+}
+
+.ex2-select-wrap--disabled {
+  opacity: 0.5;
+}
+
+.ex2-select-wrap--sm {
+  height: 32px;
+}
+.ex2-select-wrap--md {
+  height: 40px;
+}
+.ex2-select-wrap--lg {
+  height: 48px;
+}
+
+.ex2-select {
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--ex2-text-primary);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-base);
+  padding-inline-start: var(--ex2-space-3);
+  padding-inline-end: var(--ex2-space-8);
+}
+
+.ex2-select:focus {
+  outline: none;
+}
+
+.ex2-select__chevron {
+  position: absolute;
+  inset-inline-end: var(--ex2-space-3);
+  pointer-events: none;
+  color: var(--ex2-text-tertiary);
+  font-size: var(--ex2-text-xs);
+}

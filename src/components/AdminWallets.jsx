@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import API_BASE_URL from "../api";
 import "./AdminWallets.css";
+import OwnerStepUpDialog from "../features/earnedExalt/OwnerStepUpDialog.jsx";
 
 function AdminWallets() {
   const API_BASE = API_BASE_URL || "https://api.exaltexchange.io";
@@ -21,6 +22,36 @@ function AdminWallets() {
   const [action, setAction] = useState("credit");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
+  const [reconciliation, setReconciliation] = useState(null);
+  const [pendingRepair, setPendingRepair] = useState(null);
+  const [stepUpOpen, setStepUpOpen] = useState(false);
+
+  const loadReconciliation = async () => {
+    const res = await fetch(`${API}/api/admin/reconciliation/wallet-ledger-report`, { headers });
+    const data = await res.json();
+    if (!res.ok || !data.success) return alert(data.message || "Reconciliation report failed.");
+    setReconciliation(data.report);
+  };
+
+  const requestRepair = (item) => {
+    if (!window.confirm(`Append a ${item.delta > 0 ? "credit" : "debit"} ledger correction of ${Math.abs(item.delta)} ${item.coin}? Wallet balance will not be changed.`)) return;
+    setPendingRepair(item);
+    setStepUpOpen(true);
+  };
+
+  const repairWithGrant = async ({ token: stepUpToken }) => {
+    setStepUpOpen(false);
+    const res = await fetch(`${API}/api/admin/reconciliation/wallet-ledger-repair`, {
+      method: "POST",
+      headers: { ...headers, "X-Owner-Step-Up": stepUpToken },
+      body: JSON.stringify({ fingerprint: pendingRepair?.fingerprint }),
+    });
+    const data = await res.json();
+    setPendingRepair(null);
+    if (!res.ok || !data.success) return alert(data.message || "Reconciliation repair failed.");
+    await loadReconciliation();
+    alert(data.replay ? "Correction was already recorded." : "Append-only correction recorded.");
+  };
 
   const loadWallets = async () => {
     const res = await fetch(`${API}/api/wallets/admin/all`, { headers });
@@ -138,7 +169,29 @@ function AdminWallets() {
         />
         <button onClick={loadWallets}>Refresh</button>
         <button onClick={exportCsv}>Export CSV</button>
+        <button onClick={loadReconciliation}>Run Ledger Reconciliation</button>
       </div>
+
+      {reconciliation && (
+        <section className="admin-wallet-manage">
+          <h3>Wallet Ledger Reconciliation</h3>
+          <p>{reconciliation.healthy ? "No mismatches found." : `${reconciliation.discrepancies.length} mismatch(es) require review.`}</p>
+          {(reconciliation.discrepancies || []).map((item) => (
+            <div className="ledger-row" key={item.fingerprint}>
+              <strong>{item.userId} • {item.coin} • {item.bucket}</strong>
+              <p>Wallet {item.walletBalance} | Ledger {item.ledgerBalance} | Difference {item.delta}</p>
+              <button className="danger" onClick={() => requestRepair(item)}>Review and append correction</button>
+            </div>
+          ))}
+          {(reconciliation.referenceDiscrepancies || []).map((item) => (
+            <div className="ledger-row" key={`${item.kind}-${item.recordId}`}>
+              <strong>{item.kind} • {item.coin} • {item.recordId}</strong>
+              <p>Amount {item.amount} | {item.reason}</p>
+              <small>Report only: source-record reference issues are never auto-repaired.</small>
+            </div>
+          ))}
+        </section>
+      )}
 
       <div className="admin-wallet-grid">
         {filteredWallets.map((wallet) => (
@@ -214,6 +267,12 @@ function AdminWallets() {
           )}
         </div>
       )}
+      <OwnerStepUpDialog
+        open={stepUpOpen}
+        scope="wallet_reconciliation"
+        onCancel={() => { setStepUpOpen(false); setPendingRepair(null); }}
+        onVerified={repairWithGrant}
+      />
     </div>
   );
 }

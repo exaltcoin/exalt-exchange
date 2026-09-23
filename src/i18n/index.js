@@ -9,24 +9,24 @@ import React, {
 
 import { useTranslation } from "react-i18next";
 
-import i18n from "./config";
+import i18n from "./config.js";
 
 import {
   DEFAULT_LANGUAGE,
   LANGUAGES,
   getLanguageConfig,
   normalizeLanguageCode,
-} from "./languages";
+} from "./languages.js";
 
 import {
   readLanguageFromStorage,
   saveLanguageToStorage,
-} from "./storage";
+} from "./storage.js";
 
 import {
   applyLanguageDirection,
   resolveLanguageDirection,
-} from "./direction";
+} from "./direction.js";
 
 export const ACTIVE_NAMESPACES = Object.freeze([
   "common",

@@ -984,6 +984,7 @@ function ReceiveTab({ wallet, networkInfo, onCopy, copyFeedback }) {
    SEND TAB
 ========================================================= */
 function SendTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, onSent }) {
+  const chainReady = networkInfo?.certification?.ready === true;
   const availableCoins = useMemo(() => {
     const coins = balances.map((b) => b.coin);
     if (networkInfo?.nativeCoin && !coins.includes(networkInfo.nativeCoin)) {
@@ -1123,6 +1124,12 @@ function SendTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, 
 
   return (
     <div className="w3-panel">
+      {!chainReady && (
+        <div className="w3-unavailable-banner">
+          Chain execution is locked: {networkInfo?.certification?.reason || "CERTIFICATION_MISSING"}.
+          Receive and read-only wallet functions remain available.
+        </div>
+      )}
       {result?.comingSoon && (
         <div className="w3-unavailable-banner">
           Sending is not yet enabled in this environment — it must be
@@ -1203,7 +1210,7 @@ function SendTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, 
 
       <button
         className="w3-btn w3-btn-primary w3-btn-block"
-        disabled={!toAddress || !amount || addressValid === false}
+        disabled={!chainReady || !toAddress || !amount || addressValid === false}
         onClick={() => {
           // Generated ONCE per confirm attempt, here at modal-open
           // time - reused as-is by submitSend, never regenerated on
@@ -1243,6 +1250,7 @@ function SendTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, 
    SWAP TAB
 ========================================================= */
 function SwapTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, onSwapped }) {
+  const chainReady = networkInfo?.certification?.ready === true;
   const balanceCoins = useMemo(() => {
     const list = balances.map((b) => b.coin);
     if (networkInfo?.nativeCoin && !list.includes(networkInfo.nativeCoin)) {
@@ -1387,6 +1395,11 @@ function SwapTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, 
 
   return (
     <div className="w3-panel">
+      {!chainReady && (
+        <div className="w3-unavailable-banner">
+          Chain execution is locked: {networkInfo?.certification?.reason || "CERTIFICATION_MISSING"}.
+        </div>
+      )}
       {result?.comingSoon && (
         <div className="w3-unavailable-banner">
           Swaps are not yet enabled in this environment — execution must be
@@ -1496,7 +1509,7 @@ function SwapTab({ wallet, balances, networkInfo, selectedNetwork, requestJson, 
 
       <button
         className="w3-btn w3-btn-primary w3-btn-block"
-        disabled={!amount || fromCoin === toCoin || !quote?.available}
+        disabled={!chainReady || !amount || fromCoin === toCoin || !quote?.available}
         onClick={() => {
           // Generated ONCE per confirm attempt, here at modal-open
           // time - reused as-is by submitSwap, never regenerated on

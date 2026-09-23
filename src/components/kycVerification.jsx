@@ -5,7 +5,7 @@ import { useI18n } from "../i18n";
 import "./kycVerification.css";
 
 const RAW_API =
-  import.meta.env.VITE_API_URL || "https://exalt-real-backend-6b6v.onrender.com";
+  import.meta.env.VITE_API_URL || "https://api.exaltexchange.io";
 
 const API_BASE = RAW_API.endsWith("/api")
   ? RAW_API.replace("/api", "")
@@ -31,7 +31,8 @@ const token = localStorage.getItem("token");
 const [loading, setLoading] = useState(false);
 const [emailOtp, setEmailOtp] = useState("");
 const [emailVerified, setEmailVerified] = useState(false);
-const [faceVerified, setFaceVerified] = useState(false);
+const [sendingOtp, setSendingOtp] = useState(false);
+const [verifyingOtp, setVerifyingOtp] = useState(false);
 
 const [form, setForm] = useState({
   fullName: storedUser?.name || storedUser?.fullName || "",
@@ -64,23 +65,83 @@ const handleFile = (name, file) => {
 };
 
 
-  const sendEmailOtp = () => {
-    alert(t("emailOtpSent"));
+  const sendEmailOtp = async () => {
+    if (!token) {
+      alert(t("pleaseLoginFirst"));
+      return;
+    }
+
+    setSendingOtp(true);
+
+    try {
+      const res = await axios.post(
+        `${API_BASE}/api/otp/send-email`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.data?.success) {
+        alert(t("emailOtpSent"));
+      } else {
+        alert(res.data?.message || t("emailOtpSendFailed"));
+      }
+    } catch (error) {
+      alert(
+        error?.response?.data?.message || t("emailOtpSendFailed")
+      );
+    } finally {
+      setSendingOtp(false);
+    }
   };
 
-  const verifyEmail = () => {
+  const verifyEmail = async () => {
     if (!emailOtp) {
       alert(t("enterOtpFirst"));
       return;
     }
 
-    setEmailVerified(true);
-    alert(t("emailVerifiedSuccessfully"));
-  };
+    if (!token) {
+      alert(t("pleaseLoginFirst"));
+      return;
+    }
 
-  const startFaceVerification = () => {
-    setFaceVerified(true);
-    alert(t("faceVerificationCompleted"));
+    setVerifyingOtp(true);
+
+    try {
+      const res = await axios.post(
+        `${API_BASE}/api/otp/verify-email`,
+        { otp: emailOtp },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Fail closed: emailVerified only ever becomes true after an
+      // actual 2xx success response from the backend, never
+      // optimistically and never from anything the client itself
+      // decided. A wrong, expired, missing, or backend-failed OTP
+      // always leaves this false.
+      if (res.data?.success) {
+        setEmailVerified(true);
+        alert(t("emailVerifiedSuccessfully"));
+      } else {
+        setEmailVerified(false);
+        alert(res.data?.message || t("invalidOtp"));
+      }
+    } catch (error) {
+      setEmailVerified(false);
+      alert(
+        error?.response?.data?.message || t("invalidOtp")
+      );
+    } finally {
+      setVerifyingOtp(false);
+    }
   };
 
   const submitKyc = async () => {
@@ -111,8 +172,8 @@ const handleFile = (name, file) => {
         return;
       }
 
-      if (!faceVerified) {
-        alert(t("completeFaceVerification"));
+      if (!files.selfie) {
+        alert(t("uploadSelfieRequired"));
         return;
       }
 
@@ -264,30 +325,39 @@ data.append("country", form.country);
             </h3>
 
             <div className="verify-row">
-              <button type="button" onClick={sendEmailOtp}>
-                {t("sendEmailOtp")}
+              <button
+                type="button"
+                onClick={sendEmailOtp}
+                disabled={sendingOtp || emailVerified}
+              >
+                {sendingOtp ? t("sendingEmailOtp") : t("sendEmailOtp")}
               </button>
 
               <input
                 value={emailOtp}
                 onChange={(e) => setEmailOtp(e.target.value)}
                 placeholder={t("enterEmailOtp")}
+                disabled={emailVerified}
               />
 
-              <button type="button" onClick={verifyEmail}>
-                {t("verifyEmail")}
+              <button
+                type="button"
+                onClick={verifyEmail}
+                disabled={verifyingOtp || emailVerified}
+              >
+                {verifyingOtp ? t("verifyingEmailOtp") : t("verifyEmail")}
               </button>
             </div>
           </div>
 
           <div className="verify-box">
             <h3>
-              {t("faceVerification")} {faceVerified ? "✅" : "❌"}
+              {t("selfieVerification")} {files.selfie ? "✅" : "❌"}
             </h3>
 
-            <button className="face-btn" type="button" onClick={startFaceVerification}>
-              {t("startFaceVerification")}
-            </button>
+            <p className="face-verification-note">
+              {t("faceVerificationNotAutomated")}
+            </p>
           </div>
 
           <button

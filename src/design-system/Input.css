@@ -1,0 +1,62 @@
+.ex2-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--ex2-space-2);
+  background: var(--ex2-surface-2);
+  border: var(--ex2-border-width) solid var(--ex2-border-default);
+  border-radius: var(--ex2-radius-md);
+  padding-inline: var(--ex2-space-3);
+  transition: border-color var(--ex2-transition-fast),
+    box-shadow var(--ex2-transition-fast);
+}
+
+.ex2-input-wrap:focus-within {
+  border-color: var(--ex2-accent);
+  box-shadow: var(--ex2-focus-ring);
+}
+
+.ex2-input-wrap--invalid {
+  border-color: var(--ex2-danger);
+}
+.ex2-input-wrap--invalid:focus-within {
+  box-shadow: var(--ex2-focus-ring-danger);
+}
+
+.ex2-input-wrap--disabled {
+  opacity: 0.5;
+}
+
+.ex2-input-wrap--sm {
+  height: 32px;
+}
+.ex2-input-wrap--md {
+  height: 40px;
+}
+.ex2-input-wrap--lg {
+  height: 48px;
+}
+
+.ex2-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--ex2-text-primary);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-base);
+}
+
+.ex2-input:focus {
+  outline: none;
+}
+
+.ex2-input::placeholder {
+  color: var(--ex2-text-tertiary);
+}
+
+.ex2-input__adornment {
+  color: var(--ex2-text-tertiary);
+  font-size: var(--ex2-text-sm);
+  white-space: nowrap;
+}

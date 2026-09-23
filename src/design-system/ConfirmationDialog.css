@@ -1,0 +1,55 @@
+.ex2-confirmation-dialog__rows {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ex2-space-2);
+}
+
+.ex2-confirmation-dialog__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ex2-space-3);
+  font-size: var(--ex2-text-sm);
+}
+
+.ex2-confirmation-dialog__row dt {
+  color: var(--ex2-text-secondary);
+}
+
+.ex2-confirmation-dialog__row dd {
+  margin: 0;
+  color: var(--ex2-text-primary);
+  font-weight: var(--ex2-font-weight-medium);
+  text-align: end;
+}
+
+.ex2-confirmation-dialog__row--danger dd {
+  color: var(--ex2-danger);
+}
+.ex2-confirmation-dialog__row--buy dd {
+  color: var(--ex2-buy);
+}
+.ex2-confirmation-dialog__row--sell dd {
+  color: var(--ex2-sell);
+}
+.ex2-confirmation-dialog__row--emphasis dd {
+  font-size: var(--ex2-text-md);
+  font-weight: var(--ex2-font-weight-bold);
+}
+
+.ex2-confirmation-dialog__warning {
+  margin-block-start: var(--ex2-space-4);
+  padding: var(--ex2-space-3);
+  border-radius: var(--ex2-radius-md);
+  background: var(--ex2-warning-subtle-bg);
+  color: var(--ex2-warning);
+  font-size: var(--ex2-text-sm);
+}
+
+.ex2-confirmation-dialog__actions {
+  margin-block-start: var(--ex2-space-5);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ex2-space-3);
+}

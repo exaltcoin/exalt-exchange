@@ -18,7 +18,7 @@ import "./Settings.css";
 
 const RAW_API_BASE =
   import.meta.env.VITE_API_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 const API = RAW_API_BASE
   .trim()

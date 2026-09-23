@@ -1,0 +1,61 @@
+.earned-exalt {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  color: var(--ex2-text-primary, #f5f7fa);
+  overflow-wrap: anywhere;
+}
+
+.earned-exalt__intro,
+.earned-exalt__allocation,
+.earned-exalt__total {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--ex2-border-default, #303846);
+  border-radius: 16px;
+  background: var(--ex2-surface-1, #0d1117);
+}
+
+.earned-exalt h2,
+.earned-exalt h3 { margin-block: 0 12px; }
+.earned-exalt p { line-height: 1.6; }
+.earned-exalt__intro p:last-child { margin-bottom: 0; }
+.earned-exalt__totals,
+.earned-exalt__details { display: grid; gap: 16px; margin: 0; }
+.earned-exalt__totals { grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); }
+.earned-exalt__details { grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); }
+.earned-exalt dt,
+.earned-exalt__muted { color: var(--ex2-text-secondary, #a8b0bd); }
+.earned-exalt dd { margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+.earned-exalt__total dd { font-size: 1.15rem; font-weight: 700; }
+.earned-exalt__allocations { display: grid; gap: 20px; min-width: 0; }
+.earned-exalt__claim { display: grid; gap: 10px; margin-top: 20px; }
+.earned-exalt__claim p { margin: 0; }
+.earned-exalt__claim input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--ex2-border-strong, #536075);
+  border-radius: 10px;
+  background: var(--ex2-surface-0, #05070c);
+  color: inherit;
+  font: inherit;
+}
+.earned-exalt__claim input:disabled { opacity: 0.6; }
+.earned-exalt__claim input:focus-visible,
+.earned-exalt__consent input:focus-visible { outline: 2px solid var(--ex2-accent, #f0b90b); outline-offset: 3px; }
+.earned-exalt__claim .ex2-btn { justify-self: start; }
+.earned-exalt__dialog { box-sizing: border-box; max-width: calc(100vw - 32px); overflow-wrap: anywhere; }
+.earned-exalt__terms-content { white-space: pre-wrap; line-height: 1.6; margin-block: 20px; }
+.earned-exalt__consent { display: flex; align-items: flex-start; gap: 10px; line-height: 1.6; margin-block: 20px; }
+.earned-exalt__consent input { flex-shrink: 0; width: 20px; height: 20px; margin-top: 3px; }
+.earned-exalt__dialog .ex2-alert { margin-block: 16px; }
+
+@media (max-width: 600px) {
+  .earned-exalt__intro,
+  .earned-exalt__allocation,
+  .earned-exalt__total { padding: 16px; }
+  .earned-exalt__claim .ex2-btn { width: 100%; }
+}

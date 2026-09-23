@@ -1,0 +1,124 @@
+.ex2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ex2-space-2);
+  font-family: var(--ex2-font-family);
+  font-weight: var(--ex2-font-weight-semibold);
+  border-radius: var(--ex2-radius-md);
+  border: var(--ex2-border-width) solid transparent;
+  cursor: pointer;
+  transition: background-color var(--ex2-transition-fast),
+    border-color var(--ex2-transition-fast),
+    color var(--ex2-transition-fast),
+    opacity var(--ex2-transition-fast);
+  white-space: nowrap;
+}
+
+.ex2-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ex2-focus-ring);
+}
+
+.ex2-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ex2-btn--full {
+  width: 100%;
+}
+
+/* Sizes */
+.ex2-btn--sm {
+  height: 32px;
+  padding: 0 var(--ex2-space-3);
+  font-size: var(--ex2-text-sm);
+}
+
+.ex2-btn--md {
+  height: 40px;
+  padding: 0 var(--ex2-space-4);
+  font-size: var(--ex2-text-base);
+}
+
+.ex2-btn--lg {
+  height: 48px;
+  padding: 0 var(--ex2-space-5);
+  font-size: var(--ex2-text-md);
+}
+
+/* Variants */
+.ex2-btn--primary {
+  background: var(--ex2-accent);
+  color: var(--ex2-text-on-accent);
+}
+.ex2-btn--primary:hover:not(:disabled) {
+  background: var(--ex2-accent-hover);
+}
+.ex2-btn--primary:active:not(:disabled) {
+  background: var(--ex2-accent-active);
+}
+
+.ex2-btn--buy {
+  background: var(--ex2-buy);
+  color: var(--ex2-text-on-danger);
+}
+.ex2-btn--buy:hover:not(:disabled) {
+  background: var(--ex2-buy-hover);
+}
+
+.ex2-btn--sell {
+  background: var(--ex2-sell);
+  color: var(--ex2-text-on-danger);
+}
+.ex2-btn--sell:hover:not(:disabled) {
+  background: var(--ex2-sell-hover);
+}
+
+.ex2-btn--danger {
+  background: var(--ex2-danger);
+  color: var(--ex2-text-on-danger);
+}
+.ex2-btn--danger:hover:not(:disabled) {
+  background: var(--ex2-sell-hover);
+}
+
+.ex2-btn--outline {
+  background: transparent;
+  border-color: var(--ex2-border-strong);
+  color: var(--ex2-text-primary);
+}
+.ex2-btn--outline:hover:not(:disabled) {
+  background: var(--ex2-surface-2);
+}
+
+.ex2-btn--ghost {
+  background: transparent;
+  color: var(--ex2-text-secondary);
+}
+.ex2-btn--ghost:hover:not(:disabled) {
+  background: var(--ex2-surface-2);
+  color: var(--ex2-text-primary);
+}
+
+.ex2-btn__spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: ex2-spin 0.6s linear infinite;
+}
+
+@keyframes ex2-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ex2-btn__spinner {
+    animation: none;
+  }
+}

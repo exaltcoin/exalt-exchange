@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import API_BASE_URL, { socket } from "../api";
+import { useI18n } from "../i18n/index.js";
 import "./NotificationBell.css";
 
 function NotificationBell({ setPage }) {
+  const { t } = useI18n();
   const API_BASE = API_BASE_URL || "https://api.exaltexchange.io";
   const API = API_BASE.endsWith("/api") ? API_BASE.replace("/api", "") : API_BASE;
 
@@ -74,12 +76,12 @@ function NotificationBell({ setPage }) {
       {open && (
         <div className="notification-bell-panel">
           <div className="notification-bell-head">
-            <strong>Notifications</strong>
-            <button onClick={markAllRead}>Mark all read</button>
+            <strong>{t("notifications")}</strong>
+            <button onClick={markAllRead}>{t("markAllRead")}</button>
           </div>
 
           {notifications.length === 0 ? (
-            <p className="notification-bell-empty">No notifications yet.</p>
+            <p className="notification-bell-empty">{t("noNotifications")}</p>
           ) : (
             notifications.slice(0, 6).map((item) => (
               <div
@@ -100,7 +102,7 @@ function NotificationBell({ setPage }) {
              if (setPage) setPage("notification-center");
             }}
           >
-            View All Notifications
+            {t("viewAllNotifications")}
           </button>
         </div>
       )}

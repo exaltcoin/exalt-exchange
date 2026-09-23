@@ -1,23 +1,25 @@
-import { io } from "socket.io-client";
+import { getSocket } from "./lib/apiClient.js";
 
 const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com/api";
+  "https://api.exaltexchange.io/api";
 
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com";
-
-export const socket = io(SOCKET_URL, {
-  transports: ["websocket", "polling"],
-  withCredentials: true,
-  reconnection: true,
-  reconnectionAttempts: 5,
-  timeout: 10000,
-});
+/*
+  Socket fix (external recovery repo, commit f78c11117): this file
+  used to create its own, separate Socket.IO client via its own
+  io(SOCKET_URL, {...}) call - a real duplicate of the canonical
+  shared client in lib/apiClient.js, meaning the app briefly opened
+  two independent socket connections to the backend (each with its
+  own event listeners, reconnection state, and server-side
+  connection slot) depending on which module a given file happened
+  to import `socket` from. Now reuses the one canonical client -
+  same exported name/shape (`socket`) so none of the ~11 existing
+  `import { socket } from "../api"` call sites need to change.
+*/
+export const socket = getSocket();
 
 async function apiRequest(path, options = {}) {
   if (!path || !path.startsWith("/")) {

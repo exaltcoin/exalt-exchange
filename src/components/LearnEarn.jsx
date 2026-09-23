@@ -7,7 +7,7 @@ import "./LearnEarn.css";
 
 const API_BASE =
   import.meta.env.VITE_API_URL ||
-  "https://exalt-real-backend-6b6v.onrender.com";
+  "https://api.exaltexchange.io";
 
 export default function LearnEarn() {
   const { t } = useI18n();

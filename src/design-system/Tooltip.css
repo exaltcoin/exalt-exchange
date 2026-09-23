@@ -1,0 +1,47 @@
+.ex2-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.ex2-tooltip {
+  position: absolute;
+  z-index: var(--ex2-z-tooltip);
+  background: var(--ex2-surface-3);
+  border: var(--ex2-border-width) solid var(--ex2-border-strong);
+  color: var(--ex2-text-primary);
+  font-family: var(--ex2-font-family);
+  font-size: var(--ex2-text-xs);
+  padding: var(--ex2-space-1) var(--ex2-space-2);
+  border-radius: var(--ex2-radius-sm);
+  white-space: nowrap;
+  box-shadow: var(--ex2-shadow-md);
+  pointer-events: none;
+}
+
+.ex2-tooltip--top {
+  inset-block-end: 100%;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  margin-block-end: var(--ex2-space-1);
+}
+
+.ex2-tooltip--bottom {
+  inset-block-start: 100%;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  margin-block-start: var(--ex2-space-1);
+}
+
+.ex2-tooltip--start {
+  inset-inline-end: 100%;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  margin-inline-end: var(--ex2-space-1);
+}
+
+.ex2-tooltip--end {
+  inset-inline-start: 100%;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  margin-inline-start: var(--ex2-space-1);
+}

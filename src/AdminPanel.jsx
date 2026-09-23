@@ -196,7 +196,7 @@ const copyAdminText = async (text, label = "Copied") => {
 
 const openWeb3Explorer = (tx) => {
   if (!tx.hash || !String(tx.hash).startsWith("0x")) {
-    alert("Test transaction hash. Explorer not available.");
+    alert("Transaction hash is unavailable. Explorer cannot be opened.");
     return;
   }
 
