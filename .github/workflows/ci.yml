@@ -1,0 +1,30 @@
+name: frontend-ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - release/**
+      - integration/**
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run isolated frontend tests
+        shell: bash
+        run: |
+          loader='data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("./tests/helpers/jsxLoader.mjs", pathToFileURL("./"));'
+          for file in tests/*.test.mjs; do
+            node --import "$loader" --test "$file"
+          done
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high

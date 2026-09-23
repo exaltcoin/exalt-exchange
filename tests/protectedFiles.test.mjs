@@ -12,7 +12,9 @@ import { readFile } from "node:fs/promises";
 */
 
 const expected = {
-  "src/components/Web3Wallet.jsx": "9E465096B6B1B0348DBBB0AC6C598A236989C9E1183904FB9A09089B85073D07",
+  // Authorized v1.0.24 chain-certification readiness gate; dedicated coverage:
+  // tests/web3ChainCertificationFrontend.test.mjs.
+  "src/components/Web3Wallet.jsx": "7301D7B5F15CDBB123C3D95A4453D06B701607D555F35E34DA361A979DF8CABB",
   "src/components/Web3Wallet.css": "46ED83537A98C6D18FC6FA287867059A0467E40E912EAE301CCAC00A1234A78D",
   /*
     Intentionally updated hash: src/lib/apiClient.js was explicitly,
